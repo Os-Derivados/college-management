@@ -4,34 +4,37 @@ namespace college_management.Modelos;
 
 public sealed class Cargo
 {
-    public string? Nome;
+    public readonly string? Nome;
     private string[]? _permissoes;
 
-    public Cargo(string nome, string cargo)
+    public Cargo(string nome)
     {
         Nome = nome;
 
-        InicializarPermissoes(cargo);
+        InicializarPermissoes(nome);
     }
 
     private void InicializarPermissoes(string cargo)
     {
         _permissoes = cargo switch
         {
-            CargosDeAcesso.CargoAlunos => [PermissoesDeAcesso.PermissaoAcessarCursos],
+            CargosDeAcesso.CargoAlunos => 
+            [
+                PermissoesDeAcesso.PermissaoAcessarCursos
+            ],
             CargosDeAcesso.CargoGestores =>
             [
                 PermissoesDeAcesso.PermissaoGerenciarMatriculas,
                 PermissoesDeAcesso.PermissaoGerenciarCursos,
-                PermissoesDeAcesso.PermissaoCadastrarAlunos
+                PermissoesDeAcesso.PermissaoGerenciarAlunos
             ],
             CargosDeAcesso.CargoAdministradores =>
             [
                 PermissoesDeAcesso.PermissaoGerenciarMatriculas,
                 PermissoesDeAcesso.PermissaoGerenciarCursos,
-                PermissoesDeAcesso.PermissaoCadastrarAlunos,
-                PermissoesDeAcesso.PermissaoCadastrarGestores,
-                PermissoesDeAcesso.PermissaoCadastrarAdministradores
+                PermissoesDeAcesso.PermissaoGerenciarAlunos,
+                PermissoesDeAcesso.PermissaoGerenciarGestores,
+                PermissoesDeAcesso.PermissaoGerenciarAdministradores
             ],
             _ => throw new ArgumentOutOfRangeException(
                 nameof(cargo),
