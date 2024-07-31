@@ -7,8 +7,8 @@ public sealed class Usuario
     private static double _contagemId = 10000000000;
     public readonly string? Id;
     private readonly Cargo? _cargo;
-    public string? Nome;
-    private string? _senha;
+    public readonly string? Nome;
+    private readonly string? _senha;
 
     public Usuario(string nome, string senha, Cargo cargo)
     {
@@ -20,8 +20,15 @@ public sealed class Usuario
         _contagemId++;
     }
 
+    public Cargo Cargo => _cargo;
+
     public bool Login(string senha)
     {
         return _senha.Equals(senha);
+    }
+
+    public override string ToString()
+    {
+        return $"{Nome} - {_cargo.Nome}";
     }
 }
