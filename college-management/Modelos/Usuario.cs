@@ -2,7 +2,7 @@ using System.Globalization;
 
 namespace college_management.Modelos;
 
-public class Usuario
+public sealed class Usuario
 {
     public Usuario(string nome, Cargo cargo, string senha)
     {
