@@ -2,7 +2,7 @@ using System.Globalization;
 
 namespace college_management.Modelos;
 
-public sealed class Usuario
+public class Usuario
 {
     public Usuario(string nome, Cargo cargo, string senha)
     {
@@ -21,9 +21,9 @@ public sealed class Usuario
     public readonly Cargo? Cargo;
     private string? _senha { get; set; }
 
-    public bool Autenticar(string nomeUsuario, string senha)
+    public static bool Autenticar(Usuario usuario, string nomeUsuario, string senha)
     {
-        return (Nome == nomeUsuario) && (_senha == senha);
+        return (usuario.Nome == nomeUsuario) && (usuario._senha == senha);
     }
 
     public override string ToString()
