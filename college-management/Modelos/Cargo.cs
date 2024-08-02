@@ -5,7 +5,7 @@ namespace college_management.Modelos;
 public sealed class Cargo
 {
     public readonly string? Nome;
-    private string[]? _permissoes;
+    private string[]? Permissoes { get; set; }
 
     public Cargo(string nome)
     {
@@ -16,7 +16,7 @@ public sealed class Cargo
 
     private void InicializarPermissoes(string cargo)
     {
-        _permissoes = cargo switch
+        Permissoes = cargo switch
         {
             CargosDeAcesso.CargoAlunos => 
             [
@@ -43,8 +43,8 @@ public sealed class Cargo
         };
     }
 
-    public bool VerificarPermissao(string permissao)
+    public static bool VerificarPermissao(Cargo cargo, string permissao)
     {
-        return _permissoes.Any(p => p == permissao);
+        return cargo.Permissoes.Any(p => p == permissao);
     }
 }
