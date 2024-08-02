@@ -7,7 +7,7 @@ public enum Turno
     Matutino, Vespertino, Noturno, Integral
 }
 
-public class Materia
+public class Materia : Modelo
 {
     public Materia(string nome, Turno turno, int cargaHoraria)
     {
@@ -22,7 +22,7 @@ public class Materia
     private static double _contagemId = 10000000000;
     
     public string? Nome { get; set; }
-    public readonly string? Id;
+    public override string? Id { get; set; }
     public Turno Turno { get; set; }
     public int CargaHoraria { get; set; }
 

@@ -3,7 +3,7 @@ using System.Text;
 
 namespace college_management.Modelos;
 
-public class Curso
+public class Curso : Modelo
 {
     public Curso(string nome, Materia[] gradeCurricular)
     {
@@ -17,7 +17,7 @@ public class Curso
     private static double _contagemId = 10000000000;
     
     public string? Nome { get; set; }
-    public readonly string Id;
+    public override string? Id { get; set; }
     public Materia[] GradeCurricular { get; set; }
 
     public override string ToString()

@@ -2,17 +2,24 @@ using college_management.Constantes;
 
 namespace college_management.Modelos;
 
-public sealed class Cargo
+public sealed class Cargo : Modelo
 {
-    public readonly string? Nome;
-    private string[]? Permissoes { get; set; }
-
     public Cargo(string nome)
     {
         Nome = nome;
-
+        Id = _contagemId.ToString();
+        
         InicializarPermissoes(nome);
+
+        _contagemId++;
     }
+    
+    private static double _contagemId = 10000000000;
+    
+    public readonly string? Nome;
+    public override string? Id { get; set; }
+    private string[]? Permissoes { get; set; }
+
 
     private void InicializarPermissoes(string cargo)
     {

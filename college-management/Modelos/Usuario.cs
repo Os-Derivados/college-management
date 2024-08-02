@@ -2,10 +2,11 @@ using System.Globalization;
 
 namespace college_management.Modelos;
 
-public sealed class Usuario
+public sealed class Usuario : Modelo
 {
-    public Usuario(string nome, Cargo cargo, string senha)
+    public Usuario(string login, string nome, Cargo cargo, string senha)
     {
+        Login = login;
         Nome = nome;
         Id = _contagemId.ToString(CultureInfo.InvariantCulture);
         Cargo = cargo;
@@ -16,18 +17,19 @@ public sealed class Usuario
 
     private static double _contagemId = 10000000000;
     
-    public readonly string? Nome;
-    public readonly string? Id;
+    public readonly string? Login;
+    public string? Nome { get; set; }
+    public override string? Id { get; set; }
     public readonly Cargo? Cargo;
     private string? _senha { get; set; }
 
     public static bool Autenticar(Usuario usuario, string nomeUsuario, string senha)
     {
-        return (usuario.Nome == nomeUsuario) && (usuario._senha == senha);
+        return (usuario.Login == nomeUsuario) && (usuario._senha == senha);
     }
 
     public override string ToString()
     {
-        return $"{Id} - {Nome} - {Cargo.Nome}";
+        return $"{Id} - {Login} - {Nome} - {Cargo.Nome}";
     }
 }
