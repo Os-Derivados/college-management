@@ -4,31 +4,30 @@ namespace college_management.Modelos;
 
 public sealed class Usuario
 {
-    private static double _contagemId = 10000000000;
-    public readonly string? Id;
-    private readonly Cargo? _cargo;
-    public readonly string? Nome;
-    private readonly string? _senha;
-
-    public Usuario(string nome, string senha, Cargo cargo)
+    public Usuario(string nome, Cargo cargo, string senha)
     {
-        Id = _contagemId.ToString(CultureInfo.InvariantCulture);
         Nome = nome;
+        Id = _contagemId.ToString(CultureInfo.InvariantCulture);
+        Cargo = cargo;
         _senha = senha;
-        _cargo = cargo;
-        
+
         _contagemId++;
     }
 
-    public Cargo Cargo => _cargo;
+    private static double _contagemId = 10000000000;
+    
+    public readonly string? Nome;
+    public readonly string? Id;
+    public readonly Cargo? Cargo;
+    private string? _senha { get; set; }
 
-    public bool Login(string senha)
+    public bool Autenticar(string nomeUsuario, string senha)
     {
-        return _senha.Equals(senha);
+        return (Nome == nomeUsuario) && (_senha == senha);
     }
 
     public override string ToString()
     {
-        return $"{Nome} - {_cargo.Nome}";
+        return $"{Id} - {Nome} - {Cargo.Nome}";
     }
 }
