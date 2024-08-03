@@ -10,6 +10,8 @@ public sealed class Repositorio<T> : IRepositorio<T> where T : Modelo
     {
         _servicoDeArquivos = new ServicoDeArquivos<T>();
         _baseDeDados = new List<T>();
+
+        InicializarBase().Wait();
     }
 
     private List<T>? _baseDeDados;
@@ -29,9 +31,6 @@ public sealed class Repositorio<T> : IRepositorio<T> where T : Modelo
 
     public async Task<List<T>> ObterTodos()
     {
-        if (_baseDeDados.Count is 0)
-           _baseDeDados = await _servicoDeArquivos.CarregarAssincrono();
-        
         return _baseDeDados;
     }
 
@@ -65,5 +64,10 @@ public sealed class Repositorio<T> : IRepositorio<T> where T : Modelo
         
         _baseDeDados.Remove(modelo);
         Dispose();
+    }
+
+    public async Task InicializarBase()
+    {
+      _baseDeDados = await _servicoDeArquivos.CarregarAssincrono();
     }
 }
