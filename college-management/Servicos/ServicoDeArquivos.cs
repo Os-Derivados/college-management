@@ -1,7 +1,7 @@
 using System.Text.Json;
 using college_management.Modelos;
 
-namespace college_management.Dados.Servicos;
+namespace college_management.Servicos;
 
 public sealed class ServicoDeArquivos<T> where T : Modelo
 {
