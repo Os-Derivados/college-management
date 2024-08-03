@@ -17,11 +17,11 @@ public sealed class Usuario : Modelo
 
     private static double _contagemId = 10000000000;
     
-    public readonly string? Login;
+    public string? Login;
     public string? Nome { get; set; }
     public override string? Id { get; set; }
-    public readonly Cargo? Cargo;
-    private string? _senha { get; set; }
+    public Cargo? Cargo { get; set; }
+    public string? _senha { get; set; }
 
     public static bool Autenticar(Usuario usuario, string nomeUsuario, string senha)
     {
