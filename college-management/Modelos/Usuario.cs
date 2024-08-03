@@ -17,7 +17,7 @@ public sealed class Usuario : Modelo
 
     private static double _contagemId = 10000000000;
     
-    public string? Login;
+    public string? Login { get; set; }
     public string? Nome { get; set; }
     public override string? Id { get; set; }
     public Cargo? Cargo { get; set; }
