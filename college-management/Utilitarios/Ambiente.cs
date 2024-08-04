@@ -1,10 +1,13 @@
 namespace college_management.Utilitarios;
 
-public static class Ambiente
+public sealed class Ambiente
 {
-    public static Dictionary<string, string> CarregarVariaveis()
+    public readonly Dictionary<string, string> variaveis = CarregarVariaveis();
+    
+    private static Dictionary<string, string> CarregarVariaveis()
     {
         Dictionary<string, string> variaveisDeAmbiente = new();
+        
         var caminhoDoArquivo = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
             "OsDerivados.CollegeManagement", ".env");
         
