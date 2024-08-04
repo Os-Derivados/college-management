@@ -1,3 +1,4 @@
+using System.Text.Json;
 using college_management.Dados.Repositorios.Interfaces;
 using college_management.Modelos;
 using college_management.Servicos;
@@ -6,8 +7,27 @@ namespace college_management.Dados.Repositorios;
 
 public abstract class Repositorio<T> : IRepositorio<T> where T : Modelo
 {
-    protected List<T>? _baseDeDados = new();
-    protected readonly ServicoDeArquivos<T> _servicoDeArquivos = new();
+    protected List<T>? _baseDeDados;
+    private readonly ServicoDeArquivos<T> _servicoDeArquivos = new();
+
+    protected Repositorio()
+    {
+        if (_baseDeDados.Count is not 0)
+            return;
+
+        Task.Run(async () =>
+        {
+            try
+            {
+                using var dadosSalvos = _servicoDeArquivos.CarregarAssincrono();
+                _baseDeDados = await dadosSalvos;
+            }
+            catch (Exception e) when (e is JsonException or AggregateException or IOException)
+            {
+                _baseDeDados = [];
+            }
+        }).Wait();
+    }
     
     public async void Dispose()
     {
@@ -21,25 +41,19 @@ public abstract class Repositorio<T> : IRepositorio<T> where T : Modelo
         await Task.Run(Dispose);
     }
 
-    public async Task<List<T>> ObterTodos()
+    public List<T> ObterTodos()
     {
-        if (_baseDeDados.Count is 0)
-            _baseDeDados = await _servicoDeArquivos.CarregarAssincrono();
-        
         return _baseDeDados;
     }
 
-    public async Task<T> ObterPorId(string? id)
+    public T ObterPorId(string? id)
     {
-        if (_baseDeDados.Count is 0)
-            _baseDeDados = await _servicoDeArquivos.CarregarAssincrono();
-        
         return _baseDeDados.FirstOrDefault(t => t.Id == id);
     }
 
     public async Task Atualizar(T modelo)
     {
-        var modeloAntigo = await ObterPorId(modelo.Id);
+        var modeloAntigo = ObterPorId(modelo.Id);
 
         if (modeloAntigo is null)
         {
@@ -55,7 +69,7 @@ public abstract class Repositorio<T> : IRepositorio<T> where T : Modelo
 
     public async Task Remover(string? id)
     {
-        var modelo = await ObterPorId(id);
+        var modelo = ObterPorId(id);
 
         if (modelo is null)
             return;
