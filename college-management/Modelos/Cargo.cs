@@ -1,3 +1,4 @@
+using System.Globalization;
 using college_management.Constantes;
 
 namespace college_management.Modelos;
@@ -7,7 +8,7 @@ public sealed class Cargo : Modelo
     public Cargo(string nome)
     {
         Nome = nome;
-        Id = _contagemId.ToString();
+        Id = _contagemId.ToString(CultureInfo.InvariantCulture);
         
         InicializarPermissoes(nome);
 
@@ -16,9 +17,9 @@ public sealed class Cargo : Modelo
     
     private static double _contagemId = 10000000000;
     
-    public readonly string? Nome;
+    public string? Nome;
     public override string? Id { get; set; }
-    private string[]? Permissoes { get; set; }
+    public string[]? Permissoes { get; set; }
 
 
     private void InicializarPermissoes(string cargo)
