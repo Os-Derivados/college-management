@@ -4,16 +4,10 @@ using college_management.Servicos;
 
 namespace college_management.Dados.Repositorios;
 
-public sealed class Repositorio<T> : IRepositorio<T> where T : Modelo
+public abstract class Repositorio<T> : IRepositorio<T> where T : Modelo
 {
-    public Repositorio()
-    {
-        _servicoDeArquivos = new ServicoDeArquivos<T>();
-        _baseDeDados = new List<T>();
-    }
-
-    private List<T>? _baseDeDados;
-    private readonly ServicoDeArquivos<T> _servicoDeArquivos;
+    protected List<T>? _baseDeDados = new();
+    protected readonly ServicoDeArquivos<T> _servicoDeArquivos = new();
     
     public async void Dispose()
     {
