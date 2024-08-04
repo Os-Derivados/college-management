@@ -10,8 +10,6 @@ public sealed class Repositorio<T> : IRepositorio<T> where T : Modelo
     {
         _servicoDeArquivos = new ServicoDeArquivos<T>();
         _baseDeDados = new List<T>();
-
-        InicializarBase().Wait();
     }
 
     private List<T>? _baseDeDados;
@@ -22,52 +20,53 @@ public sealed class Repositorio<T> : IRepositorio<T> where T : Modelo
         await _servicoDeArquivos.SalvarAssicrono(_baseDeDados);
     }
 
-    public void Adicionar(T modelo)
+    public async Task Adicionar(T modelo)
     {
         _baseDeDados.Add(modelo);
-        
-        Dispose();
+
+        await Task.Run(Dispose);
     }
 
     public async Task<List<T>> ObterTodos()
     {
+        if (_baseDeDados.Count is 0)
+            _baseDeDados = await _servicoDeArquivos.CarregarAssincrono();
+        
         return _baseDeDados;
     }
 
-    public T ObterPorId(string? id)
+    public async Task<T> ObterPorId(string? id)
     {
+        if (_baseDeDados.Count is 0)
+            _baseDeDados = await _servicoDeArquivos.CarregarAssincrono();
+        
         return _baseDeDados.FirstOrDefault(t => t.Id == id);
     }
 
-    public void Atualizar(T modelo)
+    public async Task Atualizar(T modelo)
     {
-        var modeloAntigo = ObterPorId(modelo.Id);
+        var modeloAntigo = await ObterPorId(modelo.Id);
 
         if (modeloAntigo is null)
         {
-            Adicionar(modelo);
+            await Adicionar(modelo);
             
             return;
         }
         
-        Remover(modelo.Id);
-        Adicionar(modelo);
-        Dispose();
+        await Remover(modelo.Id);
+        await Adicionar(modelo);
+        await Task.Run(Dispose);
     }
 
-    public void Remover(string? id)
+    public async Task Remover(string? id)
     {
-        var modelo = ObterPorId(id);
+        var modelo = await ObterPorId(id);
 
         if (modelo is null)
             return;
         
         _baseDeDados.Remove(modelo);
-        Dispose();
-    }
-
-    public async Task InicializarBase()
-    {
-      _baseDeDados = await _servicoDeArquivos.CarregarAssincrono();
+        await Task.Run(Dispose);
     }
 }
