@@ -9,6 +9,7 @@ public static class Contexto
     public static void Inicializar(Usuario usuario)
     {
         var estadoAtual = EstadoDoApp.Contexto;
+        int contextoEscolhido;
         
         do
         {
@@ -17,16 +18,16 @@ public static class Contexto
 
             var opcaoEscolhida = Console.ReadLine();
 
-            var opcaoValida = int.TryParse(opcaoEscolhida, out var resultado);
+            var opcaoValida = int.TryParse(opcaoEscolhida, out contextoEscolhido);
 
             if (!opcaoValida) continue;
 
-            if (resultado is 0)
+            if (contextoEscolhido is 0)
                 estadoAtual = EstadoDoApp.Sair;
     
             Console.Clear();
         } while (estadoAtual is EstadoDoApp.Contexto);
-
+        
         Console.WriteLine("Saindo...");
     }
     
