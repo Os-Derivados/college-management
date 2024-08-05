@@ -17,7 +17,7 @@ public sealed class ServicoDeArquivos<T> where T : Modelo
             Directory.CreateDirectory(Path.GetDirectoryName(_caminhoDoArquivo)!);
 
         if (!File.Exists(_caminhoDoArquivo))
-            File.Create(_caminhoDoArquivo);
+            File.Create(_caminhoDoArquivo).Dispose();
     }
 
     public async Task SalvarAssicrono(List<T>? items)
