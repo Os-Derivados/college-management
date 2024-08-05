@@ -11,12 +11,18 @@ public sealed class ServicoDeArquivos<T> where T : Modelo
                 "OsDerivados.CollegeManagement", $"{typeof(T)}_db.json"
             );
 
-    public async Task SalvarAssicrono(List<T>? items)
+    public ServicoDeArquivos()
     {
         if (!Directory.Exists(Path.GetDirectoryName(_caminhoDoArquivo)!))
             Directory.CreateDirectory(Path.GetDirectoryName(_caminhoDoArquivo)!);
 
-        await using var fs = File.Create(_caminhoDoArquivo);
+        if (!File.Exists(_caminhoDoArquivo))
+            File.Create(_caminhoDoArquivo);
+    }
+
+    public async Task SalvarAssicrono(List<T>? items)
+    {
+        await using var fs = File.OpenWrite(_caminhoDoArquivo);
         await JsonSerializer.SerializeAsync(fs, items);
     }
 
@@ -29,7 +35,7 @@ public sealed class ServicoDeArquivos<T> where T : Modelo
         }
         catch (Exception e) when (e is FileNotFoundException or DirectoryNotFoundException)
         {
-            return null;
+            throw;
         }
     }
 }
