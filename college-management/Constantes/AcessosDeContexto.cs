@@ -11,4 +11,22 @@ public static class AcessosDeContexto
     public const string AcessoCargos = "Acessar Cargos";
     public const string AcessoMaterias = "Acessar Matérias";
     public const string AcessoUsuarios = "Acessar Usuários";
+
+    public static readonly string[] AcessoAlunos =
+        [
+            AcessoGradeHoraria, 
+            AcessoGradeCurricular, 
+            AcessoNotas, 
+            AcessoFinanceiro, 
+            AcessoMatricula
+        ];
+
+    public static readonly string[] AcessoGestoresAdministradores =
+        [
+            ..AcessoAlunos,
+            AcessoCursos,
+            AcessoCargos,
+            AcessoMaterias,
+            AcessoUsuarios
+        ];
 }
