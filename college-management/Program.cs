@@ -7,11 +7,11 @@ Ambiente ambiente = new();
 
 await Seed.IniciarBaseDeDados(baseDeDados, ambiente.variaveis);
 
-var parametroValido = bool.TryParse(args[0], out var modoDesenvolvimento);
+_ = bool.TryParse(args[0], out var modoDesenvolvimento);
 
-var usuarioLogado = Autenticacao.Login(modoDesenvolvimento, baseDeDados.usuarios);
+var usuarioLogado = MiddlewareAutenticacao.Login(modoDesenvolvimento, baseDeDados.usuarios);
 
-Contexto.Inicializar(usuarioLogado);
+MiddlewareContexto.Inicializar(usuarioLogado);
 
 public enum EstadoDoApp
 {

@@ -4,7 +4,7 @@ using college_management.Modelos;
 
 namespace college_management.Middlewares;
 
-public static class Contexto
+public static class MiddlewareContexto
 {
     public static void Inicializar(Usuario usuario)
     {
@@ -33,26 +33,24 @@ public static class Contexto
     
     private static void ListarContextos(Usuario usuario)
     {
-        StringBuilder contextos = new();
-        contextos.AppendLine("0. Sair");
+        StringBuilder contexto = new();
 
-        switch (usuario.Cargo.Nome)
+        string[] opcoes = usuario.Cargo.Nome switch
         {
-            case CargosDeAcesso.CargoAlunos:
-                contextos.AppendLine("1. Cursos");
+            CargosDeAcesso.CargoAlunos => 
+                AcessosDeContexto.AcessoAlunos,
+            CargosDeAcesso.CargoGestores 
+                or CargosDeAcesso.CargoAdministradores => 
+                    AcessosDeContexto.AcessoGestoresAdministradores,
+            _ => 
+                throw new InvalidOperationException("O usuário não possui um cargo validado")
+        };
 
-                break;
-            
-            case CargosDeAcesso.CargoGestores or CargosDeAcesso.CargoAdministradores:
-                contextos.AppendLine("1. Cursos");
-                contextos.AppendLine("2. Cadastros");
-
-                break;
-            
-            default:
-                throw new InvalidOperationException("O usuário não possui um cargo válido");
+        foreach (var opcao in opcoes)
+        {
+            contexto.AppendLine(opcao);
         }
         
-        Console.WriteLine(contextos);
+        Console.WriteLine(contexto);
     }
 }

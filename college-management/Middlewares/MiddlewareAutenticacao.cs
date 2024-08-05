@@ -4,7 +4,7 @@ using college_management.Modelos;
 
 namespace college_management.Middlewares;
 
-public static class Autenticacao
+public static class MiddlewareAutenticacao
 {
     public static Usuario Login(bool modoDesenvolvimento, RepositorioUsuarios baseDeUsuarios)
     {
@@ -29,8 +29,8 @@ public static class Autenticacao
             // 2. Verificar se usuario existe
             // 2.1. Se o usuário existe, você pede a senha dele
             // 2.1.1. Autenticar o usário 
-            
-            
+
+            estadoAtual = EstadoDoApp.Contexto;
         } while (estadoAtual is EstadoDoApp.Login);
 
         return new Usuario("thiago.santos", "Thiago", new Cargo(CargosDeAcesso.CargoAlunos), "12345");
