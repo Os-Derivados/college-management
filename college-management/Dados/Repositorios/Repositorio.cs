@@ -12,7 +12,7 @@ public abstract class Repositorio<T> : IRepositorio<T> where T : Modelo
 
     protected Repositorio()
     {
-        if (_baseDeDados.Count is not 0)
+        if (_baseDeDados is not null)
             return;
 
         Task.Run(async () =>
