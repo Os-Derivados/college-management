@@ -1,9 +1,8 @@
 using System.Globalization;
-using college_management.Dados.Modelos;
 
-namespace college_management.Modelos;
+namespace college_management.Dados.Modelos;
 
-public sealed class Usuario : Modelo
+public class Usuario : Modelo
 {
     public Usuario(string login,
                    string nome,
@@ -23,7 +22,6 @@ public sealed class Usuario : Modelo
 
     public string? Login { get; set; }
     public string? Nome { get; set; }
-    public override string? Id { get; set; }
     public Cargo? Cargo { get; set; }
     public string? Senha { get; set; }
 
