@@ -1,6 +1,6 @@
 using System.Text.Json;
+using college_management.Dados.Modelos;
 using college_management.Dados.Repositorios.Interfaces;
-using college_management.Modelos;
 using college_management.Servicos;
 
 namespace college_management.Dados.Repositorios;

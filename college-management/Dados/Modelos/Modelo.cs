@@ -1,4 +1,4 @@
-namespace college_management.Modelos;
+namespace college_management.Dados.Modelos;
 
 public abstract class Modelo
 {

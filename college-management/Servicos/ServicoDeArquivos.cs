@@ -1,5 +1,5 @@
 using System.Text.Json;
-using college_management.Modelos;
+using college_management.Dados.Modelos;
 
 namespace college_management.Servicos;
 
