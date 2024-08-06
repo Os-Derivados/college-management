@@ -34,8 +34,13 @@ public abstract class Repositorio<T> : IRepositorio<T> where T : Modelo
         await _servicoDeArquivos.SalvarAssicrono(_baseDeDados);
     }
 
-    public async Task Adicionar(T modelo)
+    public virtual async Task Adicionar(T modelo)
     {
+        var modeloExistente = ObterPorId(modelo.Id);
+
+        if (modeloExistente is not null) 
+            return;
+        
         _baseDeDados.Add(modelo);
 
         await Task.Run(Dispose);

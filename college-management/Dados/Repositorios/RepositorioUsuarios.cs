@@ -9,4 +9,16 @@ public class RepositorioUsuarios : Repositorio<Usuario>, IRepositorioUsuarios
     {
         return _baseDeDados.FirstOrDefault(u => u.Login == login);
     }
+
+    public override async Task Adicionar(Usuario usuario)
+    {
+        var modeloExistente = ObterPorLogin(usuario.Login);
+
+        if (modeloExistente is not null) 
+            return;
+        
+        _baseDeDados.Add(usuario);
+
+        await Task.Run(Dispose);
+    }
 }
