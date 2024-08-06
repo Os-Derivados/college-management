@@ -1,7 +1,8 @@
 using System.Globalization;
 using college_management.Constantes;
+using college_management.Modelos;
 
-namespace college_management.Modelos;
+namespace college_management.Dados.Modelos;
 
 public sealed class Cargo : Modelo
 {
@@ -9,14 +10,14 @@ public sealed class Cargo : Modelo
     {
         Nome = nome;
         Id = _contagemId.ToString(CultureInfo.InvariantCulture);
-        
+
         InicializarPermissoes(nome);
 
         _contagemId++;
     }
-    
+
     private static double _contagemId = 10000000000;
-    
+
     public string? Nome { get; set; }
     public override string? Id { get; set; }
     public string[]? Permissoes { get; set; }
@@ -26,7 +27,7 @@ public sealed class Cargo : Modelo
     {
         Permissoes = cargo switch
         {
-            CargosDeAcesso.CargoAlunos => 
+            CargosDeAcesso.CargoAlunos =>
             [
                 PermissoesDeAcesso.PermissaoAcessarCursos
             ],
@@ -44,10 +45,8 @@ public sealed class Cargo : Modelo
                 PermissoesDeAcesso.PermissaoGerenciarGestores,
                 PermissoesDeAcesso.PermissaoGerenciarAdministradores
             ],
-            _ => throw new ArgumentOutOfRangeException(
-                nameof(cargo),
-                "Não é possível atribuir permissões sem especificar um cargo válido"
-            )
+            _ => throw new ArgumentOutOfRangeException(nameof(cargo),
+                                                       "Não é possível atribuir permissões sem especificar um cargo válido")
         };
     }
 

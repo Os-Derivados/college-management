@@ -1,13 +1,17 @@
 using System.Globalization;
+using college_management.Modelos;
 
-namespace college_management.Modelos;
+namespace college_management.Dados.Modelos;
 
 public enum Turno
 {
-    Matutino, Vespertino, Noturno, Integral
+    Matutino,
+    Vespertino,
+    Noturno,
+    Integral
 }
 
-public class Materia : Modelo
+public sealed class Materia : Modelo
 {
     public Materia(string nome, Turno turno, int cargaHoraria)
     {
@@ -18,12 +22,11 @@ public class Materia : Modelo
 
         _contagemId++;
     }
-    
+
     private static double _contagemId = 10000000000;
-    
+
     public string? Nome { get; set; }
     public override string? Id { get; set; }
     public Turno Turno { get; set; }
     public int CargaHoraria { get; set; }
-
 }

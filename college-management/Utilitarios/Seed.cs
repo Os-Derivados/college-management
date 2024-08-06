@@ -1,5 +1,6 @@
 using college_management.Constantes;
 using college_management.Dados;
+using college_management.Dados.Modelos;
 using college_management.Modelos;
 
 namespace college_management.Utilitarios;
@@ -13,16 +14,18 @@ public static class Seed
         variaveisDeAmbiente.TryGetValue(
             VariaveisDeAmbiente.MasterAdminNome,
             out var nomeDefault);
+
         variaveisDeAmbiente.TryGetValue(
             VariaveisDeAmbiente.MasterAdminLogin,
             out var loginDefault);
+
         variaveisDeAmbiente.TryGetValue(
             VariaveisDeAmbiente.MasterAdminSenha,
             out var senhaDefault);
 
         var usuarioDefault =
             baseDeDados.usuarios.ObterPorId(VariaveisDeAmbiente
-                .MasterAdminId);
+                                                .MasterAdminId);
 
         if (usuarioDefault is not null)
             return;
@@ -34,6 +37,6 @@ public static class Seed
 
         await baseDeDados.usuarios.Adicionar(
             new Usuario(loginDefault, nomeDefault, cargoDefault,
-                senhaDefault));
+                        senhaDefault));
     }
 }

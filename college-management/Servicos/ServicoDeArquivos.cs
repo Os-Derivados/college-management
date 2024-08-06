@@ -5,16 +5,19 @@ namespace college_management.Servicos;
 
 public sealed class ServicoDeArquivos<T> where T : Modelo
 {
-    private readonly string _caminhoDoArquivo = 
+    private readonly string _caminhoDoArquivo =
         Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                "OsDerivados.CollegeManagement", $"{typeof(T)}_db.json"
-            );
+            Environment.GetFolderPath(
+                Environment.SpecialFolder.ApplicationData),
+            "OsDerivados.CollegeManagement",
+            $"{typeof(T)}_db.json");
 
     public ServicoDeArquivos()
     {
-        if (!Directory.Exists(Path.GetDirectoryName(_caminhoDoArquivo)!))
-            Directory.CreateDirectory(Path.GetDirectoryName(_caminhoDoArquivo)!);
+        if (!Directory.Exists(
+                Path.GetDirectoryName(_caminhoDoArquivo)!))
+            Directory.CreateDirectory(
+                Path.GetDirectoryName(_caminhoDoArquivo)!);
 
         if (!File.Exists(_caminhoDoArquivo))
             File.Create(_caminhoDoArquivo).Dispose();
@@ -33,7 +36,8 @@ public sealed class ServicoDeArquivos<T> where T : Modelo
             await using var fs = File.OpenRead(_caminhoDoArquivo);
             return await JsonSerializer.DeserializeAsync<List<T>>(fs);
         }
-        catch (Exception e) when (e is FileNotFoundException or DirectoryNotFoundException)
+        catch (Exception e) when (e is FileNotFoundException
+                                      or DirectoryNotFoundException)
         {
             throw;
         }

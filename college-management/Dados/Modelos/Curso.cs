@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text;
+using college_management.Dados.Modelos;
 
 namespace college_management.Modelos;
 

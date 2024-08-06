@@ -1,10 +1,14 @@
 using System.Globalization;
+using college_management.Dados.Modelos;
 
 namespace college_management.Modelos;
 
 public sealed class Usuario : Modelo
 {
-    public Usuario(string login, string nome, Cargo cargo, string senha)
+    public Usuario(string login,
+                   string nome,
+                   Cargo cargo,
+                   string senha)
     {
         Login = login;
         Nome = nome;
@@ -16,16 +20,18 @@ public sealed class Usuario : Modelo
     }
 
     private static double _contagemId = 10000000000;
-    
+
     public string? Login { get; set; }
     public string? Nome { get; set; }
     public override string? Id { get; set; }
     public Cargo? Cargo { get; set; }
     public string? Senha { get; set; }
 
-    public static bool Autenticar(Usuario usuario, string nomeUsuario, string senha)
+    public static bool Autenticar(Usuario usuario,
+                                  string nomeUsuario,
+                                  string senha)
     {
-        return (usuario.Login == nomeUsuario) && (usuario.Senha == senha);
+        return usuario.Login == nomeUsuario && usuario.Senha == senha;
     }
 
     public override string ToString()

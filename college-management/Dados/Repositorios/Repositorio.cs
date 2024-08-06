@@ -7,53 +7,54 @@ namespace college_management.Dados.Repositorios;
 
 public abstract class Repositorio<T> : IRepositorio<T> where T : Modelo
 {
-    protected List<T>? _baseDeDados;
+    protected List<T>? BaseDeDados;
     private readonly ServicoDeArquivos<T> _servicoDeArquivos = new();
 
     protected Repositorio()
     {
-        if (_baseDeDados is not null)
+        if (BaseDeDados is not null)
             return;
 
         Task.Run(async () =>
-        {
-            try
             {
-                using var dadosSalvos = _servicoDeArquivos.CarregarAssincrono();
-                _baseDeDados = await dadosSalvos;
-            }
-            catch (Exception e) when (e is JsonException or AggregateException or IOException)
-            {
-                _baseDeDados = [];
-            }
-        }).Wait();
+                try
+                {
+                    using var dadosSalvos =
+                        _servicoDeArquivos.CarregarAssincrono();
+                    BaseDeDados = await dadosSalvos;
+                }
+                catch (Exception e) when (e is JsonException
+                                              or AggregateException
+                                              or IOException)
+                {
+                    BaseDeDados = [];
+                }
+            })
+            .Wait();
     }
-    
+
     public async void Dispose()
     {
-        await _servicoDeArquivos.SalvarAssicrono(_baseDeDados);
+        await _servicoDeArquivos.SalvarAssicrono(BaseDeDados);
     }
 
     public virtual async Task Adicionar(T modelo)
     {
         var modeloExistente = ObterPorId(modelo.Id);
 
-        if (modeloExistente is not null) 
+        if (modeloExistente is not null)
             return;
-        
-        _baseDeDados.Add(modelo);
+
+        BaseDeDados.Add(modelo);
 
         await Task.Run(Dispose);
     }
 
-    public List<T> ObterTodos()
-    {
-        return _baseDeDados;
-    }
+    public List<T> ObterTodos() { return BaseDeDados; }
 
     public T ObterPorId(string? id)
     {
-        return _baseDeDados.FirstOrDefault(t => t.Id == id);
+        return BaseDeDados.FirstOrDefault(t => t.Id == id);
     }
 
     public async Task Atualizar(T modelo)
@@ -63,10 +64,10 @@ public abstract class Repositorio<T> : IRepositorio<T> where T : Modelo
         if (modeloAntigo is null)
         {
             await Adicionar(modelo);
-            
+
             return;
         }
-        
+
         await Remover(modelo.Id);
         await Adicionar(modelo);
         await Task.Run(Dispose);
@@ -78,8 +79,8 @@ public abstract class Repositorio<T> : IRepositorio<T> where T : Modelo
 
         if (modelo is null)
             return;
-        
-        _baseDeDados.Remove(modelo);
+
+        BaseDeDados.Remove(modelo);
         await Task.Run(Dispose);
     }
 }

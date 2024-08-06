@@ -10,47 +10,46 @@ public static class MiddlewareContexto
     {
         var estadoAtual = EstadoDoApp.Contexto;
         int contextoEscolhido;
-        
+
         do
         {
-            Console.WriteLine("Bem-vindo(a). Selecione um dos contextos abaixo.");
+            Console.WriteLine(
+                "Bem-vindo(a). Selecione um dos contextos abaixo.");
             ListarContextos(usuario);
 
             var opcaoEscolhida = Console.ReadLine();
 
-            var opcaoValida = int.TryParse(opcaoEscolhida, out contextoEscolhido);
+            var opcaoValida =
+                int.TryParse(opcaoEscolhida, out contextoEscolhido);
 
             if (!opcaoValida) continue;
 
             if (contextoEscolhido is 0)
                 estadoAtual = EstadoDoApp.Sair;
-    
+
             Console.Clear();
         } while (estadoAtual is EstadoDoApp.Contexto);
-        
+
         Console.WriteLine("Saindo...");
     }
-    
+
     private static void ListarContextos(Usuario usuario)
     {
         StringBuilder contexto = new();
 
-        string[] opcoes = usuario.Cargo.Nome switch
+        var opcoes = usuario.Cargo.Nome switch
         {
-            CargosDeAcesso.CargoAlunos => 
+            CargosDeAcesso.CargoAlunos =>
                 AcessosDeContexto.AcessoAlunos,
-            CargosDeAcesso.CargoGestores 
-                or CargosDeAcesso.CargoAdministradores => 
-                    AcessosDeContexto.AcessoGestoresAdministradores,
-            _ => 
-                throw new InvalidOperationException("O usuário não possui um cargo validado")
+            CargosDeAcesso.CargoGestores
+                or CargosDeAcesso.CargoAdministradores =>
+                AcessosDeContexto.AcessoGestoresAdministradores,
+            _ => throw new InvalidOperationException(
+                     "O usuário não possui um cargo validado")
         };
 
-        foreach (var opcao in opcoes)
-        {
-            contexto.AppendLine(opcao);
-        }
-        
+        foreach (var opcao in opcoes) contexto.AppendLine(opcao);
+
         Console.WriteLine(contexto);
     }
 }
