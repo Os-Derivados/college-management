@@ -1,6 +1,5 @@
 using System.Globalization;
 using college_management.Constantes;
-using college_management.Modelos;
 
 namespace college_management.Dados.Modelos;
 
@@ -19,7 +18,6 @@ public sealed class Cargo : Modelo
     private static double _contagemId = 10000000000;
 
     public string? Nome { get; set; }
-    public override string? Id { get; set; }
     public string[]? Permissoes { get; set; }
 
 
