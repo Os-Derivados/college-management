@@ -3,9 +3,8 @@ using college_management.Middlewares;
 using college_management.Utilitarios;
 
 BaseDeDados baseDeDados = new();
-Ambiente ambiente = new();
 
-await Seed.IniciarBaseDeDados(baseDeDados, ambiente.Variaveis);
+await Seed.IniciarBaseDeDados(baseDeDados);
 
 _ = bool.TryParse(args[0], out var modoDesenvolvimento);
 

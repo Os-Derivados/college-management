@@ -1,8 +1,8 @@
 namespace college_management.Utilitarios;
 
-public sealed class Ambiente
+public static class Ambiente
 {
-    public readonly Dictionary<string, string> Variaveis =
+    public static readonly Dictionary<string, string> Variaveis =
         CarregarVariaveis();
 
     private static Dictionary<string, string> CarregarVariaveis()
