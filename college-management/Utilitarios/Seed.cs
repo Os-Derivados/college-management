@@ -35,7 +35,7 @@ public static class Seed
             baseDeDados.cargos.ObterPorId("10000000000");
 
         await baseDeDados.usuarios.Adicionar(
-            new Usuario(loginDefault, nomeDefault, cargoDefault,
-                        senhaDefault));
+            new Funcionario(loginDefault, nomeDefault, cargoDefault,
+                            senhaDefault));
     }
 }
