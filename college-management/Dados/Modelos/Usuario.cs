@@ -2,9 +2,9 @@ using System.Globalization;
 
 namespace college_management.Dados.Modelos;
 
-public abstract class Usuario : Modelo
+public class Usuario : Modelo
 {
-    protected Usuario(string login,
+    public Usuario(string login,
                    string nome,
                    Cargo cargo,
                    string senha)
