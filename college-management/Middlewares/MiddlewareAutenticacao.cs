@@ -16,16 +16,16 @@ public static class MiddlewareAutenticacao
         {
             if (modoDesenvolvimento)
             {
-                var usuarioTeste =
+                usuarioLogado =
                     baseDeUsuarios.ObterPorLogin("master.admin");
 
-                if (usuarioTeste is null)
+                if (usuarioLogado is null)
                     throw new InvalidOperationException(
                         "Usuário de teste não foi encontrado");
 
                 estadoAtual = EstadoDoApp.Contexto;
 
-                return usuarioTeste;
+                break;
             }
 
             // 1. Pedir o login dele
@@ -47,16 +47,13 @@ public static class MiddlewareAutenticacao
                                             [
                                                 new Materia(
                                                     "Sistemas Digitais",
-                                                    Turno
-                                                        .Noturno,
-                                                    60)
+                                                    Turno.Noturno, 60)
                                             ]),
-                                        Modalidade
-                                            .Presencial));
-            
+                                        Modalidade.Presencial));
+
             // O estado atual só deve mudar se o login for validado.
-            // Caso contrário, o loop deve continuar
-            
+            // Caso contrário, o loop deve pular a iteração
+
             estadoAtual = EstadoDoApp.Contexto;
         } while (estadoAtual is EstadoDoApp.Login);
 
