@@ -29,16 +29,41 @@ public static class MiddlewareAutenticacao
             }
 
             // 1. Pedir o login dele
-            // 2. Verificar se usuario existe
-            // 2.1. Se o usuário existe, você pede a senha dele
-            // 2.1.1. Autenticar o usário 
+            // 2 pedir a senha dele
+            // 2.1. Autenticar o usuário
 
+            // O valor abaixo deve ser substituído por um valor
+            // que seja obtido pelo processo de login;
+
+            usuarioLogado =
+                new Aluno("thiago.santos",
+                          "Thiago Rodrigues",
+                          new Cargo(CargosDeAcesso.CargoAlunos),
+                          "aluno12345",
+                          new Matricula(2412130152,
+                                        2024,
+                                        new Curso(
+                                            "Ciência da Computação",
+                                            [
+                                                new Materia(
+                                                    "Sistemas Digitais",
+                                                    Turno
+                                                        .Noturno,
+                                                    60)
+                                            ]),
+                                        Modalidade
+                                            .Presencial));
+            
+            // O estado atual só deve mudar se o login for validado.
+            // Caso contrário, o loop deve continuar
+            
             estadoAtual = EstadoDoApp.Contexto;
         } while (estadoAtual is EstadoDoApp.Login);
 
-        return new Usuario("thiago.santos",
-                           "Thiago",
-                           new Cargo(CargosDeAcesso.CargoAlunos),
-                           "12345");
+        if (usuarioLogado is null)
+            throw new InvalidOperationException(
+                "Credenciais inválidas: não foi possível obter usuário");
+
+        return usuarioLogado;
     }
 }
