@@ -8,7 +8,12 @@ public sealed class Matricula : Modelo
         Periodo = periodo;
         Curso = curso;
         Modalidade = modalidade;
+        Id = _contagemId.ToString();
+
+        _contagemId++;
     }
+
+    private static long _contagemId = 10000000000;
     
     public long Numero { get; set; }
     public int Periodo { get; set; }
