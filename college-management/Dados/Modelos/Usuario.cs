@@ -3,8 +3,9 @@ using System.Text.Json.Serialization;
 
 namespace college_management.Dados.Modelos;
 
-[JsonDerivedType(typeof(Aluno))]
-[JsonDerivedType(typeof(Funcionario))]
+[JsonDerivedType(typeof(Usuario), typeDiscriminator: "base")]
+[JsonDerivedType(typeof(Aluno), typeDiscriminator: "aluno")]
+[JsonDerivedType(typeof(Funcionario), typeDiscriminator: "funcionario")]
 public class Usuario : Modelo
 {
     public Usuario(string login,
