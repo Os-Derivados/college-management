@@ -1,6 +1,7 @@
 using college_management.Constantes;
 using college_management.Dados.Modelos;
 using college_management.Dados.Repositorios;
+using college_management.Utilitarios;
 
 namespace college_management.Middlewares;
 
@@ -16,8 +17,11 @@ public static class MiddlewareAutenticacao
         {
             if (modoDesenvolvimento)
             {
-                usuarioLogado =
-                    baseDeUsuarios.ObterPorLogin("master.admin");
+                _ = Ambiente.Variaveis.TryGetValue(
+                    VariaveisDeAmbiente.UsuarioTesteLogin,
+                    out var loginTeste);
+                usuarioLogado = baseDeUsuarios
+                    .ObterPorLogin(loginTeste);
 
                 if (usuarioLogado is null)
                     throw new InvalidOperationException(
