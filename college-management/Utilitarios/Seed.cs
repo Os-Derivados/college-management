@@ -22,28 +22,27 @@ public static class Seed
                                    baseDeDados);
 
         var (loginTeste, nomeTeste, senhaTeste)
-            = ObterCredenciais(VariaveisDeAmbiente.UsuarioTesteNome,
-                               VariaveisDeAmbiente.UsuarioTesteLogin,
+            = ObterCredenciais(VariaveisDeAmbiente.UsuarioTesteLogin,
+                               VariaveisDeAmbiente.UsuarioTesteNome,
                                VariaveisDeAmbiente.UsuarioTesteSenha);
 
         await CadastrarUsuarioPadrao(
             new Aluno(loginTeste,
-                            nomeTeste,
-                            new Cargo(CargosDeAcesso
-                                             .CargoAlunos),
-                            senhaTeste,
-                            new Matricula(2412130152,
-                                        2,
-                                        new Curso(
-                                            "Curso Teste",
-                                            [
-                                                new Materia(
-                                                        "Matéria Teste",
-                                                        Turno.Integral,
-                                                        60)
-                                            ]),
-                                        Modalidade.Presencial)),
-                            baseDeDados);
+                      nomeTeste,
+                      new Cargo(CargosDeAcesso.CargoAlunos),
+                      senhaTeste,
+                      new Matricula(2412130152,
+                                  2,
+                                  new Curso(
+                                      "Curso Teste",
+                                      [
+                                          new Materia(
+                                                  "Matéria Teste",
+                                                  Turno.Integral,
+                                                  60)
+                                      ]),
+                                  Modalidade.Presencial)),
+                      baseDeDados);
     }
 
     private static async Task CadastrarUsuarioPadrao(Usuario usuario,
