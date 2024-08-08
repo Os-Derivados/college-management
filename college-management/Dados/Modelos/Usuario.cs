@@ -1,7 +1,10 @@
 using System.Globalization;
+using System.Text.Json.Serialization;
 
 namespace college_management.Dados.Modelos;
 
+[JsonDerivedType(typeof(Aluno))]
+[JsonDerivedType(typeof(Funcionario))]
 public class Usuario : Modelo
 {
     public Usuario(string login,
@@ -18,7 +21,7 @@ public class Usuario : Modelo
         _contagemId++;
     }
 
-    private static double _contagemId = 10000000000;
+    private static long _contagemId = 10000000000;
 
     public string? Login { get; set; }
     public string? Nome { get; set; }
