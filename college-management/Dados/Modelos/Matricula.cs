@@ -2,9 +2,9 @@ namespace college_management.Dados.Modelos;
 
 public sealed class Matricula : Modelo
 {
-    public Matricula(long numeroMatricula, int periodo, Curso curso, Modalidade modalidade)
+    public Matricula(long numero, int periodo, Curso curso, Modalidade modalidade)
     {
-        Numero = numeroMatricula;
+        Numero = numero;
         Periodo = periodo;
         Curso = curso;
         Modalidade = modalidade;
