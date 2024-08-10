@@ -40,10 +40,10 @@ public static class MiddlewareContexto
         var opcoes = usuario.Cargo.Nome switch
         {
             CargosDeAcesso.CargoAlunos =>
-                AcessosDeContexto.AcessoAlunos,
+                OperacoesDeContexto.AcessoAlunos,
             CargosDeAcesso.CargoGestores
                 or CargosDeAcesso.CargoAdministradores =>
-                AcessosDeContexto.AcessoGestoresAdministradores,
+                OperacoesDeContexto.AcessoGestoresAdministradores,
             _ => throw new InvalidOperationException(
                      "O usuário não possui um cargo validado")
         };
