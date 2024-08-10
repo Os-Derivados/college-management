@@ -12,7 +12,7 @@ var usuarioLogado =
     MiddlewareAutenticacao.Login(modoDesenvolvimento,
                                  baseDeDados.usuarios);
 
-MiddlewareContexto.Inicializar(usuarioLogado);
+MiddlewareContexto.Inicializar(baseDeDados, usuarioLogado);
 
 public enum EstadoDoApp
 {

@@ -1,41 +1,51 @@
 using System.Text;
 using college_management.Constantes;
+using college_management.Dados;
 using college_management.Dados.Modelos;
+using college_management.Funcionalidades;
 
 namespace college_management.Middlewares;
 
 public static class MiddlewareContexto
 {
-    public static void Inicializar(Usuario usuario)
+    public static void Inicializar(BaseDeDados baseDeDados, Usuario usuario)
     {
+        var contextoAtual = new Contexto(baseDeDados, usuario);
         var estadoAtual = EstadoDoApp.Contexto;
-        int contextoEscolhido;
 
         do
         {
+            int opcaoUsuario;
+            
             Console.WriteLine(
                 "Bem-vindo(a). Selecione um dos contextos abaixo.");
-            ListarContextos(usuario);
+            var recursos = ListarContextos(usuario);
 
             var opcaoEscolhida = Console.ReadLine();
 
             var opcaoValida =
-                int.TryParse(opcaoEscolhida, out contextoEscolhido);
+                int.TryParse(opcaoEscolhida, out opcaoUsuario);
 
             if (!opcaoValida) continue;
 
-            if (contextoEscolhido is 0)
+            if (opcaoUsuario is 0)
                 estadoAtual = EstadoDoApp.Sair;
 
             Console.Clear();
+
+            _ = recursos.TryGetValue(opcaoUsuario,
+                                     out var recursoSelecionado);
+            
+            contextoAtual.AcessarRecurso(recursoSelecionado);
         } while (estadoAtual is EstadoDoApp.Contexto);
 
         Console.WriteLine("Saindo...");
     }
 
-    private static void ListarContextos(Usuario usuario)
+    private static Dictionary<int, string> ListarContextos(Usuario usuario)
     {
-        StringBuilder contexto = new();
+        StringBuilder mensagem = new();
+        Dictionary<int, string> dicionarioOpcoes = new(); 
 
         var opcoes = usuario.Cargo.Nome switch
         {
@@ -48,8 +58,14 @@ public static class MiddlewareContexto
                      "O usuário não possui um cargo validado")
         };
 
-        foreach (var opcao in opcoes) contexto.AppendLine(opcao);
+        for (var i = 0; i < opcoes.Length; i++)
+        {
+            mensagem.AppendLine($"{i + 1} - {opcoes[i]}");
+            dicionarioOpcoes.Add(i + 1, opcoes[i]);
+        }   
+        
+        Console.WriteLine(mensagem);
 
-        Console.WriteLine(contexto);
+        return dicionarioOpcoes;
     }
 }
