@@ -33,11 +33,15 @@ public static class MiddlewareAutenticacao
             }
 
             // 1. Pedir o login dele
-            // 2 pedir a senha dele
-            // 2.1. Autenticar o usuário
+            // 2 Pedir a senha dele
+            // 3. Verificar se o login existe
+            // 3.1. Se não existir -> Login ou a senha estão inválidos
+            // 3.2. Se o login está válido -> Validar a senha
+            // 3.3. Se a senha estiver errada -> Login ou senha estão inválidos
+            // 3.4. Se a senha estiver válida -> Retornar o usuário encontrado na base de dados
 
-            // O valor abaixo deve ser substituído por um valor
-            // que seja obtido pelo processo de login;
+            // O valor abaixo é para fins de teste e deve ser substituído por um valor
+            // que seja obtido pelo processo de login:
 
             usuarioLogado =
                 new Aluno("thiago.santos",
