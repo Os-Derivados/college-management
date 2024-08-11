@@ -30,10 +30,10 @@ public class Usuario : Modelo
     public string? Senha { get; set; }
 
     public static bool Autenticar(Usuario usuario,
-                                  string nomeUsuario,
-                                  string senha)
+                                  string loginUsuario,
+                                  string senhaUsuario)
     {
-        return usuario.Login == nomeUsuario && usuario.Senha == senha;
+        return usuario.Login == loginUsuario && usuario.Senha == senhaUsuario;
     }
 
     public override string ToString()
