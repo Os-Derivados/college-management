@@ -8,7 +8,7 @@ namespace college_management.Dados.Repositorios;
 public abstract class Repositorio<T> : IRepositorio<T> where T : Modelo
 {
     protected List<T>? BaseDeDados;
-    private readonly ServicoDeArquivos<T> _servicoDeArquivos = new();
+    private readonly ServicoDados<T> _servicoDados = new();
 
     protected Repositorio()
     {
@@ -20,7 +20,7 @@ public abstract class Repositorio<T> : IRepositorio<T> where T : Modelo
                 try
                 {
                     using var dadosSalvos =
-                        _servicoDeArquivos.CarregarAssincrono();
+                        _servicoDados.CarregarAssincrono();
                     BaseDeDados = await dadosSalvos;
                 }
                 catch (Exception e) when (e is JsonException
@@ -35,7 +35,7 @@ public abstract class Repositorio<T> : IRepositorio<T> where T : Modelo
 
     public async void Dispose()
     {
-        await _servicoDeArquivos.SalvarAssicrono(BaseDeDados);
+        await _servicoDados.SalvarAssicrono(BaseDeDados);
     }
 
     public virtual async Task Adicionar(T modelo)
@@ -82,5 +82,10 @@ public abstract class Repositorio<T> : IRepositorio<T> where T : Modelo
 
         BaseDeDados.Remove(modelo);
         await Task.Run(Dispose);
+    }
+
+    public bool Existe(T modelo)
+    {
+        return BaseDeDados.FirstOrDefault(t => t.Equals(modelo)) != null;
     }
 }

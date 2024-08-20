@@ -9,4 +9,6 @@ public interface IRepositorio<T> : IDisposable where T : Modelo
     T ObterPorId(string? id);
     Task Atualizar(T modelo);
     Task Remover(string? id);
+
+    bool Existe(T modelo);
 }
