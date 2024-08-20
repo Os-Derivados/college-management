@@ -1,6 +1,6 @@
 namespace college_management.Utilitarios;
 
-public static class Ambiente
+public static class UtilitarioAmbiente
 {
     public static readonly Dictionary<string, string> Variaveis =
         CarregarVariaveis();

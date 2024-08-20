@@ -3,7 +3,7 @@ using college_management.Dados.Modelos;
 
 namespace college_management.Servicos;
 
-public sealed class ServicoDeArquivos<T> where T : Modelo
+public sealed class ServicoDados<T> where T : Modelo
 {
     private readonly string _caminhoDoArquivo =
         Path.Combine(
@@ -12,7 +12,7 @@ public sealed class ServicoDeArquivos<T> where T : Modelo
             "OsDerivados.CollegeManagement",
             $"{typeof(T)}_db.json");
 
-    public ServicoDeArquivos()
+    public ServicoDados()
     {
         if (!Directory.Exists(
                 Path.GetDirectoryName(_caminhoDoArquivo)!))

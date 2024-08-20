@@ -4,7 +4,7 @@ using college_management.Dados.Modelos;
 
 namespace college_management.Utilitarios;
 
-public static class Seed
+public static class UtilitarioSeed
 {
     public static async Task IniciarBaseDeDados(BaseDeDados baseDeDados)
     {
@@ -63,11 +63,11 @@ public static class Seed
         string nome,
         string senha)
     {
-        Ambiente.Variaveis
+        UtilitarioAmbiente.Variaveis
                 .TryGetValue(login, out var loginDefault);
-        Ambiente.Variaveis
+        UtilitarioAmbiente.Variaveis
                 .TryGetValue(nome, out var nomeDefault);
-        Ambiente.Variaveis
+        UtilitarioAmbiente.Variaveis
                 .TryGetValue(senha, out var senhaDefault);
 
         return (loginDefault, nomeDefault, senhaDefault);
