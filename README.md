@@ -45,6 +45,8 @@ O Gestor Educacional é um sistema CLI que visa gerenciar os recursos internos d
 * [Dados](#dados)
     - [Repositórios](#repositórios)
 * [Middlewares](#middlewares)
+    - [Autenticação](#autenticacao)
+    - [Contexto](#contexto)
 * [Modelos](#modelos)
 * [Serviços](#serviços)
 * [Utilitários](#utilitários)
@@ -84,8 +86,57 @@ Sua única finalidade é prover um conjunto de funcionalidades lógicas para rea
 
 ### Middlewares
 
-Um *middleware* ("software intermediador", em tradução livre), é um software que costuma interceptar ações pertinentes a diferentes camadas do sistema.
+Um *middleware* ("software intermediador", em tradução livre), é um software que costuma interceptar ações pertinentes a diferentes camadas do sistema. O College Management conta com dois principais *middlewares* para intermediar as interações do usuário com o sistema, sendo estes: 
+
+1. Autenticação
+2. Contexto
+
+#### Middleware de Autenticação
+
+#### Middleware de Contexto
 
 ### Serviços
 
+Serviços são responsáveis por prover um conjunto de funcionalidades pertinentes ao modelo de negócios de um sistema.
+Geralmente, englobam recursos que acessam a lógica e os dados internos do sistema, provendo asbtrações para necessidades comuns desse sistema. 
+
+O College Management conta com os seguintes serviços:
+
+* Serviço de Arquivos
+* Serviço de Cursos
+* Serviço de Usuários
+* Serviço de Matérias
+
+#### Serviço de Arquivos
+
+#### Serviço de Cursos
+
+#### Serviço de Usuários
+
+#### Serviço de Matérias
+
 ### Utilitários
+
+Utilitários englobam funcionalidades de uso geral, que não envolvem, diretamente, o acesso a lógica e dados do sistema; ou seja, envolvem funcionalidades que não são necessariamente específicas ao sistema em questão.
+
+O College Management conta com os seguintes utilitários:
+
+* Ambiente
+* Seed
+
+#### Utilitário de Ambiente
+
+#### Utilitário de Seed
+
+### Funcionalidades
+
+No College Management, uma funcionalidade é uma estrutura responsável por interligar diferentes camadas em um determinado estado da aplicação (seja Autenticação, Contexto etc.), representando os comportamentos únicos que o sistema possui.
+
+O College Managament conta com as seguintes funcionalidades:
+
+1. Autenticação
+2. Contexto
+
+#### Autenticação
+
+#### Contexto
