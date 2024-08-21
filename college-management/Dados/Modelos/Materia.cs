@@ -2,14 +2,6 @@ using System.Globalization;
 
 namespace college_management.Dados.Modelos;
 
-public enum Turno
-{
-    Matutino,
-    Vespertino,
-    Noturno,
-    Integral
-}
-
 public sealed class Materia : Modelo
 {
     public Materia(string nome, Turno turno, int cargaHoraria)
@@ -27,4 +19,12 @@ public sealed class Materia : Modelo
     public string? Nome { get; set; }
     public Turno Turno { get; set; }
     public int CargaHoraria { get; set; }
+}
+
+public enum Turno
+{
+    Matutino,
+    Vespertino,
+    Noturno,
+    Integral
 }
