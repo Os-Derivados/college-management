@@ -1,6 +1,6 @@
 using System.Text;
 using college_management.Constantes;
-using college_management.Dados.Modelos.Interfaces;
+using college_management.Dados.Modelos;
 using college_management.Dados.Repositorios;
 using college_management.Servicos.Interfaces;
 using Microsoft.VisualBasic.FileIO;

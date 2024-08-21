@@ -1,6 +1,6 @@
 using college_management.Constantes;
 using college_management.Dados;
-using college_management.Dados.Modelos.Interfaces;
+using college_management.Dados.Modelos;
 
 namespace college_management.Utilitarios;
 
