@@ -1,6 +1,7 @@
 using college_management.Constantes;
 using college_management.Dados;
 using college_management.Dados.Modelos;
+using college_management.Servicos;
 
 namespace college_management.Funcionalidades;
 
@@ -19,26 +20,6 @@ public sealed class Contexto
     {
         switch (recurso)
         {
-            case OperacoesDeContexto.AcessarGradeHoraria:
-                AcessarGradeHoraria();
-                break;
-
-            case OperacoesDeContexto.AcessarGradeCurricular:
-                AcessarGradeCurricular();
-                break;
-
-            case OperacoesDeContexto.AcessarNotas:
-                AcessarNotas();
-                break;
-
-            case OperacoesDeContexto.AcessarFinanceiro:
-                AcessarFinanceiro();
-                break;
-
-            case OperacoesDeContexto.AcessarMatricula:
-                AcessarMatricula();
-                break;
-
             case OperacoesDeContexto.AcessarCursos:
                 AcessarCursos();
                 break;
@@ -55,58 +36,6 @@ public sealed class Contexto
                 AcessarUsuarios();
                 break;
         }
-    }
-
-    private void AcessarGradeHoraria()
-    {
-        // Se o usuário for um Aluno:
-        // Mostre somente informações dele
-        // Se o usuário for um Funcionário:
-        // Peça para selecionar um curso em específico: ID, Nome
-        throw new NotImplementedException();
-    }
-
-    private void AcessarGradeCurricular()
-    {
-        // Se o usuário for um Aluno:
-        // Mostre somente informações dele
-
-        // Se o usuário for um Funcionário:
-        // Peça para selecionar um curso específico: ID, Nome
-        throw new NotImplementedException();
-    }
-
-    private void AcessarNotas()
-    {
-        // Se o usuário for um Aluno:
-        // Mostre somente informações dele
-
-        // Se o usuário for um Funcionário:
-        // Peça para selecionar um Aluno em específico:  Matricula, Nome, Login, Id...
-
-        throw new NotImplementedException();
-    }
-
-    private void AcessarFinanceiro()
-    {
-        // Se o usuário for um Aluno:
-        // Mostre somente informações dele
-
-        // Se o usuário for um Funcionário:
-        // Peça para selecionar um Aluno em específico: Matricula, Nome, Login, Id...
-
-        throw new NotImplementedException();
-    }
-
-    private void AcessarMatricula()
-    {
-        // Se o usuário for um Aluno:
-        // Mostre somente informações dele
-
-        // Se o usuário for um Funcionário:
-        // Peça para selecionar um Aluno em específico: Matricula, Nome, Login, Id...
-
-        throw new NotImplementedException();
     }
 
     private void AcessarCursos()
