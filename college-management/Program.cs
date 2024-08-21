@@ -4,7 +4,7 @@ using college_management.Utilitarios;
 
 BaseDeDados baseDeDados = new();
 
-await Seed.IniciarBaseDeDados(baseDeDados);
+await UtilitarioSeed.IniciarBaseDeDados(baseDeDados);
 
 _ = bool.TryParse(args[0], out var modoDesenvolvimento);
 

@@ -15,8 +15,6 @@ public static class MiddlewareContexto
 
         do
         {
-            int opcaoUsuario;
-            
             Console.WriteLine(
                 "Bem-vindo(a). Selecione um dos contextos abaixo.");
             var recursos = ListarContextos(usuario);
@@ -24,7 +22,7 @@ public static class MiddlewareContexto
             var opcaoEscolhida = Console.ReadLine();
 
             var opcaoValida =
-                int.TryParse(opcaoEscolhida, out opcaoUsuario);
+                int.TryParse(opcaoEscolhida, out var opcaoUsuario);
 
             if (!opcaoValida) continue;
 
