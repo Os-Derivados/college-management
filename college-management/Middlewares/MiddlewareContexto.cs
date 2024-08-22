@@ -8,7 +8,8 @@ namespace college_management.Middlewares;
 
 public static class MiddlewareContexto
 {
-    public static void Inicializar(BaseDeDados baseDeDados, Usuario usuario)
+    public static void Inicializar(BaseDeDados baseDeDados,
+                                   Usuario usuario)
     {
         var contextoAtual = new Contexto(baseDeDados, usuario);
         var estadoAtual = EstadoDoApp.Contexto;
@@ -33,17 +34,18 @@ public static class MiddlewareContexto
 
             _ = recursos.TryGetValue(opcaoUsuario,
                                      out var recursoSelecionado);
-            
+
             contextoAtual.AcessarRecurso(recursoSelecionado);
         } while (estadoAtual is EstadoDoApp.Contexto);
 
         Console.WriteLine("Saindo...");
     }
 
-    private static Dictionary<int, string> ListarContextos(Usuario usuario)
+    private static Dictionary<int, string> ListarContextos(
+        Usuario usuario)
     {
         StringBuilder mensagem = new();
-        Dictionary<int, string> dicionarioOpcoes = new(); 
+        Dictionary<int, string> dicionarioOpcoes = new();
 
         var opcoes = usuario.Cargo.Nome switch
         {
@@ -60,8 +62,8 @@ public static class MiddlewareContexto
         {
             mensagem.AppendLine($"{i + 1} - {opcoes[i]}");
             dicionarioOpcoes.Add(i + 1, opcoes[i]);
-        }   
-        
+        }
+
         Console.WriteLine(mensagem);
 
         return dicionarioOpcoes;

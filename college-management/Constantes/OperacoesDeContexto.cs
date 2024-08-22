@@ -9,9 +9,9 @@ public static class OperacoesDeContexto
 
     public static readonly string[] AcessoAlunos =
     [
-       AcessarCursos,
-       AcessarMaterias,
-       AcessarUsuarios
+        AcessarCursos,
+        AcessarMaterias,
+        AcessarUsuarios
     ];
 
     public static readonly string[] AcessoGestoresAdministradores =

@@ -13,13 +13,15 @@ public static class UtilitarioAmbiente
             Path.Combine(
                 Environment.GetFolderPath(
                     Environment.SpecialFolder.ApplicationData),
-                "OsDerivados.CollegeManagement", ".env");
+                "OsDerivados.CollegeManagement",
+                ".env");
 
         foreach (var linha in
                  File.ReadAllLines(caminhoDoArquivo))
         {
             var partes = linha.Split(
-                '=', StringSplitOptions.RemoveEmptyEntries);
+                '=',
+                StringSplitOptions.RemoveEmptyEntries);
 
             if (partes.Length is not 2)
                 continue;

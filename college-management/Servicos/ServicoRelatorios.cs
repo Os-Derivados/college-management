@@ -7,8 +7,8 @@ using Microsoft.VisualBasic.FileIO;
 
 namespace college_management.Servicos;
 
-public sealed class ServicoRelatorios<T> : IServicoRelatorios<T> 
-where T : Modelo
+public sealed class ServicoRelatorios<T> : IServicoRelatorios<T>
+    where T : Modelo
 {
     private readonly string _arquivoRelatorios;
     private readonly Usuario _usuario;
@@ -18,10 +18,10 @@ where T : Modelo
                              Repositorio<T> repositorio)
     {
         _arquivoRelatorios = Path.Combine(
-            SpecialDirectories.MyDocuments, 
-            "OsDerivados", 
-            "CollegeManagement", 
-            "Relatorios", 
+            SpecialDirectories.MyDocuments,
+            "OsDerivados",
+            "CollegeManagement",
+            "Relatorios",
             $"{typeof(T)}.csv");
 
         _usuario = usuario;
@@ -33,9 +33,11 @@ where T : Modelo
         return _usuario.Cargo.Nome switch
         {
             CargosDeAcesso.CargoAlunos => modelo.ToString(),
-            CargosDeAcesso.CargoGestores 
-                or CargosDeAcesso.CargoAdministradores => GerarEntradasRelatorio(),
-            _ => throw new InvalidOperationException("Não há modelo de relatório disponível para este cargo")
+            CargosDeAcesso.CargoGestores
+                or CargosDeAcesso.CargoAdministradores =>
+                GerarEntradasRelatorio(),
+            _ => throw new InvalidOperationException(
+                     "Não há modelo de relatório disponível para este cargo")
         };
     }
 
@@ -48,13 +50,17 @@ where T : Modelo
 
         StringBuilder entradasRelatorio = new();
 
-        entradasRelatorio.AppendLine(modelos[0].ObterNomesPropriedades());
-        
+        entradasRelatorio.AppendLine(
+            modelos[0].ObterNomesPropriedades());
+
         foreach (var modelo in modelos)
             entradasRelatorio.AppendLine(modelo.ToString());
 
         return entradasRelatorio.ToString();
     }
 
-    public async Task ExportarRelatorio(string relatorio) { throw new NotImplementedException(); }
+    public async Task ExportarRelatorio(string relatorio)
+    {
+        throw new NotImplementedException();
+    }
 }

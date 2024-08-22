@@ -6,10 +6,13 @@ public sealed class Aluno : Usuario
                  string nome,
                  Cargo cargo,
                  string senha,
-                 Matricula matricula) : base(login, nome, cargo, senha)
+                 Matricula matricula) : base(login,
+                                             nome,
+                                             cargo,
+                                             senha)
     {
         Matricula = matricula;
     }
-    
+
     public Matricula Matricula { get; set; }
 }

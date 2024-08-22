@@ -17,20 +17,19 @@ public static class UtilitarioSeed
         await CadastrarCargoPadrao(
             new Cargo(CargosDeAcesso.CargoAlunos),
             baseDeDados);
-        
+
         var (loginMestre, nomeMestre, senhaMestre)
             = ObterCredenciais(VariaveisDeAmbiente.MasterAdminLogin,
                                VariaveisDeAmbiente.MasterAdminNome,
                                VariaveisDeAmbiente.MasterAdminSenha);
-        
-        await CadastrarUsuarioPadrao(
-            new Funcionario(loginMestre,
-                            nomeMestre,
-                            new Cargo(
-                                CargosDeAcesso
-                                    .CargoAdministradores),
-                            senhaMestre),
-                            baseDeDados);
+
+        await CadastrarUsuarioPadrao(new Funcionario(loginMestre,
+                                                     nomeMestre,
+                                                     new Cargo(
+                                                         CargosDeAcesso
+                                                             .CargoAdministradores),
+                                                     senhaMestre),
+                                     baseDeDados);
 
         var (loginTeste, nomeTeste, senhaTeste)
             = ObterCredenciais(VariaveisDeAmbiente.UsuarioTesteLogin,
@@ -38,29 +37,32 @@ public static class UtilitarioSeed
                                VariaveisDeAmbiente.UsuarioTesteSenha);
 
         Materia materiaTeste = new("Matéria Teste",
-                                       Turno.Integral,
-                                       60);
+                                   Turno.Integral,
+                                   60);
         await CadastrarMateriaPadrao(materiaTeste, baseDeDados);
-        
+
         Curso cursoTeste = new("Curso Teste",
-                                [materiaTeste]);
+                               [materiaTeste]);
         await CadastrarCursoPadrao(cursoTeste, baseDeDados);
-        
+
         Matricula matriculaTeste = new(1,
-                                     1,
+                                       1,
                                        cursoTeste,
                                        Modalidade.Presencial);
-        
-        await CadastrarUsuarioPadrao(
-            new Aluno(loginTeste, 
-                      nomeTeste,
-                      new Cargo(CargosDeAcesso.CargoAlunos),
-                      senhaTeste,
-                      matriculaTeste), baseDeDados);
+
+        await CadastrarUsuarioPadrao(new Aluno(loginTeste,
+                                               nomeTeste,
+                                               new Cargo(
+                                                   CargosDeAcesso
+                                                       .CargoAlunos),
+                                               senhaTeste,
+                                               matriculaTeste),
+                                     baseDeDados);
     }
 
     private static async Task CadastrarCargoPadrao(
-        Cargo cargo, BaseDeDados baseDeDados)
+        Cargo cargo,
+        BaseDeDados baseDeDados)
     {
         var cargos = baseDeDados.cargos.ObterTodos();
 
@@ -68,27 +70,29 @@ public static class UtilitarioSeed
             await baseDeDados.cargos.Adicionar(cargo);
     }
 
-    private static async Task CadastrarMateriaPadrao(
-        Materia materia,
-        BaseDeDados baseDeDados)
+    private static async Task CadastrarMateriaPadrao(Materia materia,
+                                                     BaseDeDados
+                                                         baseDeDados)
     {
         var materias = baseDeDados.materias.ObterTodos();
 
         if (materias.Count is 0)
             await baseDeDados.materias.Adicionar(materia);
     }
-    
+
     private static async Task CadastrarCursoPadrao(
-        Curso curso, BaseDeDados baseDeDados)
+        Curso curso,
+        BaseDeDados baseDeDados)
     {
         var cursos = baseDeDados.cursos.ObterTodos();
 
         if (cursos.Count is 0)
             await baseDeDados.cursos.Adicionar(curso);
     }
-    
+
     private static async Task CadastrarUsuarioPadrao(
-        Usuario usuario, BaseDeDados baseDeDados)
+        Usuario usuario,
+        BaseDeDados baseDeDados)
     {
         var usuarioPadrao =
             baseDeDados.usuarios.ObterPorLogin(usuario.Login);
@@ -98,18 +102,18 @@ public static class UtilitarioSeed
 
         await baseDeDados.usuarios.Adicionar(usuario);
     }
-    
+
     private static (string, string, string) ObterCredenciais(
         string login,
         string nome,
         string senha)
     {
         UtilitarioAmbiente.Variaveis
-                .TryGetValue(login, out var loginDefault);
+                          .TryGetValue(login, out var loginDefault);
         UtilitarioAmbiente.Variaveis
-                .TryGetValue(nome, out var nomeDefault);
+                          .TryGetValue(nome, out var nomeDefault);
         UtilitarioAmbiente.Variaveis
-                .TryGetValue(senha, out var senhaDefault);
+                          .TryGetValue(senha, out var senhaDefault);
 
         return (loginDefault, nomeDefault, senhaDefault);
     }

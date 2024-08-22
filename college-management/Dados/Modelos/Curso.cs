@@ -8,14 +8,14 @@ public class Curso : Modelo
     public Curso(string nome, Materia[] gradeCurricular)
     {
         Nome = nome;
-        Id = _contagemId.ToString(CultureInfo.InvariantCulture); 
+        Id = _contagemId.ToString(CultureInfo.InvariantCulture);
         GradeCurricular = gradeCurricular;
-        
+
         _contagemId++;
     }
-    
+
     private static double _contagemId = 10000000000;
-    
+
     public string? Nome { get; set; }
     public Materia[] GradeCurricular { get; set; }
 
@@ -27,9 +27,8 @@ public class Curso : Modelo
         builder.AppendLine("Matérias: ");
 
         foreach (var materia in GradeCurricular)
-        {
-            builder.AppendLine($"{materia.Nome} - {materia.CargaHoraria}");
-        }
+            builder.AppendLine(
+                $"{materia.Nome} - {materia.CargaHoraria}");
 
         return builder.ToString();
     }

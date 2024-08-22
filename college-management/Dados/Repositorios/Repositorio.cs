@@ -56,7 +56,7 @@ public abstract class Repositorio<T> : IRepositorio<T> where T : Modelo
     {
         return BaseDeDados.FirstOrDefault(t => t.Id == id);
     }
-    
+
     public async Task Atualizar(T modelo)
     {
         var modeloAntigo = ObterPorId(modelo.Id);
@@ -86,6 +86,7 @@ public abstract class Repositorio<T> : IRepositorio<T> where T : Modelo
 
     public bool Existe(T modelo)
     {
-        return BaseDeDados.FirstOrDefault(t => t.Equals(modelo)) != null;
+        return BaseDeDados.FirstOrDefault(t => t.Equals(modelo))
+               != null;
     }
 }

@@ -27,17 +27,20 @@ public sealed class Autenticacao
         // * Substituir o usuário abaixo por um usuário existente
         // na base de dados, com base nas informações
         // recebidas durante a interação
-        return new Aluno("thiago.santos", 
-                         "Thiago Santos", 
-                         new Cargo(CargosDeAcesso.CargoAlunos), 
-                         "senha12345", 
-                         new Matricula(
-                             2412130152, 2, 
-                             new Curso("Ciência da Computação", 
-                                       [new Materia(
-                                           "Cálculo 1", 
-                                           Turno.Noturno, 60
-                                       )]), 
-                             Modalidade.Presencial));
+        return new Aluno("thiago.santos",
+                         "Thiago Santos",
+                         new Cargo(CargosDeAcesso.CargoAlunos),
+                         "senha12345",
+                         new Matricula(2412130152,
+                                       2,
+                                       new Curso(
+                                           "Ciência da Computação",
+                                           [
+                                               new Materia("Cálculo 1",
+                                                           Turno
+                                                               .Noturno,
+                                                           60)
+                                           ]),
+                                       Modalidade.Presencial));
     }
 }

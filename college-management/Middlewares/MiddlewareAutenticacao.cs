@@ -30,12 +30,12 @@ public static class MiddlewareAutenticacao
                         "Usuário de teste não foi encontrado");
 
                 estadoAtual = EstadoDoApp.Contexto;
-                
+
                 break;
             }
 
             usuarioLogado = autenticacao.Login();
-          
+
             estadoAtual = EstadoDoApp.Contexto;
         } while (estadoAtual is EstadoDoApp.Login);
 

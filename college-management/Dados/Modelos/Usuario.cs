@@ -3,9 +3,9 @@ using System.Text.Json.Serialization;
 
 namespace college_management.Dados.Modelos;
 
-[JsonDerivedType(typeof(Usuario), typeDiscriminator: "base")]
-[JsonDerivedType(typeof(Aluno), typeDiscriminator: "aluno")]
-[JsonDerivedType(typeof(Funcionario), typeDiscriminator: "funcionario")]
+[JsonDerivedType(typeof(Usuario), "base")]
+[JsonDerivedType(typeof(Aluno), "aluno")]
+[JsonDerivedType(typeof(Funcionario), "funcionario")]
 public class Usuario : Modelo
 {
     public Usuario(string login,
@@ -33,7 +33,8 @@ public class Usuario : Modelo
                                   string loginUsuario,
                                   string senhaUsuario)
     {
-        return usuario.Login == loginUsuario && usuario.Senha == senhaUsuario;
+        return usuario.Login == loginUsuario
+               && usuario.Senha == senhaUsuario;
     }
 
     public override string ToString()
