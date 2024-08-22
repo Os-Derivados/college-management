@@ -1,8 +1,10 @@
+using System.Reflection;
 using System.Text;
 using college_management.Constantes;
 using college_management.Dados.Modelos;
 using college_management.Dados.Repositorios;
 using college_management.Servicos.Interfaces;
+using college_management.Utilitarios;
 using Microsoft.VisualBasic.FileIO;
 
 namespace college_management.Servicos;
@@ -12,10 +14,10 @@ public sealed class ServicoRelatorios<T> : IServicoRelatorios<T>
 {
     private readonly string _arquivoRelatorios;
     private readonly Usuario _usuario;
-    private readonly Repositorio<T> _repositorio;
+    private readonly List<T> _modelos;
 
     public ServicoRelatorios(Usuario usuario,
-                             Repositorio<T> repositorio)
+                             List<T> modelos)
     {
         _arquivoRelatorios = Path.Combine(
             SpecialDirectories.MyDocuments,
@@ -25,7 +27,7 @@ public sealed class ServicoRelatorios<T> : IServicoRelatorios<T>
             $"{typeof(T)}.csv");
 
         _usuario = usuario;
-        _repositorio = repositorio;
+        _modelos = modelos;
     }
 
     public string GerarRelatorio(T modelo)
@@ -43,17 +45,14 @@ public sealed class ServicoRelatorios<T> : IServicoRelatorios<T>
 
     private string GerarEntradasRelatorio()
     {
-        var modelos = _repositorio.ObterTodos();
-
-        if (modelos.Count is 0)
-            return modelos[0].ToString();
+        if (_modelos.Count is 0)
+            return _modelos[0].ToString();
 
         StringBuilder entradasRelatorio = new();
 
-        entradasRelatorio.AppendLine(
-            modelos[0].ObterNomesPropriedades());
+        entradasRelatorio.AppendLine(UtilitarioTipos.ObterNomesPropriedades(typeof(T).GetProperties()));
 
-        foreach (var modelo in modelos)
+        foreach (var modelo in _modelos)
             entradasRelatorio.AppendLine(modelo.ToString());
 
         return entradasRelatorio.ToString();
