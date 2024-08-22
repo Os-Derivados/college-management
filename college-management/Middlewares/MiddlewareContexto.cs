@@ -11,13 +11,22 @@ public static class MiddlewareContexto
     public static void Inicializar(BaseDeDados baseDeDados,
                                    Usuario usuario)
     {
-        var contextoAtual = new Contexto(baseDeDados, usuario);
+        var contextoSelecionado =
+            SelecionarContexto(baseDeDados, usuario);
+        
+        contextoSelecionado.AcessarRecurso();
+    }
+
+    private static Contexto SelecionarContexto(BaseDeDados baseDeDados, Usuario usuario)
+    {
         var estadoAtual = EstadoDoApp.Contexto;
+        string recursoSelecionado = "";
 
         do
         {
             Console.WriteLine(
                 "Bem-vindo(a). Selecione um dos contextos abaixo.");
+            
             var recursos = ListarContextos(usuario);
 
             var opcaoEscolhida = Console.ReadLine();
@@ -33,12 +42,12 @@ public static class MiddlewareContexto
             Console.Clear();
 
             _ = recursos.TryGetValue(opcaoUsuario,
-                                     out var recursoSelecionado);
+                                     out recursoSelecionado);
 
-            contextoAtual.AcessarRecurso(recursoSelecionado);
+            if (opcaoValida && (opcaoUsuario is not 0)) break;
         } while (estadoAtual is EstadoDoApp.Contexto);
-
-        Console.WriteLine("Saindo...");
+        
+        return new Contexto(baseDeDados, usuario, recursoSelecionado);
     }
 
     private static Dictionary<int, string> ListarContextos(

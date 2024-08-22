@@ -1,7 +1,6 @@
 using college_management.Constantes;
 using college_management.Dados;
 using college_management.Dados.Modelos;
-using college_management.Servicos;
 
 namespace college_management.Funcionalidades;
 
@@ -9,16 +8,20 @@ public sealed class Contexto
 {
     private readonly BaseDeDados _baseDeDados;
     private readonly Usuario _usuario;
+    private readonly string _recurso;
 
-    public Contexto(BaseDeDados baseDeDados, Usuario usuario)
+    public Contexto(BaseDeDados baseDeDados, 
+                    Usuario usuario, 
+                    string recurso)
     {
         _baseDeDados = baseDeDados;
         _usuario = usuario;
+        _recurso = recurso;
     }
 
-    public void AcessarRecurso(string recurso)
+    public void AcessarRecurso()
     {
-        switch (recurso)
+        switch (_recurso)
         {
             case OperacoesDeContexto.AcessarCursos:
                 AcessarCursos();
@@ -34,6 +37,11 @@ public sealed class Contexto
 
             case OperacoesDeContexto.AcessarUsuarios:
                 AcessarUsuarios();
+                break;
+            
+            default: 
+                Console.WriteLine("Nenhum contexto foi selecionado. Saindo...");
+                
                 break;
         }
     }
