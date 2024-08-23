@@ -1,6 +1,6 @@
 namespace college_management.Constantes;
 
-public static class OperacoesDeContexto
+public static class OperacoesContexto
 {
     public const string AcessarCursos = "Acessar Cursos";
     public const string AcessarCargos = "Acessar Cargos";
