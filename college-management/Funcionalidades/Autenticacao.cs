@@ -29,7 +29,7 @@ public sealed class Autenticacao
         // recebidas durante a interação
         return new Aluno("thiago.santos",
                          "Thiago Santos",
-                         new Cargo(CargosDeAcesso.CargoAlunos),
+                         new Cargo(CargosAcesso.CargoAlunos),
                          "senha12345",
                          new Matricula(2412130152,
                                        2,

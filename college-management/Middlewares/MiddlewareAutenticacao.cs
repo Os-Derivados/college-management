@@ -20,7 +20,7 @@ public static class MiddlewareAutenticacao
             if (modoDesenvolvimento)
             {
                 _ = UtilitarioAmbiente.Variaveis.TryGetValue(
-                    VariaveisDeAmbiente.UsuarioTesteLogin,
+                    VariaveisAmbiente.UsuarioTesteLogin,
                     out var loginTeste);
                 usuarioLogado = repositorioUsuarios
                     .ObterPorLogin(loginTeste);

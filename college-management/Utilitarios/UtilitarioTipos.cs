@@ -9,10 +9,7 @@ public static class UtilitarioTipos
     {
         StringBuilder propriedades = new();
 
-        foreach (var p in infos)
-        {
-            propriedades.Append($"{p.Name}\t");
-        }
+        foreach (var p in infos) propriedades.Append($"{p.Name}\t");
 
         return propriedades.ToString();
     }

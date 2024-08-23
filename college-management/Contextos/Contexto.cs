@@ -26,7 +26,9 @@ public abstract class Contexto
             _ => throw new InvalidOperationException("Não há contexto definido para este tipo")
         };
 
-        mensagem.AppendLine($"Bem vindo ao recuso de {_tipoRecurso.Name}");
+        mensagem.AppendLine(
+            $"Bem vindo ao recuso de {_tipoRecurso.Name}.\n"
+            + $"Selecione uma das opções abaixo.\n");
         
         for (var i = 0; i < opcoes.Length; i++)
         {

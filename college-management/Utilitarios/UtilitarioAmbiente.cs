@@ -19,9 +19,9 @@ public static class UtilitarioAmbiente
         foreach (var linha in
                  File.ReadAllLines(caminhoDoArquivo))
         {
-            var partes = linha.Split(
-                '=',
-                StringSplitOptions.RemoveEmptyEntries);
+            var partes = linha.Split('=',
+                                     StringSplitOptions
+                                         .RemoveEmptyEntries);
 
             if (partes.Length is not 2)
                 continue;

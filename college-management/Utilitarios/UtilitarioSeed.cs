@@ -9,32 +9,32 @@ public static class UtilitarioSeed
     public static async Task IniciarBaseDeDados(BaseDeDados baseDeDados)
     {
         await CadastrarCargoPadrao(
-            new Cargo(CargosDeAcesso.CargoAdministradores),
+            new Cargo(CargosAcesso.CargoAdministradores),
             baseDeDados);
         await CadastrarCargoPadrao(
-            new Cargo(CargosDeAcesso.CargoGestores),
+            new Cargo(CargosAcesso.CargoGestores),
             baseDeDados);
         await CadastrarCargoPadrao(
-            new Cargo(CargosDeAcesso.CargoAlunos),
+            new Cargo(CargosAcesso.CargoAlunos),
             baseDeDados);
 
         var (loginMestre, nomeMestre, senhaMestre)
-            = ObterCredenciais(VariaveisDeAmbiente.MasterAdminLogin,
-                               VariaveisDeAmbiente.MasterAdminNome,
-                               VariaveisDeAmbiente.MasterAdminSenha);
+            = ObterCredenciais(VariaveisAmbiente.MasterAdminLogin,
+                               VariaveisAmbiente.MasterAdminNome,
+                               VariaveisAmbiente.MasterAdminSenha);
 
         await CadastrarUsuarioPadrao(new Funcionario(loginMestre,
                                                      nomeMestre,
                                                      new Cargo(
-                                                         CargosDeAcesso
+                                                         CargosAcesso
                                                              .CargoAdministradores),
                                                      senhaMestre),
                                      baseDeDados);
 
         var (loginTeste, nomeTeste, senhaTeste)
-            = ObterCredenciais(VariaveisDeAmbiente.UsuarioTesteLogin,
-                               VariaveisDeAmbiente.UsuarioTesteNome,
-                               VariaveisDeAmbiente.UsuarioTesteSenha);
+            = ObterCredenciais(VariaveisAmbiente.UsuarioTesteLogin,
+                               VariaveisAmbiente.UsuarioTesteNome,
+                               VariaveisAmbiente.UsuarioTesteSenha);
 
         Materia materiaTeste = new("Matéria Teste",
                                    Turno.Integral,
@@ -52,17 +52,16 @@ public static class UtilitarioSeed
 
         await CadastrarUsuarioPadrao(new Aluno(loginTeste,
                                                nomeTeste,
-                                               new Cargo(
-                                                   CargosDeAcesso
-                                                       .CargoAlunos),
+                                               new Cargo(CargosAcesso
+                                                             .CargoAlunos),
                                                senhaTeste,
                                                matriculaTeste),
                                      baseDeDados);
     }
 
-    private static async Task CadastrarCargoPadrao(
-        Cargo cargo,
-        BaseDeDados baseDeDados)
+    private static async Task CadastrarCargoPadrao(Cargo cargo,
+                                                   BaseDeDados
+                                                       baseDeDados)
     {
         var cargos = baseDeDados.cargos.ObterTodos();
 
@@ -80,9 +79,9 @@ public static class UtilitarioSeed
             await baseDeDados.materias.Adicionar(materia);
     }
 
-    private static async Task CadastrarCursoPadrao(
-        Curso curso,
-        BaseDeDados baseDeDados)
+    private static async Task CadastrarCursoPadrao(Curso curso,
+                                                   BaseDeDados
+                                                       baseDeDados)
     {
         var cursos = baseDeDados.cursos.ObterTodos();
 
@@ -90,9 +89,9 @@ public static class UtilitarioSeed
             await baseDeDados.cursos.Adicionar(curso);
     }
 
-    private static async Task CadastrarUsuarioPadrao(
-        Usuario usuario,
-        BaseDeDados baseDeDados)
+    private static async Task CadastrarUsuarioPadrao(Usuario usuario,
+                                                     BaseDeDados
+                                                         baseDeDados)
     {
         var usuarioPadrao =
             baseDeDados.usuarios.ObterPorLogin(usuario.Login);

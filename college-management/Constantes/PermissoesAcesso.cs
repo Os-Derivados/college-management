@@ -1,6 +1,6 @@
 namespace college_management.Constantes;
 
-public static class PermissoesDeAcesso
+public static class PermissoesAcesso
 {
     public const string PermissaoGerenciarAdministradores =
         "Gerenciar Administradores";

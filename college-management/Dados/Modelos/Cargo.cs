@@ -25,23 +25,23 @@ public sealed class Cargo : Modelo
     {
         Permissoes = cargo switch
         {
-            CargosDeAcesso.CargoAlunos =>
+            CargosAcesso.CargoAlunos =>
             [
-                PermissoesDeAcesso.PermissaoAcessarCursos
+                PermissoesAcesso.PermissaoAcessarCursos
             ],
-            CargosDeAcesso.CargoGestores =>
+            CargosAcesso.CargoGestores =>
             [
-                PermissoesDeAcesso.PermissaoGerenciarMatriculas,
-                PermissoesDeAcesso.PermissaoGerenciarCursos,
-                PermissoesDeAcesso.PermissaoGerenciarAlunos
+                PermissoesAcesso.PermissaoGerenciarMatriculas,
+                PermissoesAcesso.PermissaoGerenciarCursos,
+                PermissoesAcesso.PermissaoGerenciarAlunos
             ],
-            CargosDeAcesso.CargoAdministradores =>
+            CargosAcesso.CargoAdministradores =>
             [
-                PermissoesDeAcesso.PermissaoGerenciarMatriculas,
-                PermissoesDeAcesso.PermissaoGerenciarCursos,
-                PermissoesDeAcesso.PermissaoGerenciarAlunos,
-                PermissoesDeAcesso.PermissaoGerenciarGestores,
-                PermissoesDeAcesso.PermissaoGerenciarAdministradores
+                PermissoesAcesso.PermissaoGerenciarMatriculas,
+                PermissoesAcesso.PermissaoGerenciarCursos,
+                PermissoesAcesso.PermissaoGerenciarAlunos,
+                PermissoesAcesso.PermissaoGerenciarGestores,
+                PermissoesAcesso.PermissaoGerenciarAdministradores
             ],
             _ => throw new ArgumentOutOfRangeException(nameof(cargo),
                                                        "Não é possível atribuir permissões sem especificar um cargo válido")

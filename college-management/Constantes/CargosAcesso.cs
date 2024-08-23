@@ -1,6 +1,6 @@
 namespace college_management.Constantes;
 
-public static class CargosDeAcesso
+public static class CargosAcesso
 {
     public const string CargoAlunos = "Alunos";
     public const string CargoGestores = "Gestores";

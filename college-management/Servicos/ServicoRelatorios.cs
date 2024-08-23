@@ -34,9 +34,9 @@ public sealed class ServicoRelatorios<T> : IServicoRelatorios<T>
     {
         return _usuario.Cargo.Nome switch
         {
-            CargosDeAcesso.CargoAlunos => modelo.ToString(),
-            CargosDeAcesso.CargoGestores
-                or CargosDeAcesso.CargoAdministradores =>
+            CargosAcesso.CargoAlunos => modelo.ToString(),
+            CargosAcesso.CargoGestores
+                or CargosAcesso.CargoAdministradores =>
                 GerarEntradasRelatorio(),
             _ => throw new InvalidOperationException(
                      "Não há modelo de relatório disponível para este cargo")
@@ -50,7 +50,9 @@ public sealed class ServicoRelatorios<T> : IServicoRelatorios<T>
 
         StringBuilder entradasRelatorio = new();
 
-        entradasRelatorio.AppendLine(UtilitarioTipos.ObterNomesPropriedades(typeof(T).GetProperties()));
+        entradasRelatorio.AppendLine(
+            UtilitarioTipos.ObterNomesPropriedades(
+                typeof(T).GetProperties()));
 
         foreach (var modelo in _modelos)
             entradasRelatorio.AppendLine(modelo.ToString());

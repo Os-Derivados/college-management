@@ -1,6 +1,6 @@
 namespace college_management.Constantes;
 
-public static class VariaveisDeAmbiente
+public static class VariaveisAmbiente
 {
     public const string MasterAdminNome = "ADMIN_USER";
     public const string MasterAdminLogin = "ADMIN_LOGIN";
