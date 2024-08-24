@@ -4,8 +4,7 @@ using college_management.Dados.Repositorios;
 
 namespace college_management.Contextos;
 
-public class ContextoUsuarios() : Contexto(typeof(Usuario)), 
-                                  IContexto<Usuario>,
+public class ContextoUsuarios() : Contexto(typeof(Usuario)),
                                   IContextoUsuarios
 {
     public async Task Cadastrar(Repositorio<Usuario> repositorio,

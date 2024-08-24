@@ -5,7 +5,6 @@ using college_management.Dados.Repositorios;
 namespace college_management.Contextos;
 
 public class ContextoCursos() : Contexto(typeof(Curso)), 
-                               IContexto<Curso>,
                                IContextoCursos
 {
     public async Task Cadastrar(Repositorio<Curso> repositorio,

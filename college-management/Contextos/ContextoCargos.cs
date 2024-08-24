@@ -5,7 +5,7 @@ using college_management.Dados.Repositorios;
 namespace college_management.Contextos;
 
 public class ContextoCargos() : Contexto(typeof(Cargo)),
-                               IContexto<Cargo>
+                               IContextoCargos
 {
     public async Task Cadastrar(Repositorio<Cargo> repositorio,
                                 Usuario usuario)
