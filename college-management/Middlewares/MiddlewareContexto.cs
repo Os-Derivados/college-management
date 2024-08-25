@@ -24,7 +24,7 @@ public static class MiddlewareContexto
                                         BaseDeDados baseDeDados, 
                                         Usuario usuario)
     {
-        const EstadoDoApp estadoAtual = EstadoDoApp.Recurso;
+        var estadoAtual = EstadoDoApp.Recurso;
 
         do
         {
@@ -35,37 +35,58 @@ public static class MiddlewareContexto
                 OperacoesContexto.AcessarCursos => new ContextoCursos(),
                 OperacoesContexto.AcessarMaterias => new ContextoMaterias(),
                 OperacoesContexto.AcessarCargos => new ContextoCargos(),
-                OperacoesContexto.AcessarUsuarios => new ContextoUsuarios()
+                OperacoesContexto.AcessarUsuarios => new ContextoUsuarios(),
+                _ => throw new InvalidOperationException("Contexto inválido")
             };
 
             contexto.ListarOpcoes();
 
             var opcaoEscolhida = Console.ReadKey();
-            
-            if (opcaoEscolhida.Key is ConsoleKey.D0) break;
-            
-            var recursosDisponiveis = contextoEscolhido switch
+
+            if (opcaoEscolhida.Key is ConsoleKey.D0)
             {
-                OperacoesContexto.AcessarUsuarios => 
-                    OperacoesRecurso.OperacoesUsuarios,
-                OperacoesContexto.AcessarCursos => 
-                    OperacoesRecurso.OperacoesCursos,
-                OperacoesContexto.AcessarMaterias => 
-                    OperacoesRecurso.OperacoesMaterias,
-                OperacoesContexto.AcessarCargos => 
-                    OperacoesRecurso.OperacoesCargos,
-                _ => throw new InvalidOperationException(
-                         "Não há contexto definido para este tipo")
-            };
+                estadoAtual = EstadoDoApp.Sair;
 
-            _ = int.TryParse(opcaoEscolhida.KeyChar.ToString(), out var i);
+                break;
+            }
 
-            var recursoEscolhido = recursosDisponiveis
-                                   .Select(r => r.Trim().Replace(" ", "")).ElementAt(i - 1);
+            var recursoEscolhido =
+                ConverterOpcaoEmMetodo(contextoEscolhido,
+                                       opcaoEscolhida);
             
-            AcessarRecurso(contexto, recursoEscolhido, baseDeDados, usuario);
+            Console.Clear();
+            
+            AcessarRecurso(contexto, 
+                           recursoEscolhido, 
+                           baseDeDados, 
+                           usuario);
 
         } while (estadoAtual is EstadoDoApp.Recurso);
+    }
+
+    private static string ConverterOpcaoEmMetodo(string contextoEscolhido, 
+                                                 ConsoleKeyInfo opcaoEscolhida)
+    {
+        var recursosDisponiveis = contextoEscolhido switch
+        {
+            OperacoesContexto.AcessarUsuarios => 
+                OperacoesRecurso.OperacoesUsuarios,
+            OperacoesContexto.AcessarCursos => 
+                OperacoesRecurso.OperacoesCursos,
+            OperacoesContexto.AcessarMaterias => 
+                OperacoesRecurso.OperacoesMaterias,
+            OperacoesContexto.AcessarCargos => 
+                OperacoesRecurso.OperacoesCargos,
+            _ => throw new InvalidOperationException(
+                     "Não há contexto definido para este tipo")
+        };
+
+        _ = int.TryParse(opcaoEscolhida.KeyChar.ToString(), out var i);
+
+        var recursoEscolhido = recursosDisponiveis
+                               .Select(r => r.Trim().Replace(" ", "")).ElementAt(i - 1);
+
+        return recursoEscolhido;
     }
     
     private static void AcessarRecurso(Contexto contexto, 
@@ -105,11 +126,9 @@ public static class MiddlewareContexto
                 "Bem-vindo(a). Selecione um dos contextos abaixo.");
 
             var recursos = ListarContextos(usuario);
-
             var opcaoEscolhida = Console.ReadLine();
-
-            var opcaoValida =
-                int.TryParse(opcaoEscolhida, out var opcaoUsuario);
+            var opcaoValida = int
+                .TryParse(opcaoEscolhida, out var opcaoUsuario);
 
             if (!opcaoValida) continue;
 
@@ -118,13 +137,10 @@ public static class MiddlewareContexto
 
             Console.Clear();
 
-            _ = recursos.TryGetValue(opcaoUsuario,
+            _ = recursos.TryGetValue(opcaoUsuario, 
                                      out contextoEscolhido);
-
-            if (opcaoValida && opcaoUsuario is not 0)
-            {
-                estadoAtual = EstadoDoApp.Recurso;
-            }
+            
+            estadoAtual = EstadoDoApp.Recurso;
         } while (estadoAtual is EstadoDoApp.Contexto);
 
         return contextoEscolhido;
