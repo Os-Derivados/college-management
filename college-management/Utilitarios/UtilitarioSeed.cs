@@ -14,9 +14,8 @@ public static class UtilitarioSeed
         await CadastrarCargoPadrao(
             new Cargo(CargosAcesso.CargoGestores),
             baseDeDados);
-        await CadastrarCargoPadrao(
-            new Cargo(CargosAcesso.CargoAlunos),
-            baseDeDados);
+        await CadastrarCargoPadrao(new Cargo(CargosAcesso.CargoAlunos),
+                                   baseDeDados);
 
         var (loginMestre, nomeMestre, senhaMestre)
             = ObterCredenciais(VariaveisAmbiente.MasterAdminLogin,

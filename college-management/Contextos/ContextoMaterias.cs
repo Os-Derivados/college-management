@@ -4,7 +4,7 @@ using college_management.Dados.Repositorios;
 
 namespace college_management.Contextos;
 
-public class ContextoMaterias() : Contexto(typeof(Materia)), 
+public class ContextoMaterias() : Contexto(typeof(Materia)),
                                   IContexto<Materia>
 {
     public async Task Cadastrar(Repositorio<Materia> repositorio,

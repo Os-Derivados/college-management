@@ -7,19 +7,21 @@ namespace college_management.Middlewares;
 
 public static class MiddlewareAutenticacao
 {
-    public static Usuario Login(bool modoDesenvolvimento,
+    public static Usuario Autenticar(bool modoDesenvolvimento,
                                 RepositorioUsuarios repositorioUsuarios)
     {
-        return modoDesenvolvimento 
-                   ? ObterUsuarioTeste(repositorioUsuarios) 
+        return modoDesenvolvimento
+                   ? ObterUsuarioTeste(repositorioUsuarios)
                    : Login(repositorioUsuarios);
     }
 
-    private static Usuario ObterUsuarioTeste(RepositorioUsuarios repositorioUsuarios)
+    private static Usuario ObterUsuarioTeste(
+        RepositorioUsuarios repositorioUsuarios)
     {
         _ = UtilitarioAmbiente.Variaveis.TryGetValue(
             VariaveisAmbiente.UsuarioTesteLogin,
             out var loginTeste);
+        
         var usuarioLogado = repositorioUsuarios
             .ObterPorLogin(loginTeste);
 
@@ -29,16 +31,17 @@ public static class MiddlewareAutenticacao
 
         return usuarioLogado;
     }
-    
-    private static Usuario Login(RepositorioUsuarios repositorioUsuarios)
+
+    private static Usuario Login(
+        RepositorioUsuarios repositorioUsuarios)
     {
         // TODO:
         // 1. Pedir o login
         // 2 Pedir a senha
         // 3. Verificar se o login existe
-        // 3.1. Se não existir -> Login ou a senha estão inválidos
+        // 3.1. Se não existir -> Autenticar ou a senha estão inválidos
         // 3.2. Se o login está válido -> Validar a senha
-        // 3.3. Se a senha estiver errada -> Login ou senha estão inválidos
+        // 3.3. Se a senha estiver errada -> Autenticar ou senha estão inválidos
         // 3.4. Se a senha estiver válida -> Retornar o usuário encontrado na base de dados
 
         throw new InvalidOperationException(

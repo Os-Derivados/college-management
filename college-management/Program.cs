@@ -9,7 +9,7 @@ await UtilitarioSeed.IniciarBaseDeDados(baseDeDados);
 _ = bool.TryParse(args[0], out var modoDesenvolvimento);
 
 var usuarioLogado =
-    MiddlewareAutenticacao.Login(modoDesenvolvimento,
+    MiddlewareAutenticacao.Autenticar(modoDesenvolvimento,
                                  baseDeDados.usuarios);
 
 MiddlewareContexto.Inicializar(baseDeDados, usuarioLogado);

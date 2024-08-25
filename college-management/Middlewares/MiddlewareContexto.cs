@@ -12,7 +12,7 @@ public static class MiddlewareContexto
                                    Usuario usuario)
     {
         var contextoEscolhido = EscolherContexto(usuario);
-        
+
         if (contextoEscolhido is not "")
             AcessarContexto(contextoEscolhido, baseDeDados, usuario);
 
@@ -20,8 +20,8 @@ public static class MiddlewareContexto
         Console.WriteLine("Saindo...");
     }
 
-    private static void AcessarContexto(string contextoEscolhido, 
-                                        BaseDeDados baseDeDados, 
+    private static void AcessarContexto(string contextoEscolhido,
+                                        BaseDeDados baseDeDados,
                                         Usuario usuario)
     {
         var estadoAtual = EstadoDoApp.Recurso;
@@ -29,14 +29,17 @@ public static class MiddlewareContexto
         do
         {
             Console.Clear();
-            
+
             Contexto contexto = contextoEscolhido switch
             {
                 OperacoesContexto.AcessarCursos => new ContextoCursos(),
-                OperacoesContexto.AcessarMaterias => new ContextoMaterias(),
+                OperacoesContexto.AcessarMaterias =>
+                    new ContextoMaterias(),
                 OperacoesContexto.AcessarCargos => new ContextoCargos(),
-                OperacoesContexto.AcessarUsuarios => new ContextoUsuarios(),
-                _ => throw new InvalidOperationException("Contexto inválido")
+                OperacoesContexto.AcessarUsuarios =>
+                    new ContextoUsuarios(),
+                _ => throw new InvalidOperationException(
+                         "Contexto inválido")
             };
 
             contexto.ListarOpcoes();
@@ -53,29 +56,29 @@ public static class MiddlewareContexto
             var recursoEscolhido =
                 ConverterOpcaoEmMetodo(contextoEscolhido,
                                        opcaoEscolhida);
-            
-            Console.Clear();
-            
-            AcessarRecurso(contexto, 
-                           recursoEscolhido, 
-                           baseDeDados, 
-                           usuario);
 
+            Console.Clear();
+
+            AcessarRecurso(contexto,
+                           recursoEscolhido,
+                           baseDeDados,
+                           usuario);
         } while (estadoAtual is EstadoDoApp.Recurso);
     }
 
-    private static string ConverterOpcaoEmMetodo(string contextoEscolhido, 
-                                                 ConsoleKeyInfo opcaoEscolhida)
+    private static string ConverterOpcaoEmMetodo(
+        string contextoEscolhido,
+        ConsoleKeyInfo opcaoEscolhida)
     {
         var recursosDisponiveis = contextoEscolhido switch
         {
-            OperacoesContexto.AcessarUsuarios => 
+            OperacoesContexto.AcessarUsuarios =>
                 OperacoesRecurso.OperacoesUsuarios,
-            OperacoesContexto.AcessarCursos => 
+            OperacoesContexto.AcessarCursos =>
                 OperacoesRecurso.OperacoesCursos,
-            OperacoesContexto.AcessarMaterias => 
+            OperacoesContexto.AcessarMaterias =>
                 OperacoesRecurso.OperacoesMaterias,
-            OperacoesContexto.AcessarCargos => 
+            OperacoesContexto.AcessarCargos =>
                 OperacoesRecurso.OperacoesCargos,
             _ => throw new InvalidOperationException(
                      "Não há contexto definido para este tipo")
@@ -84,14 +87,15 @@ public static class MiddlewareContexto
         _ = int.TryParse(opcaoEscolhida.KeyChar.ToString(), out var i);
 
         var recursoEscolhido = recursosDisponiveis
-                               .Select(r => r.Trim().Replace(" ", "")).ElementAt(i - 1);
+                               .Select(r => r.Trim().Replace(" ", ""))
+                               .ElementAt(i - 1);
 
         return recursoEscolhido;
     }
-    
-    private static void AcessarRecurso(Contexto contexto, 
-                                       string nomeRecurso, 
-                                       BaseDeDados baseDeDados, 
+
+    private static void AcessarRecurso(Contexto contexto,
+                                       string nomeRecurso,
+                                       BaseDeDados baseDeDados,
                                        Usuario usuario)
     {
         var interfacesContexto = contexto.GetType().GetInterfaces();
@@ -99,7 +103,7 @@ public static class MiddlewareContexto
         var recurso =
             interfacesContexto.Select(t => t.GetMethod(nomeRecurso))
                               .FirstOrDefault(t => t is not null);
-                              
+
         if (recurso is null)
             throw new InvalidOperationException("Recurso inexistente");
 
@@ -109,9 +113,10 @@ public static class MiddlewareContexto
             nameof(Cargo)   => baseDeDados.cargos,
             nameof(Materia) => baseDeDados.materias,
             nameof(Curso)   => baseDeDados.cursos,
-            _ => throw new InvalidOperationException("Repositorio inexistente")
+            _ => throw new InvalidOperationException(
+                     "Repositorio inexistente")
         };
-        
+
         recurso.Invoke(contexto, [repositorio, usuario]);
     }
 
@@ -137,9 +142,9 @@ public static class MiddlewareContexto
 
             Console.Clear();
 
-            _ = recursos.TryGetValue(opcaoUsuario, 
+            _ = recursos.TryGetValue(opcaoUsuario,
                                      out contextoEscolhido);
-            
+
             estadoAtual = EstadoDoApp.Recurso;
         } while (estadoAtual is EstadoDoApp.Contexto);
 
