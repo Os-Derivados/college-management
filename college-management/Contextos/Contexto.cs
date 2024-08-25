@@ -6,18 +6,18 @@ namespace college_management.Contextos;
 
 public abstract class Contexto
 {
-    private readonly Type _tipoRecurso;
+    public readonly Type TipoRecurso;
 
     protected Contexto(Type tipoRecurso)
     {
-        _tipoRecurso = tipoRecurso;
+        TipoRecurso = tipoRecurso;
     }
     
     public void ListarOpcoes() 
     {
         StringBuilder mensagem = new();
 
-        var opcoes = _tipoRecurso.Name switch
+        var opcoes = TipoRecurso.Name switch
         {
             nameof(Usuario) => OperacoesRecurso.OperacoesUsuarios,
             nameof(Curso) => OperacoesRecurso.OperacoesCursos,
@@ -27,7 +27,7 @@ public abstract class Contexto
         };
 
         mensagem.AppendLine(
-            $"Bem vindo ao recuso de {_tipoRecurso.Name}.\n"
+            $"Bem vindo ao recuso de {TipoRecurso.Name}.\n"
             + $"Selecione uma das opções abaixo.\n");
         
         for (var i = 0; i < opcoes.Length; i++)

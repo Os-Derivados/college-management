@@ -2,7 +2,7 @@ using System.Text;
 using college_management.Constantes;
 using college_management.Dados;
 using college_management.Dados.Modelos;
-using college_management.Funcionalidades;
+using college_management.Contextos;
 
 namespace college_management.Middlewares;
 
@@ -11,22 +11,99 @@ public static class MiddlewareContexto
     public static void Inicializar(BaseDeDados baseDeDados,
                                    Usuario usuario)
     {
-        var contextoSelecionado =
-            SelecionarContexto(baseDeDados, usuario);
+        var contextoEscolhido = EscolherContexto(usuario);
         
-        contextoSelecionado.AcessarRecurso();
+        if (contextoEscolhido is not "")
+            AcessarContexto(contextoEscolhido, baseDeDados, usuario);
+
+        Console.Clear();
+        Console.WriteLine("Saindo...");
     }
 
-    private static Contexto SelecionarContexto(BaseDeDados baseDeDados, Usuario usuario)
+    private static void AcessarContexto(string contextoEscolhido, 
+                                        BaseDeDados baseDeDados, 
+                                        Usuario usuario)
+    {
+        const EstadoDoApp estadoAtual = EstadoDoApp.Recurso;
+
+        do
+        {
+            Console.Clear();
+            
+            Contexto contexto = contextoEscolhido switch
+            {
+                OperacoesContexto.AcessarCursos => new ContextoCursos(),
+                OperacoesContexto.AcessarMaterias => new ContextoMaterias(),
+                OperacoesContexto.AcessarCargos => new ContextoCargos(),
+                OperacoesContexto.AcessarUsuarios => new ContextoUsuarios()
+            };
+
+            contexto.ListarOpcoes();
+
+            var opcaoEscolhida = Console.ReadKey();
+            
+            if (opcaoEscolhida.Key is ConsoleKey.D0) break;
+            
+            var recursosDisponiveis = contextoEscolhido switch
+            {
+                OperacoesContexto.AcessarUsuarios => 
+                    OperacoesRecurso.OperacoesUsuarios,
+                OperacoesContexto.AcessarCursos => 
+                    OperacoesRecurso.OperacoesCursos,
+                OperacoesContexto.AcessarMaterias => 
+                    OperacoesRecurso.OperacoesMaterias,
+                OperacoesContexto.AcessarCargos => 
+                    OperacoesRecurso.OperacoesCargos,
+                _ => throw new InvalidOperationException(
+                         "Não há contexto definido para este tipo")
+            };
+
+            _ = int.TryParse(opcaoEscolhida.KeyChar.ToString(), out var i);
+
+            var recursoEscolhido = recursosDisponiveis
+                                   .Select(r => r.Trim().Replace(" ", "")).ElementAt(i - 1);
+            
+            AcessarRecurso(contexto, recursoEscolhido, baseDeDados, usuario);
+
+        } while (estadoAtual is EstadoDoApp.Recurso);
+    }
+    
+    private static void AcessarRecurso(Contexto contexto, 
+                                       string nomeRecurso, 
+                                       BaseDeDados baseDeDados, 
+                                       Usuario usuario)
+    {
+        var interfacesContexto = contexto.GetType().GetInterfaces();
+
+        var recurso =
+            interfacesContexto.Select(t => t.GetMethod(nomeRecurso))
+                              .FirstOrDefault(t => t is not null);
+                              
+        if (recurso is null)
+            throw new InvalidOperationException("Recurso inexistente");
+
+        dynamic repositorio = contexto.TipoRecurso.Name switch
+        {
+            nameof(Usuario) => baseDeDados.usuarios,
+            nameof(Cargo)   => baseDeDados.cargos,
+            nameof(Materia) => baseDeDados.materias,
+            nameof(Curso)   => baseDeDados.cursos,
+            _ => throw new InvalidOperationException("Repositorio inexistente")
+        };
+        
+        recurso.Invoke(contexto, [repositorio, usuario]);
+    }
+
+    private static string EscolherContexto(Usuario usuario)
     {
         var estadoAtual = EstadoDoApp.Contexto;
-        string recursoSelecionado = "";
+        var contextoEscolhido = "";
 
         do
         {
             Console.WriteLine(
                 "Bem-vindo(a). Selecione um dos contextos abaixo.");
-            
+
             var recursos = ListarContextos(usuario);
 
             var opcaoEscolhida = Console.ReadLine();
@@ -37,17 +114,20 @@ public static class MiddlewareContexto
             if (!opcaoValida) continue;
 
             if (opcaoUsuario is 0)
-                estadoAtual = EstadoDoApp.Sair;
+                break;
 
             Console.Clear();
 
             _ = recursos.TryGetValue(opcaoUsuario,
-                                     out recursoSelecionado);
+                                     out contextoEscolhido);
 
-            if (opcaoValida && (opcaoUsuario is not 0)) break;
+            if (opcaoValida && opcaoUsuario is not 0)
+            {
+                estadoAtual = EstadoDoApp.Recurso;
+            }
         } while (estadoAtual is EstadoDoApp.Contexto);
-        
-        return new Contexto(baseDeDados, usuario, recursoSelecionado);
+
+        return contextoEscolhido;
     }
 
     private static Dictionary<int, string> ListarContextos(
@@ -58,11 +138,11 @@ public static class MiddlewareContexto
 
         var opcoes = usuario.Cargo.Nome switch
         {
-            CargosDeAcesso.CargoAlunos =>
-                OperacoesDeContexto.AcessoAlunos,
-            CargosDeAcesso.CargoGestores
-                or CargosDeAcesso.CargoAdministradores =>
-                OperacoesDeContexto.AcessoGestoresAdministradores,
+            CargosAcesso.CargoAlunos =>
+                OperacoesContexto.AcessoAlunos,
+            CargosAcesso.CargoGestores
+                or CargosAcesso.CargoAdministradores =>
+                OperacoesContexto.AcessoGestoresAdministradores,
             _ => throw new InvalidOperationException(
                      "O usuário não possui um cargo validado")
         };

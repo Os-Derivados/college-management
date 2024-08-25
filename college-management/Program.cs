@@ -18,5 +18,6 @@ public enum EstadoDoApp
 {
     Sair,
     Login,
-    Contexto
+    Contexto,
+    Recurso
 }
