@@ -32,10 +32,10 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 
         Console.WriteLine(mensagem.ToString());
     }
-    
+
     public void AcessarRecurso(string nomeRecurso,
-                                       BaseDeDados baseDeDados,
-                                       Usuario usuario)
+                               BaseDeDados baseDeDados,
+                               Usuario usuario)
     {
         var interfacesContexto = GetType().GetInterfaces();
 
@@ -59,11 +59,59 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
         recurso.Invoke(this, [repositorio, usuario]);
     }
 
-    public async Task Cadastrar(Repositorio<T> repositorio, Usuario usuario) { throw new NotImplementedException(); }
+    public async Task Cadastrar(Repositorio<T> repositorio,
+                                Usuario usuario)
+    {
+        var usuarioTemPermissao =
+            usuario.Cargo.VerificarPermissao(
+                PermissoesAcesso.PermissaoAcessoEscrita);
 
-    public async Task Editar(Repositorio<T> repositorio, Usuario usuario) { throw new NotImplementedException(); }
+        if (!usuarioTemPermissao)
+        {
+            Console.WriteLine("Você não tem permissão para realizar esta ação");
 
-    public async Task Excluir(Repositorio<T> repositorio, Usuario usuario) { throw new NotImplementedException(); }
+            return;
+        }
+        
+        throw new NotImplementedException();
+    }
 
-    public void Visualizar(Repositorio<T> repositorio, Usuario usuario) { throw new NotImplementedException(); }
+    public async Task Editar(Repositorio<T> repositorio,
+                             Usuario usuario)
+    {
+        var usuarioTemPermissao =
+            usuario.Cargo.VerificarPermissao(
+                PermissoesAcesso.PermissaoAcessoEscrita);
+
+        if (!usuarioTemPermissao)
+        {
+            Console.WriteLine("Você não tem permissão para realizar esta ação");
+
+            return;
+        }
+        
+        throw new NotImplementedException();
+    }
+
+    public async Task Excluir(Repositorio<T> repositorio,
+                              Usuario usuario)
+    {
+        var usuarioTemPermissao =
+            usuario.Cargo.VerificarPermissao(
+                PermissoesAcesso.PermissaoAcessoEscrita);
+
+        if (!usuarioTemPermissao)
+        {
+            Console.WriteLine("Você não tem permissão para realizar esta ação");
+
+            return;
+        }
+        
+        throw new NotImplementedException();
+    }
+
+    public void Visualizar(Repositorio<T> repositorio, Usuario usuario)
+    {
+        throw new NotImplementedException();
+    }
 }

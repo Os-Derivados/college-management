@@ -8,7 +8,8 @@ namespace college_management.Middlewares;
 public static class MiddlewareAutenticacao
 {
     public static Usuario Autenticar(bool modoDesenvolvimento,
-                                RepositorioUsuarios repositorioUsuarios)
+                                     RepositorioUsuarios
+                                         repositorioUsuarios)
     {
         return modoDesenvolvimento
                    ? ObterUsuarioTeste(repositorioUsuarios)
@@ -21,7 +22,7 @@ public static class MiddlewareAutenticacao
         _ = UtilitarioAmbiente.Variaveis.TryGetValue(
             VariaveisAmbiente.UsuarioTesteLogin,
             out var loginTeste);
-        
+
         var usuarioLogado = repositorioUsuarios
             .ObterPorLogin(loginTeste);
 

@@ -10,7 +10,7 @@ _ = bool.TryParse(args[0], out var modoDesenvolvimento);
 
 var usuarioLogado =
     MiddlewareAutenticacao.Autenticar(modoDesenvolvimento,
-                                 baseDeDados.usuarios);
+                                      baseDeDados.usuarios);
 
 MiddlewareContexto.Inicializar(baseDeDados, usuarioLogado);
 

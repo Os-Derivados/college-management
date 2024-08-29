@@ -46,22 +46,22 @@ public static class MiddlewareContexto
 
             var opcaoEscolhida = Console.ReadKey();
 
-            if (opcaoEscolhida.Key is ConsoleKey.D0)
+            if (opcaoEscolhida.Key is not ConsoleKey.D0)
+            {
+                var recursoEscolhido =
+                    ConverterOpcaoEmMetodo(contextoEscolhido,
+                                           opcaoEscolhida);
+
+                Console.Clear();
+
+                contexto.AcessarRecurso(recursoEscolhido,
+                                        baseDeDados,
+                                        usuario);
+            }
+            else
             {
                 estadoAtual = EstadoDoApp.Sair;
-
-                break;
             }
-
-            var recursoEscolhido =
-                ConverterOpcaoEmMetodo(contextoEscolhido,
-                                       opcaoEscolhida);
-
-            Console.Clear();
-
-            contexto.AcessarRecurso(recursoEscolhido,
-                                    baseDeDados,
-                                    usuario);
         } while (estadoAtual is EstadoDoApp.Recurso);
     }
 
@@ -92,7 +92,6 @@ public static class MiddlewareContexto
         return recursoEscolhido;
     }
 
-    
 
     private static string EscolherContexto(Usuario usuario)
     {

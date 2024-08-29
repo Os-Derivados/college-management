@@ -5,7 +5,7 @@ using college_management.Dados.Repositorios;
 namespace college_management.Contextos;
 
 public class ContextoCursos : Contexto<Curso>,
-                                IContextoCursos
+                              IContextoCursos
 {
     public void VerGradeHoraria(Repositorio<Curso> repositorio,
                                 Usuario usuario)

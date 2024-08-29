@@ -8,7 +8,7 @@ public sealed class Cargo : Modelo
     {
         Nome = nome;
         Permissoes = permissoes;
-        
+
         Id = _contagemId.ToString(CultureInfo.InvariantCulture);
         _contagemId++;
     }
@@ -17,7 +17,7 @@ public sealed class Cargo : Modelo
 
     public string? Nome { get; set; }
     public string[]? Permissoes { get; set; }
-    
+
     public bool VerificarPermissao(string permissao)
     {
         return Permissoes.Any(p => p == permissao);
