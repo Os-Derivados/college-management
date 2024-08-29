@@ -4,33 +4,9 @@ using college_management.Dados.Repositorios;
 
 namespace college_management.Contextos;
 
-public class ContextoUsuarios() : Contexto(typeof(Usuario)),
+public class ContextoUsuarios : Contexto<Usuario>,
                                   IContextoUsuarios
 {
-    public async Task Cadastrar(Repositorio<Usuario> repositorio,
-                                Usuario usuario)
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task Editar(Repositorio<Usuario> repositorio,
-                             Usuario usuario)
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task Excluir(Repositorio<Usuario> repositorio,
-                              Usuario usuario)
-    {
-        throw new NotImplementedException();
-    }
-
-    public void Visualizar(Repositorio<Usuario> repositorio,
-                           Usuario usuario)
-    {
-        throw new NotImplementedException();
-    }
-
     public async Task EditarMatricula(Repositorio<Usuario> repositorio,
                                       Usuario usuario)
     {

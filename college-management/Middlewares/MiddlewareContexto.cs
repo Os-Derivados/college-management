@@ -30,7 +30,7 @@ public static class MiddlewareContexto
         {
             Console.Clear();
 
-            Contexto contexto = contextoEscolhido switch
+            dynamic contexto = contextoEscolhido switch
             {
                 OperacoesContexto.AcessarCursos => new ContextoCursos(),
                 OperacoesContexto.AcessarMaterias =>
@@ -59,10 +59,9 @@ public static class MiddlewareContexto
 
             Console.Clear();
 
-            AcessarRecurso(contexto,
-                           recursoEscolhido,
-                           baseDeDados,
-                           usuario);
+            contexto.AcessarRecurso(recursoEscolhido,
+                                    baseDeDados,
+                                    usuario);
         } while (estadoAtual is EstadoDoApp.Recurso);
     }
 
@@ -93,32 +92,7 @@ public static class MiddlewareContexto
         return recursoEscolhido;
     }
 
-    private static void AcessarRecurso(Contexto contexto,
-                                       string nomeRecurso,
-                                       BaseDeDados baseDeDados,
-                                       Usuario usuario)
-    {
-        var interfacesContexto = contexto.GetType().GetInterfaces();
-
-        var recurso =
-            interfacesContexto.Select(t => t.GetMethod(nomeRecurso))
-                              .FirstOrDefault(t => t is not null);
-
-        if (recurso is null)
-            throw new InvalidOperationException("Recurso inexistente");
-
-        dynamic repositorio = contexto.TipoRecurso.Name switch
-        {
-            nameof(Usuario) => baseDeDados.usuarios,
-            nameof(Cargo)   => baseDeDados.cargos,
-            nameof(Materia) => baseDeDados.materias,
-            nameof(Curso)   => baseDeDados.cursos,
-            _ => throw new InvalidOperationException(
-                     "Repositorio inexistente")
-        };
-
-        recurso.Invoke(contexto, [repositorio, usuario]);
-    }
+    
 
     private static string EscolherContexto(Usuario usuario)
     {

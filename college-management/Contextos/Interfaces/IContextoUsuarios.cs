@@ -3,7 +3,7 @@ using college_management.Dados.Repositorios;
 
 namespace college_management.Contextos.Interfaces;
 
-public interface IContextoUsuarios : IContexto<Usuario>
+public interface IContextoUsuarios
 {
     public Task EditarMatricula(Repositorio<Usuario> repositorio,
                                 Usuario usuario);
