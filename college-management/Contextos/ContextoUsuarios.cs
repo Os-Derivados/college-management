@@ -12,7 +12,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
                                       Usuario usuario)
     {
         var usuarioTemPermissao =
-            usuario.Cargo.VerificarPermissao(
+            usuario.Cargo.TemPermissao(
                 PermissoesAcesso.PermissaoAcessoEscrita);
 
         if (!usuarioTemPermissao)

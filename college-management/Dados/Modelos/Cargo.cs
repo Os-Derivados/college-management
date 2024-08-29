@@ -18,7 +18,7 @@ public sealed class Cargo : Modelo
     public string? Nome { get; set; }
     public string[]? Permissoes { get; set; }
 
-    public bool VerificarPermissao(string permissao)
+    public bool TemPermissao(string permissao)
     {
         return Permissoes.Any(p => p == permissao);
     }
