@@ -34,9 +34,9 @@ public sealed class ServicoRelatorios<T> : IServicoRelatorios<T>
     {
         return _usuario.Cargo.Nome switch
         {
-            CargosAcesso.CargoAlunos => modelo.ToString(),
-            CargosAcesso.CargoGestores
-                or CargosAcesso.CargoAdministradores =>
+            CargosPadrao.CargoAlunos => modelo.ToString(),
+            CargosPadrao.CargoGestores
+                or CargosPadrao.CargoAdministradores =>
                 GerarEntradasRelatorio(),
             _ => throw new InvalidOperationException(
                      "Não há modelo de relatório disponível para este cargo")
