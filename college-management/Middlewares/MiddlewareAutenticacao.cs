@@ -23,28 +23,18 @@ public static class MiddlewareAutenticacao
             VariaveisAmbiente.UsuarioTesteLogin,
             out var loginTeste);
 
-        var usuarioLogado = repositorioUsuarios
-            .ObterPorLogin(loginTeste);
-
-        if (usuarioLogado is null)
-            throw new InvalidOperationException(
-                "Usuário de teste não foi encontrado");
-
-        return usuarioLogado;
+        return repositorioUsuarios.ObterPorLogin(loginTeste);
     }
 
     private static Usuario Login(
         RepositorioUsuarios repositorioUsuarios)
     {
-        // TODO:
-        // 1. Pedir o login
-        // 2 Pedir a senha
-        // 3. Verificar se o login existe
-        // 3.1. Se não existir -> Autenticar ou a senha estão inválidos
-        // 3.2. Se o login está válido -> Validar a senha
-        // 3.3. Se a senha estiver errada -> Autenticar ou senha estão inválidos
-        // 3.4. Se a senha estiver válida -> Retornar o usuário encontrado na base de dados
-
+        // TODO: Desenvolver um algoritmo para autenticar um usuário
+        // [REQUISITO]: O usuário deve existir na base de dados.
+        // [REQUISITO]: O login e senha devem ser validados, avisando o usuário
+        // sobre credenciais inválidas, caso qualquer um dos dois campos
+        // esteja incorretamente digitado
+        
         throw new InvalidOperationException(
             "Não foi possível obter usuário");
     }
