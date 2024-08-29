@@ -28,9 +28,11 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
             + $"Selecione uma das opções abaixo.\n");
 
         for (var i = 0; i < opcoes.Length; i++)
-            mensagem.AppendLine($"{i + 1}. {opcoes[i]}");
+            mensagem.AppendLine($"[{i + 1}] {opcoes[i]}");
 
-        Console.WriteLine(mensagem.ToString());
+        mensagem.Append("\nSua opção (somente números): ");
+
+        Console.Write(mensagem.ToString());
     }
 
     public void AcessarRecurso(string nomeRecurso,

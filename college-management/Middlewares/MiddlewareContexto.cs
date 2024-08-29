@@ -33,13 +33,10 @@ public static class MiddlewareContexto
             dynamic contexto = contextoEscolhido switch
             {
                 OperacoesContexto.AcessarCursos => new ContextoCursos(),
-                OperacoesContexto.AcessarMaterias =>
-                    new ContextoMaterias(),
+                OperacoesContexto.AcessarMaterias => new ContextoMaterias(),
                 OperacoesContexto.AcessarCargos => new ContextoCargos(),
-                OperacoesContexto.AcessarUsuarios =>
-                    new ContextoUsuarios(),
-                _ => throw new InvalidOperationException(
-                         "Contexto inválido")
+                OperacoesContexto.AcessarUsuarios => new ContextoUsuarios(),
+                _ => throw new InvalidOperationException("Contexto inválido")
             };
 
             contexto.ListarOpcoes();
@@ -49,7 +46,7 @@ public static class MiddlewareContexto
             if (opcaoEscolhida.Key is not ConsoleKey.D0)
             {
                 var recursoEscolhido =
-                    ConverterOpcaoEmMetodo(contextoEscolhido,
+                    ConverterParaMetodo(contextoEscolhido,
                                            opcaoEscolhida);
 
                 Console.Clear();
@@ -65,11 +62,11 @@ public static class MiddlewareContexto
         } while (estadoAtual is EstadoDoApp.Recurso);
     }
 
-    private static string ConverterOpcaoEmMetodo(
-        string contextoEscolhido,
-        ConsoleKeyInfo opcaoEscolhida)
+    private static string ConverterParaMetodo(
+        string opcao,
+        ConsoleKeyInfo indice)
     {
-        var recursosDisponiveis = contextoEscolhido switch
+        var recursosDisponiveis = opcao switch
         {
             OperacoesContexto.AcessarUsuarios =>
                 OperacoesRecurso.OperacoesUsuarios,
@@ -83,7 +80,7 @@ public static class MiddlewareContexto
                      "Não há contexto definido para este tipo")
         };
 
-        _ = int.TryParse(opcaoEscolhida.KeyChar.ToString(), out var i);
+        _ = int.TryParse(indice.KeyChar.ToString(), out var i);
 
         var recursoEscolhido = recursosDisponiveis
                                .Select(r => r.Trim().Replace(" ", ""))
@@ -100,22 +97,18 @@ public static class MiddlewareContexto
 
         do
         {
-            Console.WriteLine(
-                "Bem-vindo(a). Selecione um dos contextos abaixo.");
-
-            var recursos = ListarContextos(usuario);
-            var opcaoEscolhida = Console.ReadLine();
-            var opcaoValida = int
-                .TryParse(opcaoEscolhida, out var opcaoUsuario);
+            var contextos = ListarContextos(usuario);
+            
+            var opcaoEscolhida = Console.ReadKey();
+            var opcaoValida = int.TryParse(opcaoEscolhida.KeyChar
+                                                         .ToString(), 
+                                                out var opcaoUsuario);
 
             if (!opcaoValida) continue;
 
-            if (opcaoUsuario is 0)
-                break;
+            if (opcaoUsuario is 0) break;
 
-            Console.Clear();
-
-            _ = recursos.TryGetValue(opcaoUsuario,
+            _ = contextos.TryGetValue(opcaoUsuario,
                                      out contextoEscolhido);
 
             estadoAtual = EstadoDoApp.Recurso;
@@ -130,10 +123,14 @@ public static class MiddlewareContexto
         StringBuilder mensagem = new();
         Dictionary<int, string> dicionarioOpcoes = new();
 
+        Console.Clear();
+            
+        mensagem.AppendLine(
+            "Bem-vindo(a). Selecione um dos contextos abaixo.\n");
+        
         var opcoes = usuario.Cargo.Nome switch
         {
-            CargosPadrao.CargoAlunos =>
-                OperacoesContexto.AcessoAlunos,
+            CargosPadrao.CargoAlunos => OperacoesContexto.AcessoAlunos,
             CargosPadrao.CargoGestores
                 or CargosPadrao.CargoAdministradores =>
                 OperacoesContexto.AcessoGestoresAdministradores,
@@ -143,11 +140,13 @@ public static class MiddlewareContexto
 
         for (var i = 0; i < opcoes.Length; i++)
         {
-            mensagem.AppendLine($"{i + 1} - {opcoes[i]}");
+            mensagem.AppendLine($"[{i + 1}] {opcoes[i]}");
             dicionarioOpcoes.Add(i + 1, opcoes[i]);
         }
 
-        Console.WriteLine(mensagem);
+        mensagem.Append("\nSua opção (somente números): ");
+
+        Console.Write(mensagem);
 
         return dicionarioOpcoes;
     }
