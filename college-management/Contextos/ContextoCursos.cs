@@ -30,7 +30,7 @@ public class ContextoCursos : Contexto<Curso>,
         if (usuario.Cargo.TemPermissao(
                 PermissoesAcesso.PermissaoAcessoEscrita))
         {
-            // [REQUISITO]: A visualização do gestor deve permitir a busca
+            // [REQUISITO]: A visualização do gestor deve solicitar a busca
             // de um Curso em específico na base de dados
             //
             // Ex.: Ver Grade Horária do Curso "Ciência da Computação" 
@@ -96,7 +96,7 @@ public class ContextoCursos : Contexto<Curso>,
             // Ex.: Ver Grade Horária do Curso "Ciência da Computação" 
             //
             // [Ver Grade Horária]
-            // Selecione um abaixo campo para realizar a busca
+            // Selecione um campo abaixo campo para realizar a busca
             //
             // [1] Nome
             // [2] Id

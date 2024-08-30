@@ -8,26 +8,44 @@ namespace college_management.Contextos;
 public class ContextoUsuarios : Contexto<Usuario>,
                                 IContextoUsuarios
 {
-    public async Task EditarMatricula(Repositorio<Usuario> repositorio,
-                                      Usuario usuario)
-    {
-        var usuarioTemPermissao =
-            usuario.Cargo.TemPermissao(
-                PermissoesAcesso.PermissaoAcessoEscrita);
-
-        if (!usuarioTemPermissao)
-        {
-            Console.WriteLine("Você não tem permissão para realizar esta ação");
-
-            return;
-        }
-        
-        throw new NotImplementedException();
-    }
-
     public void VerMatricula(Repositorio<Usuario> repositorio,
                              Usuario usuario)
     {
+        // TODO: Desenvolver um algoritmo para visualizar Matricula de um Aluno
+        // [REQUISITO]: A visualização deve ser no formato descritivo
+        // 
+        // Ex.: Ver Matricula 2401123415
+        //
+        // Nome: Thiago
+        // Matricula: 2401123415
+        // Curso: Ciência da Computação
+        // Período: 2
+        
+        if (usuario.Cargo.TemPermissao(
+                PermissoesAcesso.PermissaoAcessoEscrita))
+        {
+            // [REQUISITO]: A visualização do Gestor deve permitir a busca
+            // de um Aluno em específico na base de dados
+            //
+            // Ex.: Ver Matricula do Aluno com Login == "thiago.santos" 
+            //
+            // [Ver Grade Horária]
+            // Selecione um campo abaixo campo para realizar a busca
+            //
+            // [1] Login
+            // [2] Id
+            // [3] Matricula
+            // 
+            // Sua opção: 1 <- Opção que o usuário escolheu 
+            // ...
+            //
+            // Digite o Login do Aluno: thiago.santos <- Nome
+            // digitado pelo Gestor
+            // ...
+
+            throw new NotImplementedException();
+        }
+        
         throw new NotImplementedException();
     }
 

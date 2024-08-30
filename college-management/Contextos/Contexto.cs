@@ -117,7 +117,7 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
         }
         
         // TODO: Desenvolver um algoritmo para atualizar registros no sistema
-        // REQUISITO: O usuário deve escolher qual campo deve ser editado
+        // REQUISITO: O Usuario deve escolher qual campo deve ser editado
         // 
         // Ex.: Editar Usuario com Login == thiago.santos
         //

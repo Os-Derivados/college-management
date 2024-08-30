@@ -5,9 +5,6 @@ namespace college_management.Contextos.Interfaces;
 
 public interface IContextoUsuarios
 {
-    public Task EditarMatricula(Repositorio<Usuario> repositorio,
-                                Usuario usuario);
-
     public void VerMatricula(Repositorio<Usuario> repositorio,
                              Usuario usuario);
 
