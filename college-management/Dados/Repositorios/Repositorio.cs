@@ -8,7 +8,7 @@ namespace college_management.Dados.Repositorios;
 public abstract class Repositorio<T> : IRepositorio<T> where T : Modelo
 {
     protected List<T>? BaseDeDados;
-    private readonly ServicoDados<T> _servicoDados = new();
+    protected readonly ServicoDados<T> _servicoDados = new();
 
     protected Repositorio()
     {
@@ -33,11 +33,6 @@ public abstract class Repositorio<T> : IRepositorio<T> where T : Modelo
             .Wait();
     }
 
-    public async void Dispose()
-    {
-        await _servicoDados.SalvarAssicrono(BaseDeDados);
-    }
-
     public virtual async Task Adicionar(T modelo)
     {
         var modeloExistente = ObterPorId(modelo.Id);
@@ -47,7 +42,7 @@ public abstract class Repositorio<T> : IRepositorio<T> where T : Modelo
 
         BaseDeDados.Add(modelo);
 
-        await Task.Run(Dispose);
+        await _servicoDados.SalvarAssicrono(BaseDeDados);
     }
 
     public List<T> ObterTodos() { return BaseDeDados; }
@@ -70,7 +65,8 @@ public abstract class Repositorio<T> : IRepositorio<T> where T : Modelo
 
         await Remover(modelo.Id);
         await Adicionar(modelo);
-        await Task.Run(Dispose);
+
+        await _servicoDados.SalvarAssicrono(BaseDeDados);
     }
 
     public async Task Remover(string? id)
@@ -81,7 +77,8 @@ public abstract class Repositorio<T> : IRepositorio<T> where T : Modelo
             return;
 
         BaseDeDados.Remove(modelo);
-        await Task.Run(Dispose);
+
+        await _servicoDados.SalvarAssicrono(BaseDeDados);
     }
 
     public bool Existe(T modelo)

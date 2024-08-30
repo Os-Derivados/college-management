@@ -2,7 +2,7 @@ using college_management.Dados.Modelos;
 
 namespace college_management.Dados.Repositorios.Interfaces;
 
-public interface IRepositorio<T> : IDisposable where T : Modelo
+public interface IRepositorio<T> where T : Modelo
 {
     Task Adicionar(T modelo);
     List<T> ObterTodos();

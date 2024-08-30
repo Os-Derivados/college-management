@@ -20,6 +20,6 @@ public class RepositorioUsuarios : Repositorio<Usuario>,
 
         BaseDeDados.Add(usuario);
 
-        await Task.Run(Dispose);
+        await _servicoDados.SalvarAssicrono(BaseDeDados);
     }
 }
