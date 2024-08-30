@@ -9,16 +9,13 @@ public static class UtilitarioSeed
 {
     public static async Task IniciarBaseDeDados(BaseDeDados baseDeDados)
     {
-        await CadastrarCargoPadrao(new Cargo(
-                                       CargosPadrao
-                                           .CargoAdministradores,
-                                       [
-                                           PermissoesAcesso
-                                               .PermissaoAcessoEscrita,
-                                           PermissoesAcesso
-                                               .PermissaoGestaoAdministradores
-                                       ]),
-                                   baseDeDados.cargos);
+        await CadastrarCargoPadrao(
+            new Cargo(CargosPadrao.CargoAdministradores,
+                      [
+                          PermissoesAcesso.PermissaoAcessoEscrita,
+                          PermissoesAcesso.PermissaoAcessoAdministradores
+                      ]),
+            baseDeDados.cargos);
 
         await CadastrarCargoPadrao(
             new Cargo(CargosPadrao.CargoGestores,
@@ -68,10 +65,11 @@ public static class UtilitarioSeed
                                        cursoTeste,
                                        Modalidade.Presencial);
 
-        var cargoAluno = baseDeDados.cargos.ObterTodos()
-                                    .FirstOrDefault(
-                                        c => c.Nome is CargosPadrao
-                                                 .CargoAlunos);
+        var cargoAluno = 
+            baseDeDados.cargos
+                       .ObterTodos()
+                       .FirstOrDefault(c => c.Nome is CargosPadrao
+                                                         .CargoAlunos);
 
         await CadastrarUsuarioPadrao(new Aluno(loginTeste,
                                                nomeTeste,
@@ -85,10 +83,9 @@ public static class UtilitarioSeed
         Cargo cargo,
         RepositorioCargos repositorio)
     {
-        var cargos = repositorio.ObterTodos();
+        if (repositorio.ObterPorId(cargo.Id) is not null) return;
 
-        if (cargos.Count is 0)
-            await repositorio.Adicionar(cargo);
+        await repositorio.Adicionar(cargo);
     }
 
     private static async Task CadastrarMateriaPadrao(
