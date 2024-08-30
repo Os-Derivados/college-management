@@ -13,6 +13,11 @@ public sealed class Matricula : Modelo
         Modalidade = modalidade;
         Id = _contagemId.ToString();
 
+        foreach (var materia in Curso.GradeCurricular)
+        {
+            Notas.Add(new Nota(materia.Nome, materia.Id));
+        }
+
         _contagemId++;
     }
 
@@ -22,6 +27,7 @@ public sealed class Matricula : Modelo
     public int Periodo { get; set; }
     public Curso Curso { get; set; }
     public Modalidade Modalidade { get; set; }
+    public List<Nota> Notas { get; set; } = [];
 }
 
 public enum Modalidade
@@ -30,3 +36,4 @@ public enum Modalidade
     Ead,
     Hibrido
 }
+
