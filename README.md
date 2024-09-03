@@ -9,6 +9,62 @@ O Gestor Educacional é um sistema CLI que visa gerenciar os recursos internos d
 
 ---
 
+## Inicializando o Sistema
+
+Para inicializar o sistema e carregar seus módulos, o ponto de entrada conta com alguns aspectos importantes para a configuração do mesmo: variáveis de ambiente e argumentos de linha de comando (*command line arguments*).
+
+### Variáveis de Ambiente
+
+Variáveis de ambiente são valores nomeados cuja sua presença se faz de forma externa ao programa, diferente de variáveis declaradas dentro do código fonte.
+
+O objetivo é que, valores sujeitos à mudança ou informações críticas (como credenciais do sistema, acessos externos, etc.) não fiquem expostas em código-fonte, permitindo assim que o sistema fique protegido e flexível, contanto que *o ambiente de execução do sistema não esteja exposto*.
+
+Módulos como o `UtilitárioAmbiente` servirão como portas de entrada para acessar esses valores específicos.
+
+Para poder inicializar o sistema pela primeira vez, o mesmo necessita de algumas variáveis de ambiente definidas nas constantes `VariaveisAmbiente`. Essas variáveis necessitam estar no formato padrão para arquivos `.env`, conforme o exemplo abaixo:
+
+```shell
+# Sintaxe: NOME=valor
+
+# Define credenciais a serem utilizadas pelo Usuário Mestre
+ADMIN_PASSWORD=admin12345
+ADMIN_LOGIN=master.admin
+ADMIN_USER=Master
+
+# Define credenciais para acessar o sistema em modo de Desenvolvimento
+TEST_USER='Usuario Teste'
+TEST_LOGIN=usuario.teste
+TEST_PASSWORD=teste12345
+```
+
+Este arquivo de configuração deve ser criado e armazenado na pasta que o utilitário `SpecialDirectories.MyDocuments` determinar. 
+
+A localização atual na máquina no qual o sistema for instalado [varia conforme o sistema operacional](https://learn.microsoft.com/en-us/dotnet/api/Microsoft.VisualBasic.FileIO.SpecialDirectories.MyDocuments?view=net-8.0). A princípio, será o caminho `C:\users\username\mydocuments\CollegeManagement.OsDerivados` (no Windows) ou `/home/username/.config/CollegeManagement.OsDerivados` (no Linux).
+
+### Argumentos de linha de comando
+
+O ponto de entrada do sistema, `Program.cs`, utiliza de dois argumentos repassados através do método `Main(string[] args)`. São estes: `modoDesenvolvimento` e `seed`.
+
+* `modoDesenvolvimento`: Habilita fluxos específicos do modo de desenvolvimento, como: pular login;
+* `seed`: Habilita a inicialização da base de dados com informações iniciais como: Usuário Mestre, Usuário Teste, cargos, cursos e matérias padrão.
+
+
+Para inicializar o sistema, utilize o comando `dotnet run [modoDesenvolvimento] [seed]`, substituindo `[modoDesenvolvimento]` e `[seed]` por valores booleanos (`true ou false`).
+
+Ex.: 
+```shell
+dotnet run true true # vai tanto inicializar a base de dados quanto habilitar o modo de desenvolvimento
+```
+
+---
+
+> **_Observação:_** Para a primeira vez que o sistema for iniciado, deve ser obrigatória a inicialização da base de dados. Portanto, neste caso, inicie o sistema utilizando `dotnet run false true` ou  `dotnet run true true` (caso queira depurar o sistema).
+
+
+
+
+
+
 ## Requisitos
 
 * Realizar login:
