@@ -14,9 +14,7 @@ public sealed class Matricula : Modelo
         Id = _contagemId.ToString();
 
         foreach (var materia in Curso.GradeCurricular)
-        {
             Notas.Add(new Nota(materia.Nome, materia.Id));
-        }
 
         _contagemId++;
     }
@@ -36,4 +34,3 @@ public enum Modalidade
     Ead,
     Hibrido
 }
-

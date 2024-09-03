@@ -15,7 +15,7 @@ public sealed class ServicoDados<T> : IServicoDados<T>
         if (!File.Exists(_caminhoDoArquivo))
             File.Create(_caminhoDoArquivo).Dispose();
     }
-    
+
     private readonly string _caminhoDoArquivo =
         Path.Combine(
             Environment.GetFolderPath(
@@ -25,13 +25,16 @@ public sealed class ServicoDados<T> : IServicoDados<T>
 
     public async Task SalvarAssicrono(List<T>? items)
     {
-        await using var streamArquivo = File.OpenWrite(_caminhoDoArquivo);
+        await using var streamArquivo =
+            File.OpenWrite(_caminhoDoArquivo);
         await JsonSerializer.SerializeAsync(streamArquivo, items);
     }
 
     public async Task<List<T>?> CarregarAssincrono()
     {
-        await using var streamArquivo = File.OpenRead(_caminhoDoArquivo);
-        return await JsonSerializer.DeserializeAsync<List<T>>(streamArquivo);
+        await using var streamArquivo =
+            File.OpenRead(_caminhoDoArquivo);
+        return await JsonSerializer.DeserializeAsync<List<T>>(
+                   streamArquivo);
     }
 }

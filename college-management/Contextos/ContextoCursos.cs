@@ -29,7 +29,6 @@ public class ContextoCursos : Contexto<Curso>,
 
         if (usuario.Cargo.TemPermissao(
                 PermissoesAcesso.PermissaoAcessoEscrita))
-        {
             // [REQUISITO]: A visualização do gestor deve solicitar a busca
             // de um Curso em específico na base de dados
             //
@@ -55,10 +54,8 @@ public class ContextoCursos : Contexto<Curso>,
             // Selecione um semestre a ser visualizado (somente números).
             //
             // [1, 2, 3, 4, 5, 6, 7, 8]: 
-            
             throw new NotImplementedException();
-        }
-        
+
         // [REQUISITO]: A visualização do Aluno deve permitir somente
         // a visualização da grade horária do curso no qual ele
         // atualmente esteja vinculado
@@ -89,7 +86,6 @@ public class ContextoCursos : Contexto<Curso>,
 
         if (usuario.Cargo.TemPermissao(
                 PermissoesAcesso.PermissaoAcessoEscrita))
-        {
             // [REQUISITO]: A visualização do Gestor deve permitir a busca
             // de um Curso em específico na base de dados
             //
@@ -107,14 +103,12 @@ public class ContextoCursos : Contexto<Curso>,
             // Digite o nome do Curso: "Ciência da Computação" <- Nome
             // digitado pelo usuário
             // ...
-            
             throw new NotImplementedException();
-        }
-        
+
         // [REQUISITO]: A visualização do Aluno deve permitir somente
         // a visualização da grade curricular do Curso no qual ele
         // atualmente esteja vinculado
-        
+
         throw new NotImplementedException();
     }
 }

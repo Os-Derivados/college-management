@@ -33,10 +33,13 @@ public static class MiddlewareContexto
             dynamic contexto = contextoEscolhido switch
             {
                 OperacoesContexto.AcessarCursos => new ContextoCursos(),
-                OperacoesContexto.AcessarMaterias => new ContextoMaterias(),
+                OperacoesContexto.AcessarMaterias =>
+                    new ContextoMaterias(),
                 OperacoesContexto.AcessarCargos => new ContextoCargos(),
-                OperacoesContexto.AcessarUsuarios => new ContextoUsuarios(),
-                _ => throw new InvalidOperationException("Contexto inválido")
+                OperacoesContexto.AcessarUsuarios =>
+                    new ContextoUsuarios(),
+                _ => throw new InvalidOperationException(
+                         "Contexto inválido")
             };
 
             contexto.ListarOpcoes();
@@ -47,7 +50,7 @@ public static class MiddlewareContexto
             {
                 var recursoEscolhido =
                     ConverterParaMetodo(contextoEscolhido,
-                                           opcaoEscolhida);
+                                        opcaoEscolhida);
 
                 Console.Clear();
 
@@ -62,9 +65,8 @@ public static class MiddlewareContexto
         } while (estadoAtual is EstadoDoApp.Recurso);
     }
 
-    private static string ConverterParaMetodo(
-        string opcao,
-        ConsoleKeyInfo indice)
+    private static string ConverterParaMetodo(string opcao,
+                                              ConsoleKeyInfo indice)
     {
         var recursosDisponiveis = opcao switch
         {
@@ -98,18 +100,18 @@ public static class MiddlewareContexto
         do
         {
             var contextos = ListarContextos(usuario);
-            
+
             var opcaoEscolhida = Console.ReadKey();
             var opcaoValida = int.TryParse(opcaoEscolhida.KeyChar
-                                                         .ToString(), 
-                                                out var opcaoUsuario);
+                                                         .ToString(),
+                                           out var opcaoUsuario);
 
             if (!opcaoValida) continue;
 
             if (opcaoUsuario is 0) break;
 
             _ = contextos.TryGetValue(opcaoUsuario,
-                                     out contextoEscolhido);
+                                      out contextoEscolhido);
 
             estadoAtual = EstadoDoApp.Recurso;
         } while (estadoAtual is EstadoDoApp.Contexto);
@@ -124,10 +126,10 @@ public static class MiddlewareContexto
         Dictionary<int, string> dicionarioOpcoes = new();
 
         Console.Clear();
-            
+
         mensagem.AppendLine(
             "Bem-vindo(a). Selecione um dos contextos abaixo.\n");
-        
+
         var opcoes = usuario.Cargo.Nome switch
         {
             CargosPadrao.CargoAlunos => OperacoesContexto.AcessoAlunos,

@@ -20,10 +20,9 @@ public class ContextoUsuarios : Contexto<Usuario>,
         // Matricula: 2401123415
         // Curso: Ciência da Computação
         // Período: 2
-        
+
         if (usuario.Cargo.TemPermissao(
                 PermissoesAcesso.PermissaoAcessoEscrita))
-        {
             // [REQUISITO]: A visualização do Gestor deve permitir a busca
             // de um Aluno em específico na base de dados
             //
@@ -42,13 +41,11 @@ public class ContextoUsuarios : Contexto<Usuario>,
             // Digite o Login do Aluno: thiago.santos <- Nome
             // digitado pelo Gestor
             // ...
-
             throw new NotImplementedException();
-        }
-        
+
         // [REQUISITO]: A visualização do Aluno deve ser somente
         // da Matricula vinculada a ele
-        
+
         throw new NotImplementedException();
     }
 
@@ -64,10 +61,9 @@ public class ContextoUsuarios : Contexto<Usuario>,
         // |----------------|------------|----------|
         // | Calculo 1      |    9.0     | Aprovado |
         // | Algebra Linear |    N/A     |   N/A    |
-        
+
         if (usuario.Cargo.TemPermissao(
                 PermissoesAcesso.PermissaoAcessoEscrita))
-        {
             // [REQUISITO]: A visualização do Gestor deve permitir a busca
             // de uma Aluno em específico na base de dados
             //
@@ -85,13 +81,11 @@ public class ContextoUsuarios : Contexto<Usuario>,
             // Digite o Login do Aluno: thiago.santos <- Nome
             // digitado pelo Gestor
             // ...
-
             throw new NotImplementedException();
-        }
-        
+
         // [REQUISITO]: A visualização do Aluno deve ser somente
         // da Matricula vinculada a ele
-        
+
         throw new NotImplementedException();
     }
 
