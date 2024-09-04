@@ -9,15 +9,14 @@ public static class UtilitarioSeed
 {
     public static async Task IniciarBaseDeDados(BaseDeDados baseDeDados)
     {
-        await CadastrarCargoPadrao(new Cargo(
-                                       CargosPadrao
-                                           .CargoAdministradores,
-                                       [
-                                           PermissoesAcesso
-                                               .PermissaoAcessoEscrita,
-                                           PermissoesAcesso
-                                               .PermissaoAcessoAdministradores
-                                       ]),
+        await CadastrarCargoPadrao(new Cargo(CargosPadrao
+                                                 .CargoAdministradores,
+                                             [
+                                                 PermissoesAcesso
+                                                     .PermissaoAcessoEscrita,
+                                                 PermissoesAcesso
+                                                     .PermissaoAcessoAdministradores
+                                             ]),
                                    baseDeDados.cargos);
 
         await CadastrarCargoPadrao(new Cargo(CargosPadrao.CargoGestores,
@@ -63,8 +62,7 @@ public static class UtilitarioSeed
         await CadastrarMateriaPadrao(materiaTeste,
                                      baseDeDados.materias);
 
-        Curso cursoTeste = new("Curso Teste",
-                               [materiaTeste]);
+        Curso cursoTeste = new("Curso Teste", [materiaTeste]);
         await CadastrarCursoPadrao(cursoTeste, baseDeDados.cursos);
 
         Matricula matriculaTeste = new(1,
@@ -90,7 +88,9 @@ public static class UtilitarioSeed
                                                    RepositorioCargos
                                                        repositorio)
     {
-        if (repositorio.ObterPorId(cargo.Id) is not null) return;
+        var cargoPadrao = repositorio.ObterPorId(cargo.Id);
+
+        if (cargoPadrao is not null) return;
 
         await repositorio.Adicionar(cargo);
     }

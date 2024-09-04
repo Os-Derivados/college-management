@@ -11,37 +11,41 @@ public static class MiddlewareContexto
     public static void Inicializar(BaseDeDados baseDeDados,
                                    Usuario usuario)
     {
-        var contextoEscolhido = EscolherContexto(usuario);
+        var opcaoContexto = EscolherContexto(usuario);
 
-        if (contextoEscolhido is not "")
-            AcessarContexto(contextoEscolhido, baseDeDados, usuario);
+        if (opcaoContexto is "") return;
 
-        Console.Clear();
-        Console.WriteLine("Saindo...");
+        var contexto = ObterContexto(opcaoContexto);
+        
+        AcessarContexto(contexto, opcaoContexto, baseDeDados, usuario);
+    }
+    
+    private static object ObterContexto(string opcaoContexto)
+    {
+        return opcaoContexto switch
+        {
+            OperacoesContexto.AcessarCursos => new ContextoCursos(),
+            OperacoesContexto.AcessarMaterias =>
+                new ContextoMaterias(),
+            OperacoesContexto.AcessarCargos => new ContextoCargos(),
+            OperacoesContexto.AcessarUsuarios =>
+                new ContextoUsuarios(),
+            _ => throw new InvalidOperationException(
+                     "Contexto inválido")
+        };
     }
 
-    private static void AcessarContexto(string contextoEscolhido,
+    private static void AcessarContexto(dynamic contexto,
+                                        string opcaoContexto,
                                         BaseDeDados baseDeDados,
                                         Usuario usuario)
     {
         var estadoAtual = EstadoDoApp.Recurso;
-
+        
         do
         {
             Console.Clear();
-
-            dynamic contexto = contextoEscolhido switch
-            {
-                OperacoesContexto.AcessarCursos => new ContextoCursos(),
-                OperacoesContexto.AcessarMaterias =>
-                    new ContextoMaterias(),
-                OperacoesContexto.AcessarCargos => new ContextoCargos(),
-                OperacoesContexto.AcessarUsuarios =>
-                    new ContextoUsuarios(),
-                _ => throw new InvalidOperationException(
-                         "Contexto inválido")
-            };
-
+            
             contexto.ListarOpcoes();
 
             var opcaoEscolhida = Console.ReadKey();
@@ -49,7 +53,7 @@ public static class MiddlewareContexto
             if (opcaoEscolhida.Key is not ConsoleKey.D0)
             {
                 var recursoEscolhido =
-                    ConverterParaMetodo(contextoEscolhido,
+                    ConverterParaMetodo(opcaoContexto,
                                         opcaoEscolhida);
 
                 Console.Clear();
@@ -64,6 +68,7 @@ public static class MiddlewareContexto
             }
         } while (estadoAtual is EstadoDoApp.Recurso);
     }
+
 
     private static string ConverterParaMetodo(string opcao,
                                               ConsoleKeyInfo indice)
