@@ -4,6 +4,7 @@ using college_management.Contextos.Interfaces;
 using college_management.Dados;
 using college_management.Dados.Modelos;
 using college_management.Dados.Repositorios;
+using college_management.Views;
 
 namespace college_management.Contextos;
 
@@ -11,9 +12,19 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 {
     public void ListarOpcoes()
     {
-        StringBuilder mensagem = new();
+        var opcoes = ObterOpcoes();
 
-        var opcoes = typeof(T).Name switch
+        MenuView menuRecursos = new("Menu Recursos",
+                                    $"Bem vindo ao recuso de {typeof(T).Name}.",
+                                    opcoes);
+
+        menuRecursos.ConstruirLayout();
+        menuRecursos.Exibir();
+    }
+
+    private string[] ObterOpcoes()
+    {
+        return typeof(T).Name switch
         {
             nameof(Usuario) => OperacoesRecurso.OperacoesUsuarios,
             nameof(Curso)   => OperacoesRecurso.OperacoesCursos,
@@ -22,17 +33,6 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
             _ => throw new InvalidOperationException(
                      "Não há contexto definido para este tipo")
         };
-
-        mensagem.AppendLine(
-            $"Bem vindo ao recuso de {typeof(T).Name}.\n"
-            + $"Selecione uma das opções abaixo.\n");
-
-        for (var i = 0; i < opcoes.Length; i++)
-            mensagem.AppendLine($"[{i + 1}] {opcoes[i]}");
-
-        mensagem.Append("\nSua opção (somente números): ");
-
-        Console.Write(mensagem.ToString());
     }
 
     public void AcessarRecurso(string nomeRecurso,
