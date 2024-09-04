@@ -17,7 +17,9 @@ public class MenuView : View
 
     public override void ConstruirLayout()
     {
-        Layout.AppendLine(_cabecalho);
+        Layout.Append(_cabecalho);
+        Layout.AppendLine(" Selecione uma das opções abaixo.");
+        Layout.AppendLine();
 
         for (var i = 0; i < _opcoes.Length; i++)
             Layout.AppendLine($"[{i + 1}] {_opcoes[i]}");

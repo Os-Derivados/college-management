@@ -111,15 +111,14 @@ public static class MiddlewareContexto
         do
         {
             var opcoesContextos = ObterOpcoesContextos(usuario);
-            
-            MenuView menuContextos =
-                new("Menu Contextos",
-                    "Bem-vindo(a). Selecione um dos contextos abaixo.\n",
-                    opcoesContextos);
+
+            MenuView menuContextos = new("Menu Contextos",
+                                         "Bem-vindo(a).",
+                                         opcoesContextos);
 
             menuContextos.ConstruirLayout();
             menuContextos.Exibir();
-            
+
             var opcaoEscolhida = Console.ReadKey();
             var opcaoValida = int.TryParse(opcaoEscolhida.KeyChar
                                                          .ToString(),
@@ -137,8 +136,7 @@ public static class MiddlewareContexto
         return contextoEscolhido;
     }
 
-    private static string[] ObterOpcoesContextos(
-        Usuario usuario)
+    private static string[] ObterOpcoesContextos(Usuario usuario)
     {
         return usuario.Cargo.Nome switch
         {
