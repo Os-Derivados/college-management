@@ -24,7 +24,7 @@ public sealed class ServicoRelatorios<T> : IServicoRelatorios<T>
             "OsDerivados",
             "CollegeManagement",
             "Relatorios",
-            $"{typeof(T)}.csv");
+            $"{typeof(T).Name}.csv");
 
         _usuario = usuario;
         _modelos = modelos;
