@@ -39,6 +39,7 @@ public class Usuario : Modelo
 
     public override string ToString()
     {
-        return $"{Id} - {Login} - {Nome} - {Cargo.Nome}";
+        return
+            $"| {Login,-16} | {Nome,-16} | {Cargo.Nome,-16} | {"x",-16} | {Id,-16} |";
     }
 }

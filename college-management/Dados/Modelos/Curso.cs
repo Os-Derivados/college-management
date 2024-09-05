@@ -21,16 +21,8 @@ public class Curso : Modelo
 
     public override string ToString()
     {
-        StringBuilder builder = new();
-
-        builder.AppendLine($"{Nome} - {CalcularCargaHoraria()}");
-        builder.AppendLine("Matérias: ");
-
-        foreach (var materia in GradeCurricular)
-            builder.AppendLine(
-                $"{materia.Nome} - {materia.CargaHoraria}");
-
-        return builder.ToString();
+        return
+            $"| {Nome,-16} | {GradeCurricular.Length + " Matéria(s)",-16} | {Id,-16} |";
     }
 
     public double CalcularCargaHoraria()

@@ -9,7 +9,10 @@ public static class UtilitarioTipos
     {
         StringBuilder propriedades = new();
 
-        foreach (var p in infos) propriedades.Append($"{p.Name}\t");
+        foreach (var p in infos)
+            propriedades.Append($"| {p.Name.PadRight(16)} ");
+
+        propriedades.Append('|');
 
         return propriedades.ToString();
     }
