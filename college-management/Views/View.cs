@@ -10,7 +10,7 @@ public abstract class View : IView
 
     protected View(string titulo) { Titulo = titulo; }
 
-    public void Exibir() { Console.Write(Layout.ToString()); }
+    public virtual void Exibir() { Console.Write(Layout.ToString()); }
 
     public virtual void ConstruirLayout() { Layout.AppendLine(Titulo); }
 }
