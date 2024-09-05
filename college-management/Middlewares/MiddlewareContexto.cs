@@ -128,7 +128,7 @@ public static class MiddlewareContexto
 
             if (opcaoUsuario is 0) break;
 
-            contextoEscolhido = opcoesContextos[opcaoUsuario];
+            contextoEscolhido = opcoesContextos[opcaoUsuario - 1];
 
             estadoAtual = EstadoDoApp.Recurso;
         } while (estadoAtual is EstadoDoApp.Contexto);
