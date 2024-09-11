@@ -4,6 +4,7 @@ using college_management.Contextos.Interfaces;
 using college_management.Dados;
 using college_management.Dados.Modelos;
 using college_management.Dados.Repositorios;
+using college_management.Views;
 
 namespace college_management.Contextos;
 
@@ -11,9 +12,19 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 {
     public void ListarOpcoes()
     {
-        StringBuilder mensagem = new();
+        var opcoes = ObterOpcoes();
 
-        var opcoes = typeof(T).Name switch
+        MenuView menuRecursos = new("Menu Recursos",
+                                    $"Bem vindo ao recuso de {typeof(T).Name}.",
+                                    opcoes);
+
+        menuRecursos.ConstruirLayout();
+        menuRecursos.Exibir();
+    }
+
+    private string[] ObterOpcoes()
+    {
+        return typeof(T).Name switch
         {
             nameof(Usuario) => OperacoesRecurso.OperacoesUsuarios,
             nameof(Curso)   => OperacoesRecurso.OperacoesCursos,
@@ -22,17 +33,6 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
             _ => throw new InvalidOperationException(
                      "Não há contexto definido para este tipo")
         };
-
-        mensagem.AppendLine(
-            $"Bem vindo ao recuso de {typeof(T).Name}.\n"
-            + $"Selecione uma das opções abaixo.\n");
-
-        for (var i = 0; i < opcoes.Length; i++)
-            mensagem.AppendLine($"[{i + 1}] {opcoes[i]}");
-
-        mensagem.Append("\nSua opção (somente números): ");
-
-        Console.Write(mensagem.ToString());
     }
 
     public void AcessarRecurso(string nomeRecurso,
@@ -70,11 +70,12 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 
         if (!usuarioTemPermissao)
         {
-            Console.WriteLine("Você não tem permissão para realizar esta ação");
+            Console.WriteLine(
+                "Você não tem permissão para realizar esta ação");
 
             return;
         }
-        
+
         // TODO: Desenvolver um algoritmo para criar novos registros no sistema
         // [REQUISITO]: O usuário deve inserir os valores pertinentes
         // para cada campo do registro em questão
@@ -98,7 +99,7 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
         // Carga Horária: 60h
         //
         // [S] Sim      [N] Não:
-        
+
         throw new NotImplementedException();
     }
 
@@ -111,11 +112,12 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 
         if (!usuarioTemPermissao)
         {
-            Console.WriteLine("Você não tem permissão para realizar esta ação");
+            Console.WriteLine(
+                "Você não tem permissão para realizar esta ação");
 
             return;
         }
-        
+
         // TODO: Desenvolver um algoritmo para atualizar registros no sistema
         // REQUISITO: O Usuario deve escolher qual campo deve ser editado
         // 
@@ -155,11 +157,12 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 
         if (!temPermissao)
         {
-            Console.WriteLine("Você não tem permissão para realizar esta ação");
+            Console.WriteLine(
+                "Você não tem permissão para realizar esta ação");
 
             return;
         }
-        
+
         // TODO: Desenvolver um algoritmo para excluir registros do sistema
         // REQUISITO: Uma confirmação deve ser exibida antes de excluir o registro,
         // exibindo informações (em formato descritivo)
@@ -178,10 +181,8 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 
     public void Visualizar(Repositorio<T> repositorio, Usuario usuario)
     {
-
         if (usuario.Cargo.TemPermissao(
                 PermissoesAcesso.PermissaoAcessoEscrita))
-        {
             // TODO: Desenvolver um algoritmo de busca e visualização para gestores
             // REQUISITO: A visualização do administrador é global e deve ser
             // em formato de relatorio
@@ -189,17 +190,15 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
             // Ex.: Visualizar Usuarios -> Exibe todos os usuários cadastrados
             // | ID | NOME    | LOGIN         | CARGO  | 
             // | 1  | Thiago  | thiago.santos | Alunos |
-
             throw new NotImplementedException();
-        }
-        
+
         // TODO: Desenvolver um algoritmo de busca e visualização para alunos
         // REQUISITO: A visualização do aluno deve ser em um formato descritivo
         //
         // Ex.: Visualizar Usuarios -> Exibe somente o próprio usuário
         // Nome: Thiago
         // Login: thiago.santos
-        
+
         throw new NotImplementedException();
     }
 }

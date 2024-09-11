@@ -17,6 +17,9 @@ var usuarioLogado =
 
 MiddlewareContexto.Inicializar(baseDeDados, usuarioLogado);
 
+Console.Clear();
+Console.WriteLine("Saindo...");
+
 public enum EstadoDoApp
 {
     Sair,
