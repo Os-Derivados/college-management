@@ -4,6 +4,7 @@ O Gestor Educacional é um sistema CLI que visa gerenciar os recursos internos d
 
 ## Conteúdos
 
+* [Inicializando o Sistema](#inicializando-o-sistema)
 * [Requisitos](#requisitos)
 * [Estrutura do Sistema](#estrutura-do-sistema)
 
@@ -60,11 +61,6 @@ dotnet run true true # vai tanto inicializar a base de dados quanto habilitar o 
 
 > **_Observação:_** Para a primeira vez que o sistema for iniciado, deve ser obrigatória a inicialização da base de dados. Portanto, neste caso, inicie o sistema utilizando `dotnet run false true` ou  `dotnet run true true` (caso queira depurar o sistema).
 
-
-
-
-
-
 ## Requisitos
 
 * Realizar login:
@@ -90,6 +86,28 @@ dotnet run true true # vai tanto inicializar a base de dados quanto habilitar o 
     - Todas as operações que alteram informações devem ser salvas separadamente, de forma que o desligamento dos sitema não acarrete na perda das informações cadastradas.
 * Auditoria:
     - Todas as ações realizadas no sistema devem gerar um registro inalterável, para fins de auditoria.
+
+### Modelagem
+
+![](/college-management/Public/College_Management.jpg)
+
+#### Modelo
+
+#### Cargo
+
+#### Curso
+
+#### Matéria
+
+#### Usuário
+
+#### Funcionário
+
+#### Aluno
+
+#### Matrícula
+
+#### Notas
 
 ---
 
