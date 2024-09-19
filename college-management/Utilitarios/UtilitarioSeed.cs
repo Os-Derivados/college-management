@@ -88,10 +88,6 @@ public static class UtilitarioSeed
                                                    RepositorioCargos
                                                        repositorio)
     {
-        var cargoPadrao = repositorio.ObterPorId(cargo.Id);
-
-        if (cargoPadrao is not null) return;
-
         await repositorio.Adicionar(cargo);
     }
 
@@ -99,32 +95,20 @@ public static class UtilitarioSeed
                                                      RepositorioMaterias
                                                          repositorio)
     {
-        var materias = repositorio.ObterTodos();
-
-        if (materias.Count is 0)
-            await repositorio.Adicionar(materia);
+        await repositorio.Adicionar(materia);
     }
 
     private static async Task CadastrarCursoPadrao(Curso curso,
                                                    RepositorioCursos
                                                        repositorio)
     {
-        var cursos = repositorio.ObterTodos();
-
-        if (cursos.Count is 0)
-            await repositorio.Adicionar(curso);
+        await repositorio.Adicionar(curso);
     }
 
     private static async Task CadastrarUsuarioPadrao(Usuario usuario,
                                                      RepositorioUsuarios
                                                          repositorio)
     {
-        var usuarioPadrao =
-            repositorio.ObterPorLogin(usuario.Login);
-
-        if (usuarioPadrao is not null)
-            return;
-
         await repositorio.Adicionar(usuario);
     }
 

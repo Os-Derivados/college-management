@@ -11,15 +11,12 @@ public class RepositorioUsuarios : Repositorio<Usuario>,
         return BaseDeDados.FirstOrDefault(u => u.Login == login);
     }
 
-    public override async Task Adicionar(Usuario usuario)
+    public override bool Existe(Usuario modelo)
     {
-        var modeloExistente = ObterPorLogin(usuario.Login);
-
-        if (modeloExistente is not null)
-            return;
-
-        BaseDeDados.Add(usuario);
-
-        await _servicoDados.SalvarAssicrono(BaseDeDados);
+        Usuario loginExistente = ObterPorLogin(modelo.Login), 
+            idExistente = ObterPorId(modelo.Id);
+        
+        return ((loginExistente is not null)
+                || (idExistente is not null));
     }
 }
