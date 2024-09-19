@@ -89,25 +89,121 @@ dotnet run true true # vai tanto inicializar a base de dados quanto habilitar o 
 
 ### Modelagem
 
+As entidades e relacionamentos presentes no sistema podem ser descritas através do Diagrama Entidade-Relacionamento abaixo, bem como nos esquemas descritos logo após a diagramação.
+
+* [Modelo](#modelo)
+* [Cargo](#cargo)
+* [Curso](#curso)
+* [Matéria](#matéria)
+* [Usuário](#usuário)
+* [Funcionário](#funcionário)
+* [Aluno](#aluno)
+* [Matrícula](#matrícula)
+  * [Notas](#notas)
+
 ![](/college-management/Public/College_Management.jpg)
 
 #### Modelo
 
+Entidade base da qual todas as outras herdam as seguintes propriedades:
+
+* Nome
+* Id
+
 #### Cargo
+
+A entidade Cargo representa a função atribuída ao usuário durante o uso do sistema. Através dele, são liberados os acessos a funcionalidades individuais, com base na seguinte propriedade:
+
+* Permissões
+
+Um cargo pode estar associado a nenhum ou N:
+
+* Usuário
 
 #### Curso
 
+A entidade Curso representa um conjunto específico e particular de Matérias que podem estar associadas a um ou mais Alunos. 
+
+Todo Curso deve estar associado a, no mínimo, um:
+
+* Matéria
+
+Todo Curso pode estar associado a um ou N:
+
+* Matrícula
+
 #### Matéria
+
+A entidade Matéria representa uma disciplina em específico que visa estudar um determinado assunto.
+
+Uma matéria pode estar associada a nenhuma ou N:
+
+* Curso
+* Notas
 
 #### Usuário
 
+A entidade base Usuário representa o usuário final que realiza acessos ao sistema. Todo Usuário é dotado das seguintes propriedades:
+
+* Login
+* Senha
+
+Todo Usuário precisa, necessariamente, ser especializado em uma das seguintes entidades:
+
+* Funcionário
+* Aluno
+
+
+Todo Usuário precisa, obrigatoriamente, possuir um:
+
+* Cargo
+
 #### Funcionário
+
+A entidade Funcionário representa o colaborador da instituição responsável por realizar tarefas pertinentes ao escopo do sistema.
 
 #### Aluno
 
+A entidade Aluno representa os alunos que possuem vínculo (ativo ou não) com a instituição de ensino.
+
+Todo Aluno possui, necessariamente, uma associação para:
+
+* Matrícula
+
 #### Matrícula
 
+A entidade Matrícula representa o vínculo entre um Aluno e um Curso. Ela associa ambas as entidades através das seguintes propriedades:
+
+* Número
+* Período
+* Modalidade
+
+Toda Matrícula possui, necessariamente, uma associação para:
+
+* Curso
+
+Toda Matrícula pode estar associada a nenhuma ou N:
+
+* Notas
+
 #### Notas
+
+A entidade Notas representa o conjunto das notas avaliativas de uma Matéria atribuídas a um determinado Aluno.
+
+Todo registro de Notas possui as seguintes propriedades:
+
+* P1
+* P2
+* P3
+* Menção
+
+Todo registro de Notas pode estar associado a nenhuma ou N entidades:
+
+* Matéria
+
+Todo registro particular de Notas está asssociado unicamente a uma entidade:
+
+* Matrícula
 
 ---
 
