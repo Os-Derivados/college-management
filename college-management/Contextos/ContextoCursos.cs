@@ -111,4 +111,28 @@ public class ContextoCursos : Contexto<Curso>,
 
         throw new NotImplementedException();
     }
+
+    public override async Task Cadastrar(Repositorio<Curso> repositorio,
+                                         Usuario usuario)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override async Task Editar(Repositorio<Curso> repositorio,
+                                      Usuario usuario)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override async Task Excluir(Repositorio<Curso> repositorio,
+                                       Usuario usuario)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void Visualizar(Repositorio<Curso> repositorio,
+                                    Usuario usuario)
+    {
+        throw new NotImplementedException();
+    }
 }
