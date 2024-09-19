@@ -110,6 +110,14 @@ Entidade base da qual todas as outras herdam as seguintes propriedades:
 * Nome
 * Id
 
+```c#
+public abstract class Modelo
+{
+    public string? Nome { get; set }
+    public string? Id { get; set; }
+}
+```
+
 #### Cargo
 
 A entidade Cargo representa a função atribuída ao usuário durante o uso do sistema. Através dele, são liberados os acessos a funcionalidades individuais, com base na seguinte propriedade:
@@ -119,6 +127,13 @@ A entidade Cargo representa a função atribuída ao usuário durante o uso do s
 Um cargo pode estar associado a nenhum ou N:
 
 * Usuário
+
+```c#
+public sealed class Cargo : Modelo
+{
+    public string[]? Permissoes { get; set; }
+}
+```
 
 #### Curso
 
@@ -132,14 +147,34 @@ Todo Curso pode estar associado a um ou N:
 
 * Matrícula
 
+```c#
+public class Curso : Modelo
+{
+    public Materia[] GradeCurricular { get; set; }
+}
+```
+
 #### Matéria
 
 A entidade Matéria representa uma disciplina em específico que visa estudar um determinado assunto.
+
+Uma Matéria possui as seguintes propriedades:
+
+* Turno
+* Carga Horária
 
 Uma matéria pode estar associada a nenhuma ou N:
 
 * Curso
 * Notas
+
+```csharp
+public sealed class Materia : Modelo
+{
+    public Turno Turno { get; set; }
+    public int CargaHoraria { get; set; }
+}
+```
 
 #### Usuário
 
@@ -153,14 +188,26 @@ Todo Usuário precisa, necessariamente, ser especializado em uma das seguintes e
 * Funcionário
 * Aluno
 
-
 Todo Usuário precisa, obrigatoriamente, possuir um:
 
 * Cargo
 
+```csharp
+public class Usuario : Modelo
+{
+    public string? Login { get; set; }
+    public Cargo? Cargo { get; set; }
+    public string? Senha { get; set; }
+}
+```
+
 #### Funcionário
 
 A entidade Funcionário representa o colaborador da instituição responsável por realizar tarefas pertinentes ao escopo do sistema.
+
+```csharp
+public sealed class Funcionario : Usuario {}
+```
 
 #### Aluno
 
@@ -169,6 +216,13 @@ A entidade Aluno representa os alunos que possuem vínculo (ativo ou não) com a
 Todo Aluno possui, necessariamente, uma associação para:
 
 * Matrícula
+
+```csharp
+public sealed class Aluno : Usuario
+{
+    public Matricula Matricula { get; set; }
+}
+```
 
 #### Matrícula
 
@@ -185,6 +239,17 @@ Toda Matrícula possui, necessariamente, uma associação para:
 Toda Matrícula pode estar associada a nenhuma ou N:
 
 * Notas
+
+```csharp
+public sealed class Matricula : Modelo
+{
+    public long Numero { get; set; }
+    public int Periodo { get; set; }
+    public Curso Curso { get; set; }
+    public Modalidade Modalidade { get; set; }
+    public List<Nota> Notas { get; set; } = [];
+}
+```
 
 #### Notas
 
@@ -204,6 +269,17 @@ Todo registro de Notas pode estar associado a nenhuma ou N entidades:
 Todo registro particular de Notas está asssociado unicamente a uma entidade:
 
 * Matrícula
+
+```csharp
+public sealed class Nota
+{
+    public float? P1 { get; set; }
+    public float? P2 { get; set; }
+    public float? P3 { get; set; }
+    public double? MediaFinal { get; private set; }
+    public SituacaoMateria SituacaoMateria { get; set; }
+}
+```
 
 ---
 
