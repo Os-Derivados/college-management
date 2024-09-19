@@ -10,18 +10,13 @@ public static class UtilitarioAmbiente
         Dictionary<string, string> variaveisDeAmbiente = new();
 
         var caminhoDoArquivo =
-            Path.Combine(
-                Environment.GetFolderPath(
-                    Environment.SpecialFolder.ApplicationData),
-                "OsDerivados.CollegeManagement",
-                ".env");
+            Path.Combine(UtilitarioArquivos.DiretorioBase, ".env");
 
         foreach (var linha in
                  File.ReadAllLines(caminhoDoArquivo))
         {
-            var partes = linha.Split('=',
-                                     StringSplitOptions
-                                         .RemoveEmptyEntries);
+            var partes = 
+                linha.Split('=', StringSplitOptions.RemoveEmptyEntries);
 
             if (partes.Length is not 2)
                 continue;
