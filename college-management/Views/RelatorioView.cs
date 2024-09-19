@@ -20,14 +20,12 @@ public class RelatorioView<T> : View where T : Modelo
             UtilitarioTipos.ObterNomesPropriedades(propriedades);
 
         Layout.AppendLine(nomesPropriedades);
-        
+
         foreach (var p in propriedades)
-        {
-            Layout.Append($"| {new string('-',16)} ");
-        }
+            Layout.Append($"| {new string('-', 16)} ");
 
         Layout.AppendLine("|");
-        
+
         foreach (var modelo in _modelos)
             Layout.AppendLine(modelo.ToString());
     }
