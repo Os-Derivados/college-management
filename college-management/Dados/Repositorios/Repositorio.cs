@@ -3,80 +3,84 @@ using college_management.Dados.Modelos;
 using college_management.Dados.Repositorios.Interfaces;
 using college_management.Servicos;
 
+
 namespace college_management.Dados.Repositorios;
 
-public abstract class Repositorio<T> : IRepositorio<T> where T : Modelo
+
+public abstract class Repositorio<T> : IRepositorio<T>
+where T : Modelo
 {
-    protected List<T>? BaseDeDados;
-    protected readonly ServicoDados<T> _servicoDados = new();
+	protected          List<T>?        BaseDeDados;
+	protected readonly ServicoDados<T> _servicoDados = new();
 
-    protected Repositorio()
-    {
-        if (BaseDeDados is not null)
-            return;
+	protected Repositorio()
+	{
+		if (BaseDeDados is not null)
+			return;
 
-        Task.Run(async () =>
-            {
-                try
-                {
-                    using var dadosSalvos =
-                        _servicoDados.CarregarAssincrono();
-                    BaseDeDados = await dadosSalvos;
-                }
-                catch (Exception e) when (e is JsonException
-                                              or AggregateException
-                                              or IOException)
-                {
-                    BaseDeDados = [];
-                }
-            })
-            .Wait();
-    }
+		Task.Run(async () =>
+		    {
+			    try
+			    {
+				    using Task<List<T>>? dadosSalvos =
+					    _servicoDados.CarregarAssincrono();
 
-    public virtual async Task Adicionar(T modelo)
-    {
-        if (Existe(modelo)) return;
+				    BaseDeDados = await dadosSalvos;
+			    }
+			    catch (Exception e) when (e is JsonException
+			                                   or AggregateException
+			                                   or IOException)
+			    {
+				    BaseDeDados = [];
+			    }
+		    })
+		    .Wait();
+	}
 
-        BaseDeDados.Add(modelo);
+	public virtual async Task Adicionar(T modelo)
+	{
+		if (Existe(modelo)) return;
 
-        await _servicoDados.SalvarAssicrono(BaseDeDados);
-    }
+		BaseDeDados.Add(modelo);
 
-    public List<T> ObterTodos() { return BaseDeDados; }
+		await _servicoDados.SalvarAssicrono(BaseDeDados);
+	}
 
-    public T ObterPorId(string? id)
-    {
-        return BaseDeDados.FirstOrDefault(t => t.Id == id);
-    }
+	public List<T> ObterTodos() { return BaseDeDados; }
 
-    public async Task Atualizar(T modelo)
-    {
-        var modeloAntigo = ObterPorId(modelo.Id);
+	public T ObterPorId(string? id)
+	{
+		return BaseDeDados.FirstOrDefault(t => t.Id == id);
+	}
 
-        if (modeloAntigo is null)
-        {
-            await Adicionar(modelo);
+	public async Task Atualizar(T modelo)
+	{
+		var modeloAntigo = ObterPorId(modelo.Id);
 
-            return;
-        }
+		if (modeloAntigo is null)
+		{
+			await Adicionar(modelo);
 
-        await Remover(modelo.Id);
-        await Adicionar(modelo);
+			return;
+		}
 
-        await _servicoDados.SalvarAssicrono(BaseDeDados);
-    }
+		await Remover(modelo.Id);
+		await Adicionar(modelo);
 
-    public async Task Remover(string? id)
-    {
-        var modelo = ObterPorId(id);
+		await _servicoDados.SalvarAssicrono(BaseDeDados);
+	}
 
-        if (modelo is null)
-            return;
+	public async Task Remover(string? id)
+	{
+		var modelo = ObterPorId(id);
 
-        BaseDeDados.Remove(modelo);
+		if (modelo is null)
+			return;
 
-        await _servicoDados.SalvarAssicrono(BaseDeDados);
-    }
+		BaseDeDados.Remove(modelo);
 
-    public abstract bool Existe(T modelo);
+		await _servicoDados.SalvarAssicrono(BaseDeDados);
+	}
+
+	public abstract bool Existe(T modelo);
 }

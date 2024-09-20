@@ -5,148 +5,161 @@ using college_management.Dados.Modelos;
 using college_management.Contextos;
 using college_management.Views;
 
+
 namespace college_management.Middlewares;
+
 
 public static class MiddlewareContexto
 {
-    public static void Inicializar(BaseDeDados baseDeDados,
-                                   Usuario usuario)
-    {
-        var opcaoContexto = EscolherContexto(usuario);
+	public static void Inicializar(BaseDeDados baseDeDados,
+	                               Usuario     usuario)
+	{
+		var opcaoContexto = EscolherContexto(usuario);
 
-        if (opcaoContexto is "") return;
+		if (opcaoContexto is "") return;
 
-        ContextoUsuarios contextoUsuarios = new(baseDeDados, usuario);
-        ContextoCargos contextoCargos = new(baseDeDados, usuario);
-        ContextoMaterias contextoMaterias = new(baseDeDados, usuario);
-        ContextoCursos contextoCursos = new(baseDeDados, usuario);
-        
-        switch (opcaoContexto)
-        {
-            case AcessosContexto.ContextoUsuarios:
-                AcessarContexto(contextoUsuarios, opcaoContexto);
+		ContextoUsuarios contextoUsuarios
+			= new(baseDeDados, usuario);
 
-                break;
-            
-            case AcessosContexto.ContextoCargos:
-                AcessarContexto(contextoCargos, opcaoContexto);
+		ContextoCargos contextoCargos
+			= new(baseDeDados, usuario);
 
-                break;
-            
-            case AcessosContexto.ContextoCursos:
-                AcessarContexto(contextoCursos, opcaoContexto);
+		ContextoMaterias contextoMaterias
+			= new(baseDeDados, usuario);
 
-                break;
-            
-            case AcessosContexto.ContextoMaterias:
-                AcessarContexto(contextoMaterias, opcaoContexto);
+		ContextoCursos contextoCursos
+			= new(baseDeDados, usuario);
 
-                break;
-        }
-    }
+		switch (opcaoContexto)
+		{
+			case AcessosContexto.ContextoUsuarios:
+				AcessarContexto(contextoUsuarios, opcaoContexto);
 
-    private static void AcessarContexto<T>(Contexto<T> contexto,
-                                           string opcaoContexto) 
-        where T : Modelo
-    {
-        var estadoAtual = EstadoDoApp.Recurso;
+				break;
 
-        do
-        {
-            Console.Clear();
+			case AcessosContexto.ContextoCargos:
+				AcessarContexto(contextoCargos, opcaoContexto);
 
-            contexto.ListarOpcoes();
+				break;
 
-            var opcaoEscolhida = Console.ReadKey();
+			case AcessosContexto.ContextoCursos:
+				AcessarContexto(contextoCursos, opcaoContexto);
 
-            if (opcaoEscolhida.Key is not ConsoleKey.D0)
-            {
-                var recursoEscolhido =
-                    ConverterParaMetodo(opcaoContexto,
-                                        opcaoEscolhida);
+				break;
 
-                Console.Clear();
+			case AcessosContexto.ContextoMaterias:
+				AcessarContexto(contextoMaterias, opcaoContexto);
 
-                contexto.AcessarRecurso(recursoEscolhido);
-            }
-            else
-            {
-                estadoAtual = EstadoDoApp.Sair;
-            }
-        } while (estadoAtual is EstadoDoApp.Recurso);
-    }
+				break;
+		}
+	}
 
+	private static void AcessarContexto<T>(Contexto<T> contexto,
+	                                       string opcaoContexto)
+	where T : Modelo
+	{
+		var estadoAtual = EstadoDoApp.Recurso;
 
-    private static string ConverterParaMetodo(string opcao,
-                                              ConsoleKeyInfo indice)
-    {
-        var recursosDisponiveis = opcao switch
-        {
-            AcessosContexto.ContextoUsuarios =>
-                OperacoesRecursos.RecursoUsuarios,
-            AcessosContexto.ContextoCursos =>
-                OperacoesRecursos.RecursoCursos,
-            AcessosContexto.ContextoMaterias =>
-                OperacoesRecursos.RecursoMaterias,
-            AcessosContexto.ContextoCargos =>
-                OperacoesRecursos.RecursoCargos,
-            _ => throw new InvalidOperationException(
-                     "Não há contexto definido para este tipo")
-        };
+		do
+		{
+			Console.Clear();
 
-        _ = int.TryParse(indice.KeyChar.ToString(), out var i);
+			contexto.ListarOpcoes();
 
-        var recursoEscolhido = recursosDisponiveis
-                               .Select(r => r.Trim().Replace(" ", ""))
-                               .ElementAt(i - 1);
+			var opcaoEscolhida = Console.ReadKey();
 
-        return recursoEscolhido;
-    }
+			if (opcaoEscolhida.Key is not ConsoleKey.D0)
+			{
+				var recursoEscolhido =
+					ConverterParaMetodo(opcaoContexto,
+					                    opcaoEscolhida);
 
+				Console.Clear();
 
-    private static string EscolherContexto(Usuario usuario)
-    {
-        var estadoAtual = EstadoDoApp.Contexto;
-        var contextoEscolhido = "";
+				contexto.AcessarRecurso(recursoEscolhido);
+			}
+			else
+			{
+				estadoAtual = EstadoDoApp.Sair;
+			}
+		}
+		while (estadoAtual is EstadoDoApp.Recurso);
+	}
 
-        do
-        {
-            var opcoesContextos = ObterOpcoesContextos(usuario);
+	private static string ConverterParaMetodo(string opcao,
+	                                          ConsoleKeyInfo
+		                                          indice)
+	{
+		var recursosDisponiveis = opcao switch
+		{
+			AcessosContexto.ContextoUsuarios =>
+				OperacoesRecursos.RecursoUsuarios,
+			AcessosContexto.ContextoCursos =>
+				OperacoesRecursos.RecursoCursos,
+			AcessosContexto.ContextoMaterias =>
+				OperacoesRecursos.RecursoMaterias,
+			AcessosContexto.ContextoCargos =>
+				OperacoesRecursos.RecursoCargos,
+			_ => throw new
+				     InvalidOperationException("Não há contexto definido para este tipo")
+		};
 
-            MenuView menuContextos = new("Menu Contextos",
-                                         "Bem-vindo(a).",
-                                         opcoesContextos);
+		_ = int.TryParse(indice.KeyChar.ToString(), out var i);
 
-            menuContextos.ConstruirLayout();
-            menuContextos.Exibir();
+		var recursoEscolhido = recursosDisponiveis
+		                       .Select(r => r.Trim()
+		                                     .Replace(" ", ""))
+		                       .ElementAt(i - 1);
 
-            var opcaoEscolhida = Console.ReadKey();
-            var opcaoValida = int.TryParse(opcaoEscolhida.KeyChar
-                                                         .ToString(),
-                                           out var opcaoUsuario);
+		return recursoEscolhido;
+	}
 
-            if (!opcaoValida) continue;
+	private static string EscolherContexto(Usuario usuario)
+	{
+		var estadoAtual       = EstadoDoApp.Contexto;
+		var contextoEscolhido = "";
 
-            if (opcaoUsuario is 0) break;
+		do
+		{
+			var opcoesContextos = ObterOpcoesContextos(usuario);
 
-            contextoEscolhido = opcoesContextos[opcaoUsuario - 1];
+			MenuView menuContextos = new("Menu Contextos",
+			                             "Bem-vindo(a).",
+			                             opcoesContextos);
 
-            estadoAtual = EstadoDoApp.Recurso;
-        } while (estadoAtual is EstadoDoApp.Contexto);
+			menuContextos.ConstruirLayout();
+			menuContextos.Exibir();
 
-        return contextoEscolhido;
-    }
+			var opcaoEscolhida = Console.ReadKey();
+			var opcaoValida = int.TryParse(opcaoEscolhida.KeyChar
+			                                             .ToString(),
+			                               out var opcaoUsuario);
 
-    private static string[] ObterOpcoesContextos(Usuario usuario)
-    {
-        return usuario.Cargo.Nome switch
-        {
-            CargosPadrao.CargoAlunos => AcessosContexto.AcessoAlunos,
-            CargosPadrao.CargoGestores
-                or CargosPadrao.CargoAdministradores =>
-                AcessosContexto.AcessoGestoresAdministradores,
-            _ => throw new InvalidOperationException(
-                     "O usuário não possui um cargo validado")
-        };
-    }
+			if (!opcaoValida) continue;
+
+			if (opcaoUsuario is 0) break;
+
+			contextoEscolhido
+				= opcoesContextos[opcaoUsuario - 1];
+
+			estadoAtual = EstadoDoApp.Recurso;
+		}
+		while (estadoAtual is EstadoDoApp.Contexto);
+
+		return contextoEscolhido;
+	}
+
+	private static string[] ObterOpcoesContextos(Usuario usuario)
+	{
+		return usuario.Cargo.Nome switch
+		{
+			CargosPadrao.CargoAlunos => AcessosContexto
+				.AcessoAlunos,
+			CargosPadrao.CargoGestores
+				or CargosPadrao.CargoAdministradores =>
+				AcessosContexto.AcessoGestoresAdministradores,
+			_ => throw new
+				     InvalidOperationException("O usuário não possui um cargo validado")
+		};
+	}
 }

@@ -7,61 +7,64 @@ using college_management.Servicos.Interfaces;
 using college_management.Utilitarios;
 using Microsoft.VisualBasic.FileIO;
 
+
 namespace college_management.Servicos;
 
+
 public sealed class ServicoRelatorios<T> : IServicoRelatorios<T>
-    where T : Modelo
+where T : Modelo
 {
-    private readonly string _arquivoRelatorios;
-    private readonly Usuario _usuario;
-    private readonly List<T> _modelos;
+	private readonly string  _arquivoRelatorios;
+	private readonly Usuario _usuario;
+	private readonly List<T> _modelos;
 
-    public ServicoRelatorios(Usuario usuario,
-                             List<T> modelos)
-    {
-        _arquivoRelatorios = Path.Combine(
-            SpecialDirectories.MyDocuments,
-            "OsDerivados",
-            "CollegeManagement",
-            "Relatorios",
-            $"{typeof(T).Name}.csv");
+	public ServicoRelatorios(Usuario usuario,
+	                         List<T> modelos)
+	{
+		_arquivoRelatorios
+			= Path.Combine(SpecialDirectories.MyDocuments,
+			               "OsDerivados",
+			               "CollegeManagement",
+			               "Relatorios",
+			               $"{typeof(T).Name}.csv");
 
-        _usuario = usuario;
-        _modelos = modelos;
-    }
+		_usuario = usuario;
+		_modelos = modelos;
+	}
 
-    public string GerarRelatorio(T modelo)
-    {
-        return _usuario.Cargo.Nome switch
-        {
-            CargosPadrao.CargoAlunos => modelo.ToString(),
-            CargosPadrao.CargoGestores
-                or CargosPadrao.CargoAdministradores =>
-                GerarEntradasRelatorio(),
-            _ => throw new InvalidOperationException(
-                     "Não há modelo de relatório disponível para este cargo")
-        };
-    }
+	public string GerarRelatorio(T modelo)
+	{
+		return _usuario.Cargo.Nome switch
+		{
+			CargosPadrao.CargoAlunos => modelo.ToString(),
+			CargosPadrao.CargoGestores
+				or CargosPadrao.CargoAdministradores =>
+				GerarEntradasRelatorio(),
+			_ => throw new
+				     InvalidOperationException("Não há modelo de relatório disponível para este cargo")
+		};
+	}
 
-    private string GerarEntradasRelatorio()
-    {
-        if (_modelos.Count is 0)
-            return _modelos[0].ToString();
+	private string GerarEntradasRelatorio()
+	{
+		if (_modelos.Count is 0)
+			return _modelos[0].ToString();
 
-        StringBuilder entradasRelatorio = new();
+		StringBuilder entradasRelatorio = new();
 
-        entradasRelatorio.AppendLine(
-            UtilitarioTipos.ObterNomesPropriedades(
-                typeof(T).GetProperties()));
+		entradasRelatorio.AppendLine(UtilitarioTipos
+			                             .ObterNomesPropriedades(typeof
+					                                                     (T)
+				                                                     .GetProperties()));
 
-        foreach (var modelo in _modelos)
-            entradasRelatorio.AppendLine(modelo.ToString());
+		foreach (var modelo in _modelos)
+			entradasRelatorio.AppendLine(modelo.ToString());
 
-        return entradasRelatorio.ToString();
-    }
+		return entradasRelatorio.ToString();
+	}
 
-    public async Task ExportarRelatorio(string relatorio)
-    {
-        throw new NotImplementedException();
-    }
+	public async Task ExportarRelatorio(string relatorio)
+	{
+		throw new NotImplementedException();
+	}
 }

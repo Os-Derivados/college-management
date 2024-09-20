@@ -4,63 +4,69 @@ using college_management.Dados;
 using college_management.Dados.Modelos;
 using college_management.Views;
 
+
 namespace college_management.Contextos;
+
 
 public abstract class Contexto<T> : IContexto<T> where T : Modelo
 {
-    protected Contexto(BaseDeDados baseDeDados, Usuario usuarioContexto)
-    {
-        BaseDeDados = baseDeDados;
-        UsuarioContexto = usuarioContexto;
-    }
-    
-    protected readonly BaseDeDados BaseDeDados;
-    protected readonly Usuario UsuarioContexto;
-    
-    public void ListarOpcoes()
-    {
-        var opcoes = ObterOpcoes();
+	protected Contexto(BaseDeDados baseDeDados,
+	                   Usuario     usuarioContexto)
+	{
+		BaseDeDados     = baseDeDados;
+		UsuarioContexto = usuarioContexto;
+	}
 
-        MenuView menuRecursos = new("Menu Recursos",
-                                    $"Bem vindo ao recuso de {typeof(T).Name}.",
-                                    opcoes);
+	protected readonly BaseDeDados BaseDeDados;
+	protected readonly Usuario     UsuarioContexto;
 
-        menuRecursos.ConstruirLayout();
-        menuRecursos.Exibir();
-    }
+	public void ListarOpcoes()
+	{
+		var opcoes = ObterOpcoes();
 
-    private string[] ObterOpcoes()
-    {
-        return typeof(T).Name switch
-        {
-            nameof(Usuario) => OperacoesRecursos.RecursoUsuarios,
-            nameof(Curso)   => OperacoesRecursos.RecursoCursos,
-            nameof(Materia) => OperacoesRecursos.RecursoMaterias,
-            nameof(Cargo)   => OperacoesRecursos.RecursoCargos,
-            _ => throw new InvalidOperationException(
-                     "Não há contexto definido para este tipo")
-        };
-    }
+		MenuView menuRecursos = new("Menu Recursos",
+		                            $"Bem vindo ao recuso de {typeof(T).Name}.",
+		                            opcoes);
 
-    public void AcessarRecurso(string nomeRecurso)
-    {
-        var interfacesContexto = GetType().GetInterfaces();
+		menuRecursos.ConstruirLayout();
+		menuRecursos.Exibir();
+	}
 
-        var recurso =
-            interfacesContexto.Select(t => t.GetMethod(nomeRecurso))
-                              .FirstOrDefault(t => t is not null);
+	private string[] ObterOpcoes()
+	{
+		return typeof(T).Name switch
+		{
+			nameof(Usuario) => OperacoesRecursos.RecursoUsuarios,
+			nameof(Curso)   => OperacoesRecursos.RecursoCursos,
+			nameof(Materia) => OperacoesRecursos.RecursoMaterias,
+			nameof(Cargo)   => OperacoesRecursos.RecursoCargos,
+			_ => throw new
+				     InvalidOperationException("Não há contexto definido para este tipo")
+		};
+	}
 
-        if (recurso is null)
-            throw new InvalidOperationException("Recurso inexistente");
+	public void AcessarRecurso(string nomeRecurso)
+	{
+		Type[] interfacesContexto = GetType().GetInterfaces();
 
-        recurso.Invoke(this, []);
-    }
+		var recurso =
+			interfacesContexto
+				.Select(t => t.GetMethod(nomeRecurso))
+				.FirstOrDefault(t => t is not null);
 
-    public abstract Task Cadastrar();
+		if (recurso is null)
+			throw new
+				InvalidOperationException("Recurso inexistente");
 
-    public abstract Task Editar();
+		var task = (Task) recurso.Invoke(this, []);
+		task.Wait();
+	}
 
-    public abstract Task Excluir();
+	public abstract Task Cadastrar();
 
-    public abstract void Visualizar();
+	public abstract Task Editar();
+
+	public abstract Task Excluir();
+
+	public abstract void Visualizar();
 }
