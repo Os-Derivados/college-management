@@ -1,15 +1,18 @@
 using college_management.Constantes;
 using college_management.Contextos.Interfaces;
+using college_management.Dados;
 using college_management.Dados.Modelos;
-using college_management.Dados.Repositorios;
 
 namespace college_management.Contextos;
 
 public class ContextoUsuarios : Contexto<Usuario>,
                                 IContextoUsuarios
 {
-    public void VerMatricula(Repositorio<Usuario> repositorio,
-                             Usuario usuario)
+    public ContextoUsuarios(BaseDeDados baseDeDados, Usuario usuarioContexto) : base(baseDeDados, usuarioContexto)
+    {
+    }
+
+    public void VerMatricula()
     {
         // TODO: Desenvolver um algoritmo para visualizar Matricula de um Aluno
         // [REQUISITO]: A visualização deve ser no formato descritivo
@@ -21,7 +24,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
         // Curso: Ciência da Computação
         // Período: 2
 
-        if (usuario.Cargo.TemPermissao(
+        if (UsuarioContexto.Cargo.TemPermissao(
                 PermissoesAcesso.PermissaoAcessoEscrita))
             // [REQUISITO]: A visualização do Gestor deve permitir a busca
             // de um Aluno em específico na base de dados
@@ -49,8 +52,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
         throw new NotImplementedException();
     }
 
-    public void VerBoletim(Repositorio<Usuario> repositorio,
-                           Usuario usuario)
+    public void VerBoletim()
     {
         // TODO: Desenvolver um algoritmo para visualizar as Notas de um Aluno
         // [REQUISITO]: A visualização deve ser no formato relatório
@@ -62,7 +64,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
         // | Calculo 1      |    9.0     | Aprovado |
         // | Algebra Linear |    N/A     |   N/A    |
 
-        if (usuario.Cargo.TemPermissao(
+        if (UsuarioContexto.Cargo.TemPermissao(
                 PermissoesAcesso.PermissaoAcessoEscrita))
             // [REQUISITO]: A visualização do Gestor deve permitir a busca
             // de uma Aluno em específico na base de dados
@@ -89,33 +91,27 @@ public class ContextoUsuarios : Contexto<Usuario>,
         throw new NotImplementedException();
     }
 
-    public void VerFinanceiro(Repositorio<Usuario> repositorio,
-                              Usuario usuario)
+    public void VerFinanceiro()
     {
         throw new NotImplementedException();
     }
 
-    public override async Task Cadastrar(
-        Repositorio<Usuario> repositorio,
-        Usuario usuario)
+    public override async Task Cadastrar()
     {
         throw new NotImplementedException();
     }
 
-    public override async Task Editar(Repositorio<Usuario> repositorio,
-                                      Usuario usuario)
+    public override async Task Editar()
     {
         throw new NotImplementedException();
     }
 
-    public override async Task Excluir(Repositorio<Usuario> repositorio,
-                                       Usuario usuario)
+    public override async Task Excluir()
     {
         throw new NotImplementedException();
     }
 
-    public override void Visualizar(Repositorio<Usuario> repositorio,
-                                    Usuario usuario)
+    public override void Visualizar()
     {
         throw new NotImplementedException();
     }

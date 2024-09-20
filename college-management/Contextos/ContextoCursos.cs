@@ -1,5 +1,6 @@
 using college_management.Constantes;
 using college_management.Contextos.Interfaces;
+using college_management.Dados;
 using college_management.Dados.Modelos;
 using college_management.Dados.Repositorios;
 
@@ -8,8 +9,11 @@ namespace college_management.Contextos;
 public class ContextoCursos : Contexto<Curso>,
                               IContextoCursos
 {
-    public void VerGradeHoraria(Repositorio<Curso> repositorio,
-                                Usuario usuario)
+    public ContextoCursos(BaseDeDados baseDeDados, Usuario usuarioContexto) : base(baseDeDados, usuarioContexto)
+    {
+    }
+
+    public void VerGradeHoraria()
     {
         // TODO: Desenvolver um algoritmo para visualização de grade horária
         // [REQUISITO]: A visualização deve ser em formato de relatório
@@ -27,7 +31,7 @@ public class ContextoCursos : Contexto<Curso>,
         // | Terça-Feira   | Sistemas Digitais  | 03   | 19:15   |
         // ...
 
-        if (usuario.Cargo.TemPermissao(
+        if (UsuarioContexto.Cargo.TemPermissao(
                 PermissoesAcesso.PermissaoAcessoEscrita))
             // [REQUISITO]: A visualização do gestor deve solicitar a busca
             // de um Curso em específico na base de dados
@@ -62,8 +66,7 @@ public class ContextoCursos : Contexto<Curso>,
         throw new NotImplementedException();
     }
 
-    public void VerGradeCurricular(Repositorio<Curso> repositorio,
-                                   Usuario usuario)
+    public void VerGradeCurricular()
     {
         // TODO: Desenvolver um algoritmo para visualizar a grade curricular
         // [REQUISITO]: A visualização deve mostrar as Materias de todos
@@ -84,7 +87,7 @@ public class ContextoCursos : Contexto<Curso>,
         // Fundamentos de Lógica
         // ...
 
-        if (usuario.Cargo.TemPermissao(
+        if (UsuarioContexto.Cargo.TemPermissao(
                 PermissoesAcesso.PermissaoAcessoEscrita))
             // [REQUISITO]: A visualização do Gestor deve permitir a busca
             // de um Curso em específico na base de dados
@@ -112,26 +115,22 @@ public class ContextoCursos : Contexto<Curso>,
         throw new NotImplementedException();
     }
 
-    public override async Task Cadastrar(Repositorio<Curso> repositorio,
-                                         Usuario usuario)
+    public override async Task Cadastrar()
     {
         throw new NotImplementedException();
     }
 
-    public override async Task Editar(Repositorio<Curso> repositorio,
-                                      Usuario usuario)
+    public override async Task Editar()
     {
         throw new NotImplementedException();
     }
 
-    public override async Task Excluir(Repositorio<Curso> repositorio,
-                                       Usuario usuario)
+    public override async Task Excluir()
     {
         throw new NotImplementedException();
     }
 
-    public override void Visualizar(Repositorio<Curso> repositorio,
-                                    Usuario usuario)
+    public override void Visualizar()
     {
         throw new NotImplementedException();
     }

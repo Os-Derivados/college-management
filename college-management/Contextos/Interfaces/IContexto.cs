@@ -6,12 +6,10 @@ namespace college_management.Contextos.Interfaces;
 
 public interface IContexto<T> where T : Modelo
 {
-    public Task Cadastrar(Repositorio<T> repositorio, Usuario usuario);
-    public Task Editar(Repositorio<T> repositorio, Usuario usuario);
-    public Task Excluir(Repositorio<T> repositorio, Usuario usuario);
-    public void Visualizar(Repositorio<T> repositorio, Usuario usuario);
+    public Task Cadastrar();
+    public Task Editar();
+    public Task Excluir();
+    public void Visualizar();
 
-    public void AcessarRecurso(string nomeRecurso,
-                               BaseDeDados baseDeDados,
-                               Usuario usuario);
+    public void AcessarRecurso(string nomeRecurso);
 }

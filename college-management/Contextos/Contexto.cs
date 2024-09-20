@@ -1,15 +1,22 @@
-using System.Text;
 using college_management.Constantes;
 using college_management.Contextos.Interfaces;
 using college_management.Dados;
 using college_management.Dados.Modelos;
-using college_management.Dados.Repositorios;
 using college_management.Views;
 
 namespace college_management.Contextos;
 
 public abstract class Contexto<T> : IContexto<T> where T : Modelo
 {
+    protected Contexto(BaseDeDados baseDeDados, Usuario usuarioContexto)
+    {
+        BaseDeDados = baseDeDados;
+        UsuarioContexto = usuarioContexto;
+    }
+    
+    protected readonly BaseDeDados BaseDeDados;
+    protected readonly Usuario UsuarioContexto;
+    
     public void ListarOpcoes()
     {
         var opcoes = ObterOpcoes();
@@ -26,18 +33,16 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
     {
         return typeof(T).Name switch
         {
-            nameof(Usuario) => OperacoesRecurso.OperacoesUsuarios,
-            nameof(Curso)   => OperacoesRecurso.OperacoesCursos,
-            nameof(Materia) => OperacoesRecurso.OperacoesMaterias,
-            nameof(Cargo)   => OperacoesRecurso.OperacoesCargos,
+            nameof(Usuario) => OperacoesRecursos.RecursoUsuarios,
+            nameof(Curso)   => OperacoesRecursos.RecursoCursos,
+            nameof(Materia) => OperacoesRecursos.RecursoMaterias,
+            nameof(Cargo)   => OperacoesRecursos.RecursoCargos,
             _ => throw new InvalidOperationException(
                      "Não há contexto definido para este tipo")
         };
     }
 
-    public void AcessarRecurso(string nomeRecurso,
-                               BaseDeDados baseDeDados,
-                               Usuario usuario)
+    public void AcessarRecurso(string nomeRecurso)
     {
         var interfacesContexto = GetType().GetInterfaces();
 
@@ -48,28 +53,14 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
         if (recurso is null)
             throw new InvalidOperationException("Recurso inexistente");
 
-        dynamic repositorio = typeof(T).Name switch
-        {
-            nameof(Usuario) => baseDeDados.usuarios,
-            nameof(Cargo)   => baseDeDados.cargos,
-            nameof(Materia) => baseDeDados.materias,
-            nameof(Curso)   => baseDeDados.cursos,
-            _ => throw new InvalidOperationException(
-                     "Repositorio inexistente")
-        };
-
-        recurso.Invoke(this, [repositorio, usuario]);
+        recurso.Invoke(this, []);
     }
 
-    public abstract Task Cadastrar(Repositorio<T> repositorio,
-                                   Usuario usuario);
+    public abstract Task Cadastrar();
 
-    public abstract Task Editar(Repositorio<T> repositorio,
-                                Usuario usuario);
+    public abstract Task Editar();
 
-    public abstract Task Excluir(Repositorio<T> repositorio,
-                                 Usuario usuario);
+    public abstract Task Excluir();
 
-    public abstract void Visualizar(Repositorio<T> repositorio,
-                                    Usuario usuario);
+    public abstract void Visualizar();
 }
