@@ -2,6 +2,8 @@
 using college_management.Middlewares;
 using college_management.Utilitarios;
 
+UtilitarioArquivos.Incializar();
+
 BaseDeDados baseDeDados = new();
 
 _ = bool.TryParse(args[1], out var seed);

@@ -35,10 +35,7 @@ public abstract class Repositorio<T> : IRepositorio<T> where T : Modelo
 
     public virtual async Task Adicionar(T modelo)
     {
-        var modeloExistente = ObterPorId(modelo.Id);
-
-        if (modeloExistente is not null)
-            return;
+        if (Existe(modelo)) return;
 
         BaseDeDados.Add(modelo);
 
@@ -81,9 +78,5 @@ public abstract class Repositorio<T> : IRepositorio<T> where T : Modelo
         await _servicoDados.SalvarAssicrono(BaseDeDados);
     }
 
-    public bool Existe(T modelo)
-    {
-        return BaseDeDados.FirstOrDefault(t => t.Equals(modelo))
-               != null;
-    }
+    public abstract bool Existe(T modelo);
 }
