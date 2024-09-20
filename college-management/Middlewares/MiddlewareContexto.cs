@@ -16,35 +16,38 @@ public static class MiddlewareContexto
 
         if (opcaoContexto is "") return;
 
-        var contexto = ObterContexto(opcaoContexto);
-
-        AcessarContexto(contexto,
-                        opcaoContexto,
-                        baseDeDados,
-                        usuario);
-    }
-
-    private static object ObterContexto(string opcaoContexto)
-    {
-        return opcaoContexto switch
+        ContextoUsuarios contextoUsuarios = new(baseDeDados, usuario);
+        ContextoCargos contextoCargos = new(baseDeDados, usuario);
+        ContextoMaterias contextoMaterias = new(baseDeDados, usuario);
+        ContextoCursos contextoCursos = new(baseDeDados, usuario);
+        
+        switch (opcaoContexto)
         {
-            AcessosContexto.AcessoContextoCursos =>
-                new ContextoCursos(),
-            AcessosContexto.AcessoContextoMaterias =>
-                new ContextoMaterias(),
-            AcessosContexto.AcessoContextoCargos =>
-                new ContextoCargos(),
-            AcessosContexto.AcessoContextoUsuarios =>
-                new ContextoUsuarios(),
-            _ => throw new InvalidOperationException(
-                     "Contexto inválido")
-        };
+            case AcessosContexto.ContextoUsuarios:
+                AcessarContexto(contextoUsuarios, opcaoContexto);
+
+                break;
+            
+            case AcessosContexto.ContextoCargos:
+                AcessarContexto(contextoCargos, opcaoContexto);
+
+                break;
+            
+            case AcessosContexto.ContextoCursos:
+                AcessarContexto(contextoCursos, opcaoContexto);
+
+                break;
+            
+            case AcessosContexto.ContextoMaterias:
+                AcessarContexto(contextoMaterias, opcaoContexto);
+
+                break;
+        }
     }
 
-    private static void AcessarContexto(dynamic contexto,
-                                        string opcaoContexto,
-                                        BaseDeDados baseDeDados,
-                                        Usuario usuario)
+    private static void AcessarContexto<T>(Contexto<T> contexto,
+                                           string opcaoContexto) 
+        where T : Modelo
     {
         var estadoAtual = EstadoDoApp.Recurso;
 
@@ -64,9 +67,7 @@ public static class MiddlewareContexto
 
                 Console.Clear();
 
-                contexto.AcessarRecurso(recursoEscolhido,
-                                        baseDeDados,
-                                        usuario);
+                contexto.AcessarRecurso(recursoEscolhido);
             }
             else
             {
@@ -81,14 +82,14 @@ public static class MiddlewareContexto
     {
         var recursosDisponiveis = opcao switch
         {
-            AcessosContexto.AcessoContextoUsuarios =>
-                OperacoesRecurso.OperacoesUsuarios,
-            AcessosContexto.AcessoContextoCursos =>
-                OperacoesRecurso.OperacoesCursos,
-            AcessosContexto.AcessoContextoMaterias =>
-                OperacoesRecurso.OperacoesMaterias,
-            AcessosContexto.AcessoContextoCargos =>
-                OperacoesRecurso.OperacoesCargos,
+            AcessosContexto.ContextoUsuarios =>
+                OperacoesRecursos.RecursoUsuarios,
+            AcessosContexto.ContextoCursos =>
+                OperacoesRecursos.RecursoCursos,
+            AcessosContexto.ContextoMaterias =>
+                OperacoesRecursos.RecursoMaterias,
+            AcessosContexto.ContextoCargos =>
+                OperacoesRecursos.RecursoCargos,
             _ => throw new InvalidOperationException(
                      "Não há contexto definido para este tipo")
         };
