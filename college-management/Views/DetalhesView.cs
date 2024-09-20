@@ -2,7 +2,7 @@ using college_management.Dados.Modelos;
 
 namespace college_management.Views;
 
-public class DetalhesView<T> : View where T : Modelo
+public class DetalhesView : View
 {
     public DetalhesView(string titulo,
                         Dictionary<string, string> detalhes) :
