@@ -103,44 +103,102 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 	public override async Task Cadastrar()
 	{
-		InputView inputUsuario =
-			new("Cadastrar Usuário", "Insira o Nome: ");
-
+		InputView inputUsuario = new("Cadastrar Usuário");
 		inputUsuario.ConstruirLayout();
+		
+		Dictionary<string, string> cadastroUsuario = ObterCadastroUsuario(inputUsuario);
 
-		KeyValuePair<string, string?>[] camposUsuario = [
-			new("Nome", null),
+		if (cadastroUsuario["Confirma"] is not "S") return;
+
+		var cargoEscolhido = BaseDeDados
+		                     .cargos
+		                     .ObterPorNome(cadastroUsuario["Cargo"]);
+
+		if (cargoEscolhido.Nome is not CargosPadrao.CargoAlunos)
+		{
+			var novoUsuario
+				= new Funcionario(cadastroUsuario["Login"],
+				                  cadastroUsuario["Nome"],
+				                  cargoEscolhido,
+				                  cadastroUsuario["Senha"]);
+
+			await BaseDeDados.usuarios.Adicionar(novoUsuario);
+
+			inputUsuario.LerEntrada("Sair", "Usuário cadastrado com sucesso. Aperte qualquer tecla para retornar: ");
+			
+			return;
+		}
+		
+		var numeroMatricula
+			= Convert.ToInt32(cadastroUsuario["Matricula"]);
+
+		var periodoCurso
+			= Convert.ToInt32(cadastroUsuario["Periodo"]);
+		
+		var cursoEscolhido
+			= BaseDeDados.cursos.ObterPorNome(cadastroUsuario
+				                                  ["Curso"]);
+
+		var modalidadeCurso = 
+			cadastroUsuario["Modalidade"] switch
+		{
+			"Ead"        => Modalidade.Ead,
+			"Presencial" => Modalidade.Presencial,
+			"Hibrido"    => Modalidade.Hibrido,
+			_            => throw new ArgumentOutOfRangeException()
+		};
+
+		Matricula novaMatricula
+			= new(numeroMatricula,
+			      periodoCurso,
+			      cursoEscolhido,
+			      modalidadeCurso);
+
+		var novoAluno = new Aluno(cadastroUsuario["Login"],
+		                          cadastroUsuario["Nome"],
+		                          cargoEscolhido,
+		                          cadastroUsuario["Senha"],
+		                          novaMatricula);
+
+		await BaseDeDados.usuarios.Adicionar(novoAluno);
+		
+		inputUsuario.LerEntrada("Sair", "Usuário cadastrado com sucesso. Aperte qualquer tecla para retornar: ");
+	}
+
+	public Dictionary<string, string> ObterCadastroUsuario(InputView inputUsuario)
+	{
+		KeyValuePair<string, string?>[] mensagensUsuario = [
+			new("Nome", "Insira o Nome: "),
 			new("Login", "Insira o Login: "),
 			new("Senha", "Insira a Senha: "),
 			new("Cargo", "Insira o Cargo: ")
 		];
 
-		foreach (KeyValuePair<string, string?> campo 
-		         in camposUsuario)
+		foreach (KeyValuePair<string, string?> mensagem 
+		         in mensagensUsuario)
 		{
-			inputUsuario.LerEntrada(campo.Key, campo.Value);
+			inputUsuario.LerEntrada(mensagem.Key, mensagem.Value);
 		}
 
-		KeyValuePair<string, string?>[] camposAluno = [
+		KeyValuePair<string, string?>[] mensagensAluno = [
 			new("Matricula", "Insira a Matrícula: "),
 			new("Periodo", "Insira o Período: "),
 			new("Curso", "Insira o nome do Curso: "),
-			new("Cargo", "Insira o Cargo: ")
+			new("Modalidade", "Insira a Modalidade: ")
 		];
 		
-		if (inputUsuario.ObterEntrada("Cargo") is CargosPadrao
-			    .CargoAlunos)
+		if (inputUsuario.ObterEntrada("Cargo") 
+		    is CargosPadrao.CargoAlunos)
 		{
-			foreach (KeyValuePair<string, string?> campo 
-			         in camposAluno)
+			foreach (KeyValuePair<string, string?> mensagem 
+			         in mensagensAluno)
 			{
-				inputUsuario.LerEntrada(campo.Key, campo.Value);
+				inputUsuario.LerEntrada(mensagem.Key, mensagem.Value);
 			}
 		}
 
 		DetalhesView detalhesView = new("Confirmar Cadastro",
 		                                inputUsuario.EntradasUsuario);
-		
 		detalhesView.ConstruirLayout();
 
 		StringBuilder mensagemConfirmacao = new();
@@ -149,8 +207,10 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		
 		inputUsuario.LerEntrada("Confirma", 
 		                        mensagemConfirmacao.ToString());
-	}
 
+		return inputUsuario.EntradasUsuario;
+	}
+	
 	public override async Task Editar()
 	{
 		throw new NotImplementedException();
