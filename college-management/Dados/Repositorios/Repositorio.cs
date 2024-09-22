@@ -53,6 +53,20 @@ where T : Modelo
 		return BaseDeDados.FirstOrDefault(t => t.Id == id);
 	}
 
+	public T ObterPorNome(string? nome)
+	{
+		return BaseDeDados.FirstOrDefault(t =>
+		{
+			var propriedadeNome
+				= t.GetType().GetProperty("Nome");
+
+			var valorNome = propriedadeNome.GetValue(t).ToString();
+
+			return (valorNome is not null) 
+			       && (valorNome == nome);
+		});
+	}
+
 	public async Task Atualizar(T modelo)
 	{
 		var modeloAntigo = ObterPorId(modelo.Id);
