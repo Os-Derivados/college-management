@@ -1,14 +1,22 @@
 using college_management.Dados.Modelos;
 
+
 namespace college_management.Dados.Repositorios.Interfaces;
+
 
 public interface IRepositorio<T> where T : Modelo
 {
-    Task Adicionar(T modelo);
-    List<T> ObterTodos();
-    T ObterPorId(string? id);
-    Task Atualizar(T modelo);
-    Task Remover(string? id);
+	public Task<bool> Adicionar(T modelo);
 
-    bool Existe(T modelo);
+	public List<T> ObterTodos();
+
+	public T ObterPorId(string? id);
+
+	public T ObterPorNome(string? nome);
+
+	public Task<bool> Atualizar(T modelo);
+
+	public Task<bool> Remover(string? id);
+
+	public bool Existe(T modelo);
 }

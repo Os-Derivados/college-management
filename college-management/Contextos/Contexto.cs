@@ -1,75 +1,72 @@
-using System.Text;
 using college_management.Constantes;
 using college_management.Contextos.Interfaces;
 using college_management.Dados;
 using college_management.Dados.Modelos;
-using college_management.Dados.Repositorios;
 using college_management.Views;
+
 
 namespace college_management.Contextos;
 
+
 public abstract class Contexto<T> : IContexto<T> where T : Modelo
 {
-    public void ListarOpcoes()
-    {
-        var opcoes = ObterOpcoes();
+	protected Contexto(BaseDeDados baseDeDados,
+	                   Usuario     usuarioContexto)
+	{
+		BaseDeDados     = baseDeDados;
+		UsuarioContexto = usuarioContexto;
+	}
 
-        MenuView menuRecursos = new("Menu Recursos",
-                                    $"Bem vindo ao recuso de {typeof(T).Name}.",
-                                    opcoes);
+	protected readonly BaseDeDados BaseDeDados;
+	protected readonly Usuario     UsuarioContexto;
 
-        menuRecursos.ConstruirLayout();
-        menuRecursos.Exibir();
-    }
+	public void ListarOpcoes()
+	{
+		var opcoes = ObterOpcoes();
 
-    private string[] ObterOpcoes()
-    {
-        return typeof(T).Name switch
-        {
-            nameof(Usuario) => OperacoesRecurso.OperacoesUsuarios,
-            nameof(Curso)   => OperacoesRecurso.OperacoesCursos,
-            nameof(Materia) => OperacoesRecurso.OperacoesMaterias,
-            nameof(Cargo)   => OperacoesRecurso.OperacoesCargos,
-            _ => throw new InvalidOperationException(
-                     "Não há contexto definido para este tipo")
-        };
-    }
+		MenuView menuRecursos = new("Menu Recursos",
+		                            $"Bem vindo ao recuso de {typeof(T).Name}.",
+		                            opcoes);
 
-    public void AcessarRecurso(string nomeRecurso,
-                               BaseDeDados baseDeDados,
-                               Usuario usuario)
-    {
-        var interfacesContexto = GetType().GetInterfaces();
+		menuRecursos.ConstruirLayout();
+		menuRecursos.Exibir();
+	}
 
-        var recurso =
-            interfacesContexto.Select(t => t.GetMethod(nomeRecurso))
-                              .FirstOrDefault(t => t is not null);
+	private string[] ObterOpcoes()
+	{
+		return typeof(T).Name switch
+		{
+			nameof(Usuario) => OperacoesRecursos.RecursoUsuarios,
+			nameof(Curso)   => OperacoesRecursos.RecursoCursos,
+			nameof(Materia) => OperacoesRecursos.RecursoMaterias,
+			nameof(Cargo)   => OperacoesRecursos.RecursoCargos,
+			_ => throw new
+				     InvalidOperationException("Não há contexto definido para este tipo")
+		};
+	}
 
-        if (recurso is null)
-            throw new InvalidOperationException("Recurso inexistente");
+	public void AcessarRecurso(string nomeRecurso)
+	{
+		Type[] interfacesContexto = GetType().GetInterfaces();
 
-        dynamic repositorio = typeof(T).Name switch
-        {
-            nameof(Usuario) => baseDeDados.usuarios,
-            nameof(Cargo)   => baseDeDados.cargos,
-            nameof(Materia) => baseDeDados.materias,
-            nameof(Curso)   => baseDeDados.cursos,
-            _ => throw new InvalidOperationException(
-                     "Repositorio inexistente")
-        };
+		var recurso =
+			interfacesContexto
+				.Select(t => t.GetMethod(nomeRecurso))
+				.FirstOrDefault(t => t is not null);
 
-        recurso.Invoke(this, [repositorio, usuario]);
-    }
+		if (recurso is null)
+			throw new
+				InvalidOperationException("Recurso inexistente");
 
-    public abstract Task Cadastrar(Repositorio<T> repositorio,
-                                   Usuario usuario);
+		var task = (Task) recurso.Invoke(this, []);
+		task.Wait();
+	}
 
-    public abstract Task Editar(Repositorio<T> repositorio,
-                                Usuario usuario);
+	public abstract Task Cadastrar();
 
-    public abstract Task Excluir(Repositorio<T> repositorio,
-                                 Usuario usuario);
+	public abstract Task Editar();
 
-    public abstract void Visualizar(Repositorio<T> repositorio,
-                                    Usuario usuario);
+	public abstract Task Excluir();
+
+	public abstract void Visualizar();
 }
