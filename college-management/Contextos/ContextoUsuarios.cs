@@ -108,25 +108,34 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		inputUsuario.ConstruirLayout();
 
-		inputUsuario.LerEntrada("Nome");
-		inputUsuario.LerEntrada("Login", "Insira o Login: ");
-		inputUsuario.LerEntrada("Senha", "Insira a Senha: ");
-		inputUsuario.LerEntrada("Cargo", "Insira o Cargo: ");
+		KeyValuePair<string, string?>[] camposUsuario = [
+			new("Nome", null),
+			new("Login", "Insira o Login: "),
+			new("Senha", "Insira a Senha: "),
+			new("Cargo", "Insira o Cargo: ")
+		];
 
+		foreach (KeyValuePair<string, string?> campo 
+		         in camposUsuario)
+		{
+			inputUsuario.LerEntrada(campo.Key, campo.Value);
+		}
+
+		KeyValuePair<string, string?>[] camposAluno = [
+			new("Matricula", "Insira a Matrícula: "),
+			new("Periodo", "Insira o Período: "),
+			new("Curso", "Insira o nome do Curso: "),
+			new("Cargo", "Insira o Cargo: ")
+		];
+		
 		if (inputUsuario.ObterEntrada("Cargo") is CargosPadrao
 			    .CargoAlunos)
 		{
-			inputUsuario.LerEntrada("Matricula",
-			                        "Insira a Matrícula: ");
-
-			inputUsuario.LerEntrada("Periodo",
-			                        "Insira o Período: ");
-
-			inputUsuario.LerEntrada("Curso",
-			                        "Insira o nome do Curso: ");
-
-			inputUsuario.LerEntrada("Modalidade",
-			                        "Insira a Modalidade: ");
+			foreach (KeyValuePair<string, string?> campo 
+			         in camposAluno)
+			{
+				inputUsuario.LerEntrada(campo.Key, campo.Value);
+			}
 		}
 
 		DetalhesView detalhesView = new("Confirmar Cadastro",
@@ -137,13 +146,9 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		StringBuilder mensagemConfirmacao = new();
 		mensagemConfirmacao.AppendLine(detalhesView.Layout.ToString());
 		mensagemConfirmacao.Append("[S] Sim\t[N] Não: ");
-
-		InputView inputConfirmacao
-			= new("Confirmar Cadastro de Usuário",
-			      mensagemConfirmacao.ToString());
 		
-		inputConfirmacao.ConstruirLayout();
-		inputConfirmacao.LerEntrada("Confirma");
+		inputUsuario.LerEntrada("Confirma", 
+		                        mensagemConfirmacao.ToString());
 	}
 
 	public override async Task Editar()
