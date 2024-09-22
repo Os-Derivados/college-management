@@ -33,29 +33,28 @@ public static class MiddlewareContexto
 		switch (opcaoContexto)
 		{
 			case AcessosContexto.ContextoUsuarios:
-				AcessarContexto(contextoUsuarios, opcaoContexto);
+				AcessarContexto(contextoUsuarios);
 
 				break;
 
 			case AcessosContexto.ContextoCargos:
-				AcessarContexto(contextoCargos, opcaoContexto);
+				AcessarContexto(contextoCargos);
 
 				break;
 
 			case AcessosContexto.ContextoCursos:
-				AcessarContexto(contextoCursos, opcaoContexto);
+				AcessarContexto(contextoCursos);
 
 				break;
 
 			case AcessosContexto.ContextoMaterias:
-				AcessarContexto(contextoMaterias, opcaoContexto);
+				AcessarContexto(contextoMaterias);
 
 				break;
 		}
 	}
 
-	private static void AcessarContexto<T>(Contexto<T> contexto,
-	                                       string opcaoContexto)
+	private static void AcessarContexto<T>(Contexto<T> contexto)
 	where T : Modelo
 	{
 		var estadoAtual = EstadoDoApp.Recurso;
@@ -71,8 +70,7 @@ public static class MiddlewareContexto
 			if (opcaoEscolhida.Key is not ConsoleKey.D0)
 			{
 				var recursoEscolhido =
-					ConverterParaMetodo(opcaoContexto,
-					                    opcaoEscolhida);
+					ConverterParaMetodo(contexto, opcaoEscolhida);
 
 				Console.Clear();
 
@@ -86,23 +84,11 @@ public static class MiddlewareContexto
 		while (estadoAtual is EstadoDoApp.Recurso);
 	}
 
-	private static string ConverterParaMetodo(string opcao,
-	                                          ConsoleKeyInfo
-		                                          indice)
+	private static string ConverterParaMetodo<T>(Contexto<T> contexto,
+												 ConsoleKeyInfo indice)
+	where T : Modelo
 	{
-		var recursosDisponiveis = opcao switch
-		{
-			AcessosContexto.ContextoUsuarios =>
-				OperacoesRecursos.RecursoUsuarios,
-			AcessosContexto.ContextoCursos =>
-				OperacoesRecursos.RecursoCursos,
-			AcessosContexto.ContextoMaterias =>
-				OperacoesRecursos.RecursoMaterias,
-			AcessosContexto.ContextoCargos =>
-				OperacoesRecursos.RecursoCargos,
-			_ => throw new
-				     InvalidOperationException("Não há contexto definido para este tipo")
-		};
+		var recursosDisponiveis = contexto.ObterOpcoes();
 
 		_ = int.TryParse(indice.KeyChar.ToString(), out var i);
 

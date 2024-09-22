@@ -32,17 +32,39 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 		menuRecursos.Exibir();
 	}
 
-	private string[] ObterOpcoes()
+	public string[] ObterOpcoes()
 	{
-		return typeof(T).Name switch
+		string[] recursosDisponiveis;
+
+		if (UsuarioContexto.Cargo.Nome 
+		    is CargosPadrao.CargoAdministradores)
 		{
-			nameof(Usuario) => OperacoesRecursos.RecursoUsuarios,
-			nameof(Curso)   => OperacoesRecursos.RecursoCursos,
-			nameof(Materia) => OperacoesRecursos.RecursoMaterias,
-			nameof(Cargo)   => OperacoesRecursos.RecursoCargos,
-			_ => throw new
-				     InvalidOperationException("Não há contexto definido para este tipo")
+			recursosDisponiveis = typeof(T).Name switch
+			{
+				nameof(Usuario) => OperacoesRecursos
+					.RecursosEscritaUsuarios,
+				nameof(Curso) => OperacoesRecursos
+					.RecursosEscritaCursos,
+				_ =>
+				[
+					..OperacoesRecursos.RecursosLeitura,
+					..OperacoesRecursos.RecursosEscrita
+				]
+			};
+
+			return recursosDisponiveis;
+		}
+
+		recursosDisponiveis = typeof(T).Name switch
+		{
+			nameof(Usuario) => OperacoesRecursos
+				.RecursosLeituraUsuarios,
+			nameof(Curso) => OperacoesRecursos
+				.RecursosLeituraCursos,
+			_ => OperacoesRecursos.RecursosLeitura
 		};
+
+		return recursosDisponiveis;
 	}
 
 	public void AcessarRecurso(string nomeRecurso)
