@@ -9,12 +9,11 @@ public sealed class InputView : View, IInputView
 	public readonly Dictionary<string, string> EntradasUsuario
 		= new();
 
-	private string _mensagem;
+	private string? _mensagem;
 
-	public InputView(string titulo, string mensagem) :
+	public InputView(string titulo) :
 		base(titulo)
 	{
-		_mensagem = mensagem;
 	}
 
 	public override void ConstruirLayout()
