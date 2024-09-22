@@ -37,13 +37,15 @@ where T : Modelo
 		    .Wait();
 	}
 
-	public virtual async Task Adicionar(T modelo)
+	public virtual async Task<bool> Adicionar(T modelo)
 	{
-		if (Existe(modelo)) return;
+		if (Existe(modelo)) return false;
 
 		BaseDeDados.Add(modelo);
 
 		await _servicoDados.SalvarAssicrono(BaseDeDados);
+
+		return true;
 	}
 
 	public List<T> ObterTodos() { return BaseDeDados; }
@@ -68,33 +70,37 @@ where T : Modelo
 		});
 	}
 
-	public async Task Atualizar(T modelo)
+	public async Task<bool> Atualizar(T modelo)
 	{
 		var modeloAntigo = ObterPorId(modelo.Id);
 
 		if (modeloAntigo is null)
 		{
-			await Adicionar(modelo);
-
-			return;
+			return await Adicionar(modelo);
 		}
 
-		await Remover(modelo.Id);
-		await Adicionar(modelo);
+		var foiRemovido = await Remover(modelo.Id);
 
+		if (!foiRemovido) return false;
+		
+		await Adicionar(modelo);
 		await _servicoDados.SalvarAssicrono(BaseDeDados);
+
+		return true;
 	}
 
-	public async Task Remover(string? id)
+	public async Task<bool> Remover(string? id)
 	{
 		var modelo = ObterPorId(id);
 
 		if (modelo is null)
-			return;
+			return false;
 
 		BaseDeDados.Remove(modelo);
 
 		await _servicoDados.SalvarAssicrono(BaseDeDados);
+
+		return true;
 	}
 
 	public abstract bool Existe(T modelo);

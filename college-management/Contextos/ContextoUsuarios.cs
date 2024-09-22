@@ -116,31 +116,36 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		                     .ObterPorNome(cadastroUsuario
 			                                   ["Cargo"]);
 
-		if (cargoEscolhido.Nome is not CargosPadrao.CargoAlunos)
+		Usuario novoUsuario = cargoEscolhido.Nome switch
 		{
-			var novoUsuario
-				= new Funcionario(cadastroUsuario["Login"],
-				                  cadastroUsuario["Nome"],
-				                  cargoEscolhido,
-				                  cadastroUsuario["Senha"]);
+			CargosPadrao.CargoAlunos => CriarAluno(cadastroUsuario, cargoEscolhido),
+			_ => new Funcionario(cadastroUsuario["Login"],
+			                     cadastroUsuario["Nome"],
+			                     cargoEscolhido,
+			                     cadastroUsuario["Senha"])
+		};
+		
+		var foiAdicionado = await BaseDeDados.usuarios.Adicionar(novoUsuario);
+		var mensagemOperacao = foiAdicionado
+			                       ? $"{nameof(Usuario)} cadastrado com sucesso. "
+			                         + $"Aperte qualquer tecla para retornar: "
+			                       : $"Não foi possível cadastrar novo {nameof(Usuario)}. "
+			                         + $"Verifique os registros da base de dados. ";
 
-			await BaseDeDados.usuarios.Adicionar(novoUsuario);
+		inputUsuario.LerEntrada("Sair", mensagemOperacao);
+	}
 
-			inputUsuario.LerEntrada("Sair",
-			                        "Usuário cadastrado com sucesso. Aperte qualquer tecla para retornar: ");
-
-			return;
-		}
-
+	private Aluno CriarAluno(Dictionary<string, string> cadastroUsuario, Cargo cargoAlunos)
+	{
 		var numeroMatricula
 			= Convert.ToInt32(cadastroUsuario["Matricula"]);
 
 		var periodoCurso
 			= Convert.ToInt32(cadastroUsuario["Periodo"]);
 
-		var cursoEscolhido
-			= BaseDeDados.cursos.ObterPorNome(cadastroUsuario
-				                                  ["Curso"]);
+		var cursoEscolhido = BaseDeDados
+		                     .cursos
+		                     .ObterPorNome(cadastroUsuario["Curso"]);
 
 		var modalidadeCurso =
 			cadastroUsuario["Modalidade"] switch
@@ -148,7 +153,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 				"Ead" => Modalidade.Ead,
 				"Presencial" => Modalidade.Presencial,
 				"Hibrido" => Modalidade.Hibrido,
-				_ => throw new ArgumentOutOfRangeException()
+				_ => throw new ArgumentOutOfRangeException(nameof(cadastroUsuario))
 			};
 
 		Matricula novaMatricula
@@ -159,16 +164,13 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		var novoAluno = new Aluno(cadastroUsuario["Login"],
 		                          cadastroUsuario["Nome"],
-		                          cargoEscolhido,
+		                          cargoAlunos,
 		                          cadastroUsuario["Senha"],
 		                          novaMatricula);
 
-		await BaseDeDados.usuarios.Adicionar(novoAluno);
-
-		inputUsuario.LerEntrada("Sair",
-		                        "Usuário cadastrado com sucesso. Aperte qualquer tecla para retornar: ");
+		return novoAluno;
 	}
-
+	
 	private Dictionary<string, string> ObterCadastroUsuario(
 		InputView inputUsuario)
 	{
