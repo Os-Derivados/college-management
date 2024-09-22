@@ -105,14 +105,16 @@ public class ContextoUsuarios : Contexto<Usuario>,
 	{
 		InputView inputUsuario = new("Cadastrar Usuário");
 		inputUsuario.ConstruirLayout();
-		
-		Dictionary<string, string> cadastroUsuario = ObterCadastroUsuario(inputUsuario);
+
+		Dictionary<string, string> cadastroUsuario
+			= ObterCadastroUsuario(inputUsuario);
 
 		if (cadastroUsuario["Confirma"] is not "S") return;
 
 		var cargoEscolhido = BaseDeDados
 		                     .cargos
-		                     .ObterPorNome(cadastroUsuario["Cargo"]);
+		                     .ObterPorNome(cadastroUsuario
+			                                   ["Cargo"]);
 
 		if (cargoEscolhido.Nome is not CargosPadrao.CargoAlunos)
 		{
@@ -124,29 +126,30 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 			await BaseDeDados.usuarios.Adicionar(novoUsuario);
 
-			inputUsuario.LerEntrada("Sair", "Usuário cadastrado com sucesso. Aperte qualquer tecla para retornar: ");
-			
+			inputUsuario.LerEntrada("Sair",
+			                        "Usuário cadastrado com sucesso. Aperte qualquer tecla para retornar: ");
+
 			return;
 		}
-		
+
 		var numeroMatricula
 			= Convert.ToInt32(cadastroUsuario["Matricula"]);
 
 		var periodoCurso
 			= Convert.ToInt32(cadastroUsuario["Periodo"]);
-		
+
 		var cursoEscolhido
 			= BaseDeDados.cursos.ObterPorNome(cadastroUsuario
 				                                  ["Curso"]);
 
-		var modalidadeCurso = 
+		var modalidadeCurso =
 			cadastroUsuario["Modalidade"] switch
-		{
-			"Ead"        => Modalidade.Ead,
-			"Presencial" => Modalidade.Presencial,
-			"Hibrido"    => Modalidade.Hibrido,
-			_            => throw new ArgumentOutOfRangeException()
-		};
+			{
+				"Ead" => Modalidade.Ead,
+				"Presencial" => Modalidade.Presencial,
+				"Hibrido" => Modalidade.Hibrido,
+				_ => throw new ArgumentOutOfRangeException()
+			};
 
 		Matricula novaMatricula
 			= new(numeroMatricula,
@@ -161,56 +164,60 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		                          novaMatricula);
 
 		await BaseDeDados.usuarios.Adicionar(novoAluno);
-		
-		inputUsuario.LerEntrada("Sair", "Usuário cadastrado com sucesso. Aperte qualquer tecla para retornar: ");
+
+		inputUsuario.LerEntrada("Sair",
+		                        "Usuário cadastrado com sucesso. Aperte qualquer tecla para retornar: ");
 	}
 
-	public Dictionary<string, string> ObterCadastroUsuario(InputView inputUsuario)
+	private Dictionary<string, string> ObterCadastroUsuario(
+		InputView inputUsuario)
 	{
-		KeyValuePair<string, string?>[] mensagensUsuario = [
+		KeyValuePair<string, string?>[] mensagensUsuario =
+		[
 			new("Nome", "Insira o Nome: "),
 			new("Login", "Insira o Login: "),
 			new("Senha", "Insira a Senha: "),
 			new("Cargo", "Insira o Cargo: ")
 		];
 
-		foreach (KeyValuePair<string, string?> mensagem 
+		foreach (KeyValuePair<string, string?> mensagem
 		         in mensagensUsuario)
-		{
-			inputUsuario.LerEntrada(mensagem.Key, mensagem.Value);
-		}
+			inputUsuario.LerEntrada(mensagem.Key,
+			                        mensagem.Value);
 
-		KeyValuePair<string, string?>[] mensagensAluno = [
+		KeyValuePair<string, string?>[] mensagensAluno =
+		[
 			new("Matricula", "Insira a Matrícula: "),
 			new("Periodo", "Insira o Período: "),
 			new("Curso", "Insira o nome do Curso: "),
 			new("Modalidade", "Insira a Modalidade: ")
 		];
-		
-		if (inputUsuario.ObterEntrada("Cargo") 
+
+		if (inputUsuario.ObterEntrada("Cargo")
 		    is CargosPadrao.CargoAlunos)
-		{
-			foreach (KeyValuePair<string, string?> mensagem 
+			foreach (KeyValuePair<string, string?> mensagem
 			         in mensagensAluno)
-			{
-				inputUsuario.LerEntrada(mensagem.Key, mensagem.Value);
-			}
-		}
+				inputUsuario.LerEntrada(mensagem.Key,
+				                        mensagem.Value);
 
 		DetalhesView detalhesView = new("Confirmar Cadastro",
-		                                inputUsuario.EntradasUsuario);
+		                                inputUsuario
+			                                .EntradasUsuario);
+
 		detalhesView.ConstruirLayout();
 
 		StringBuilder mensagemConfirmacao = new();
-		mensagemConfirmacao.AppendLine(detalhesView.Layout.ToString());
+		mensagemConfirmacao.AppendLine(detalhesView.Layout
+		                                           .ToString());
+
 		mensagemConfirmacao.Append("[S] Sim\t[N] Não: ");
-		
-		inputUsuario.LerEntrada("Confirma", 
+
+		inputUsuario.LerEntrada("Confirma",
 		                        mensagemConfirmacao.ToString());
 
 		return inputUsuario.EntradasUsuario;
 	}
-	
+
 	public override async Task Editar()
 	{
 		throw new NotImplementedException();

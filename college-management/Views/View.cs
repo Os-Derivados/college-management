@@ -8,7 +8,7 @@ namespace college_management.Views;
 public abstract class View : IView
 {
 	public readonly StringBuilder Layout = new();
-	public readonly    string        Titulo;
+	public readonly string        Titulo;
 
 	protected View(string titulo) { Titulo = titulo; }
 

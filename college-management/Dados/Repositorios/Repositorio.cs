@@ -60,10 +60,11 @@ where T : Modelo
 			var propriedadeNome
 				= t.GetType().GetProperty("Nome");
 
-			var valorNome = propriedadeNome.GetValue(t).ToString();
+			var valorNome
+				= propriedadeNome.GetValue(t).ToString();
 
-			return (valorNome is not null) 
-			       && (valorNome == nome);
+			return valorNome is not null
+			       && valorNome == nome;
 		});
 	}
 

@@ -12,9 +12,7 @@ public sealed class InputView : View, IInputView
 	private string? _mensagem;
 
 	public InputView(string titulo) :
-		base(titulo)
-	{
-	}
+		base(titulo) { }
 
 	public override void ConstruirLayout()
 	{
