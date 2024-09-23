@@ -3,37 +3,42 @@ namespace college_management.Constantes;
 
 public static class OperacoesRecursos
 {
-	private static readonly string[] OperacoesComuns =
+	public static readonly string[] RecursosLeitura =
+	[
+		"Visualizar",
+		"Gerar Relatorio"
+	];
+
+	public static readonly string[] RecursosEscrita =
 	[
 		"Cadastrar",
-		"Visualizar",
 		"Editar",
 		"Excluir"
 	];
 
-	public static readonly string[] RecursoUsuarios =
-	[
-		..OperacoesComuns,
-		"Editar Matricula",
+	public static readonly string[] RecursosLeituraUsuarios = [
+		..RecursosLeitura,
 		"Ver Matricula",
-		"Ver Boletim",
+		"Ver Notas",
 		"Ver Financeiro"
 	];
-
-	public static readonly string[] RecursoCursos =
+	
+	public static readonly string[] RecursosEscritaUsuarios =
 	[
-		..OperacoesComuns,
+		..RecursosLeituraUsuarios,
+		..RecursosEscrita,
+		"Editar Matricula"
+	];
+
+	public static readonly string[] RecursosLeituraCursos =
+	[
+		..RecursosLeitura,
 		"Ver Grade Horaria",
 		"Ver Grade Curricular"
 	];
 
-	public static readonly string[] RecursoMaterias =
-	[
-		..OperacoesComuns
-	];
-
-	public static readonly string[] RecursoCargos =
-	[
-		..OperacoesComuns
+	public static readonly string[] RecursosEscritaCursos = [
+		..RecursosLeituraUsuarios,
+		..RecursosEscrita
 	];
 }

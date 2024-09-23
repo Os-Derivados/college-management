@@ -33,5 +33,6 @@ public enum Modalidade
 {
 	Presencial,
 	Ead,
-	Hibrido
+	Hibrido,
+	Invalido
 }
