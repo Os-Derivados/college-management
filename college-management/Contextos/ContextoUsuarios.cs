@@ -29,7 +29,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		// Curso: Ciência da Computação
 		// Período: 2
 
-		if (UsuarioContexto.Cargo.TemPermissao(PermissoesAcesso
+		if (CargoContexto.TemPermissao(PermissoesAcesso
 			                                       .PermissaoAcessoEscrita))
 			// [REQUISITO]: A visualização do Gestor deve permitir a busca
 			// de um Aluno em específico na base de dados
@@ -69,7 +69,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		// | Calculo 1      |    9.0     | Aprovado |
 		// | Algebra Linear |    N/A     |   N/A    |
 
-		if (UsuarioContexto.Cargo.TemPermissao(PermissoesAcesso
+		if (CargoContexto.TemPermissao(PermissoesAcesso
 			                                       .PermissaoAcessoEscrita))
 			// [REQUISITO]: A visualização do Gestor deve permitir a busca
 			// de uma Aluno em específico na base de dados
@@ -139,33 +139,54 @@ public class ContextoUsuarios : Contexto<Usuario>,
 			return;
 		}
 
+		var novaMatricula = cargoEscolhido.Nome 
+			                    is CargosPadrao.CargoAlunos
+			                    ? CriarMatricula(cadastroUsuario)
+			                    : null;
+
+		var cursoEscolhido = novaMatricula is not null
+			                     ? BaseDeDados
+			                       .Cursos
+			                       .ObterPorNome(cadastroUsuario["Curso"])
+			                     : null;
+		
 		Usuario? novoUsuario = cargoEscolhido.Nome switch
 		{
-			CargosPadrao.CargoAlunos =>
-				CriarAluno(cadastroUsuario, cargoEscolhido),
+			CargosPadrao.CargoAlunos => new Aluno(cadastroUsuario["Login"],
+			                                      cadastroUsuario["Nome"],
+			                                      cadastroUsuario["Senha"],
+			                                      cargoEscolhido.Id,
+			                                      novaMatricula.Id),
 			_ => new Funcionario(cadastroUsuario["Login"],
 			                     cadastroUsuario["Nome"],
-			                     cargoEscolhido.Id,
-			                     cadastroUsuario["Senha"])
+			                     cadastroUsuario["Senha"],
+			                     cargoEscolhido.Id)
 		};
 
 		if (novoUsuario is null)
 		{
-			inputUsuario.LerEntrada("Erro",
-			                        $"Não foi possível criar um novo {nameof(Usuario)}.\n"
-			                        + "Tente novamente e verifique as informações. ");
-
+			inputUsuario
+				.LerEntrada("Erro", 
+				            $"Não foi possível criar um novo {nameof(Usuario)}.");
 			return;
 		}
 
 		var foiAdicionado
 			= await BaseDeDados.Usuarios.Adicionar(novoUsuario);
 
+		if (foiAdicionado 
+		    && novaMatricula is not null
+		    && cursoEscolhido is not null)
+		{
+			novaMatricula.AlunoId = novoUsuario.Id;
+			novaMatricula.CursoId = cursoEscolhido.Id;
+
+			foiAdicionado = await BaseDeDados.Matriculas.Adicionar(novaMatricula);
+		}
+
 		var mensagemOperacao = foiAdicionado
-			                       ? $"{nameof(Usuario)} cadastrado com sucesso.\n"
-			                         + "Aperte qualquer tecla para retornar: "
-			                       : $"Não foi possível cadastrar novo {nameof(Usuario)}.\n"
-			                         + "Tente novamente e verifique as informações";
+			                       ? $"{nameof(Usuario)} cadastrado com sucesso."
+			                       : $"Não foi possível cadastrar novo {nameof(Usuario)}.";
 
 		inputUsuario.LerEntrada("Sair", mensagemOperacao);
 	}
@@ -220,28 +241,12 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		return inputUsuario.EntradasUsuario;
 	}
 
-	private Aluno? CriarAluno(
-		Dictionary<string, string> cadastroUsuario,
-		Cargo                      cargoAlunos)
+	private Matricula CriarMatricula(Dictionary<string, string> cadastroUsuario)
 	{
-		var conversaoValida
-			= int.TryParse(cadastroUsuario["Matricula"],
-			               out var numeroMatricula);
+		var conversaoValida = int.TryParse(cadastroUsuario["Periodo"],
+		                               out var periodoCurso);
 
 		if (!conversaoValida) return null;
-
-		conversaoValida
-			= int.TryParse(cadastroUsuario["Periodo"],
-			               out var periodoCurso);
-
-		if (!conversaoValida) return null;
-
-		var cursoEscolhido = BaseDeDados
-		                     .Cursos
-		                     .ObterPorNome(cadastroUsuario
-			                                   ["Curso"]);
-
-		if (cursoEscolhido is null) return null;
 
 		var modalidadeCurso =
 			cadastroUsuario["Modalidade"] switch
@@ -254,19 +259,9 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		if (modalidadeCurso is Modalidade.Invalido) return null;
 
-		Matricula novaMatricula
-			= new(numeroMatricula,
-			      periodoCurso,
-			      cursoEscolhido,
-			      modalidadeCurso);
+		Matricula novaMatricula = new(periodoCurso, modalidadeCurso);
 
-		var novoAluno = new Aluno(cadastroUsuario["Login"],
-		                          cadastroUsuario["Nome"],
-		                          cargoAlunos,
-		                          cadastroUsuario["Senha"],
-		                          novaMatricula);
-
-		return novoAluno;
+		return novaMatricula;
 	}
 
 	public override async Task Editar()
