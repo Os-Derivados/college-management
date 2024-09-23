@@ -9,8 +9,7 @@ namespace college_management.Utilitarios;
 
 public static class UtilitarioSeed
 {
-	public static async Task IniciarBaseDeDados(
-		BaseDeDados baseDeDados)
+	public static async Task IniciarBaseDeDados(BaseDeDados baseDeDados)
 	{
 		await baseDeDados
 		      .Cargos
@@ -21,7 +20,7 @@ public static class UtilitarioSeed
 		      .Cargos
 		      .Adicionar(new Cargo(CargosPadrao.CargoAlunos,
 		                           [PermissoesAcesso.AcessoEscrita]));
-		
+
 		await baseDeDados
 		      .Cargos
 		      .Adicionar(new Cargo(CargosPadrao.CargoAlunos,
@@ -39,10 +38,10 @@ public static class UtilitarioSeed
 		await baseDeDados
 		      .Usuarios
 		      .Adicionar(new Funcionario(loginMestre,
-                                         nomeMestre,
-                                         senhaMestre,
-                                         cargoAdmin.Id));
-		
+		                                 nomeMestre,
+		                                 senhaMestre,
+		                                 cargoAdmin.Id));
+
 		var (loginTeste, nomeTeste, senhaTeste)
 			= ObterCredenciais(VariaveisAmbiente.UsuarioTesteLogin,
 			                   VariaveisAmbiente.UsuarioTesteNome,
@@ -67,28 +66,27 @@ public static class UtilitarioSeed
 		                           matriculaTeste.Id);
 
 		await baseDeDados.Usuarios.Adicionar(alunoTeste);
-		
+
 		matriculaTeste.AlunoId = alunoTeste.Id;
 		matriculaTeste.CursoId = cursoTeste.Id;
 		await baseDeDados.Matriculas.Adicionar(matriculaTeste);
 	}
 
-	private static (string, string, string) ObterCredenciais(
-		string login,
-		string nome,
-		string senha)
+	private static (string, string, string) ObterCredenciais(string login,
+	                                                         string nome,
+	                                                         string senha)
 	{
 		_ = UtilitarioAmbiente
-			.Variaveis
-			.TryGetValue(login, out var loginDefault);
+		    .Variaveis
+		    .TryGetValue(login, out var loginDefault);
 
 		_ = UtilitarioAmbiente
-			.Variaveis
-			.TryGetValue(nome, out var nomeDefault);
+		    .Variaveis
+		    .TryGetValue(nome, out var nomeDefault);
 
 		_ = UtilitarioAmbiente
-			.Variaveis
-			.TryGetValue(senha, out var senhaDefault);
+		    .Variaveis
+		    .TryGetValue(senha, out var senhaDefault);
 
 		return (loginDefault, nomeDefault, senhaDefault);
 	}

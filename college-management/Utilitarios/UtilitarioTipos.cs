@@ -7,8 +7,7 @@ namespace college_management.Utilitarios;
 
 public static class UtilitarioTipos
 {
-	public static string ObterNomesPropriedades(
-		PropertyInfo[] infos)
+	public static string ObterNomesPropriedades(PropertyInfo[] infos)
 	{
 		StringBuilder propriedades = new();
 

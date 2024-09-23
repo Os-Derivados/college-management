@@ -3,7 +3,7 @@ namespace college_management.Constantes;
 
 public static class PermissoesAcesso
 {
-	public const string 
+	public const string
 		AcessoAdministradores = "Acesso Administradores";
 
 	public const string

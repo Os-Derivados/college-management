@@ -30,7 +30,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		// Período: 2
 
 		if (CargoContexto.TemPermissao(PermissoesAcesso
-			                                       .AcessoEscrita))
+			                               .AcessoEscrita))
 			// [REQUISITO]: A visualização do Gestor deve permitir a busca
 			// de um Aluno em específico na base de dados
 			//
@@ -70,7 +70,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		// | Algebra Linear |    N/A     |   N/A    |
 
 		if (CargoContexto.TemPermissao(PermissoesAcesso
-			                                       .AcessoEscrita))
+			                               .AcessoEscrita))
 			// [REQUISITO]: A visualização do Gestor deve permitir a busca
 			// de uma Aluno em específico na base de dados
 			//
@@ -96,10 +96,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		throw new NotImplementedException();
 	}
 
-	public void VerFinanceiro()
-	{
-		throw new NotImplementedException();
-	}
+	public void VerFinanceiro() { throw new NotImplementedException(); }
 
 	public override async Task Cadastrar()
 	{
@@ -139,7 +136,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 			return;
 		}
 
-		var novaMatricula = cargoEscolhido.Nome 
+		var novaMatricula = cargoEscolhido.Nome
 			                    is CargosPadrao.CargoAlunos
 			                    ? CriarMatricula(cadastroUsuario)
 			                    : null;
@@ -149,7 +146,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 			                       .Cursos
 			                       .ObterPorNome(cadastroUsuario["Curso"])
 			                     : null;
-		
+
 		Usuario? novoUsuario = cargoEscolhido.Nome switch
 		{
 			CargosPadrao.CargoAlunos => new Aluno(cadastroUsuario["Login"],
@@ -166,15 +163,16 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		if (novoUsuario is null)
 		{
 			inputUsuario
-				.LerEntrada("Erro", 
+				.LerEntrada("Erro",
 				            $"Não foi possível criar um novo {nameof(Usuario)}.");
+
 			return;
 		}
 
 		var foiAdicionado
 			= await BaseDeDados.Usuarios.Adicionar(novoUsuario);
 
-		if (foiAdicionado 
+		if (foiAdicionado
 		    && novaMatricula is not null
 		    && cursoEscolhido is not null)
 		{
@@ -191,8 +189,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		inputUsuario.LerEntrada("Sair", mensagemOperacao);
 	}
 
-	private Dictionary<string, string> ObterCadastroUsuario(
-		InputView inputUsuario)
+	private Dictionary<string, string> ObterCadastroUsuario(InputView inputUsuario)
 	{
 		KeyValuePair<string, string?>[] mensagensUsuario =
 		[
@@ -243,7 +240,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 	private Matricula CriarMatricula(Dictionary<string, string> cadastroUsuario)
 	{
 		var conversaoValida = int.TryParse(cadastroUsuario["Periodo"],
-		                               out var periodoCurso);
+		                                   out var periodoCurso);
 
 		if (!conversaoValida) return null;
 
@@ -263,18 +260,9 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		return novaMatricula;
 	}
 
-	public override async Task Editar()
-	{
-		throw new NotImplementedException();
-	}
+	public override async Task Editar() { throw new NotImplementedException(); }
 
-	public override async Task Excluir()
-	{
-		throw new NotImplementedException();
-	}
+	public override async Task Excluir() { throw new NotImplementedException(); }
 
-	public override void Visualizar()
-	{
-		throw new NotImplementedException();
-	}
+	public override void Visualizar() { throw new NotImplementedException(); }
 }

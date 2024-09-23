@@ -50,10 +50,7 @@ where T : Modelo
 
 	public List<T> ObterTodos() { return BaseDeDados; }
 
-	public T ObterPorId(string? id)
-	{
-		return BaseDeDados.FirstOrDefault(t => t.Id == id);
-	}
+	public T ObterPorId(string? id) { return BaseDeDados.FirstOrDefault(t => t.Id == id); }
 
 	public T ObterPorNome(string? nome)
 	{

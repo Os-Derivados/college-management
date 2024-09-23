@@ -35,8 +35,8 @@ where T : Modelo
 	public string GerarRelatorio(T modelo, Cargo? cargoUsuario)
 	{
 		return cargoUsuario
-			       .TemPermissao(PermissoesAcesso.AcessoEscrita) 
-			       ? GerarEntradasRelatorio() 
+			       .TemPermissao(PermissoesAcesso.AcessoEscrita)
+			       ? GerarEntradasRelatorio()
 			       : modelo.ToString();
 	}
 
@@ -46,7 +46,7 @@ where T : Modelo
 			return _modelos[0].ToString();
 
 		StringBuilder entradasRelatorio = new();
-		
+
 		entradasRelatorio
 			.AppendLine(UtilitarioTipos
 				            .ObterNomesPropriedades(typeof(T)
@@ -57,9 +57,6 @@ where T : Modelo
 
 		return entradasRelatorio.ToString();
 	}
-	
-	public async Task ExportarRelatorio(string relatorio)
-	{
-		throw new NotImplementedException();
-	}
+
+	public async Task ExportarRelatorio(string relatorio) { throw new NotImplementedException(); }
 }

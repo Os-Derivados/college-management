@@ -15,9 +15,9 @@ public class Usuario : Modelo
 	               string senha,
 	               string cargoId)
 	{
-		Login = login;
-		Nome = nome;
-		Senha = senha;
+		Login   = login;
+		Nome    = nome;
+		Senha   = senha;
 		CargoId = cargoId;
 
 		Id = _contagemId.ToString(CultureInfo.InvariantCulture);

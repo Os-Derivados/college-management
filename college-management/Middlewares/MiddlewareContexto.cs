@@ -78,9 +78,8 @@ public static class MiddlewareContexto
 		while (estadoAtual is EstadoDoApp.Recurso);
 	}
 
-	private static string ConverterParaMetodo<T>(
-		Contexto<T>    contexto,
-		ConsoleKeyInfo indice)
+	private static string ConverterParaMetodo<T>(Contexto<T>    contexto,
+	                                             ConsoleKeyInfo indice)
 	where T : Modelo
 	{
 		var recursosDisponiveis = contexto.ObterOpcoes();
@@ -114,16 +113,16 @@ public static class MiddlewareContexto
 
 			var opcaoEscolhida = Console.ReadKey();
 			var opcaoValida = int.TryParse(opcaoEscolhida
-				                               .KeyChar
-				                               .ToString(),
-				                               out var opcaoUsuario);
+			                               .KeyChar
+			                               .ToString(),
+			                               out var opcaoUsuario);
 
 			if (!opcaoValida) continue;
 
 			if (opcaoUsuario is 0) break;
 
 			contextoEscolhido = opcoesContextos[opcaoUsuario - 1];
-			estadoAtual = EstadoDoApp.Recurso;
+			estadoAtual       = EstadoDoApp.Recurso;
 		}
 		while (estadoAtual is EstadoDoApp.Contexto);
 
@@ -134,11 +133,11 @@ public static class MiddlewareContexto
 	{
 		var temPermissoesAdmin = cargoUsuario
 			                         .TemPermissao(PermissoesAcesso.AcessoEscrita)
-		                             || cargoUsuario
-			                             .TemPermissao(PermissoesAcesso.AcessoAdministradores);
-		
-		return  temPermissoesAdmin
-			       ? AcessosContexto.ContextoEscrita 
+		                         || cargoUsuario
+			                         .TemPermissao(PermissoesAcesso.AcessoAdministradores);
+
+		return temPermissoesAdmin
+			       ? AcessosContexto.ContextoEscrita
 			       : AcessosContexto.ContextoLeitura;
 	}
 }

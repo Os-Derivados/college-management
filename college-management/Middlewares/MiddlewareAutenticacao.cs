@@ -18,8 +18,7 @@ public static class MiddlewareAutenticacao
 			       : Login(repositorioUsuarios);
 	}
 
-	private static Usuario ObterUsuarioTeste(
-		RepositorioUsuarios repositorioUsuarios)
+	private static Usuario ObterUsuarioTeste(RepositorioUsuarios repositorioUsuarios)
 	{
 		_ = UtilitarioAmbiente.Variaveis
 		                      .TryGetValue(VariaveisAmbiente.LoginTeste,
@@ -28,8 +27,7 @@ public static class MiddlewareAutenticacao
 		return repositorioUsuarios.ObterPorLogin(loginTeste);
 	}
 
-	private static Usuario Login(
-		RepositorioUsuarios repositorioUsuarios)
+	private static Usuario Login(RepositorioUsuarios repositorioUsuarios)
 	{
 		// TODO: Desenvolver um algoritmo para autenticar um usuário
 		// [REQUISITO]: O usuário deve existir na base de dados.

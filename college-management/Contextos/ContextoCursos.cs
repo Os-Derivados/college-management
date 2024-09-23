@@ -35,7 +35,7 @@ public class ContextoCursos : Contexto<Curso>,
 		// ...
 
 		if (CargoContexto.TemPermissao(PermissoesAcesso
-			                                       .AcessoEscrita))
+			                               .AcessoEscrita))
 			// [REQUISITO]: A visualização do gestor deve solicitar a busca
 			// de um Curso em específico na base de dados
 			//
@@ -91,7 +91,7 @@ public class ContextoCursos : Contexto<Curso>,
 		// ...
 
 		if (CargoContexto.TemPermissao(PermissoesAcesso
-			                                       .AcessoEscrita))
+			                               .AcessoEscrita))
 			// [REQUISITO]: A visualização do Gestor deve permitir a busca
 			// de um Curso em específico na base de dados
 			//
@@ -118,23 +118,11 @@ public class ContextoCursos : Contexto<Curso>,
 		throw new NotImplementedException();
 	}
 
-	public override async Task Cadastrar()
-	{
-		throw new NotImplementedException();
-	}
+	public override async Task Cadastrar() { throw new NotImplementedException(); }
 
-	public override async Task Editar()
-	{
-		throw new NotImplementedException();
-	}
+	public override async Task Editar() { throw new NotImplementedException(); }
 
-	public override async Task Excluir()
-	{
-		throw new NotImplementedException();
-	}
+	public override async Task Excluir() { throw new NotImplementedException(); }
 
-	public override void Visualizar()
-	{
-		throw new NotImplementedException();
-	}
+	public override void Visualizar() { throw new NotImplementedException(); }
 }

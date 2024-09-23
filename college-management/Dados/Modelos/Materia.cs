@@ -8,9 +8,9 @@ public sealed class Materia : Modelo
 {
 	public Materia(string nome, Turno turno, int cargaHoraria)
 	{
-		Nome = nome;
-		Id = _contagemId.ToString(CultureInfo.InvariantCulture);
-		Turno = turno;
+		Nome         = nome;
+		Id           = _contagemId.ToString(CultureInfo.InvariantCulture);
+		Turno        = turno;
 		CargaHoraria = cargaHoraria;
 
 		_contagemId++;

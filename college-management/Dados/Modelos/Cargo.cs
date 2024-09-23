@@ -22,10 +22,7 @@ public sealed class Cargo : Modelo
 	public List<string>  Permissoes  { get; set; }
 	public List<string>? UsuariosIds { get; set; } = [];
 
-	public bool TemPermissao(string permissao)
-	{
-		return Permissoes.Any(p => p == permissao);
-	}
+	public bool TemPermissao(string permissao) { return Permissoes.Any(p => p == permissao); }
 
 	public string VerPermissoes()
 	{
