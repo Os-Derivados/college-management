@@ -32,17 +32,12 @@ where T : Modelo
 		_modelos = modelos;
 	}
 
-	public string GerarRelatorio(T modelo)
+	public string GerarRelatorio(T modelo, Cargo? cargoUsuario)
 	{
-		return _usuario.Cargo.Nome switch
-		{
-			CargosPadrao.CargoAlunos => modelo.ToString(),
-			CargosPadrao.CargoGestores
-				or CargosPadrao.CargoAdministradores =>
-				GerarEntradasRelatorio(),
-			_ => throw new
-				     InvalidOperationException("Não há modelo de relatório disponível para este cargo")
-		};
+		return cargoUsuario
+			       .TemPermissao(PermissoesAcesso.PermissaoAcessoEscrita) 
+			       ? GerarEntradasRelatorio() 
+			       : modelo.ToString();
 	}
 
 	private string GerarEntradasRelatorio()
@@ -51,18 +46,18 @@ where T : Modelo
 			return _modelos[0].ToString();
 
 		StringBuilder entradasRelatorio = new();
-
-		entradasRelatorio.AppendLine(UtilitarioTipos
-			                             .ObterNomesPropriedades(typeof
-					                                                     (T)
-				                                                     .GetProperties()));
+		
+		entradasRelatorio
+			.AppendLine(UtilitarioTipos
+				            .ObterNomesPropriedades(typeof(T)
+					                                    .GetProperties()));
 
 		foreach (var modelo in _modelos)
 			entradasRelatorio.AppendLine(modelo.ToString());
 
 		return entradasRelatorio.ToString();
 	}
-
+	
 	public async Task ExportarRelatorio(string relatorio)
 	{
 		throw new NotImplementedException();
