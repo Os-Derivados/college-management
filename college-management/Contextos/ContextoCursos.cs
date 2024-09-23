@@ -35,7 +35,7 @@ public class ContextoCursos : Contexto<Curso>,
 		// ...
 
 		if (CargoContexto.TemPermissao(PermissoesAcesso
-			                                       .PermissaoAcessoEscrita))
+			                                       .AcessoEscrita))
 			// [REQUISITO]: A visualização do gestor deve solicitar a busca
 			// de um Curso em específico na base de dados
 			//
@@ -91,7 +91,7 @@ public class ContextoCursos : Contexto<Curso>,
 		// ...
 
 		if (CargoContexto.TemPermissao(PermissoesAcesso
-			                                       .PermissaoAcessoEscrita))
+			                                       .AcessoEscrita))
 			// [REQUISITO]: A visualização do Gestor deve permitir a busca
 			// de um Curso em específico na base de dados
 			//

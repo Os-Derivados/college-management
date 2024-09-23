@@ -132,9 +132,13 @@ public static class MiddlewareContexto
 
 	private static string[] ObterOpcoesContextos(Cargo cargoUsuario)
 	{
-		return cargoUsuario
-			       .TemPermissao(PermissoesAcesso.PermissaoAcessoEscrita) 
-			       ? AcessosContexto.AcessoGestoresAdministradores 
-			       : AcessosContexto.AcessoAlunos;
+		var temPermissoesAdmin = cargoUsuario
+			                         .TemPermissao(PermissoesAcesso.AcessoEscrita)
+		                             || cargoUsuario
+			                             .TemPermissao(PermissoesAcesso.AcessoAdministradores);
+		
+		return  temPermissoesAdmin
+			       ? AcessosContexto.ContextoEscrita 
+			       : AcessosContexto.ContextoLeitura;
 	}
 }

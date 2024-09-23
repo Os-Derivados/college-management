@@ -8,17 +8,17 @@ public static class AcessosContexto
 	public const string ContextoMaterias = "Matérias";
 	public const string ContextoUsuarios = "Contas";
 
-	public static readonly string[] AcessoAlunos =
+	public static readonly string[] ContextoLeitura =
 	[
 		ContextoCursos,
 		ContextoMaterias,
 		ContextoUsuarios
 	];
 
-	public static readonly string[] AcessoGestoresAdministradores
+	public static readonly string[] ContextoEscrita
 		=
 		[
-			..AcessoAlunos,
+			..ContextoLeitura,
 			ContextoCargos
 		];
 }

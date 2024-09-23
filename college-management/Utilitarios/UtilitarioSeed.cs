@@ -15,12 +15,12 @@ public static class UtilitarioSeed
 		await baseDeDados
 		      .Cargos
 		      .Adicionar(new Cargo(CargosPadrao.CargoAdministradores,
-		                           [PermissoesAcesso.PermissaoAcessoAdministradores]));
+		                           [PermissoesAcesso.AcessoAdministradores]));
 
 		await baseDeDados
 		      .Cargos
 		      .Adicionar(new Cargo(CargosPadrao.CargoAlunos,
-		                           [PermissoesAcesso.PermissaoAcessoEscrita]));
+		                           [PermissoesAcesso.AcessoEscrita]));
 		
 		await baseDeDados
 		      .Cargos
@@ -78,14 +78,17 @@ public static class UtilitarioSeed
 		string nome,
 		string senha)
 	{
-		UtilitarioAmbiente.Variaveis.TryGetValue(login, 
-		                                         out var loginDefault);
+		_ = UtilitarioAmbiente
+			.Variaveis
+			.TryGetValue(login, out var loginDefault);
 
-		UtilitarioAmbiente.Variaveis.TryGetValue(nome,
-		                                         out var nomeDefault);
+		_ = UtilitarioAmbiente
+			.Variaveis
+			.TryGetValue(nome, out var nomeDefault);
 
-		UtilitarioAmbiente.Variaveis.TryGetValue(senha,
-		                                         out var senhaDefault);
+		_ = UtilitarioAmbiente
+			.Variaveis
+			.TryGetValue(senha, out var senhaDefault);
 
 		return (loginDefault, nomeDefault, senhaDefault);
 	}

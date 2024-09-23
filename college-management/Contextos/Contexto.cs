@@ -41,20 +41,19 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 	{
 		string[] recursosDisponiveis;
 
-		if (CargoContexto
-		    .TemPermissao(PermissoesAcesso.PermissaoAcessoEscrita))
+		var temPermissaoAdmin = CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita)
+									|| CargoContexto.TemPermissao(PermissoesAcesso.AcessoAdministradores);
+		
+		if (temPermissaoAdmin)
 		{
 			recursosDisponiveis = typeof(T).Name switch
 			{
-				nameof(Usuario) => OperacoesRecursos
-					.RecursosEscritaUsuarios,
-				nameof(Curso) => OperacoesRecursos
-					.RecursosEscritaCursos,
-				_ =>
-				[
-					..OperacoesRecursos.RecursosLeitura,
-					..OperacoesRecursos.RecursosEscrita
-				]
+				nameof(Usuario) => OperacoesRecursos.RecursosEscritaUsuarios,
+				nameof(Curso) => OperacoesRecursos.RecursosEscritaCursos,
+				_ => [
+						..OperacoesRecursos.RecursosLeitura,
+						..OperacoesRecursos.RecursosEscrita
+				     ]
 			};
 
 			return recursosDisponiveis;

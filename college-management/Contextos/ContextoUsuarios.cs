@@ -30,7 +30,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		// Período: 2
 
 		if (CargoContexto.TemPermissao(PermissoesAcesso
-			                                       .PermissaoAcessoEscrita))
+			                                       .AcessoEscrita))
 			// [REQUISITO]: A visualização do Gestor deve permitir a busca
 			// de um Aluno em específico na base de dados
 			//
@@ -70,7 +70,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		// | Algebra Linear |    N/A     |   N/A    |
 
 		if (CargoContexto.TemPermissao(PermissoesAcesso
-			                                       .PermissaoAcessoEscrita))
+			                                       .AcessoEscrita))
 			// [REQUISITO]: A visualização do Gestor deve permitir a busca
 			// de uma Aluno em específico na base de dados
 			//
@@ -104,8 +104,8 @@ public class ContextoUsuarios : Contexto<Usuario>,
 	public override async Task Cadastrar()
 	{
 		var temPermissao =
-			CargoContexto
-				.TemPermissao(PermissoesAcesso.PermissaoAcessoEscrita);
+			CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita)
+			|| CargoContexto.TemPermissao(PermissoesAcesso.AcessoAdministradores);
 
 		InputView inputUsuario = new("Cadastrar Usuário");
 		inputUsuario.ConstruirLayout();
@@ -209,7 +209,6 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		KeyValuePair<string, string?>[] mensagensAluno =
 		[
-			new("Matricula", "Insira a Matrícula: "),
 			new("Periodo", "Insira o Período: "),
 			new("Curso", "Insira o nome do Curso: "),
 			new("Modalidade", "Insira a Modalidade: ")

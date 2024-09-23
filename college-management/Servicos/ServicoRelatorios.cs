@@ -35,7 +35,7 @@ where T : Modelo
 	public string GerarRelatorio(T modelo, Cargo? cargoUsuario)
 	{
 		return cargoUsuario
-			       .TemPermissao(PermissoesAcesso.PermissaoAcessoEscrita) 
+			       .TemPermissao(PermissoesAcesso.AcessoEscrita) 
 			       ? GerarEntradasRelatorio() 
 			       : modelo.ToString();
 	}
