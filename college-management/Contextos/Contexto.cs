@@ -36,7 +36,7 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 	{
 		string[] recursosDisponiveis;
 
-		if (UsuarioContexto.Cargo.Nome 
+		if (UsuarioContexto.Cargo.Nome
 		    is CargosPadrao.CargoAdministradores)
 		{
 			recursosDisponiveis = typeof(T).Name switch

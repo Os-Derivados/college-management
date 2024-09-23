@@ -9,9 +9,9 @@ public class Curso : Modelo
 {
 	public Curso(string nome, Materia[] gradeCurricular)
 	{
-		Nome = nome;
+		Nome            = nome;
 		GradeCurricular = gradeCurricular;
-		
+
 		Id = _contagemId.ToString(CultureInfo.InvariantCulture);
 		_contagemId++;
 	}
@@ -20,7 +20,7 @@ public class Curso : Modelo
 
 	public string?       Nome            { get; set; }
 	public Materia[]     GradeCurricular { get; set; }
-	public List<string>? MatriculasIds    { get; set; }
+	public List<string>? MatriculasIds   { get; set; }
 
 	public override string ToString()
 	{
@@ -32,6 +32,7 @@ public class Curso : Modelo
 
 	public double ObterCargaHoraria()
 	{
-		return GradeCurricular.Sum(materia => materia.CargaHoraria);
+		return GradeCurricular.Sum(materia
+			                           => materia.CargaHoraria);
 	}
 }

@@ -70,7 +70,8 @@ public static class MiddlewareContexto
 			if (opcaoEscolhida.Key is not ConsoleKey.D0)
 			{
 				var recursoEscolhido =
-					ConverterParaMetodo(contexto, opcaoEscolhida);
+					ConverterParaMetodo(contexto,
+					                    opcaoEscolhida);
 
 				Console.Clear();
 
@@ -84,8 +85,9 @@ public static class MiddlewareContexto
 		while (estadoAtual is EstadoDoApp.Recurso);
 	}
 
-	private static string ConverterParaMetodo<T>(Contexto<T> contexto,
-												 ConsoleKeyInfo indice)
+	private static string ConverterParaMetodo<T>(
+		Contexto<T>    contexto,
+		ConsoleKeyInfo indice)
 	where T : Modelo
 	{
 		var recursosDisponiveis = contexto.ObterOpcoes();

@@ -74,15 +74,12 @@ where T : Modelo
 	{
 		var modeloAntigo = ObterPorId(modelo.Id);
 
-		if (modeloAntigo is null)
-		{
-			return await Adicionar(modelo);
-		}
+		if (modeloAntigo is null) return await Adicionar(modelo);
 
 		var foiRemovido = await Remover(modelo.Id);
 
 		if (!foiRemovido) return false;
-		
+
 		await Adicionar(modelo);
 		await _servicoDados.SalvarAssicrono(BaseDeDados);
 

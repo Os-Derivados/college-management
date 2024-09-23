@@ -5,12 +5,12 @@ public sealed class Nota
 {
 	public Nota(string nomeMateria, string materiaId)
 	{
-		NomeMateria     = nomeMateria;
-		MateriaId       = materiaId;
+		NomeMateria = nomeMateria;
+		MateriaId   = materiaId;
 	}
 
-	public string   NomeMateria { get; set; }
-	public string MateriaId   { get; set; }
+	public string          NomeMateria     { get; set; }
+	public string          MateriaId       { get; set; }
 	public float?          P1              { get; set; }
 	public float?          P2              { get; set; }
 	public float?          P3              { get; set; }

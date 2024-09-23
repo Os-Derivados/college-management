@@ -12,7 +12,7 @@ public class Usuario : Modelo
 {
 	public Usuario(string login,
 	               string nome,
-	               string  cargoId,
+	               string cargoId,
 	               string senha)
 	{
 		Login = login;
@@ -26,9 +26,9 @@ public class Usuario : Modelo
 
 	private static long _contagemId = 10000000000;
 
-	public string? Login { get; set; }
-	public string? Nome  { get; set; }
-	public string? Senha { get; set; }
+	public string? Login   { get; set; }
+	public string? Nome    { get; set; }
+	public string? Senha   { get; set; }
 	public string  CargoId { get; set; }
 
 	public static bool Autenticar(Usuario usuario,

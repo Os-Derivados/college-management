@@ -103,23 +103,24 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 	public override async Task Cadastrar()
 	{
-		var temPermissao = 
+		var temPermissao =
 			UsuarioContexto
 				.Cargo
-				.TemPermissao(PermissoesAcesso.PermissaoAcessoEscrita);
-		
+				.TemPermissao(PermissoesAcesso
+					              .PermissaoAcessoEscrita);
+
 		InputView inputUsuario = new("Cadastrar Usuário");
 		inputUsuario.ConstruirLayout();
 
 		if (!temPermissao)
 		{
-			inputUsuario.LerEntrada("Erro", 
+			inputUsuario.LerEntrada("Erro",
 			                        "Você não tem permissão "
 			                        + "para acessar esse recurso. ");
 
 			return;
 		}
-		
+
 		Dictionary<string, string> cadastroUsuario
 			= ObterCadastroUsuario(inputUsuario);
 
@@ -127,11 +128,12 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		var cargoEscolhido = BaseDeDados
 		                     .cargos
-		                     .ObterPorNome(cadastroUsuario["Cargo"]);
+		                     .ObterPorNome(cadastroUsuario
+			                                   ["Cargo"]);
 
 		if (cargoEscolhido is null)
 		{
-			inputUsuario.LerEntrada("Erro", 
+			inputUsuario.LerEntrada("Erro",
 			                        "O Cargo inserido não foi "
 			                        + "encontrado na base de dados."
 			                        + "Pressione Enter para continuar.");
@@ -141,7 +143,8 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		Usuario? novoUsuario = cargoEscolhido.Nome switch
 		{
-			CargosPadrao.CargoAlunos => CriarAluno(cadastroUsuario, cargoEscolhido),
+			CargosPadrao.CargoAlunos =>
+				CriarAluno(cadastroUsuario, cargoEscolhido),
 			_ => new Funcionario(cadastroUsuario["Login"],
 			                     cadastroUsuario["Nome"],
 			                     cargoEscolhido,
@@ -150,23 +153,25 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		if (novoUsuario is null)
 		{
-			inputUsuario.LerEntrada("Erro", 
+			inputUsuario.LerEntrada("Erro",
 			                        $"Não foi possível criar um novo {nameof(Usuario)}.\n"
 			                        + "Tente novamente e verifique as informações. ");
 
 			return;
 		}
-		
-		var foiAdicionado = await BaseDeDados.usuarios.Adicionar(novoUsuario);
+
+		var foiAdicionado
+			= await BaseDeDados.usuarios.Adicionar(novoUsuario);
+
 		var mensagemOperacao = foiAdicionado
 			                       ? $"{nameof(Usuario)} cadastrado com sucesso.\n"
 			                         + "Aperte qualquer tecla para retornar: "
 			                       : $"Não foi possível cadastrar novo {nameof(Usuario)}.\n"
-			                         +"Tente novamente e verifique as informações";
+			                         + "Tente novamente e verifique as informações";
 
 		inputUsuario.LerEntrada("Sair", mensagemOperacao);
 	}
-	
+
 	private Dictionary<string, string> ObterCadastroUsuario(
 		InputView inputUsuario)
 	{
@@ -216,8 +221,10 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		return inputUsuario.EntradasUsuario;
 	}
-	
-	private Aluno? CriarAluno(Dictionary<string, string> cadastroUsuario, Cargo cargoAlunos)
+
+	private Aluno? CriarAluno(
+		Dictionary<string, string> cadastroUsuario,
+		Cargo                      cargoAlunos)
 	{
 		var conversaoValida
 			= int.TryParse(cadastroUsuario["Matricula"],
@@ -226,27 +233,29 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		if (!conversaoValida) return null;
 
 		conversaoValida
-			= int.TryParse(cadastroUsuario["Periodo"], out var periodoCurso);
+			= int.TryParse(cadastroUsuario["Periodo"],
+			               out var periodoCurso);
 
 		if (!conversaoValida) return null;
 
 		var cursoEscolhido = BaseDeDados
 		                     .cursos
-		                     .ObterPorNome(cadastroUsuario["Curso"]);
+		                     .ObterPorNome(cadastroUsuario
+			                                   ["Curso"]);
 
 		if (cursoEscolhido is null) return null;
-		
+
 		var modalidadeCurso =
 			cadastroUsuario["Modalidade"] switch
 			{
-				"Ead" => Modalidade.Ead,
+				"Ead"        => Modalidade.Ead,
 				"Presencial" => Modalidade.Presencial,
-				"Hibrido" => Modalidade.Hibrido,
-				_ => Modalidade.Invalido
+				"Hibrido"    => Modalidade.Hibrido,
+				_            => Modalidade.Invalido
 			};
 
 		if (modalidadeCurso is Modalidade.Invalido) return null;
-		
+
 		Matricula novaMatricula
 			= new(numeroMatricula,
 			      periodoCurso,
