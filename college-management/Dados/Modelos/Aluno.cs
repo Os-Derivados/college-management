@@ -3,17 +3,18 @@ namespace college_management.Dados.Modelos;
 
 public sealed class Aluno : Usuario
 {
-	public Aluno(string    login,
-	             string    nome,
-	             Cargo     cargo,
-	             string    senha,
-	             Matricula matricula) : base(login,
-	                                         nome,
-	                                         cargo,
-	                                         senha)
+	public Aluno(string login,
+	             string nome,
+	             string senha,
+	             string cargoId,
+	             string matriculaId)
+		: base(login,
+		       nome,
+		       senha,
+		       cargoId)
 	{
-		Matricula = matricula;
+		MatriculaId = matriculaId;
 	}
 
-	public Matricula Matricula { get; set; }
+	public string MatriculaId { get; set; }
 }

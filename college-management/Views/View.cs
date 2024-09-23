@@ -18,8 +18,5 @@ public abstract class View : IView
 		Console.Write(Layout.ToString());
 	}
 
-	public virtual void ConstruirLayout()
-	{
-		Layout.AppendLine(Titulo);
-	}
+	public virtual void ConstruirLayout() { Layout.AppendLine(Titulo); }
 }

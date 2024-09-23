@@ -16,13 +16,14 @@ public static class OperacoesRecursos
 		"Excluir"
 	];
 
-	public static readonly string[] RecursosLeituraUsuarios = [
+	public static readonly string[] RecursosLeituraUsuarios =
+	[
 		..RecursosLeitura,
 		"Ver Matricula",
 		"Ver Notas",
 		"Ver Financeiro"
 	];
-	
+
 	public static readonly string[] RecursosEscritaUsuarios =
 	[
 		..RecursosLeituraUsuarios,
@@ -37,7 +38,8 @@ public static class OperacoesRecursos
 		"Ver Grade Curricular"
 	];
 
-	public static readonly string[] RecursosEscritaCursos = [
+	public static readonly string[] RecursosEscritaCursos =
+	[
 		..RecursosLeituraUsuarios,
 		..RecursosEscrita
 	];

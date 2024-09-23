@@ -14,23 +14,11 @@ public class ContextoCargos : Contexto<Cargo>
 		base(baseDeDados,
 		     usuarioContexto) { }
 
-	public override async Task Cadastrar()
-	{
-		throw new NotImplementedException();
-	}
+	public override async Task Cadastrar() { throw new NotImplementedException(); }
 
-	public override async Task Editar()
-	{
-		throw new NotImplementedException();
-	}
+	public override async Task Editar() { throw new NotImplementedException(); }
 
-	public override async Task Excluir()
-	{
-		throw new NotImplementedException();
-	}
+	public override async Task Excluir() { throw new NotImplementedException(); }
 
-	public override void Visualizar()
-	{
-		throw new NotImplementedException();
-	}
+	public override void Visualizar() { throw new NotImplementedException(); }
 }

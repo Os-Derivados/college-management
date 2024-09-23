@@ -8,10 +8,7 @@ namespace college_management.Dados.Repositorios;
 public class RepositorioUsuarios : Repositorio<Usuario>,
                                    IRepositorioUsuarios
 {
-	public Usuario ObterPorLogin(string login)
-	{
-		return BaseDeDados.FirstOrDefault(u => u.Login == login);
-	}
+	public Usuario ObterPorLogin(string login) { return BaseDeDados.FirstOrDefault(u => u.Login == login); }
 
 	public override bool Existe(Usuario modelo)
 	{
