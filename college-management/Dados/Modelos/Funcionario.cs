@@ -5,10 +5,10 @@ public sealed class Funcionario : Usuario
 {
 	public Funcionario(string login,
 	                   string nome,
-	                   string cargoId,
-	                   string senha)
+	                   string senha,
+	                   string cargoId)
 		: base(login,
 		       nome,
-		       cargoId,
-		       senha) { }
+		       senha,
+		       cargoId) { }
 }

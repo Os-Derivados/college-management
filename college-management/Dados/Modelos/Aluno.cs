@@ -5,13 +5,13 @@ public sealed class Aluno : Usuario
 {
 	public Aluno(string login,
 	             string nome,
-	             string cargoId,
 	             string senha,
+	             string cargoId,
 	             string matriculaId)
 		: base(login,
 		       nome,
-		       cargoId,
-		       senha)
+		       senha,
+		       cargoId)
 	{
 		MatriculaId = matriculaId;
 	}

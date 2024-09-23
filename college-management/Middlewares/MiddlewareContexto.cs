@@ -1,4 +1,3 @@
-using System.Text;
 using college_management.Constantes;
 using college_management.Dados;
 using college_management.Dados.Modelos;
@@ -14,21 +13,15 @@ public static class MiddlewareContexto
 	public static void Inicializar(BaseDeDados baseDeDados,
 	                               Usuario     usuario)
 	{
-		var opcaoContexto = EscolherContexto(usuario);
+		var cargoUsuario  = baseDeDados.Cargos.ObterPorId(usuario.CargoId);
+		var opcaoContexto = EscolherContexto(cargoUsuario);
 
 		if (opcaoContexto is "") return;
 
-		ContextoUsuarios contextoUsuarios
-			= new(baseDeDados, usuario);
-
-		ContextoCargos contextoCargos
-			= new(baseDeDados, usuario);
-
-		ContextoMaterias contextoMaterias
-			= new(baseDeDados, usuario);
-
-		ContextoCursos contextoCursos
-			= new(baseDeDados, usuario);
+		ContextoUsuarios contextoUsuarios = new(baseDeDados, usuario);
+		ContextoCargos   contextoCargos   = new(baseDeDados, usuario);
+		ContextoMaterias contextoMaterias = new(baseDeDados, usuario);
+		ContextoCursos   contextoCursos   = new(baseDeDados, usuario);
 
 		switch (opcaoContexto)
 		{
@@ -95,21 +88,22 @@ public static class MiddlewareContexto
 		_ = int.TryParse(indice.KeyChar.ToString(), out var i);
 
 		var recursoEscolhido = recursosDisponiveis
-		                       .Select(r => r.Trim()
-		                                     .Replace(" ", ""))
+		                       .Select(r => r
+		                                    .Trim()
+		                                    .Replace(" ", ""))
 		                       .ElementAt(i - 1);
 
 		return recursoEscolhido;
 	}
 
-	private static string EscolherContexto(Usuario usuario)
+	private static string EscolherContexto(Cargo cargoUsuario)
 	{
 		var estadoAtual       = EstadoDoApp.Contexto;
 		var contextoEscolhido = "";
 
 		do
 		{
-			var opcoesContextos = ObterOpcoesContextos(usuario);
+			var opcoesContextos = ObterOpcoesContextos(cargoUsuario);
 
 			MenuView menuContextos = new("Menu Contextos",
 			                             "Bem-vindo(a).",
@@ -119,17 +113,16 @@ public static class MiddlewareContexto
 			menuContextos.Exibir();
 
 			var opcaoEscolhida = Console.ReadKey();
-			var opcaoValida = int.TryParse(opcaoEscolhida.KeyChar
-			                                             .ToString(),
-			                               out var opcaoUsuario);
+			var opcaoValida = int.TryParse(opcaoEscolhida
+				                               .KeyChar
+				                               .ToString(),
+				                               out var opcaoUsuario);
 
 			if (!opcaoValida) continue;
 
 			if (opcaoUsuario is 0) break;
 
-			contextoEscolhido
-				= opcoesContextos[opcaoUsuario - 1];
-
+			contextoEscolhido = opcoesContextos[opcaoUsuario - 1];
 			estadoAtual = EstadoDoApp.Recurso;
 		}
 		while (estadoAtual is EstadoDoApp.Contexto);
@@ -137,17 +130,11 @@ public static class MiddlewareContexto
 		return contextoEscolhido;
 	}
 
-	private static string[] ObterOpcoesContextos(Usuario usuario)
+	private static string[] ObterOpcoesContextos(Cargo cargoUsuario)
 	{
-		return usuario.Cargo.Nome switch
-		{
-			CargosPadrao.CargoAlunos => AcessosContexto
-				.AcessoAlunos,
-			CargosPadrao.CargoGestores
-				or CargosPadrao.CargoAdministradores =>
-				AcessosContexto.AcessoGestoresAdministradores,
-			_ => throw new
-				     InvalidOperationException("O usuário não possui um cargo validado")
-		};
+		return cargoUsuario
+			       .TemPermissao(PermissoesAcesso.PermissaoAcessoEscrita) 
+			       ? AcessosContexto.AcessoGestoresAdministradores 
+			       : AcessosContexto.AcessoAlunos;
 	}
 }

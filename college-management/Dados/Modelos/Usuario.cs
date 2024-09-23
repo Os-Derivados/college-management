@@ -12,15 +12,15 @@ public class Usuario : Modelo
 {
 	public Usuario(string login,
 	               string nome,
-	               string cargoId,
-	               string senha)
+	               string senha,
+	               string cargoId)
 	{
 		Login = login;
 		Nome = nome;
-		Id = _contagemId.ToString(CultureInfo.InvariantCulture);
 		Senha = senha;
 		CargoId = cargoId;
 
+		Id = _contagemId.ToString(CultureInfo.InvariantCulture);
 		_contagemId++;
 	}
 
