@@ -7,7 +7,7 @@ namespace college_management.Dados.Modelos;
 
 public sealed class Cargo : Modelo
 {
-	public Cargo(string nome, string[] permissoes)
+	public Cargo(string nome, List<string> permissoes)
 	{
 		Nome       = nome;
 		Permissoes = permissoes;
@@ -18,8 +18,9 @@ public sealed class Cargo : Modelo
 
 	private static double _contagemId = 10000000000;
 
-	public string?   Nome       { get; set; }
-	public string[]? Permissoes { get; set; }
+	public string?       Nome        { get; set; }
+	public List<string>  Permissoes  { get; set; }
+	public List<string>? UsuariosIds { get; set; } = [];
 
 	public bool TemPermissao(string permissao)
 	{

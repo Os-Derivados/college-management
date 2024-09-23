@@ -12,14 +12,14 @@ public class Usuario : Modelo
 {
 	public Usuario(string login,
 	               string nome,
-	               Cargo  cargo,
+	               string  cargoId,
 	               string senha)
 	{
 		Login = login;
 		Nome = nome;
 		Id = _contagemId.ToString(CultureInfo.InvariantCulture);
-		Cargo = cargo;
 		Senha = senha;
+		CargoId = cargoId;
 
 		_contagemId++;
 	}
@@ -28,8 +28,8 @@ public class Usuario : Modelo
 
 	public string? Login { get; set; }
 	public string? Nome  { get; set; }
-	public Cargo?  Cargo { get; set; }
 	public string? Senha { get; set; }
+	public string  CargoId { get; set; }
 
 	public static bool Autenticar(Usuario usuario,
 	                              string  loginUsuario,
@@ -42,6 +42,6 @@ public class Usuario : Modelo
 	public override string ToString()
 	{
 		return
-			$"| {Login,-16} | {Nome,-16} | {Cargo.Nome,-16} | {"x",-16} | {Id,-16} |";
+			$"| {Login,-16} | {Nome,-16} | {CargoId,-16} | {"x",-16} | {Id,-16} |";
 	}
 }

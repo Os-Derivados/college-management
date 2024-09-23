@@ -3,14 +3,14 @@ namespace college_management.Dados.Modelos;
 
 public sealed class Nota
 {
-	public Nota(string nomeMateria, string idMateria)
+	public Nota(string nomeMateria, string materiaId)
 	{
-		NomeMateria = nomeMateria;
-		IdMateria   = idMateria;
+		NomeMateria     = nomeMateria;
+		MateriaId       = materiaId;
 	}
 
-	public string          NomeMateria     { get; set; }
-	public string          IdMateria       { get; set; }
+	public string   NomeMateria { get; set; }
+	public string MateriaId   { get; set; }
 	public float?          P1              { get; set; }
 	public float?          P2              { get; set; }
 	public float?          P3              { get; set; }
