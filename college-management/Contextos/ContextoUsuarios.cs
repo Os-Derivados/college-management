@@ -103,9 +103,23 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 	public override async Task Cadastrar()
 	{
+		var temPermissao = 
+			UsuarioContexto
+				.Cargo
+				.TemPermissao(PermissoesAcesso.PermissaoAcessoEscrita);
+		
 		InputView inputUsuario = new("Cadastrar Usuário");
 		inputUsuario.ConstruirLayout();
 
+		if (!temPermissao)
+		{
+			inputUsuario.LerEntrada("Erro", 
+			                        "Você não tem permissão "
+			                        + "para acessar esse recurso. ");
+
+			return;
+		}
+		
 		Dictionary<string, string> cadastroUsuario
 			= ObterCadastroUsuario(inputUsuario);
 

@@ -11,6 +11,7 @@ public static class OperacoesRecursos
 
 	public static readonly string[] RecursosEscrita =
 	[
+		"Cadastrar",
 		"Editar",
 		"Excluir"
 	];
