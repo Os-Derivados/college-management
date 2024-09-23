@@ -22,8 +22,7 @@ public static class MiddlewareAutenticacao
 		RepositorioUsuarios repositorioUsuarios)
 	{
 		_ = UtilitarioAmbiente.Variaveis
-		                      .TryGetValue(VariaveisAmbiente
-			                                   .UsuarioTesteLogin,
+		                      .TryGetValue(VariaveisAmbiente.LoginTeste,
 		                                   out var loginTeste);
 
 		return repositorioUsuarios.ObterPorLogin(loginTeste);
