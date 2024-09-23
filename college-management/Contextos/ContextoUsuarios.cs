@@ -127,10 +127,19 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		var cargoEscolhido = BaseDeDados
 		                     .cargos
-		                     .ObterPorNome(cadastroUsuario
-			                                   ["Cargo"]);
+		                     .ObterPorNome(cadastroUsuario["Cargo"]);
 
-		Usuario novoUsuario = cargoEscolhido.Nome switch
+		if (cargoEscolhido is null)
+		{
+			inputUsuario.LerEntrada("Erro", 
+			                        "O Cargo inserido não foi "
+			                        + "encontrado na base de dados."
+			                        + "Pressione Enter para continuar.");
+
+			return;
+		}
+
+		Usuario? novoUsuario = cargoEscolhido.Nome switch
 		{
 			CargosPadrao.CargoAlunos => CriarAluno(cadastroUsuario, cargoEscolhido),
 			_ => new Funcionario(cadastroUsuario["Login"],
@@ -138,51 +147,24 @@ public class ContextoUsuarios : Contexto<Usuario>,
 			                     cargoEscolhido,
 			                     cadastroUsuario["Senha"])
 		};
+
+		if (novoUsuario is null)
+		{
+			inputUsuario.LerEntrada("Erro", 
+			                        $"Não foi possível criar um novo {nameof(Usuario)}.\n"
+			                        + "Tente novamente e verifique as informações. ");
+
+			return;
+		}
 		
 		var foiAdicionado = await BaseDeDados.usuarios.Adicionar(novoUsuario);
 		var mensagemOperacao = foiAdicionado
-			                       ? $"{nameof(Usuario)} cadastrado com sucesso. "
-			                         + $"Aperte qualquer tecla para retornar: "
-			                       : $"Não foi possível cadastrar novo {nameof(Usuario)}. "
-			                         + $"Verifique os registros da base de dados. ";
+			                       ? $"{nameof(Usuario)} cadastrado com sucesso.\n"
+			                         + "Aperte qualquer tecla para retornar: "
+			                       : $"Não foi possível cadastrar novo {nameof(Usuario)}.\n"
+			                         +"Tente novamente e verifique as informações";
 
 		inputUsuario.LerEntrada("Sair", mensagemOperacao);
-	}
-
-	private Aluno CriarAluno(Dictionary<string, string> cadastroUsuario, Cargo cargoAlunos)
-	{
-		var numeroMatricula
-			= Convert.ToInt32(cadastroUsuario["Matricula"]);
-
-		var periodoCurso
-			= Convert.ToInt32(cadastroUsuario["Periodo"]);
-
-		var cursoEscolhido = BaseDeDados
-		                     .cursos
-		                     .ObterPorNome(cadastroUsuario["Curso"]);
-
-		var modalidadeCurso =
-			cadastroUsuario["Modalidade"] switch
-			{
-				"Ead" => Modalidade.Ead,
-				"Presencial" => Modalidade.Presencial,
-				"Hibrido" => Modalidade.Hibrido,
-				_ => throw new ArgumentOutOfRangeException(nameof(cadastroUsuario))
-			};
-
-		Matricula novaMatricula
-			= new(numeroMatricula,
-			      periodoCurso,
-			      cursoEscolhido,
-			      modalidadeCurso);
-
-		var novoAluno = new Aluno(cadastroUsuario["Login"],
-		                          cadastroUsuario["Nome"],
-		                          cargoAlunos,
-		                          cadastroUsuario["Senha"],
-		                          novaMatricula);
-
-		return novoAluno;
 	}
 	
 	private Dictionary<string, string> ObterCadastroUsuario(
@@ -226,12 +208,58 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		mensagemConfirmacao.AppendLine(detalhesView.Layout
 		                                           .ToString());
 
-		mensagemConfirmacao.Append("[S] Sim\t[N] Não: ");
+		mensagemConfirmacao.AppendLine("Confirma o Cadastro?\n");
+		mensagemConfirmacao.Append("[S]im\t[N]ão: ");
 
 		inputUsuario.LerEntrada("Confirma",
 		                        mensagemConfirmacao.ToString());
 
 		return inputUsuario.EntradasUsuario;
+	}
+	
+	private Aluno? CriarAluno(Dictionary<string, string> cadastroUsuario, Cargo cargoAlunos)
+	{
+		var conversaoValida
+			= int.TryParse(cadastroUsuario["Matricula"],
+			               out var numeroMatricula);
+
+		if (!conversaoValida) return null;
+
+		conversaoValida
+			= int.TryParse(cadastroUsuario["Periodo"], out var periodoCurso);
+
+		if (!conversaoValida) return null;
+
+		var cursoEscolhido = BaseDeDados
+		                     .cursos
+		                     .ObterPorNome(cadastroUsuario["Curso"]);
+
+		if (cursoEscolhido is null) return null;
+		
+		var modalidadeCurso =
+			cadastroUsuario["Modalidade"] switch
+			{
+				"Ead" => Modalidade.Ead,
+				"Presencial" => Modalidade.Presencial,
+				"Hibrido" => Modalidade.Hibrido,
+				_ => Modalidade.Invalido
+			};
+
+		if (modalidadeCurso is Modalidade.Invalido) return null;
+		
+		Matricula novaMatricula
+			= new(numeroMatricula,
+			      periodoCurso,
+			      cursoEscolhido,
+			      modalidadeCurso);
+
+		var novoAluno = new Aluno(cadastroUsuario["Login"],
+		                          cadastroUsuario["Nome"],
+		                          cargoAlunos,
+		                          cadastroUsuario["Senha"],
+		                          novaMatricula);
+
+		return novoAluno;
 	}
 
 	public override async Task Editar()
