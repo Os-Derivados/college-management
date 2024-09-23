@@ -34,7 +34,7 @@ public class ContextoCursos : Contexto<Curso>,
 		// | Terça-Feira   | Sistemas Digitais  | 03   | 19:15   |
 		// ...
 
-		if (UsuarioContexto.Cargo.TemPermissao(PermissoesAcesso
+		if (CargoContexto.TemPermissao(PermissoesAcesso
 			                                       .PermissaoAcessoEscrita))
 			// [REQUISITO]: A visualização do gestor deve solicitar a busca
 			// de um Curso em específico na base de dados
@@ -90,7 +90,7 @@ public class ContextoCursos : Contexto<Curso>,
 		// Fundamentos de Lógica
 		// ...
 
-		if (UsuarioContexto.Cargo.TemPermissao(PermissoesAcesso
+		if (CargoContexto.TemPermissao(PermissoesAcesso
 			                                       .PermissaoAcessoEscrita))
 			// [REQUISITO]: A visualização do Gestor deve permitir a busca
 			// de um Curso em específico na base de dados

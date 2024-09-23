@@ -104,10 +104,8 @@ public class ContextoUsuarios : Contexto<Usuario>,
 	public override async Task Cadastrar()
 	{
 		var temPermissao =
-			UsuarioContexto
-				.Cargo
-				.TemPermissao(PermissoesAcesso
-					              .PermissaoAcessoEscrita);
+			CargoContexto
+				.TemPermissao(PermissoesAcesso.PermissaoAcessoEscrita);
 
 		InputView inputUsuario = new("Cadastrar Usuário");
 		inputUsuario.ConstruirLayout();
@@ -127,7 +125,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		if (cadastroUsuario["Confirma"] is not "S") return;
 
 		var cargoEscolhido = BaseDeDados
-		                     .cargos
+		                     .Cargos
 		                     .ObterPorNome(cadastroUsuario
 			                                   ["Cargo"]);
 
@@ -147,7 +145,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 				CriarAluno(cadastroUsuario, cargoEscolhido),
 			_ => new Funcionario(cadastroUsuario["Login"],
 			                     cadastroUsuario["Nome"],
-			                     cargoEscolhido,
+			                     cargoEscolhido.Id,
 			                     cadastroUsuario["Senha"])
 		};
 
@@ -161,7 +159,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		}
 
 		var foiAdicionado
-			= await BaseDeDados.usuarios.Adicionar(novoUsuario);
+			= await BaseDeDados.Usuarios.Adicionar(novoUsuario);
 
 		var mensagemOperacao = foiAdicionado
 			                       ? $"{nameof(Usuario)} cadastrado com sucesso.\n"
@@ -239,7 +237,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		if (!conversaoValida) return null;
 
 		var cursoEscolhido = BaseDeDados
-		                     .cursos
+		                     .Cursos
 		                     .ObterPorNome(cadastroUsuario
 			                                   ["Curso"]);
 

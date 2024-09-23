@@ -15,10 +15,15 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 	{
 		BaseDeDados     = baseDeDados;
 		UsuarioContexto = usuarioContexto;
+		CargoContexto
+			= BaseDeDados
+			  .Cargos
+			  .ObterPorId(UsuarioContexto.CargoId);
 	}
 
 	protected readonly BaseDeDados BaseDeDados;
 	protected readonly Usuario     UsuarioContexto;
+	protected readonly Cargo       CargoContexto;
 
 	public void ListarOpcoes()
 	{
@@ -36,8 +41,8 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 	{
 		string[] recursosDisponiveis;
 
-		if (UsuarioContexto.Cargo.Nome
-		    is CargosPadrao.CargoAdministradores)
+		if (CargoContexto
+		    .TemPermissao(PermissoesAcesso.PermissaoAcessoEscrita))
 		{
 			recursosDisponiveis = typeof(T).Name switch
 			{

@@ -20,7 +20,7 @@ public static class UtilitarioSeed
 			                                     PermissoesAcesso
 				                                     .PermissaoAcessoAdministradores
 		                                     ]),
-		                           baseDeDados.cargos);
+		                           baseDeDados.Cargos);
 
 		await CadastrarCargoPadrao(new Cargo(CargosPadrao
 			                                     .CargoGestores,
@@ -28,7 +28,7 @@ public static class UtilitarioSeed
 			                                     PermissoesAcesso
 				                                     .PermissaoAcessoEscrita
 		                                     ]),
-		                           baseDeDados.cargos);
+		                           baseDeDados.Cargos);
 
 		await CadastrarCargoPadrao(new Cargo(CargosPadrao
 			                                     .CargoAlunos,
@@ -36,7 +36,7 @@ public static class UtilitarioSeed
 			                                     PermissoesAcesso
 				                                     .PermissaoAcessoLeitura
 		                                     ]),
-		                           baseDeDados.cargos);
+		                           baseDeDados.Cargos);
 
 		var (loginMestre, nomeMestre, senhaMestre)
 			= ObterCredenciais(VariaveisAmbiente
@@ -45,7 +45,7 @@ public static class UtilitarioSeed
 			                   VariaveisAmbiente
 				                   .MasterAdminSenha);
 
-		var cargoAdmin = baseDeDados.cargos
+		var cargoAdmin = baseDeDados.Cargos
 		                            .ObterTodos()
 		                            .FirstOrDefault(c
 			                                            => c.Nome
@@ -57,7 +57,7 @@ public static class UtilitarioSeed
 		                                             nomeMestre,
 		                                             cargoAdmin,
 		                                             senhaMestre),
-		                             baseDeDados.usuarios);
+		                             baseDeDados.Usuarios);
 
 		var (loginTeste, nomeTeste, senhaTeste)
 			= ObterCredenciais(VariaveisAmbiente
@@ -72,11 +72,11 @@ public static class UtilitarioSeed
 		                           60);
 
 		await CadastrarMateriaPadrao(materiaTeste,
-		                             baseDeDados.materias);
+		                             baseDeDados.Materias);
 
 		Curso cursoTeste = new("Curso Teste", [materiaTeste]);
 		await CadastrarCursoPadrao(cursoTeste,
-		                           baseDeDados.cursos);
+		                           baseDeDados.Cursos);
 
 		Matricula matriculaTeste = new(1,
 		                               1,
@@ -84,7 +84,7 @@ public static class UtilitarioSeed
 		                               Modalidade.Presencial);
 
 		var cargoAluno =
-			baseDeDados.cargos
+			baseDeDados.Cargos
 			           .ObterTodos()
 			           .FirstOrDefault(c => c.Nome is
 				                                CargosPadrao
@@ -95,7 +95,7 @@ public static class UtilitarioSeed
 		                                       cargoAluno,
 		                                       senhaTeste,
 		                                       matriculaTeste),
-		                             baseDeDados.usuarios);
+		                             baseDeDados.Usuarios);
 	}
 
 	private static async Task CadastrarCargoPadrao(Cargo cargo,
