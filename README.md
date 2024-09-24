@@ -40,7 +40,7 @@ TEST_PASSWORD=teste12345
 
 Este arquivo de configuração deve ser criado e armazenado na pasta que o utilitário `SpecialDirectories.MyDocuments` determinar. 
 
-A localização atual na máquina no qual o sistema for instalado [varia conforme o sistema operacional](https://learn.microsoft.com/en-us/dotnet/api/Microsoft.VisualBasic.FileIO.SpecialDirectories.MyDocuments?view=net-8.0). A princípio, será o caminho `C:\users\username\mydocuments\CollegeManagement.OsDerivados` (no Windows) ou `/home/username/.config/CollegeManagement.OsDerivados` (no Linux).
+A localização atual na máquina no qual o sistema for instalado [varia conforme o sistema operacional](https://learn.microsoft.com/en-us/dotnet/api/Microsoft.VisualBasic.FileIO.SpecialDirectories.MyDocuments?view=net-8.0). A princípio, será o caminho `C:\users\username\AppData\Roaming\OsDerivados\CollegeManagement` (no Windows) ou `/home/username/.config/OsDerivados/CollegeManagement` (no Linux).
 
 ### Argumentos de linha de comando
 
