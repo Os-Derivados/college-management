@@ -264,6 +264,27 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 	public override async Task Excluir() { throw new NotImplementedException(); }
 
-	public override void Visualizar()  { throw new NotImplementedException(); }
+	public override void Visualizar()
+	{
+		var temPermissaoAdmin = CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita)
+			|| CargoContexto.TemPermissao(PermissoesAcesso.AcessoAdministradores);
+
+		RelatorioView<Usuario> relatorioView;
+
+		if (temPermissaoAdmin)
+		{
+			relatorioView = new RelatorioView<Usuario>("Visualizar Usuários", 
+			                                           BaseDeDados.Usuarios.ObterTodos());
+		}
+		else
+		{
+			relatorioView = new RelatorioView<Usuario>("Minha Conta", [UsuarioContexto]);
+		}
+
+		relatorioView.ConstruirLayout();
+		
+		InputView inputRelatorio = new(relatorioView.Titulo);
+		inputRelatorio.LerEntrada("Sair", relatorioView.Layout.ToString());
+	} 
 	public override void VerDetalhes() { throw new NotImplementedException(); }
 }
