@@ -12,7 +12,29 @@ O Gestor Educacional é um sistema CLI que visa gerenciar os recursos internos d
 
 ## Inicializando o Sistema
 
-Para inicializar o sistema e carregar seus módulos, o ponto de entrada conta com alguns aspectos importantes para a configuração do mesmo: variáveis de ambiente e argumentos de linha de comando (*command line arguments*).
+Para inicializar o sistema e carregar seus módulos, o ponto de entrada conta com alguns aspectos importantes para a configuração do mesmo: variáveis de ambiente e argumentos de linha de comando (*command line arguments*), explicados nas sessões abaixo.
+
+Antes da primeira inicialização, abra uma janela de terminal e execute um dos seguintes blocos de comando, a depender do sistema operacional em que estiver executando.
+
+1. No Linux: 
+
+```shell
+# Obs.: substitua [username] pelo seu nome de usuário.
+
+cd /home/username/.config/OsDerivados/CollegeManagement/
+touch .env
+```
+
+2. No Windows:
+
+```powershell
+# Obs.: substitua [username] pelo seu nome de usuário.
+
+cd C:\Users\username\AppData\Roaming\OsDerivados\CollegeManagement
+New-Item Type -File .env
+```
+
+> **_Observação:_** Você só deve realizar esta tarefa uma única vez.
 
 ### Variáveis de Ambiente
 
@@ -33,9 +55,11 @@ ADMIN_LOGIN=master.admin
 ADMIN_USER=Master
 
 # Define credenciais para acessar o sistema em modo de Desenvolvimento
-TEST_USER='Usuario Teste'
+TEST_USER_NAME='Usuario Teste'
+TEST_USER_LOGIN=usuario.teste
+TEST_USER_PASSWORD=teste12345
+
 TEST_LOGIN=usuario.teste
-TEST_PASSWORD=teste12345
 ```
 
 Este arquivo de configuração deve ser criado e armazenado na pasta que o utilitário `SpecialDirectories.MyDocuments` determinar. 
