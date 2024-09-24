@@ -19,7 +19,7 @@ public static class UtilitarioSeed
 		await baseDeDados
 		      .Cargos
 		      .Adicionar(new Cargo(CargosPadrao.CargoAlunos,
-		                           [PermissoesAcesso.AcessoEscrita]));
+		                           [PermissoesAcesso.PermissaoAcessoLeitura]));
 
 		await baseDeDados
 		      .Cargos
