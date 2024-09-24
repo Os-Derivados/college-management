@@ -71,7 +71,7 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 
 		return recursosDisponiveis;
 	}
-
+	
 	public void AcessarRecurso(string nomeRecurso)
 	{
 		Type[] interfacesContexto = GetType().GetInterfaces();
@@ -86,7 +86,8 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 				InvalidOperationException("Recurso inexistente");
 
 		var task = (Task) recurso.Invoke(this, []);
-		task.Wait();
+
+		task?.Wait();
 	}
 
 	public abstract Task Cadastrar();
@@ -96,4 +97,6 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 	public abstract Task Excluir();
 
 	public abstract void Visualizar();
+	
+	public abstract void VerDetalhes();
 }

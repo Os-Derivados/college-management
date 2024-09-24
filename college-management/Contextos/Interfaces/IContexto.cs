@@ -12,6 +12,7 @@ public interface IContexto<T> where T : Modelo
 	public Task Editar();
 	public Task Excluir();
 	public void Visualizar();
+	public void VerDetalhes();
 
 	public void AcessarRecurso(string nomeRecurso);
 }

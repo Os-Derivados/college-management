@@ -20,5 +20,6 @@ public class ContextoMaterias : Contexto<Materia>
 
 	public override async Task Excluir() { throw new NotImplementedException(); }
 
-	public override void Visualizar() { throw new NotImplementedException(); }
+	public override void Visualizar()  { throw new NotImplementedException(); }
+	public override void VerDetalhes() { throw new NotImplementedException(); }
 }
