@@ -86,7 +86,8 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 				InvalidOperationException("Recurso inexistente");
 
 		var task = (Task) recurso.Invoke(this, []);
-		task.Wait();
+
+		task?.Wait();
 	}
 
 	public abstract Task Cadastrar();
