@@ -16,7 +16,7 @@ Para inicializar o sistema e carregar seus módulos, o ponto de entrada conta co
 
 Antes da primeira inicialização, abra uma janela de terminal e execute um dos seguintes blocos de comando, a depender do sistema operacional em que estiver executando.
 
-1. No Linux: 
+1. No Linux (bash): 
 
 ```shell
 # Obs.: substitua [username] pelo seu nome de usuário.
@@ -25,7 +25,7 @@ cd /home/username/.config/OsDerivados/CollegeManagement/
 touch .env
 ```
 
-2. No Windows:
+2. No Windows (PowerShell):
 
 ```powershell
 # Obs.: substitua [username] pelo seu nome de usuário.
@@ -42,9 +42,23 @@ Variáveis de ambiente são valores nomeados cuja sua presença se faz de forma 
 
 O objetivo é que, valores sujeitos à mudança ou informações críticas (como credenciais do sistema, acessos externos, etc.) não fiquem expostas em código-fonte, permitindo assim que o sistema fique protegido e flexível, contanto que *o ambiente de execução do sistema não esteja exposto*.
 
+Todas as variáveis de ambiente se encontram definidas no módulo `Constantes.VariaveisDeAmbiente`, conforme as definições abaixo:
+
+````csharp
+public const string MasterAdminNome  = "ADMIN_USER_NAME";
+public const string MasterAdminLogin = "ADMIN_USER_LOGIN";
+public const string MasterAdminSenha = "ADMIN_USER_PASSWORD";
+
+public const string UsuarioTesteNome  = "TEST_USER_NAME";
+public const string UsuarioTesteLogin = "TEST_USER_LOGIN";
+public const string UsuarioTesteSenha = "TEST_USER_PASSWORD";
+
+public const string LoginTeste = "TEST_LOGIN";
+````
+
 Módulos como o `UtilitárioAmbiente` servirão como portas de entrada para acessar esses valores específicos.
 
-Para poder inicializar o sistema pela primeira vez, o mesmo necessita de algumas variáveis de ambiente definidas nas constantes `VariaveisAmbiente`. Essas variáveis necessitam estar no formato padrão para arquivos `.env`, conforme o exemplo abaixo:
+> **_Importante_:** Para inicializar o sistema *pela primeira vez*, o mesmo necessita de algumas das variáveis de ambiente definidas no módulo `Constantes.VariaveisAmbiente`. Essas variáveis necessitam estar no formato padrão para arquivos `.env`, conforme o exemplo abaixo:
 
 ```shell
 # Sintaxe: NOME=valor
@@ -55,7 +69,7 @@ ADMIN_LOGIN=master.admin
 ADMIN_USER=Master
 
 # Define credenciais para acessar o sistema em modo de Desenvolvimento
-TEST_USER_NAME='Usuario Teste'
+TEST_USER_NAME=Usuario Teste
 TEST_USER_LOGIN=usuario.teste
 TEST_USER_PASSWORD=teste12345
 
@@ -66,24 +80,29 @@ Este arquivo de configuração deve ser criado e armazenado na pasta que o utili
 
 A localização atual na máquina no qual o sistema for instalado [varia conforme o sistema operacional](https://learn.microsoft.com/en-us/dotnet/api/Microsoft.VisualBasic.FileIO.SpecialDirectories.MyDocuments?view=net-8.0). A princípio, será o caminho `C:\users\username\AppData\Roaming\OsDerivados\CollegeManagement` (no Windows) ou `/home/username/.config/OsDerivados/CollegeManagement` (no Linux).
 
+---
+
 ### Argumentos de linha de comando
 
-O ponto de entrada do sistema, `Program.cs`, utiliza de dois argumentos repassados através do método `Main(string[] args)`. São estes: `modoDesenvolvimento` e `seed`.
+Para que o sistema funcione corretamente, seu ponto de entrada, `Program.cs`, utiliza de dois argumentos repassados através do método `Main(string[] args)`. São estes: `modoDesenvolvimento` e `seed`.
 
-* `modoDesenvolvimento`: Habilita fluxos específicos do modo de desenvolvimento, como: pular login;
-* `seed`: Habilita a inicialização da base de dados com informações iniciais como: Usuário Mestre, Usuário Teste, cargos, cursos e matérias padrão.
+* `ModoDesenvolvimento`: Habilita fluxos específicos do modo de desenvolvimento, como: pular login;
+* `Seed`: Habilita a inicialização da base de dados com informações iniciais como: Usuário Mestre, Usuário Teste, cargos, cursos e matérias padrão.
 
 
-Para inicializar o sistema, utilize o comando `dotnet run [modoDesenvolvimento] [seed]`, substituindo `[modoDesenvolvimento]` e `[seed]` por valores booleanos (`true ou false`).
+Para inicializar o sistema, utilize o comando `dotnet run [ModoDesenvolvimento] [ModoSeed]`, substituindo `[modoDesenvolvimento]` e `[ModoSeed]` por valores booleanos (`true ou false`).
 
 Ex.: 
 ```shell
-dotnet run true true # vai tanto inicializar a base de dados quanto habilitar o modo de desenvolvimento
+# Funcionamento: 
+# [PontoDeEntrada] [ModoDesenvolvimento] [ModoSeed]
+dotnet run           true                   true 
+# Nesse caso, vai tanto inicializar a base de dados quanto habilitar o modo de desenvolvimento
 ```
 
----
+> **_Observação:_** Para a primeira vez que o sistema for iniciado, deve ser obrigatória a inicialização da base de dados. Portanto, neste caso, inicie o sistema utilizando `dotnet run false true` ou  `dotnet run true true` (caso queira depurar o sistema). 
 
-> **_Observação:_** Para a primeira vez que o sistema for iniciado, deve ser obrigatória a inicialização da base de dados. Portanto, neste caso, inicie o sistema utilizando `dotnet run false true` ou  `dotnet run true true` (caso queira depurar o sistema).
+---
 
 ## Requisitos
 
@@ -96,16 +115,16 @@ dotnet run true true # vai tanto inicializar a base de dados quanto habilitar o 
         * Cadastrar Administradores - Administrador
         * Cadastrar Gestores - Administrador
         * Cadastrar Alunos - Gestor
-        * Gerenciar matrículas - Gestor
-        * Gerenciar cursos - Gestor
-        * Gerar relatório de grade horária - Aluno
-        * Gerar relatório de grade curricular - Aluno
-        * Gerar relatório de notas - Aluno
-        * Gerar relatório de matrícula - Aluno
-        * Gerar relatório financeiro - Aluno
+        * Gerenciar Matrículas - Gestor
+        * Gerenciar Cursos - Gestor
+        * Gerar relatório de Grade horária - Aluno
+        * Gerar relatório de Grade curricular - Aluno
+        * Gerar relatório de Notas - Aluno
+        * Gerar relatório de Matrícula - Aluno
+        * Gerar relatório Financeiro - Aluno
     - Todas as funcionalidades são progressivas:
-        * Se uma ação pode ser feita por um aluno, ela também pode ser feita pelo gestor ou administrador.
-        * Gestores e adminsitradores podem acessar recursos de todos os alunos, porém um aluno deve visualizar somente informações referentes a seu próprio cadastro;
+        * Se uma ação pode ser feita por um Aluno, ela também pode ser feita pelo Gestor ou Administrador.
+        * Gestores e Adminsitradores podem acessar recursos de *todos os Alunos*, porém um Aluno deve visualizar somente informações referentes a seu próprio cadastro;
 * Persistência de dados:
     - Todas as operações que alteram informações devem ser salvas separadamente, de forma que o desligamento dos sitema não acarrete na perda das informações cadastradas.
 * Auditoria:
@@ -114,6 +133,8 @@ dotnet run true true # vai tanto inicializar a base de dados quanto habilitar o 
 ### Modelagem
 
 As entidades e relacionamentos presentes no sistema podem ser descritas através do Diagrama Entidade-Relacionamento abaixo, bem como nos esquemas descritos logo após a diagramação.
+
+Dentro do código-fonte, toda a modelagem de dados se encontra no módulo `Dados.Modelos`
 
 * [Modelo](#modelo)
 * [Cargo](#cargo)
@@ -131,13 +152,11 @@ As entidades e relacionamentos presentes no sistema podem ser descritas através
 
 Entidade base da qual todas as outras herdam as seguintes propriedades:
 
-* Nome
 * Id
 
 ```c#
 public abstract class Modelo
 {
-    public string? Nome { get; set }
     public string? Id { get; set; }
 }
 ```
@@ -152,18 +171,24 @@ Um cargo pode estar associado a nenhum ou N:
 
 * Usuário
 
+A definição da entidade `Cargo` se encontra conforme o exemplo abaixo:
+
 ```c#
 public sealed class Cargo : Modelo
 {
-    public string[]? Permissoes { get; set; }
+    public string?       Nome        { get; set; }
+    public List<string>  Permissoes  { get; set; }
+    public List<string>? UsuariosIds { get; set; } = [];
 }
 ```
 
+---
+
 #### Curso
 
-A entidade Curso representa um conjunto específico e particular de Matérias que podem estar associadas a um ou mais Alunos. 
+A entidade `Curso` representa um conjunto específico e particular de Matérias que podem estar associadas a um ou mais `Aluno`s. 
 
-Todo Curso deve estar associado a, no mínimo, um:
+Todo Curso deve estar associado a:
 
 * Matéria
 
@@ -171,12 +196,18 @@ Todo Curso pode estar associado a um ou N:
 
 * Matrícula
 
+A definição da estrutura de um `Curso` se encontra conforme o exemplo abaixo:
+
 ```c#
 public class Curso : Modelo
 {
-    public Materia[] GradeCurricular { get; set; }
+	public string?       Nome            { get; set; }
+	public Materia[]     GradeCurricular { get; set; }
+	public List<string>? MatriculasIds   { get; set; }
 }
 ```
+
+---
 
 #### Matéria
 
@@ -192,13 +223,18 @@ Uma matéria pode estar associada a nenhuma ou N:
 * Curso
 * Notas
 
+A definição da estrutura de uma `Materia` se encontra conforme o exemplo abaixo:
+
 ```csharp
 public sealed class Materia : Modelo
 {
-    public Turno Turno { get; set; }
-    public int CargaHoraria { get; set; }
+    public string? Nome         { get; set; }
+    public Turno   Turno        { get; set; }
+    public int     CargaHoraria { get; set; }
 }
 ```
+
+---
 
 #### Usuário
 
@@ -216,22 +252,31 @@ Todo Usuário precisa, obrigatoriamente, possuir um:
 
 * Cargo
 
+A definição da estrutura de um `Usuario` se encontra abaixo:
+
 ```csharp
 public class Usuario : Modelo
 {
-    public string? Login { get; set; }
-    public Cargo? Cargo { get; set; }
-    public string? Senha { get; set; }
+    public string? Login   { get; set; }
+    public string? Nome    { get; set; }
+    public string? Senha   { get; set; }
+    public string  CargoId { get; set; }
 }
 ```
+
+---
 
 #### Funcionário
 
 A entidade Funcionário representa o colaborador da instituição responsável por realizar tarefas pertinentes ao escopo do sistema.
 
+A estrutura de um `Funcionario` se encontra conforme o exemplo abaixo:
+
 ```csharp
 public sealed class Funcionario : Usuario {}
 ```
+
+---
 
 #### Aluno
 
@@ -241,12 +286,16 @@ Todo Aluno possui, necessariamente, uma associação para:
 
 * Matrícula
 
+A definição da estrutura de um `Aluno` se encontra conforme o exemplo abaixo:
+
 ```csharp
 public sealed class Aluno : Usuario
 {
-    public Matricula Matricula { get; set; }
+    public string MatriculaId { get; set; }
 }
 ```
+
+---
 
 #### Matrícula
 
@@ -264,16 +313,20 @@ Toda Matrícula pode estar associada a nenhuma ou N:
 
 * Notas
 
+A estrutura de uma `Matricula` se encontra conforme o exemplo abaixo:
+
 ```csharp
 public sealed class Matricula : Modelo
 {
-    public long Numero { get; set; }
-    public int Periodo { get; set; }
-    public Curso Curso { get; set; }
-    public Modalidade Modalidade { get; set; }
-    public List<Nota> Notas { get; set; } = [];
+	public string?    CursoId    { get; set; }
+	public string?    AlunoId    { get; set; }
+	public int        Periodo    { get; set; }
+	public Modalidade Modalidade { get; set; }
+	public List<Nota> Notas      { get; set; } = [];
 }
 ```
+
+---
 
 #### Notas
 
@@ -294,13 +347,17 @@ Todo registro particular de Notas está asssociado unicamente a uma entidade:
 
 * Matrícula
 
+A estrutura de uma `Nota` se encontra conforme o exemplo abaixo:
+
 ```csharp
 public sealed class Nota
 {
-    public float? P1 { get; set; }
-    public float? P2 { get; set; }
-    public float? P3 { get; set; }
-    public double? MediaFinal { get; private set; }
+    public string          NomeMateria     { get; set; }
+    public string          MateriaId       { get; set; }
+    public float?          P1              { get; set; }
+    public float?          P2              { get; set; }
+    public float?          P3              { get; set; }
+    public double?         MediaFinal      { get; private set; }
     public SituacaoMateria SituacaoMateria { get; set; }
 }
 ```
@@ -308,6 +365,8 @@ public sealed class Nota
 ---
 
 ## Estrutura do Sistema
+
+Esta seção define o funcionamento e regras de cada módulo (*namespace*) do sistema.
 
 ### Sumário
 
