@@ -6,6 +6,7 @@ public static class OperacoesRecursos
 	public static readonly string[] RecursosLeitura =
 	[
 		"Visualizar",
+		"Ver Detalhes",
 		"Gerar Relatorio"
 	];
 

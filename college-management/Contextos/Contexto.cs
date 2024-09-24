@@ -71,7 +71,7 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 
 		return recursosDisponiveis;
 	}
-
+	
 	public void AcessarRecurso(string nomeRecurso)
 	{
 		Type[] interfacesContexto = GetType().GetInterfaces();
@@ -97,4 +97,6 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 	public abstract Task Excluir();
 
 	public abstract void Visualizar();
+	
+	public abstract void VerDetalhes();
 }
