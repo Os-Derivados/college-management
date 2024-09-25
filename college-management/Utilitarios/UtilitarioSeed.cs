@@ -19,12 +19,12 @@ public static class UtilitarioSeed
 		await baseDeDados
 		      .Cargos
 		      .Adicionar(new Cargo(CargosPadrao.CargoAlunos,
-		                           [PermissoesAcesso.PermissaoAcessoLeitura]));
+		                           [PermissoesAcesso.AcessoLeitura]));
 
 		await baseDeDados
 		      .Cargos
 		      .Adicionar(new Cargo(CargosPadrao.CargoAlunos,
-		                           [PermissoesAcesso.PermissaoAcessoLeitura]));
+		                           [PermissoesAcesso.AcessoLeitura]));
 
 		var (loginMestre, nomeMestre, senhaMestre)
 			= ObterCredenciais(VariaveisAmbiente.MasterAdminLogin,

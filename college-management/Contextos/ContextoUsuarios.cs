@@ -268,22 +268,18 @@ public class ContextoUsuarios : Contexto<Usuario>,
 	public override void Visualizar()
 	{
 		var naoTemRestricao = CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita)
-			|| CargoContexto.TemPermissao(PermissoesAcesso.AcessoAdministradores);
+		                      || CargoContexto.TemPermissao(PermissoesAcesso.AcessoAdministradores);
 
 		RelatorioView<Usuario> relatorioView;
 
 		if (naoTemRestricao)
-		{
-			relatorioView = new RelatorioView<Usuario>("Visualizar Usuários", 
+			relatorioView = new RelatorioView<Usuario>("Visualizar Usuários",
 			                                           BaseDeDados.Usuarios.ObterTodos());
-		}
 		else
-		{
 			relatorioView = new RelatorioView<Usuario>("Minha Conta", [UsuarioContexto]);
-		}
 
 		relatorioView.ConstruirLayout();
-		
+
 		InputView inputRelatorio = new(relatorioView.Titulo);
 		inputRelatorio.LerEntrada("Sair", relatorioView.Layout.ToString());
 	}
@@ -292,48 +288,45 @@ public class ContextoUsuarios : Contexto<Usuario>,
 	{
 		var naoTemRestricao = CargoContexto.TemPermissao(PermissoesAcesso.AcessoAdministradores)
 		                      || CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita);
-		
-		if (!naoTemRestricao)
-		{
 
-		}
-		
-		MenuView menuPesquisa = new("Pesquisar Usuário", 
+		if (!naoTemRestricao) { }
+
+		MenuView menuPesquisa = new("Pesquisar Usuário",
 		                            "Selecione um dos campos para pesquisar.",
 		                            ["Login", "Id"]);
-			
+
 		menuPesquisa.ConstruirLayout();
 		menuPesquisa.LerEntrada();
 
 		KeyValuePair<string, string>? campoPesquisa = menuPesquisa.OpcaoEscolhida switch
 		{
-			1 => new KeyValuePair<string, string>("Login", 
+			1 => new KeyValuePair<string, string>("Login",
 			                                      "Insira o Login do Usuario: "),
-			2 => new KeyValuePair<string, string>("Id", 
+			2 => new KeyValuePair<string, string>("Id",
 			                                      "Insira o Id do Usuario: "),
 			_ => null
 		};
 
 		InputView inputPesquisa = new("Ver Detalhes: Pesquisar Usuario");
-		
+
 		if (campoPesquisa is null)
 		{
-			inputPesquisa.LerEntrada("Campo", 
+			inputPesquisa.LerEntrada("Campo",
 			                         "Campo inválido. Tente novamente.");
 
 			return;
 		}
-		
-		inputPesquisa.LerEntrada(campoPesquisa?.Key, 
+
+		inputPesquisa.LerEntrada(campoPesquisa?.Key,
 		                         campoPesquisa?.Value);
 
-		Usuario?   usuario = null;
-		
+		Usuario? usuario = null;
+
 		if (menuPesquisa.OpcaoEscolhida is 1)
 		{
 			var login = inputPesquisa.ObterEntrada("Login");
 			usuario = BaseDeDados.Usuarios.ObterPorLogin(login);
-		} 
+		}
 		else if (menuPesquisa.OpcaoEscolhida is 2)
 		{
 			var id = inputPesquisa.ObterEntrada("Id");
@@ -342,18 +335,19 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		if (usuario is null)
 		{
-			inputPesquisa.LerEntrada("Usuario", 
+			inputPesquisa.LerEntrada("Usuario",
 			                         "Usuário não encontrado.");
 
 			return;
 		}
 
-		Dictionary<string, string> detalhes        = 
-			UtilitarioTipos.ObterPropriedades(usuario, 
+		Dictionary<string, string> detalhes =
+			UtilitarioTipos.ObterPropriedades(usuario,
 			                                  ["Login", "Nome", "Senha", "CargoId", "Id"]);
-		DetalhesView               detalhesUsuario = new("Usuário Encontrado", detalhes);
+
+		DetalhesView detalhesUsuario = new("Usuário Encontrado", detalhes);
 		detalhesUsuario.ConstruirLayout();
-		
+
 		inputPesquisa.LerEntrada("Sair", detalhesUsuario.Layout.ToString());
 	}
 }
