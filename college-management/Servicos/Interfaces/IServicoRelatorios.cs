@@ -8,5 +8,6 @@ public interface IServicoRelatorios<T>
 {
 	public string GerarRelatorio(T modelo, Cargo cargoUsuario);
 
+	public string GerarEntradasRelatorio();
 	public Task ExportarRelatorio(string relatorio);
 }

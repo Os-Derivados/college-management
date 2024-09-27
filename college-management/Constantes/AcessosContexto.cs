@@ -15,10 +15,9 @@ public static class AcessosContexto
 		ContextoUsuarios
 	];
 
-	public static readonly string[] ContextoEscrita
-		=
-		[
-			..ContextoLeitura,
-			ContextoCargos
-		];
+	public static readonly string[] ContextoEscrita =
+	[
+		..ContextoLeitura,
+		ContextoCargos
+	];
 }

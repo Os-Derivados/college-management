@@ -36,11 +36,11 @@ public class MenuView : View, IMenuView
 	{
 		Exibir();
 
-		var entrada       = Console.ReadKey();
+		var entrada = Console.ReadKey();
 		var entradaValida = int.TryParse(entrada
-			                                 .KeyChar
-			                                 .ToString(), 
-			                                 out var opcaoEscolhida);
+		                                 .KeyChar
+		                                 .ToString(),
+		                                 out var opcaoEscolhida);
 
 		if (!entradaValida) return;
 

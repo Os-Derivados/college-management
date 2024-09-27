@@ -40,23 +40,16 @@ where T : Modelo
 			       : modelo.ToString();
 	}
 
-	private string GerarEntradasRelatorio()
+	public string GerarEntradasRelatorio()
 	{
-		if (_modelos.Count is 0)
-			return _modelos[0].ToString();
-
-		StringBuilder entradasRelatorio = new();
-
-		entradasRelatorio
-			.AppendLine(UtilitarioTipos
-				            .ObterNomesPropriedades(typeof(T)
-					                                    .GetProperties()));
-
-		foreach (var modelo in _modelos)
-			entradasRelatorio.AppendLine(modelo.ToString());
-
-		return entradasRelatorio.ToString();
+		// TODO: Implementar um algoritmo para converter registros JSON para o formato CSV
+		throw new NotImplementedException();
 	}
 
-	public async Task ExportarRelatorio(string relatorio) { throw new NotImplementedException(); }
+	public async Task ExportarRelatorio(string relatorio)
+	{
+		// TODO: Implementar um algoritmo para exportar relatórios no formato CSV
+		
+		throw new NotImplementedException();
+	}
 }
