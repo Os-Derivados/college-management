@@ -34,7 +34,7 @@ public static class MiddlewareAutenticacao
 		// [REQUISITO]: O login e senha devem ser validados, avisando o usuário
 		// sobre credenciais inválidas, caso qualquer um dos dois campos
 		// esteja incorretamente digitado
-
+		
 		throw new
 			InvalidOperationException("Não foi possível obter usuário");
 	}

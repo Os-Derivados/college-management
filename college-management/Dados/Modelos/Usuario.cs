@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text.Json.Serialization;
+using college_management.Dados.Repositorios;
 
 
 namespace college_management.Dados.Modelos;
@@ -31,12 +32,18 @@ public class Usuario : Modelo
 	public string? Senha   { get; set; }
 	public string  CargoId { get; set; }
 
-	public static bool Autenticar(Usuario usuario,
-	                              string  loginUsuario,
-	                              string  senhaUsuario)
+	public static Usuario? Autenticar(RepositorioUsuarios repositorio,
+	                                  string              loginUsuario,
+	                                  string              senhaUsuario)
 	{
-		return usuario.Login == loginUsuario
-		       && usuario.Senha == senhaUsuario;
+		// master.admin
+		var usuarioExistente = repositorio.ObterPorLogin(loginUsuario);
+
+		if (usuarioExistente is null) return null;
+
+		return usuarioExistente.Senha == senhaUsuario 
+			       ? usuarioExistente 
+			       : null;
 	}
 
 	public override string ToString()
