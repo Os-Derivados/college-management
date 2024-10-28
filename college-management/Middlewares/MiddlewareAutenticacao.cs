@@ -10,19 +10,19 @@ namespace college_management.Middlewares;
 public static class MiddlewareAutenticacao
 {
 	public static Usuario Autenticar(bool modoDesenvolvimento,
-	                                 RepositorioUsuarios
-		                                 repositorioUsuarios)
+									 RepositorioUsuarios
+										 repositorioUsuarios)
 	{
 		return modoDesenvolvimento
-			       ? ObterUsuarioTeste(repositorioUsuarios)
-			       : Login(repositorioUsuarios);
+				   ? ObterUsuarioTeste(repositorioUsuarios)
+				   : Login(repositorioUsuarios);
 	}
 
 	private static Usuario ObterUsuarioTeste(RepositorioUsuarios repositorioUsuarios)
 	{
 		_ = UtilitarioAmbiente.Variaveis
-		                      .TryGetValue(VariaveisAmbiente.LoginTeste,
-		                                   out var loginTeste);
+							  .TryGetValue(VariaveisAmbiente.LoginTeste,
+										   out var loginTeste);
 
 		return repositorioUsuarios.ObterPorLogin(loginTeste);
 	}
@@ -34,7 +34,21 @@ public static class MiddlewareAutenticacao
 		// [REQUISITO]: O login e senha devem ser validados, avisando o usuário
 		// sobre credenciais inválidas, caso qualquer um dos dois campos
 		// esteja incorretamente digitado
-		
+
+		var loginUsuario = "";
+		var senhaUsuario = "";
+
+		var autenticacao = Usuario.Autenticar(repositorioUsuarios, loginUsuario, senhaUsuario); 
+
+		if (autenticacao != null)
+		{
+			Console.WriteLine("Login efetuado com sucesso!");
+			return autenticacao;
+		}
+		else
+			Console.WriteLine("Login ou senha incorretos!");
+			return null;
+
 		throw new
 			InvalidOperationException("Não foi possível obter usuário");
 	}
