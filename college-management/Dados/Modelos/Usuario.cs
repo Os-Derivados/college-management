@@ -5,6 +5,39 @@ using college_management.Dados.Repositorios;
 
 namespace college_management.Dados.Modelos;
 
+public class CredenciaisUsuario
+{
+	public string Senha { get; set; }
+	public string Sal   { get; set; }
+	
+	public CredenciaisUsuario(string senha, string? sal = null)
+	{
+		Senha = senha;
+		Sal = sal ?? Utilitarios.UtilitarioCriptografia.GerarSal();
+	}
+
+	public static CredenciaisUsuario? TryParse(string input)
+	{
+		if (string.IsNullOrEmpty(input))
+			return null;
+
+		var split = input.Split('+', 2);
+		if (split.Length <= 1) return null;
+
+		(string senha, string sal) = (split[0], split[1]);
+		return new CredenciaisUsuario(senha, sal);
+	}
+
+	public bool Validar(string senha)
+	{
+        return Utilitarios.UtilitarioCriptografia.CriptografarSha256(senha, Sal) == Senha;
+	}
+
+	public override string ToString()
+	{
+		return $"{Senha}+{Sal}";
+	}
+}
 
 [JsonDerivedType(typeof(Usuario), "base")]
 [JsonDerivedType(typeof(Aluno), "aluno")]
@@ -13,13 +46,13 @@ public class Usuario : Modelo
 {
 	public Usuario(string login,
 	               string nome,
-	               string senha,
+	               CredenciaisUsuario credenciais,
 	               string cargoId)
 	{
 		Login   = login;
 		Nome    = nome;
-		Senha   = senha;
 		CargoId = cargoId;
+		Credenciais = credenciais;
 
 		Id = _contagemId.ToString(CultureInfo.InvariantCulture);
 		_contagemId++;
@@ -29,9 +62,8 @@ public class Usuario : Modelo
 
 	public string? Login   { get; set; }
 	public string? Nome    { get; set; }
-    // TODO: Realizar um hash na senha do usuário. Idealmente, um salt também deverá ser implementado.
-    public string? Senha   { get; set; }
 	public string  CargoId { get; set; }
+	public CredenciaisUsuario? Credenciais { get; set; }
 
 	public static Usuario? Autenticar(RepositorioUsuarios repositorio,
 	                                  string              loginUsuario,
@@ -42,14 +74,14 @@ public class Usuario : Modelo
 
 		if (usuarioExistente is null) return null;
 
-		return usuarioExistente.Senha == senhaUsuario 
-			       ? usuarioExistente 
+		return usuarioExistente.Credenciais.Validar(senhaUsuario)
+			       ? usuarioExistente
 			       : null;
 	}
 
 	public override string ToString()
 	{
 		return
-			$"| {Login,-16} | {Nome,-16} | {"x",-16} | {CargoId,-16} | {Id,-16} |";
+			$"| {Login,-16} | {Nome,-16} | {CargoId,-16} | {Credenciais?.ToString().Remove(13) + "...",-16} | {Id,-16} |";
 	}
 }

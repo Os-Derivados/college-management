@@ -152,12 +152,12 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		{
 			CargosPadrao.CargoAlunos => new Aluno(cadastroUsuario["Login"],
 			                                      cadastroUsuario["Nome"],
-			                                      cadastroUsuario["Senha"],
+			                                      new CredenciaisUsuario(cadastroUsuario["Senha"]),
 			                                      cargoEscolhido.Id,
 			                                      novaMatricula.Id),
 			_ => new Funcionario(cadastroUsuario["Login"],
 			                     cadastroUsuario["Nome"],
-			                     cadastroUsuario["Senha"],
+			                     new CredenciaisUsuario(cadastroUsuario["Senha"]),
 			                     cargoEscolhido.Id)
 		};
 
@@ -343,7 +343,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		Dictionary<string, string> detalhes =
 			UtilitarioTipos.ObterPropriedades(usuario,
-			                                  ["Login", "Nome", "Senha", "CargoId", "Id"]);
+			                                  ["Login", "Nome", "Credenciais", "CargoId", "Id"]);
 
 		DetalhesView detalhesUsuario = new("Usuário Encontrado", detalhes);
 		detalhesUsuario.ConstruirLayout();
