@@ -29,7 +29,8 @@ public class Usuario : Modelo
 
 	public string? Login   { get; set; }
 	public string? Nome    { get; set; }
-	public string? Senha   { get; set; }
+    // TODO: Realizar um hash na senha do usuário. Idealmente, um salt também deverá ser implementado.
+    public string? Senha   { get; set; }
 	public string  CargoId { get; set; }
 
 	public static Usuario? Autenticar(RepositorioUsuarios repositorio,
@@ -49,6 +50,6 @@ public class Usuario : Modelo
 	public override string ToString()
 	{
 		return
-			$"| {Login,-16} | {Nome,-16} | {CargoId,-16} | {"x",-16} | {Id,-16} |";
+			$"| {Login,-16} | {Nome,-16} | {"x",-16} | {CargoId,-16} | {Id,-16} |";
 	}
 }
