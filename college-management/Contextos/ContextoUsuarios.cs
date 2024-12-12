@@ -299,12 +299,17 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 	public override void VerDetalhes()
 	{
-		var naoTemRestricao
+		var temPermissao
 			= CargoContexto.TemPermissao(PermissoesAcesso.AcessoAdministradores)
 			  || CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita);
 
-		if (!naoTemRestricao)
+		if (!temPermissao)
 		{
+			InputView inputPermissao = new("Ver Detalhes: Permissão");
+			inputPermissao.LerEntrada("Erro",
+			                          "Você não tem permissão para acessar esse recurso. Pressione [Enter] para retornar.");
+
+			return;
 		}
 
 		MenuView menuPesquisa = new("Pesquisar Usuário",
