@@ -72,7 +72,7 @@ public static class UtilitarioSeed
 		await baseDeDados.Matriculas.Adicionar(matriculaTeste);
 	}
 
-	private static (string, string, string) ObterCredenciais(string login,
+	private static (string, string, CredenciaisUsuario) ObterCredenciais(string login,
 	                                                         string nome,
 	                                                         string senha)
 	{
@@ -88,6 +88,9 @@ public static class UtilitarioSeed
 		    .Variaveis
 		    .TryGetValue(senha, out var senhaDefault);
 
-		return (loginDefault, nomeDefault, senhaDefault);
+		var sal = UtilitarioCriptografia.GerarSal();
+        CredenciaisUsuario credenciais = new(UtilitarioCriptografia.CriptografarSha256(senhaDefault, sal), sal);
+
+        return (loginDefault, nomeDefault, credenciais);
 	}
 }
