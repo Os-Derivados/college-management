@@ -4,9 +4,8 @@ namespace college_management.Utilitarios;
 public static class UtilitarioArquivos
 {
 	public static readonly string DiretorioBase =
-		Path.Combine(Environment.GetFolderPath(Environment
-		                                       .SpecialFolder
-		                                       .ApplicationData),
+		Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder
+			                                       .ApplicationData),
 		             "OsDerivados",
 		             "CollegeManagement");
 

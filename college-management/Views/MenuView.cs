@@ -1,4 +1,3 @@
-using System.Text;
 using college_management.Views.Interfaces;
 
 
@@ -9,29 +8,16 @@ public class MenuView : View, IMenuView
 {
 	private readonly string   _cabecalho;
 	private readonly string[] _opcoes;
-	public           int      OpcaoEscolhida { get; private set; }
 
-	public MenuView(string   titulo,
-	                string   cabecalho,
+	public MenuView(string titulo,
+	                string cabecalho,
 	                string[] opcoes) : base(titulo)
 	{
 		_cabecalho = cabecalho;
 		_opcoes    = opcoes;
 	}
 
-	public override void ConstruirLayout()
-	{
-		Layout.Append(_cabecalho);
-		Layout.AppendLine(" Selecione uma das opções abaixo.");
-		Layout.AppendLine();
-
-		for (var i = 0; i < _opcoes.Length; i++)
-			Layout.AppendLine($"[{i + 1}] {_opcoes[i]}");
-
-		Layout.AppendLine();
-		Layout.AppendLine(GerarDivisoria('-'));
-		Layout.Append("Sua opção (somente números): ");
-	}
+	public int OpcaoEscolhida { get; private set; }
 
 	public void LerEntrada()
 	{
@@ -46,5 +32,19 @@ public class MenuView : View, IMenuView
 		if (!entradaValida) return;
 
 		OpcaoEscolhida = opcaoEscolhida;
+	}
+
+	public override void ConstruirLayout()
+	{
+		Layout.Append(_cabecalho);
+		Layout.AppendLine(" Selecione uma das opções abaixo.");
+		Layout.AppendLine();
+
+		for (var i = 0; i < _opcoes.Length; i++)
+			Layout.AppendLine($"[{i + 1}] {_opcoes[i]}");
+
+		Layout.AppendLine();
+		Layout.AppendLine(GerarDivisoria('-'));
+		Layout.Append("Sua opção (somente números): ");
 	}
 }
