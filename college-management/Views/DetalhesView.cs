@@ -12,6 +12,14 @@ public class DetalhesView : View
 		_detalhes = detalhes;
 	}
 
+	public override void Exibir()
+	{
+		InputView detalhes = new(Titulo);
+		detalhes.ConstruirLayout();
+		
+		detalhes.LerEntrada("Detalhes", Layout.ToString());
+	}
+
 	public override string ConstruirLayout()
 	{
 		foreach (var detalhe in
