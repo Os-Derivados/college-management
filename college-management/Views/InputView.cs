@@ -17,6 +17,7 @@ public sealed class InputView : View, IInputView
 	public override void ConstruirLayout()
 	{
 		Layout.AppendLine(Titulo);
+		Layout.AppendLine(GerarDivisoria('-'));
 		Layout.AppendLine();
 		Layout.Append(_mensagem);
 	}

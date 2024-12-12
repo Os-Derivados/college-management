@@ -6,7 +6,7 @@ namespace college_management.Views;
 
 public class DetalhesView : View
 {
-	public DetalhesView(string                     titulo,
+	public DetalhesView(string titulo,
 	                    Dictionary<string, string> detalhes) :
 		base(titulo)
 	{

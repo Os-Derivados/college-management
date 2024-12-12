@@ -29,6 +29,7 @@ public class MenuView : View, IMenuView
 			Layout.AppendLine($"[{i + 1}] {_opcoes[i]}");
 
 		Layout.AppendLine();
+		Layout.AppendLine(GerarDivisoria('-'));
 		Layout.Append("Sua opção (somente números): ");
 	}
 

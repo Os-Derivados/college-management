@@ -18,5 +18,17 @@ public abstract class View : IView
 		Console.Write(Layout.ToString());
 	}
 
-	public virtual void ConstruirLayout() { Layout.AppendLine(Titulo); }
+	public virtual void   ConstruirLayout()              { Layout.AppendLine(Titulo); }
+
+	public string GerarDivisoria(char separador)
+	{
+		StringBuilder divisoria = new();
+
+		for (var i = 0; i < Console.WindowWidth; i++)
+		{
+			divisoria.Append(separador);
+		}
+
+		return divisoria.ToString();
+	}
 }
