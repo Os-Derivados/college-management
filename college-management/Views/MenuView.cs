@@ -34,7 +34,7 @@ public class MenuView : View, IMenuView
 		OpcaoEscolhida = opcaoEscolhida;
 	}
 
-	public override void ConstruirLayout()
+	public override string ConstruirLayout()
 	{
 		Layout.Append(_cabecalho);
 		Layout.AppendLine(" Selecione uma das opções abaixo.");
@@ -46,5 +46,7 @@ public class MenuView : View, IMenuView
 		Layout.AppendLine();
 		Layout.AppendLine(GerarDivisoria('-'));
 		Layout.Append("Sua opção (somente números): ");
+		
+		return Layout.ToString();
 	}
 }

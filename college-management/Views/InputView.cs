@@ -42,11 +42,13 @@ public sealed class InputView : View, IInputView
 		return entrada ?? "";
 	}
 
-	public override void ConstruirLayout()
+	public override string ConstruirLayout()
 	{
 		Layout.AppendLine(Titulo);
 		Layout.AppendLine(GerarDivisoria('-'));
 		Layout.AppendLine();
 		Layout.Append(_mensagem);
+		
+		return Layout.ToString();
 	}
 }

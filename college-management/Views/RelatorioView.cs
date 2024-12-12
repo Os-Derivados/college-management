@@ -15,7 +15,7 @@ public class RelatorioView<T> : View where T : Modelo
 		_modelos = modelos;
 	}
 
-	public override void ConstruirLayout()
+	public override string ConstruirLayout()
 	{
 		var tipo         = typeof(T);
 		var propriedades = tipo.GetProperties();
@@ -31,5 +31,7 @@ public class RelatorioView<T> : View where T : Modelo
 
 		foreach (var modelo in _modelos)
 			Layout.AppendLine(modelo.ToString());
+		
+		return Layout.ToString();
 	}
 }

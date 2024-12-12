@@ -5,7 +5,7 @@ public interface IView
 {
 	public void Exibir();
 
-	public void ConstruirLayout();
+	public string ConstruirLayout();
 
 	public string GerarDivisoria(char separador);
 }
