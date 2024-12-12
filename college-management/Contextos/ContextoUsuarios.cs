@@ -221,20 +221,18 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		if (inputUsuario.ObterEntrada("Cargo")
 		    is CargosPadrao.CargoAlunos)
-			foreach (var mensagem
-			         in mensagensAluno)
-				inputUsuario.LerEntrada(mensagem.Key,
-				                        mensagem.Value);
+		{
+			foreach (var mensagem in mensagensAluno)
+			{
+				inputUsuario.LerEntrada(mensagem.Key, mensagem.Value);
+			}
+		}
 
 		DetalhesView detalhesView = new("Confirmar Cadastro",
-		                                inputUsuario
-			                                .EntradasUsuario);
-
-		detalhesView.ConstruirLayout();
-
+		                                inputUsuario.EntradasUsuario);
+		
 		StringBuilder mensagemConfirmacao = new();
-		mensagemConfirmacao.AppendLine(detalhesView.Layout
-		                                           .ToString());
+		mensagemConfirmacao.AppendLine(detalhesView.ConstruirLayout());
 
 		mensagemConfirmacao.AppendLine("Confirma o Cadastro?\n");
 		mensagemConfirmacao.Append("[S]im\t[N]ão: ");
@@ -291,10 +289,9 @@ public class ContextoUsuarios : Contexto<Usuario>,
 			relatorioView
 				= new RelatorioView<Usuario>("Minha Conta", [UsuarioContexto]);
 
-		relatorioView.ConstruirLayout();
 
 		InputView inputRelatorio = new(relatorioView.Titulo);
-		inputRelatorio.LerEntrada("Sair", relatorioView.Layout.ToString());
+		inputRelatorio.LerEntrada("Sair", relatorioView.ConstruirLayout());
 	}
 
 	public override void VerDetalhes()
@@ -376,7 +373,6 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		DetalhesView detalhesUsuario = new("Usuário Encontrado", detalhes);
 		detalhesUsuario.ConstruirLayout();
-
-		inputPesquisa.LerEntrada("Sair", detalhesUsuario.Layout.ToString());
+		detalhesUsuario.Exibir();
 	}
 }
