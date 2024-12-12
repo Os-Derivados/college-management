@@ -25,8 +25,9 @@ public class Curso : Modelo
 	public override string ToString()
 	{
 		return
-			$"| {Nome,-16} "
+			  $"| {Nome,-16} "
 			+ $"| {GradeCurricular.Length + " Matéria(s)",-16} "
+			+ $"| {string.Join(", ", MatriculasIds ?? new()), -16} "
 			+ $"| {Id,-16} |";
 	}
 
