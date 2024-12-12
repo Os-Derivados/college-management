@@ -230,7 +230,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		DetalhesView detalhesView = new("Confirmar Cadastro",
 		                                inputUsuario.EntradasUsuario);
-		
+
 		StringBuilder mensagemConfirmacao = new();
 		mensagemConfirmacao.AppendLine(detalhesView.ConstruirLayout());
 
@@ -302,9 +302,19 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		if (!temPermissao)
 		{
-			InputView inputPermissao = new("Ver Detalhes: Permissão");
-			inputPermissao.LerEntrada("Erro",
-			                          "Você não tem permissão para acessar esse recurso. Pressione [Enter] para retornar.");
+			var detalhesContexto = UtilitarioTipos.ObterPropriedades(
+				UsuarioContexto,
+				[
+					"Login", "Nome",
+					"Credenciais", "CargoId",
+					"Id"
+				]);
+
+			DetalhesView detalhesView
+				= new("Detalhes Usuário", detalhesContexto);
+
+			detalhesView.ConstruirLayout();
+			detalhesView.Exibir();
 
 			return;
 		}
