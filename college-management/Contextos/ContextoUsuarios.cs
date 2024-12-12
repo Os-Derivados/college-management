@@ -114,21 +114,28 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		if (!temPermissao)
 		{
 			inputUsuario.LerEntrada("Erro",
-			                        "Você não tem permissão "
-			                        + "para acessar esse recurso. ");
+			                        """
+			                        Você não tem permissão para acessar esse recurso. 
+			                        Pressione [Enter] para sair.
+			                        """);
 
 			return;
 		}
 
 		var cadastroUsuario
 			= ObterCadastroUsuario(inputUsuario);
+		
+		DetalhesView detalhesView = new("Confirmar Cadastro",
+		                                inputUsuario.EntradasUsuario);
 
-		if (cadastroUsuario["Confirma"] is not "S") return;
+		ConfirmacaoView confirmarCadastro = new("Confirmar Cadastro");
+		confirmarCadastro.Confirmar(detalhesView.ConstruirLayout());
+
+		if (confirmarCadastro.Confirmacao is not "s") return;
 
 		var cargoEscolhido = BaseDeDados
 		                     .Cargos
-		                     .ObterPorNome(cadastroUsuario
-			                                   ["Cargo"]);
+		                     .ObterPorNome(cadastroUsuario["Cargo"]);
 
 		if (cargoEscolhido is null)
 		{
@@ -219,26 +226,13 @@ public class ContextoUsuarios : Contexto<Usuario>,
 			new("Modalidade", "Insira a Modalidade: ")
 		];
 
-		if (inputUsuario.ObterEntrada("Cargo")
-		    is CargosPadrao.CargoAlunos)
+		if (inputUsuario.ObterEntrada("Cargo") is CargosPadrao.CargoAlunos)
 		{
 			foreach (var mensagem in mensagensAluno)
 			{
 				inputUsuario.LerEntrada(mensagem.Key, mensagem.Value);
 			}
 		}
-
-		DetalhesView detalhesView = new("Confirmar Cadastro",
-		                                inputUsuario.EntradasUsuario);
-
-		StringBuilder mensagemConfirmacao = new();
-		mensagemConfirmacao.AppendLine(detalhesView.ConstruirLayout());
-
-		mensagemConfirmacao.AppendLine("Confirma o Cadastro?\n");
-		mensagemConfirmacao.Append("[S]im\t[N]ão: ");
-
-		inputUsuario.LerEntrada("Confirma",
-		                        mensagemConfirmacao.ToString());
 
 		return inputUsuario.EntradasUsuario;
 	}
