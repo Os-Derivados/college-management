@@ -108,12 +108,12 @@ public class ContextoUsuarios : Contexto<Usuario>,
 			|| CargoContexto.TemPermissao(
 				PermissoesAcesso.AcessoAdministradores);
 
-		InputView inputUsuario = new("Cadastrar Usuário");
-		inputUsuario.ConstruirLayout();
-
 		if (!temPermissao)
 		{
-			inputUsuario.LerEntrada("Erro",
+			InputView erroInput = new("Acesso Não Autorizado");
+			erroInput.ConstruirLayout();
+			
+			erroInput.LerEntrada("Erro",
 			                        """
 			                        Você não tem permissão para acessar esse recurso. 
 			                        Pressione [Enter] para sair.
@@ -121,6 +121,9 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 			return;
 		}
+		
+		InputView inputUsuario = new("Cadastrar Usuário");
+		inputUsuario.ConstruirLayout();
 
 		var cadastroUsuario
 			= ObterCadastroUsuario(inputUsuario);
