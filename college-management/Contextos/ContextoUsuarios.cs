@@ -112,85 +112,71 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		{
 			InputView erroInput = new("Acesso Não Autorizado");
 			erroInput.ConstruirLayout();
-			
+
 			erroInput.LerEntrada("Erro",
-			                        """
-			                        Você não tem permissão para acessar esse recurso. 
-			                        Pressione [Enter] para sair.
-			                        """);
+			                     """
+			                     Você não tem permissão para acessar esse recurso. 
+			                     Pressione [Enter] para sair.
+			                     """);
 
 			return;
 		}
-		
-		InputView inputUsuario = new("Cadastrar Usuário");
-		inputUsuario.ConstruirLayout();
 
-		var cadastroUsuario
-			= ObterCadastroUsuario(inputUsuario);
-		
-		DetalhesView detalhesView = new("Confirmar Cadastro",
-		                                inputUsuario.EntradasUsuario);
+		CadastroUsuarioView inputCadastro = new("Cadastro de Usuário");
+		inputCadastro.Cadastrar();
+
+		DetalhesView detalhesView
+			= new("Confirmar Cadastro", inputCadastro.DadosCadastro);
 
 		ConfirmacaoView confirmarCadastro = new("Confirmar Cadastro");
 		confirmarCadastro.Confirmar(detalhesView.ConstruirLayout());
 
 		if (confirmarCadastro.Confirmacao is not "s") return;
 
-		var cargoEscolhido = BaseDeDados
-		                     .Cargos
-		                     .ObterPorNome(cadastroUsuario["Cargo"]);
+		var (nome, login, cargo, senha) = inputCadastro.ObterDadosBase();
+
+		var cargoEscolhido = BaseDeDados.Cargos.ObterPorNome(cargo);
 
 		if (cargoEscolhido is null)
 		{
-			inputUsuario.LerEntrada("Erro",
-			                        "O Cargo inserido não foi "
-			                        + "encontrado na base de dados."
-			                        + "Pressione Enter para continuar.");
+			InputView erroInput = new("Cargo Inexistente");
+
+			erroInput.LerEntrada("Cargo Inexistente",
+			                     "O Cargo inserido não foi "
+			                     + "encontrado na base de dados."
+			                     + "Pressione Enter para continuar.");
 
 			return;
 		}
 
 		var novaMatricula = cargoEscolhido.Nome
 			is CargosPadrao.CargoAlunos
-			? CriarMatricula(cadastroUsuario)
+			? CriarMatricula(inputCadastro.DadosCadastro)
 			: null;
 
 		var cursoEscolhido = novaMatricula is not null
 			? BaseDeDados
 			  .Cursos
-			  .ObterPorNome(cadastroUsuario["Curso"])
+			  .ObterPorNome(inputCadastro.DadosCadastro["Curso"])
 			: null;
 
-		Usuario? novoUsuario = cargoEscolhido.Nome switch
+		Usuario novoUsuario = cargoEscolhido.Nome switch
 		{
-			CargosPadrao.CargoAlunos => new Aluno(cadastroUsuario["Login"],
-			                                      cadastroUsuario["Nome"],
-			                                      new CredenciaisUsuario(
-				                                      cadastroUsuario["Senha"]),
-			                                      cargoEscolhido.Id,
-			                                      novaMatricula.Id),
-			_ => new Funcionario(cadastroUsuario["Login"],
-			                     cadastroUsuario["Nome"],
-			                     new CredenciaisUsuario(
-				                     cadastroUsuario["Senha"]),
-			                     cargoEscolhido.Id)
+			CargosPadrao.CargoAlunos => new Aluno(login,
+			                                      nome,
+			                                      new CredenciaisUsuario(senha),
+			                                      cargoEscolhido.Id!,
+			                                      novaMatricula!.Id!),
+			_ => new Funcionario(login,
+			                     nome,
+			                     new CredenciaisUsuario(senha),
+			                     cargoEscolhido.Id!)
 		};
 
-		if (novoUsuario is null)
-		{
-			inputUsuario
-				.LerEntrada("Erro",
-				            $"Não foi possível criar um novo {nameof(Usuario)}.");
+		var foiAdicionado = await BaseDeDados.Usuarios.Adicionar(novoUsuario);
 
-			return;
-		}
-
-		var foiAdicionado
-			= await BaseDeDados.Usuarios.Adicionar(novoUsuario);
-
-		if (foiAdicionado
-		    && novaMatricula is not null
-		    && cursoEscolhido is not null)
+		if (foiAdicionado && novaMatricula is not null
+		                  && cursoEscolhido is not null)
 		{
 			novaMatricula.AlunoId = novoUsuario.Id;
 			novaMatricula.CursoId = cursoEscolhido.Id;
@@ -203,41 +189,10 @@ public class ContextoUsuarios : Contexto<Usuario>,
 			? $"{nameof(Usuario)} cadastrado com sucesso."
 			: $"Não foi possível cadastrar novo {nameof(Usuario)}.";
 
-		inputUsuario.LerEntrada("Sair", mensagemOperacao);
-	}
-
-	private Dictionary<string, string> ObterCadastroUsuario(
-		InputView inputUsuario)
-	{
-		KeyValuePair<string, string?>[] mensagensUsuario =
-		[
-			new("Nome", "Insira o Nome: "),
-			new("Login", "Insira o Login: "),
-			new("Senha", "Insira a Senha: "),
-			new("Cargo", "Insira o Cargo: ")
-		];
-
-		foreach (var mensagem
-		         in mensagensUsuario)
-			inputUsuario.LerEntrada(mensagem.Key,
-			                        mensagem.Value);
-
-		KeyValuePair<string, string?>[] mensagensAluno =
-		[
-			new("Periodo", "Insira o Período: "),
-			new("Curso", "Insira o nome do Curso: "),
-			new("Modalidade", "Insira a Modalidade: ")
-		];
-
-		if (inputUsuario.ObterEntrada("Cargo") is CargosPadrao.CargoAlunos)
-		{
-			foreach (var mensagem in mensagensAluno)
-			{
-				inputUsuario.LerEntrada(mensagem.Key, mensagem.Value);
-			}
-		}
-
-		return inputUsuario.EntradasUsuario;
+		InputView inputSucesso = new("Usuário Cadastrado");
+		inputSucesso.ConstruirLayout();
+		
+		inputSucesso.LerEntrada("Sair", mensagemOperacao);
 	}
 
 	private Matricula CriarMatricula(Dictionary<string, string> cadastroUsuario)
