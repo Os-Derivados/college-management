@@ -30,16 +30,13 @@ public static class MiddlewareAutenticacao
 
 	private static Usuario Login(RepositorioUsuarios repositorioUsuarios)
 	{
-		string loginUsuario,
-			senhaUsuario;
-
 		Console.Write("Login: ");
-		loginUsuario = Console.ReadLine() ?? "";
+		var loginUsuario = Console.ReadLine() ?? "";
 
 		Console.Clear();
 
 		Console.Write("Senha: ");
-		senhaUsuario = Console.ReadLine() ?? "";
+		var senhaUsuario = Console.ReadLine() ?? "";
 
 		var autenticacao
 			= Usuario.Autenticar(repositorioUsuarios, loginUsuario,
@@ -52,6 +49,7 @@ public static class MiddlewareAutenticacao
 		}
 
 		Console.WriteLine("Login ou senha incorretos!");
+		
 		return null;
 	}
 }
