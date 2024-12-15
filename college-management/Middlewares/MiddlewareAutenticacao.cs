@@ -30,12 +30,6 @@ public static class MiddlewareAutenticacao
 
 	private static Usuario Login(RepositorioUsuarios repositorioUsuarios)
 	{
-		// TODO: Desenvolver um algoritmo para autenticar um usuário
-		// [REQUISITO]: O usuário deve existir na base de dados.
-		// [REQUISITO]: O login e senha devem ser validados, avisando o usuário
-		// sobre credenciais inválidas, caso qualquer um dos dois campos
-		// esteja incorretamente digitado
-
 		string loginUsuario,
 			senhaUsuario;
 
