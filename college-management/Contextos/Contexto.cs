@@ -19,10 +19,9 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 	{
 		BaseDeDados     = baseDeDados;
 		UsuarioContexto = usuarioContexto;
-		CargoContexto
-			= BaseDeDados
-			  .Cargos
-			  .ObterPorId(UsuarioContexto.CargoId);
+		CargoContexto = BaseDeDados
+		                .Cargos
+		                .ObterPorId(UsuarioContexto.CargoId);
 	}
 
 	public void AcessarRecurso(string nomeRecurso)
@@ -35,12 +34,25 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 				.FirstOrDefault(t => t is not null);
 
 		if (recurso is null)
-			throw new
-				InvalidOperationException("Recurso inexistente");
+			throw new InvalidOperationException("Recurso inexistente");
 
-		var task = (Task)recurso.Invoke(this, []);
+		var task = (Task)recurso.Invoke(this, [])!;
 
-		task?.Wait();
+		task.Wait();
+	}
+
+	public bool AcessoRestrito()
+	{
+		if (CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita))
+			return true;
+
+		InputView inputPermissao = new("Permissão insuficiente");
+		inputPermissao.ConstruirLayout();
+
+		inputPermissao.LerEntrada("Erro",
+		                          "Você não tem permissão para acessar este recurso. Pressione qualquer");
+
+		return false;
 	}
 
 	public abstract Task Cadastrar();

@@ -13,4 +13,6 @@ public interface IContexto<T> where T : Modelo
 	public void VerDetalhes();
 
 	public void AcessarRecurso(string nomeRecurso);
+
+	public bool AcessoRestrito();
 }
