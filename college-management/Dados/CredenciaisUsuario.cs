@@ -10,12 +10,12 @@ namespace college_management.Dados;
 public class CredenciaisUsuario
 {
     public string Senha { get; set; }
-    public string Sal { get; set; }
+    public string Sal   { get; set; }
 
     public CredenciaisUsuario(string senha, string? sal = null)
     {
-        Senha = senha;
-        Sal = sal ?? Utilitarios.UtilitarioCriptografia.GerarSal();
+        Sal = sal ?? UtilitarioCriptografia.GerarSal();
+        Senha = senha.Length >= 64 ? senha : UtilitarioCriptografia.CriptografarSha256(senha, sal);
     }
 
     public static CredenciaisUsuario? TryParse(string input)
