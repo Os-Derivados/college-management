@@ -7,7 +7,6 @@ using college_management.Views;
 
 namespace college_management.Contextos;
 
-
 public abstract class Contexto<T> : IContexto<T> where T : Modelo
 {
 	protected readonly BaseDeDados BaseDeDados;
@@ -36,9 +35,9 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 		if (recurso is null)
 			throw new InvalidOperationException("Recurso inexistente");
 
-		var task = (Task)recurso.Invoke(this, [])!;
+		var task = (Task)recurso.Invoke(this, []);
 
-		task.Wait();
+		task?.Wait();
 	}
 
 	public bool AcessoRestrito()
