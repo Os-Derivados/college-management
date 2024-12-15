@@ -63,8 +63,7 @@ public static class MiddlewareContexto
 			if (opcaoEscolhida.Key is not ConsoleKey.D0)
 			{
 				var recursoEscolhido =
-					ConverterParaMetodo(contexto,
-					                    opcaoEscolhida);
+					ConverterParaMetodo(contexto, opcaoEscolhida);
 
 				Console.Clear();
 
@@ -86,9 +85,7 @@ public static class MiddlewareContexto
 		_ = int.TryParse(indice.KeyChar.ToString(), out var i);
 
 		var recursoEscolhido = recursosDisponiveis
-		                       .Select(r => r
-		                                    .Trim()
-		                                    .Replace(" ", ""))
+		                       .Select(r => r.Trim().Replace(" ", ""))
 		                       .ElementAt(i - 1);
 
 		return recursoEscolhido;
@@ -133,9 +130,7 @@ public static class MiddlewareContexto
 			                         .TemPermissao(
 				                         PermissoesAcesso.AcessoEscrita)
 		                         || cargoUsuario
-			                         .TemPermissao(
-				                         PermissoesAcesso
-					                         .AcessoAdministradores);
+			                         .TemPermissao(PermissoesAcesso.AcessoAdministradores);
 
 		return temPermissoesAdmin
 			? AcessosContexto.ContextoEscrita

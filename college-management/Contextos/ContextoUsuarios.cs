@@ -103,24 +103,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 	public override async Task Cadastrar()
 	{
-		var temPermissao =
-			CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita)
-			|| CargoContexto.TemPermissao(
-				PermissoesAcesso.AcessoAdministradores);
-
-		if (!temPermissao)
-		{
-			InputView erroInput = new("Acesso Não Autorizado");
-			erroInput.ConstruirLayout();
-
-			erroInput.LerEntrada("Erro",
-			                     """
-			                     Você não tem permissão para acessar esse recurso. 
-			                     Pressione [Enter] para sair.
-			                     """);
-
-			return;
-		}
+		if (!AcessoRestrito()) return;
 
 		CadastroUsuarioView inputCadastro = new("Cadastro de Usuário");
 		inputCadastro.Cadastrar();
@@ -149,8 +132,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 			return;
 		}
 
-		var novaMatricula = cargoEscolhido.Nome
-			is CargosPadrao.CargoAlunos
+		var novaMatricula = cargoEscolhido.Nome is CargosPadrao.CargoAlunos
 			? CriarMatricula(inputCadastro.DadosCadastro)
 			: null;
 
@@ -191,7 +173,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		InputView inputSucesso = new("Usuário Cadastrado");
 		inputSucesso.ConstruirLayout();
-		
+
 		inputSucesso.LerEntrada("Sair", mensagemOperacao);
 	}
 
