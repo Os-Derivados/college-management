@@ -2,7 +2,8 @@
 using college_management.Middlewares;
 using college_management.Utilitarios;
 
-UtilitarioArquivos.Incializar();
+
+UtilitarioArquivos.Inicializar();
 
 BaseDeDados baseDeDados = new();
 

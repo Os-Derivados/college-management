@@ -1,6 +1,7 @@
 using college_management.Constantes;
 using college_management.Dados;
 using college_management.Dados.Modelos;
+using college_management.Dados.Repositorios;
 
 
 namespace college_management.Utilitarios;
@@ -71,10 +72,9 @@ public static class UtilitarioSeed
 		await baseDeDados.Matriculas.Adicionar(matriculaTeste);
 	}
 
-	private static (string, string, CredenciaisUsuario) ObterCredenciais(
-		string login,
-		string nome,
-		string senha)
+	private static (string, string, CredenciaisUsuario) ObterCredenciais(string login,
+	                                                         string nome,
+	                                                         string senha)
 	{
 		_ = UtilitarioAmbiente
 		    .Variaveis
@@ -88,11 +88,6 @@ public static class UtilitarioSeed
 		    .Variaveis
 		    .TryGetValue(senha, out var senhaDefault);
 
-		var sal = UtilitarioCriptografia.GerarSal();
-		CredenciaisUsuario credenciais
-			= new(UtilitarioCriptografia.CriptografarSha256(senhaDefault, sal),
-			      sal);
-
-		return (loginDefault, nomeDefault, credenciais);
+        return (loginDefault, nomeDefault, new(senhaDefault));
 	}
 }
