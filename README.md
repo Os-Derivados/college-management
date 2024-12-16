@@ -64,9 +64,9 @@ Módulos como o `UtilitárioAmbiente` servirão como portas de entrada para aces
 # Sintaxe: NOME=valor
 
 # Define credenciais a serem utilizadas pelo Usuário Mestre
-ADMIN_PASSWORD=admin12345
-ADMIN_LOGIN=master.admin
-ADMIN_USER=Master
+ADMIN_USER_PASSWORD=admin12345
+ADMIN_USER_LOGIN=master.admin
+ADMIN_USER_NAME=Master
 
 # Define credenciais para acessar o sistema em modo de Desenvolvimento
 TEST_USER_NAME=Usuario Teste
