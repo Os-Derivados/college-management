@@ -162,5 +162,57 @@ public class ContextoCursos : Contexto<Curso>,
         inputRelatorio.LerEntrada("Sair", relatorioView.Layout.ToString());
     }
 
-	public override void VerDetalhes() { throw new NotImplementedException(); }
+	public override void VerDetalhes()
+	{
+        var naoTemRestricao = CargoContexto.TemPermissao(PermissoesAcesso.AcessoAdministradores)
+                      || CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita);
+
+        if (!naoTemRestricao) { }
+
+        MenuView menuPesquisa = new("Pesquisar Curso",
+                                    "Escolha o método de pesquisa.",
+                                    ["Nome", "ID"]);
+
+        menuPesquisa.ConstruirLayout();
+        menuPesquisa.LerEntrada();
+
+        (string Campo, string Mensagem)? campoPesquisa = menuPesquisa.OpcaoEscolhida switch
+        {
+            1 => ("Nome", "Insira o Nome do curso: "),
+            2 => ("ID", "Insira o ID do curso: "),
+            _ => ("Campo", "Campo inválido. Tente novamente.")
+        };
+
+        InputView inputPesquisa = new("Ver Grade Curricular: Pesquisar Curso");
+
+        inputPesquisa.LerEntrada(campoPesquisa?.Campo!, campoPesquisa?.Mensagem);
+
+        Curso? curso = null;
+
+        if (menuPesquisa.OpcaoEscolhida == 1)
+        {
+            var nome = inputPesquisa.ObterEntrada("Nome");
+            curso = BaseDeDados.Cursos.ObterPorNome(nome);
+        }
+        else if (menuPesquisa.OpcaoEscolhida == 2)
+        {
+            var id = inputPesquisa.ObterEntrada("ID");
+            curso = BaseDeDados.Cursos.ObterPorId(id);
+        }
+        else
+        {
+            return;
+        }
+
+        Dictionary<string, string> detalhes =
+            UtilitarioTipos.ObterPropriedades(curso,
+                                              ["Nome", "GradeCurricular", "MatriculasIds"]);
+
+        detalhes.Add("CargaHoraria", $"{curso.ObterCargaHoraria()}h");
+
+        DetalhesView detalhesCurso = new("Curso Encontrado", detalhes);
+        detalhesCurso.ConstruirLayout();
+
+        inputPesquisa.LerEntrada("Sair", detalhesCurso.Layout.ToString());
+    }
 }
