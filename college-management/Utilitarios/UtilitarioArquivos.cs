@@ -16,7 +16,7 @@ public static class UtilitarioArquivos
 	public static readonly string DiretorioLayouts =
 		Path.Combine(DiretorioBase, "Layouts");
 
-	public static void Incializar()
+	public static void Inicializar()
 	{
 		string[] diretorios =
 			[DiretorioBase, DiretorioDados, DiretorioLayouts];
