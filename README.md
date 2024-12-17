@@ -31,7 +31,7 @@ touch .env
 # Obs.: substitua [username] pelo seu nome de usuário.
 
 cd C:\Users\username\AppData\Roaming\OsDerivados\CollegeManagement
-New-Item Type -File .env
+New-Item -Type File .env
 ```
 
 > **_Observação:_** Você só deve realizar esta tarefa uma única vez.
