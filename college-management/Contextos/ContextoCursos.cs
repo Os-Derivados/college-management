@@ -75,7 +75,7 @@ public class ContextoCursos : Contexto<Curso>,
         var obterLayout = (Curso curso) =>
         {
             return $"Curso: {curso.Nome}\n" +
-                   $"Ano: 2024\n\n" +
+                   $"Ano: {DateTime.Today.Year}\n\n" +
                    $"{string.Join('\n', curso.GradeCurricular.Select(i => i.Nome))}";
         };
 
