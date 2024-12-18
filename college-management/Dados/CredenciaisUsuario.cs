@@ -10,7 +10,7 @@ public class CredenciaisUsuario
     public CredenciaisUsuario(string senha, string? sal = null)
     {
         Sal = sal ?? UtilitarioCriptografia.GerarSal();
-        Senha = senha.Length >= 64 ? senha : UtilitarioCriptografia.CriptografarSha256(senha, sal);
+        Senha = senha.Length >= 64 ? senha : UtilitarioCriptografia.CriptografarSha256(senha, Sal);
     }
 
     public bool Validar(string senha)

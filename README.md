@@ -31,7 +31,7 @@ touch .env
 # Obs.: substitua [username] pelo seu nome de usuário.
 
 cd C:\Users\username\AppData\Roaming\OsDerivados\CollegeManagement
-New-Item Type -File .env
+New-Item -Type File .env
 ```
 
 > **_Observação:_** Você só deve realizar esta tarefa uma única vez.
@@ -64,9 +64,9 @@ Módulos como o `UtilitárioAmbiente` servirão como portas de entrada para aces
 # Sintaxe: NOME=valor
 
 # Define credenciais a serem utilizadas pelo Usuário Mestre
-ADMIN_PASSWORD=admin12345
-ADMIN_LOGIN=master.admin
-ADMIN_USER=Master
+ADMIN_USER_PASSWORD=admin12345
+ADMIN_USER_LOGIN=master.admin
+ADMIN_USER_NAME=Master
 
 # Define credenciais para acessar o sistema em modo de Desenvolvimento
 TEST_USER_NAME=Usuario Teste
