@@ -150,37 +150,45 @@ public class ContextoCursos : Contexto<Curso>,
     private Curso PesquisarCurso()
     {
         MenuView menuPesquisa = new("Pesquisar Curso",
-                            "Escolha o método de pesquisa.",
-                            ["Nome", "Id"]);
-
-        menuPesquisa.ConstruirLayout();
-        menuPesquisa.LerEntrada();
-
-        (string Campo, string Mensagem)? campoPesquisa = menuPesquisa.OpcaoEscolhida switch
-        {
-            1 => ("Nome", "Insira o Nome do curso: "),
-            2 => ("Id", "Insira o Id do curso: "),
-            _ => ("Campo", "Campo inválido. Tente novamente.")
-        };
+                "Escolha o método de pesquisa.",
+                ["Nome", "Id"]);
 
         InputView inputPesquisa = new("Ver Grade Curricular: Pesquisar Curso");
 
-        Curso? curso = null;
-
-        inputPesquisa.LerEntrada(campoPesquisa?.Campo!, campoPesquisa?.Mensagem);
-        curso = menuPesquisa.OpcaoEscolhida switch
+        // Real lógica da pesquisa.
+        var operacao = () =>
         {
-            1 => BaseDeDados.Cursos.ObterPorNome(inputPesquisa.ObterEntrada("Nome")),
-            2 => BaseDeDados.Cursos.ObterPorNome(inputPesquisa.ObterEntrada("Id")),
-            _ => null
+            menuPesquisa.ConstruirLayout();
+            menuPesquisa.LerEntrada();
+
+            (string Campo, string Mensagem)? campoPesquisa = menuPesquisa.OpcaoEscolhida switch
+            {
+                1 => ("Nome", "Insira o Nome do curso: "),
+                2 => ("Id", "Insira o Id do curso: "),
+                _ => throw new InvalidOperationException("Campo inválido. Tente novamente.")
+            };
+
+            Curso? curso = null;
+
+            inputPesquisa.LerEntrada(campoPesquisa?.Campo!, campoPesquisa?.Mensagem);
+            curso = menuPesquisa.OpcaoEscolhida switch
+            {
+                1 => BaseDeDados.Cursos.ObterPorNome(inputPesquisa.ObterEntrada("Nome")),
+                2 => BaseDeDados.Cursos.ObterPorNome(inputPesquisa.ObterEntrada("Id")),
+                _ => null
+            };
+
+            return curso ?? throw new Exception("Curso não encontrado.");
         };
 
-        if (curso is null)
+        try
         {
-            inputPesquisa.LerEntrada("Erro", "Curso não encontrado.");
+            return operacao();
+        }
+        catch (Exception e) when (e is InvalidOperationException || e is Exception)
+        {
+            inputPesquisa.LerEntrada("Erro", e.Message);
             return PesquisarCurso();
         }
-
-        return curso;
     }
 }
