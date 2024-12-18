@@ -90,9 +90,6 @@ public static class UtilitarioSeed
 		    .Variaveis
 		    .TryGetValue(senha, out var senhaDefault);
 
-		var sal = UtilitarioCriptografia.GerarSal();
-        CredenciaisUsuario credenciais = new(UtilitarioCriptografia.CriptografarSha256(senhaDefault, sal), sal);
-
-        return (loginDefault, nomeDefault, credenciais);
+        return (loginDefault, nomeDefault, new(senhaDefault));
 	}
 }
