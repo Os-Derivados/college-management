@@ -17,7 +17,11 @@ public class ContextoCursos : Contexto<Curso>,
 		base(baseDeDados,
 		     usuarioContexto) { }
 
-	public void VerGradeHoraria()
+    private bool TemPermissoes => CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita) ||
+            CargoContexto.TemPermissao(PermissoesAcesso.AcessoAdministradores);
+
+
+    public void VerGradeHoraria()
 	{
 		// TODO: Desenvolver um algoritmo para visualização de grade horária
 		// [REQUISITO]: A visualização deve ser em formato de relatório
@@ -89,12 +93,11 @@ public class ContextoCursos : Contexto<Curso>,
 
         InputView inputRelatorio = new("Ver Grade Curricular");
 
-		if (CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita) ||
-            CargoContexto.TemPermissao(PermissoesAcesso.AcessoAdministradores))
+		if (TemPermissoes)
 		{
             MenuView menuPesquisa = new("Pesquisar Curso",
                                         "Escolha o método de pesquisa.",
-                                        ["Nome", "ID"]);
+                                        ["Nome", "Id"]);
 
             menuPesquisa.ConstruirLayout();
             menuPesquisa.LerEntrada();
@@ -102,7 +105,7 @@ public class ContextoCursos : Contexto<Curso>,
             (string Campo, string Mensagem)? campoPesquisa = menuPesquisa.OpcaoEscolhida switch
             {
                 1 => ("Nome", "Insira o Nome do curso: "),
-                2 => ("ID", "Insira o ID do curso: "),
+                2 => ("Id", "Insira o Id do curso: "),
                 _ => ("Campo", "Campo inválido. Tente novamente.")
             };
 
@@ -119,7 +122,7 @@ public class ContextoCursos : Contexto<Curso>,
             }
             else if (menuPesquisa.OpcaoEscolhida == 2)
             {
-                var id = inputPesquisa.ObterEntrada("ID");
+                var id = inputPesquisa.ObterEntrada("Id");
                 curso = BaseDeDados.Cursos.ObterPorId(id);
             }
 			else
@@ -135,7 +138,7 @@ public class ContextoCursos : Contexto<Curso>,
 
         try
         {
-            Aluno? aluno = UsuarioContexto as Aluno ?? throw new InvalidOperationException("O atual usuário não é um aluno.");
+            Aluno? aluno = UsuarioContexto as Aluno ?? throw new InvalidOperationException("O usuário atual não é um aluno.");
             layout = obterLayoutAluno(aluno);
         }
         catch (InvalidOperationException e)
@@ -164,14 +167,9 @@ public class ContextoCursos : Contexto<Curso>,
 
 	public override void VerDetalhes()
 	{
-        var naoTemRestricao = CargoContexto.TemPermissao(PermissoesAcesso.AcessoAdministradores)
-                      || CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita);
-
-        if (!naoTemRestricao) { }
-
         MenuView menuPesquisa = new("Pesquisar Curso",
                                     "Escolha o método de pesquisa.",
-                                    ["Nome", "ID"]);
+                                    ["Nome", "Id"]);
 
         menuPesquisa.ConstruirLayout();
         menuPesquisa.LerEntrada();
@@ -179,7 +177,7 @@ public class ContextoCursos : Contexto<Curso>,
         (string Campo, string Mensagem)? campoPesquisa = menuPesquisa.OpcaoEscolhida switch
         {
             1 => ("Nome", "Insira o Nome do curso: "),
-            2 => ("ID", "Insira o ID do curso: "),
+            2 => ("Id", "Insira o Id do curso: "),
             _ => ("Campo", "Campo inválido. Tente novamente.")
         };
 
@@ -196,7 +194,7 @@ public class ContextoCursos : Contexto<Curso>,
         }
         else if (menuPesquisa.OpcaoEscolhida == 2)
         {
-            var id = inputPesquisa.ObterEntrada("ID");
+            var id = inputPesquisa.ObterEntrada("Id");
             curso = BaseDeDados.Cursos.ObterPorId(id);
         }
         else
