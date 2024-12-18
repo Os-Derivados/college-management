@@ -2,7 +2,8 @@ using college_management.Constantes;
 using college_management.Contextos.Interfaces;
 using college_management.Dados;
 using college_management.Dados.Modelos;
-using college_management.Dados.Repositorios;
+using college_management.Utilitarios;
+using college_management.Views;
 
 
 namespace college_management.Contextos;
@@ -16,7 +17,10 @@ public class ContextoCursos : Contexto<Curso>,
 		base(baseDeDados,
 		     usuarioContexto) { }
 
-	public void VerGradeHoraria()
+    private bool TemPermissoes => CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita) ||
+            CargoContexto.TemPermissao(PermissoesAcesso.AcessoAdministradores);
+
+    public void VerGradeHoraria()
 	{
 		// TODO: Desenvolver um algoritmo para visualização de grade horária
 		// [REQUISITO]: A visualização deve ser em formato de relatório
@@ -71,51 +75,44 @@ public class ContextoCursos : Contexto<Curso>,
 
 	public void VerGradeCurricular()
 	{
-		// TODO: Desenvolver um algoritmo para visualizar a grade curricular
-		// [REQUISITO]: A visualização deve mostrar as Materias de todos
-		// os semestres do Curso em questão, segregados por semestre,
-		// de descritiva
-		//
-		// Ex.: Ver Grade Curricular do Curso "Ciência da Computação"
-		//
-		// Curso: Ciência da Computação
-		// Ano: 2024
-		// 
-		// 1o Semestre:
-		//
-		// Geometria Analítica
-		// Matemática Discreta
-		// Algoritmos e Programação de Computadores I
-		// Tópicos de Matemática
-		// Fundamentos de Lógica
-		// ...
+        var obterLayout = (Curso curso) =>
+        {
+            return $"Curso: {curso.Nome}\n" +
+                   $"Ano: {DateTime.Today.Year}\n\n" +
+                   $"{string.Join('\n', curso.GradeCurricular.Select(i => i.Nome))}";
+        };
 
-		if (CargoContexto.TemPermissao(PermissoesAcesso
-			                               .AcessoEscrita))
-			// [REQUISITO]: A visualização do Gestor deve permitir a busca
-			// de um Curso em específico na base de dados
-			//
-			// Ex.: Ver Grade Horária do Curso "Ciência da Computação" 
-			//
-			// [Ver Grade Horária]
-			// Selecione um campo abaixo campo para realizar a busca
-			//
-			// [1] Nome
-			// [2] Id
-			// 
-			// Sua opção: 1 <- Opção que o usuário escolheu 
-			// ...
-			//
-			// Digite o nome do Curso: "Ciência da Computação" <- Nome
-			// digitado pelo usuário
-			// ...
-			throw new NotImplementedException();
+        var obterLayoutAluno = (Aluno aluno) =>
+        {
+            var curso = BaseDeDados.Cursos.ObterTodos()
+                .Where(i => i.MatriculasIds?.Contains(aluno.MatriculaId) ?? false)
+                .FirstOrDefault() ?? throw new InvalidOperationException("O atual usuário não está matriculado em nenhum curso.");
+            return obterLayout(curso);
+        };
 
-		// [REQUISITO]: A visualização do Aluno deve permitir somente
-		// a visualização da grade curricular do Curso no qual ele
-		// atualmente esteja vinculado
+        InputView inputRelatorio = new("Ver Grade Curricular");
 
-		throw new NotImplementedException();
+		if (TemPermissoes)
+		{
+            Curso curso = PesquisarCurso();
+            inputRelatorio.LerEntrada("Sair", obterLayout(curso));
+			return;
+		}
+
+        string layout = string.Empty;
+
+        try
+        {
+            Aluno? aluno = UsuarioContexto as Aluno ?? throw new InvalidOperationException("O usuário atual não é um aluno.");
+            layout = obterLayoutAluno(aluno);
+        }
+        catch (InvalidOperationException e)
+        {
+            inputRelatorio.LerEntrada("Erro", e.Message);
+            return;
+        }
+
+        inputRelatorio.LerEntrada("Sair", layout);
 	}
 
 	public override async Task Cadastrar() { throw new NotImplementedException(); }
@@ -124,6 +121,74 @@ public class ContextoCursos : Contexto<Curso>,
 
 	public override async Task Excluir() { throw new NotImplementedException(); }
 
-	public override void Visualizar()  { throw new NotImplementedException(); }
-	public override void VerDetalhes() { throw new NotImplementedException(); }
+	public override void Visualizar()
+	{
+        RelatorioView<Curso> relatorioView = new("Visualizar Cursos", BaseDeDados.Cursos.ObterTodos());
+        relatorioView.ConstruirLayout();
+
+        InputView inputRelatorio = new(relatorioView.Titulo);
+        inputRelatorio.LerEntrada("Sair", relatorioView.Layout.ToString());
+    }
+
+	public override void VerDetalhes()
+	{
+        Curso curso = PesquisarCurso();
+
+        Dictionary<string, string> detalhes =
+            UtilitarioTipos.ObterPropriedades(curso, ["Nome"]);
+
+        detalhes.Add("MateriasId", $"{string.Join(", ", curso.MatriculasIds ?? new())}");
+        detalhes.Add("GradeCurricular", $"{string.Join(", ", curso.GradeCurricular.Select(i => i.Nome))}");
+        detalhes.Add("CargaHoraria", $"{curso.ObterCargaHoraria()}h");
+
+        DetalhesView detalhesCurso = new("Curso Encontrado", detalhes);
+        detalhesCurso.ConstruirLayout();
+
+        new InputView("Cursos: Ver Detalhes").LerEntrada("Sair", detalhesCurso.Layout.ToString());
+    }
+
+    private Curso PesquisarCurso()
+    {
+        MenuView menuPesquisa = new("Pesquisar Curso",
+                "Escolha o método de pesquisa.",
+                ["Nome", "Id"]);
+
+        InputView inputPesquisa = new("Ver Grade Curricular: Pesquisar Curso");
+
+        // Real lógica da pesquisa.
+        var operacao = () =>
+        {
+            menuPesquisa.ConstruirLayout();
+            menuPesquisa.LerEntrada();
+
+            (string Campo, string Mensagem)? campoPesquisa = menuPesquisa.OpcaoEscolhida switch
+            {
+                1 => ("Nome", "Insira o Nome do curso: "),
+                2 => ("Id", "Insira o Id do curso: "),
+                _ => throw new InvalidOperationException("Campo inválido. Tente novamente.")
+            };
+
+            Curso? curso = null;
+
+            inputPesquisa.LerEntrada(campoPesquisa?.Campo!, campoPesquisa?.Mensagem);
+            curso = menuPesquisa.OpcaoEscolhida switch
+            {
+                1 => BaseDeDados.Cursos.ObterPorNome(inputPesquisa.ObterEntrada("Nome")),
+                2 => BaseDeDados.Cursos.ObterPorNome(inputPesquisa.ObterEntrada("Id")),
+                _ => null
+            };
+
+            return curso ?? throw new Exception("Curso não encontrado.");
+        };
+
+        try
+        {
+            return operacao();
+        }
+        catch (Exception e) when (e is InvalidOperationException || e is Exception)
+        {
+            inputPesquisa.LerEntrada("Erro", e.Message);
+            return PesquisarCurso();
+        }
+    }
 }
