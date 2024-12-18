@@ -12,13 +12,8 @@ public sealed class InputView : View, IInputView
 	private string? _mensagem;
 
 	public InputView(string titulo) :
-		base(titulo) { }
-
-	public override void ConstruirLayout()
+		base(titulo)
 	{
-		Layout.AppendLine(Titulo);
-		Layout.AppendLine();
-		Layout.Append(_mensagem);
 	}
 
 	public void LerEntrada(string chave, string? mensagem = null)
@@ -45,5 +40,15 @@ public sealed class InputView : View, IInputView
 		_ = EntradasUsuario.TryGetValue(chave, out var entrada);
 
 		return entrada ?? "";
+	}
+
+	public override string ConstruirLayout()
+	{
+		Layout.AppendLine(Titulo);
+		Layout.AppendLine(GerarDivisoria('-'));
+		Layout.AppendLine();
+		Layout.Append(_mensagem);
+		
+		return Layout.ToString();
 	}
 }

@@ -1,12 +1,15 @@
-using college_management.Dados;
 using college_management.Dados.Modelos;
-using college_management.Dados.Repositorios;
 
 
 namespace college_management.Contextos.Interfaces;
 
 
-public interface IContexto<T> where T : Modelo
+public interface IContexto
+{
+	public bool AcessoRestrito();
+}
+
+public interface IContexto<T> : IContexto where T : Modelo
 {
 	public Task Cadastrar();
 	public Task Editar();

@@ -1,4 +1,3 @@
-using System.Reflection;
 using college_management.Dados.Modelos;
 using college_management.Utilitarios;
 
@@ -16,10 +15,10 @@ public class RelatorioView<T> : View where T : Modelo
 		_modelos = modelos;
 	}
 
-	public override void ConstruirLayout()
+	public override string ConstruirLayout()
 	{
-		var             tipo         = typeof(T);
-		PropertyInfo[]? propriedades = tipo.GetProperties();
+		var tipo         = typeof(T);
+		var propriedades = tipo.GetProperties();
 		var nomesPropriedades =
 			UtilitarioTipos.ObterNomesPropriedades(propriedades);
 
@@ -32,5 +31,7 @@ public class RelatorioView<T> : View where T : Modelo
 
 		foreach (var modelo in _modelos)
 			Layout.AppendLine(modelo.ToString());
+		
+		return Layout.ToString();
 	}
 }

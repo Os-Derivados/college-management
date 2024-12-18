@@ -1,5 +1,4 @@
 using System.Globalization;
-using System.Text;
 
 
 namespace college_management.Dados.Modelos;
@@ -7,6 +6,8 @@ namespace college_management.Dados.Modelos;
 
 public class Curso : Modelo
 {
+	private static double _contagemId = 10000000000;
+
 	public Curso(string nome, Materia[] gradeCurricular)
 	{
 		Nome            = nome;
@@ -15,8 +16,6 @@ public class Curso : Modelo
 		Id = _contagemId.ToString(CultureInfo.InvariantCulture);
 		_contagemId++;
 	}
-
-	private static double _contagemId = 10000000000;
 
 	public string?       Nome            { get; set; }
 	public Materia[]     GradeCurricular { get; set; }

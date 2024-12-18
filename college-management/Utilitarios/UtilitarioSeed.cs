@@ -62,8 +62,7 @@ public static class UtilitarioSeed
 		var alunoTeste = new Aluno(loginTeste,
 		                           nomeTeste,
 		                           senhaTeste,
-		                           cargoAluno.Id,
-		                           matriculaTeste.Id);
+		                           cargoAluno.Id);
 
 		await baseDeDados.Usuarios.Adicionar(alunoTeste);
 

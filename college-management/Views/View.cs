@@ -7,8 +7,8 @@ namespace college_management.Views;
 
 public abstract class View : IView
 {
-	public readonly StringBuilder Layout = new();
-	public readonly string        Titulo;
+	protected readonly StringBuilder Layout = new();
+	public readonly    string        Titulo;
 
 	protected View(string titulo) { Titulo = titulo; }
 
@@ -18,5 +18,20 @@ public abstract class View : IView
 		Console.Write(Layout.ToString());
 	}
 
-	public virtual void ConstruirLayout() { Layout.AppendLine(Titulo); }
+	public virtual string ConstruirLayout()
+	{
+		Layout.AppendLine(Titulo);
+
+		return Layout.ToString();
+	}
+
+	public string GerarDivisoria(char separador)
+	{
+		StringBuilder divisoria = new();
+
+		for (var i = 0; i < Console.WindowWidth; i++)
+			divisoria.Append(separador);
+
+		return divisoria.ToString();
+	}
 }

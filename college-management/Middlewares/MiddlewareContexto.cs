@@ -1,7 +1,7 @@
 using college_management.Constantes;
+using college_management.Contextos;
 using college_management.Dados;
 using college_management.Dados.Modelos;
-using college_management.Contextos;
 using college_management.Views;
 
 
@@ -11,7 +11,7 @@ namespace college_management.Middlewares;
 public static class MiddlewareContexto
 {
 	public static void Inicializar(BaseDeDados baseDeDados,
-	                               Usuario     usuario)
+	                               Usuario usuario)
 	{
 		var cargoUsuario  = baseDeDados.Cargos.ObterPorId(usuario.CargoId);
 		var opcaoContexto = EscolherContexto(cargoUsuario);
@@ -48,7 +48,7 @@ public static class MiddlewareContexto
 	}
 
 	private static void AcessarContexto<T>(Contexto<T> contexto)
-	where T : Modelo
+		where T : Modelo
 	{
 		var estadoAtual = EstadoDoApp.Recurso;
 
@@ -63,8 +63,7 @@ public static class MiddlewareContexto
 			if (opcaoEscolhida.Key is not ConsoleKey.D0)
 			{
 				var recursoEscolhido =
-					ConverterParaMetodo(contexto,
-					                    opcaoEscolhida);
+					ConverterParaMetodo(contexto, opcaoEscolhida);
 
 				Console.Clear();
 
@@ -74,22 +73,19 @@ public static class MiddlewareContexto
 			{
 				estadoAtual = EstadoDoApp.Sair;
 			}
-		}
-		while (estadoAtual is EstadoDoApp.Recurso);
+		} while (estadoAtual is EstadoDoApp.Recurso);
 	}
 
-	private static string ConverterParaMetodo<T>(Contexto<T>    contexto,
+	private static string ConverterParaMetodo<T>(Contexto<T> contexto,
 	                                             ConsoleKeyInfo indice)
-	where T : Modelo
+		where T : Modelo
 	{
 		var recursosDisponiveis = contexto.ObterOpcoes();
 
 		_ = int.TryParse(indice.KeyChar.ToString(), out var i);
 
 		var recursoEscolhido = recursosDisponiveis
-		                       .Select(r => r
-		                                    .Trim()
-		                                    .Replace(" ", ""))
+		                       .Select(r => r.Trim().Replace(" ", ""))
 		                       .ElementAt(i - 1);
 
 		return recursoEscolhido;
@@ -123,8 +119,7 @@ public static class MiddlewareContexto
 
 			contextoEscolhido = opcoesContextos[opcaoUsuario - 1];
 			estadoAtual       = EstadoDoApp.Recurso;
-		}
-		while (estadoAtual is EstadoDoApp.Contexto);
+		} while (estadoAtual is EstadoDoApp.Contexto);
 
 		return contextoEscolhido;
 	}
@@ -132,12 +127,13 @@ public static class MiddlewareContexto
 	private static string[] ObterOpcoesContextos(Cargo cargoUsuario)
 	{
 		var temPermissoesAdmin = cargoUsuario
-			                         .TemPermissao(PermissoesAcesso.AcessoEscrita)
+			                         .TemPermissao(
+				                         PermissoesAcesso.AcessoEscrita)
 		                         || cargoUsuario
 			                         .TemPermissao(PermissoesAcesso.AcessoAdministradores);
 
 		return temPermissoesAdmin
-			       ? AcessosContexto.ContextoEscrita
-			       : AcessosContexto.ContextoLeitura;
+			? AcessosContexto.ContextoEscrita
+			: AcessosContexto.ContextoLeitura;
 	}
 }

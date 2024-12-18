@@ -1,10 +1,6 @@
-using System.Reflection;
-using System.Text;
 using college_management.Constantes;
 using college_management.Dados.Modelos;
-using college_management.Dados.Repositorios;
 using college_management.Servicos.Interfaces;
-using college_management.Utilitarios;
 using Microsoft.VisualBasic.FileIO;
 
 
@@ -12,11 +8,11 @@ namespace college_management.Servicos;
 
 
 public sealed class ServicoRelatorios<T> : IServicoRelatorios<T>
-where T : Modelo
+	where T : Modelo
 {
 	private readonly string  _arquivoRelatorios;
-	private readonly Usuario _usuario;
 	private readonly List<T> _modelos;
+	private readonly Usuario _usuario;
 
 	public ServicoRelatorios(Usuario usuario,
 	                         List<T> modelos)
@@ -35,9 +31,9 @@ where T : Modelo
 	public string GerarRelatorio(T modelo, Cargo? cargoUsuario)
 	{
 		return cargoUsuario
-			       .TemPermissao(PermissoesAcesso.AcessoEscrita)
-			       ? GerarEntradasRelatorio()
-			       : modelo.ToString();
+			.TemPermissao(PermissoesAcesso.AcessoEscrita)
+			? GerarEntradasRelatorio()
+			: modelo.ToString();
 	}
 
 	public string GerarEntradasRelatorio()

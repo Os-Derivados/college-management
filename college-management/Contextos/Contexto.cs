@@ -10,20 +10,63 @@ namespace college_management.Contextos;
 
 public abstract class Contexto<T> : IContexto<T> where T : Modelo
 {
+	protected readonly BaseDeDados BaseDeDados;
+	protected readonly Cargo       CargoContexto;
+	protected readonly Usuario     UsuarioContexto;
+
 	protected Contexto(BaseDeDados baseDeDados,
-	                   Usuario     usuarioContexto)
+	                   Usuario usuarioContexto)
 	{
 		BaseDeDados     = baseDeDados;
 		UsuarioContexto = usuarioContexto;
-		CargoContexto
-			= BaseDeDados
-			  .Cargos
-			  .ObterPorId(UsuarioContexto.CargoId);
+		CargoContexto = BaseDeDados
+		                .Cargos
+		                .ObterPorId(UsuarioContexto.CargoId);
 	}
 
-	protected readonly BaseDeDados BaseDeDados;
-	protected readonly Usuario     UsuarioContexto;
-	protected readonly Cargo       CargoContexto;
+	public void AcessarRecurso(string nomeRecurso)
+	{
+		var interfacesContexto = GetType().GetInterfaces();
+
+		var recurso =
+			interfacesContexto
+				.Select(t => t.GetMethod(nomeRecurso))
+				.FirstOrDefault(t => t is not null);
+
+		if (recurso is null)
+			throw new InvalidOperationException("Recurso inexistente");
+
+		var task = (Task)recurso.Invoke(this, []);
+
+		task?.Wait();
+	}
+
+	public bool AcessoRestrito()
+	{
+		if (CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita) ||
+		    CargoContexto.TemPermissao(PermissoesAcesso.AcessoAdministradores))
+		{
+			return true;
+		}
+
+		InputView inputPermissao = new("Permissão insuficiente");
+		inputPermissao.ConstruirLayout();
+
+		inputPermissao.LerEntrada("Erro",
+		                          "Você não tem permissão para acessar este recurso. Pressione qualquer");
+
+		return false;
+	}
+
+	public abstract Task Cadastrar();
+
+	public abstract Task Editar();
+
+	public abstract Task Excluir();
+
+	public abstract void Visualizar();
+
+	public abstract void VerDetalhes();
 
 	public void ListarOpcoes()
 	{
@@ -41,8 +84,10 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 	{
 		string[] recursosDisponiveis;
 
-		var temPermissaoAdmin = CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita)
-		                        || CargoContexto.TemPermissao(PermissoesAcesso.AcessoAdministradores);
+		var temPermissaoAdmin
+			= CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita)
+			  || CargoContexto.TemPermissao(
+				  PermissoesAcesso.AcessoAdministradores);
 
 		if (temPermissaoAdmin)
 		{
@@ -71,32 +116,4 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 
 		return recursosDisponiveis;
 	}
-
-	public void AcessarRecurso(string nomeRecurso)
-	{
-		Type[] interfacesContexto = GetType().GetInterfaces();
-
-		var recurso =
-			interfacesContexto
-				.Select(t => t.GetMethod(nomeRecurso))
-				.FirstOrDefault(t => t is not null);
-
-		if (recurso is null)
-			throw new
-				InvalidOperationException("Recurso inexistente");
-
-		var task = (Task) recurso.Invoke(this, []);
-
-		task?.Wait();
-	}
-
-	public abstract Task Cadastrar();
-
-	public abstract Task Editar();
-
-	public abstract Task Excluir();
-
-	public abstract void Visualizar();
-
-	public abstract void VerDetalhes();
 }

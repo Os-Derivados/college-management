@@ -14,9 +14,11 @@ public class ContextoUsuarios : Contexto<Usuario>,
                                 IContextoUsuarios
 {
 	public ContextoUsuarios(BaseDeDados baseDeDados,
-	                        Usuario     usuarioContexto) :
+	                        Usuario usuarioContexto) :
 		base(baseDeDados,
-		     usuarioContexto) { }
+		     usuarioContexto)
+	{
+	}
 
 	public void VerMatricula()
 	{
@@ -101,195 +103,125 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 	public override async Task Cadastrar()
 	{
-		var temPermissao =
-			CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita)
-			|| CargoContexto.TemPermissao(PermissoesAcesso.AcessoAdministradores);
+		if (!AcessoRestrito()) return;
 
-		InputView inputUsuario = new("Cadastrar Usuário");
-		inputUsuario.ConstruirLayout();
+		CadastroUsuarioView inputCadastro = new("Cadastro de Usuário");
+		inputCadastro.Cadastrar();
 
-		if (!temPermissao)
-		{
-			inputUsuario.LerEntrada("Erro",
-			                        "Você não tem permissão "
-			                        + "para acessar esse recurso. ");
+		DetalhesView detalhesView
+			= new("Confirmar Cadastro", inputCadastro.DadosCadastro);
 
-			return;
-		}
+		ConfirmacaoView confirmarCadastro = new("Confirmar Cadastro");
+		confirmarCadastro.Confirmar(detalhesView.ConstruirLayout());
 
-		Dictionary<string, string> cadastroUsuario
-			= ObterCadastroUsuario(inputUsuario);
+		if (confirmarCadastro.Confirmacao is not "s") return;
 
-		if (cadastroUsuario["Confirma"] is not "S") return;
+		var (nome, login, cargo, senha) = inputCadastro.ObterDadosBase();
 
-		var cargoEscolhido = BaseDeDados
-		                     .Cargos
-		                     .ObterPorNome(cadastroUsuario
-			                                   ["Cargo"]);
+		var cargoEscolhido = BaseDeDados.Cargos.ObterPorNome(cargo);
 
-		if (cargoEscolhido is null)
-		{
-			inputUsuario.LerEntrada("Erro",
-			                        "O Cargo inserido não foi "
-			                        + "encontrado na base de dados."
-			                        + "Pressione Enter para continuar.");
+		ValidacaoView<Cargo> validacaoCargo = new("Validação Cargo", cargoEscolhido);
 
-			return;
-		}
+		if (! validacaoCargo.ValidarModelo()) return;
 
-		var novaMatricula = cargoEscolhido.Nome
-			                    is CargosPadrao.CargoAlunos
-			                    ? CriarMatricula(cadastroUsuario)
-			                    : null;
+		var novaMatricula = cargoEscolhido.Nome is CargosPadrao.CargoAlunos
+			? Matricula.CriarMatricula(inputCadastro.DadosCadastro)
+			: null;
 
 		var cursoEscolhido = novaMatricula is not null
-			                     ? BaseDeDados
-			                       .Cursos
-			                       .ObterPorNome(cadastroUsuario["Curso"])
-			                     : null;
+			? BaseDeDados
+			  .Cursos
+			  .ObterPorNome(inputCadastro.DadosCadastro["Curso"])
+			: null;
 
-		Usuario? novoUsuario = cargoEscolhido.Nome switch
+		Usuario novoUsuario = cargoEscolhido.Nome switch
 		{
-			CargosPadrao.CargoAlunos => new Aluno(cadastroUsuario["Login"],
-			                                      cadastroUsuario["Nome"],
-			                                      new CredenciaisUsuario(cadastroUsuario["Senha"]),
-			                                      cargoEscolhido.Id,
-			                                      novaMatricula.Id),
-			_ => new Funcionario(cadastroUsuario["Login"],
-			                     cadastroUsuario["Nome"],
-			                     new CredenciaisUsuario(cadastroUsuario["Senha"]),
-			                     cargoEscolhido.Id)
+			CargosPadrao.CargoAlunos => new Aluno(login,
+			                                      nome,
+			                                      new CredenciaisUsuario(senha),
+			                                      cargoEscolhido.Id!),
+			_ => new Funcionario(login,
+			                     nome,
+			                     new CredenciaisUsuario(senha),
+			                     cargoEscolhido.Id!)
 		};
 
-		if (novoUsuario is null)
-		{
-			inputUsuario
-				.LerEntrada("Erro",
-				            $"Não foi possível criar um novo {nameof(Usuario)}.");
+		var foiAdicionado = await BaseDeDados.Usuarios.Adicionar(novoUsuario);
 
-			return;
-		}
-
-		var foiAdicionado
-			= await BaseDeDados.Usuarios.Adicionar(novoUsuario);
-
-		if (foiAdicionado
-		    && novaMatricula is not null
-		    && cursoEscolhido is not null)
+		if (foiAdicionado && novaMatricula is not null
+		                  && cursoEscolhido is not null)
 		{
 			novaMatricula.AlunoId = novoUsuario.Id;
 			novaMatricula.CursoId = cursoEscolhido.Id;
 
-			foiAdicionado = await BaseDeDados.Matriculas.Adicionar(novaMatricula);
+			foiAdicionado
+				= await BaseDeDados.Matriculas.Adicionar(novaMatricula);
 		}
 
 		var mensagemOperacao = foiAdicionado
-			                       ? $"{nameof(Usuario)} cadastrado com sucesso."
-			                       : $"Não foi possível cadastrar novo {nameof(Usuario)}.";
+			? $"{nameof(Usuario)} cadastrado com sucesso."
+			: $"Não foi possível cadastrar novo {nameof(Usuario)}.";
 
-		inputUsuario.LerEntrada("Sair", mensagemOperacao);
+		InputView inputSucesso = new("Usuário Cadastrado");
+		inputSucesso.ConstruirLayout();
+
+		inputSucesso.LerEntrada("Sair", mensagemOperacao);
 	}
 
-	private Dictionary<string, string> ObterCadastroUsuario(InputView inputUsuario)
-	{
-		KeyValuePair<string, string?>[] mensagensUsuario =
-		[
-			new("Nome", "Insira o Nome: "),
-			new("Login", "Insira o Login: "),
-			new("Senha", "Insira a Senha: "),
-			new("Cargo", "Insira o Cargo: ")
-		];
-
-		foreach (KeyValuePair<string, string?> mensagem
-		         in mensagensUsuario)
-			inputUsuario.LerEntrada(mensagem.Key,
-			                        mensagem.Value);
-
-		KeyValuePair<string, string?>[] mensagensAluno =
-		[
-			new("Periodo", "Insira o Período: "),
-			new("Curso", "Insira o nome do Curso: "),
-			new("Modalidade", "Insira a Modalidade: ")
-		];
-
-		if (inputUsuario.ObterEntrada("Cargo")
-		    is CargosPadrao.CargoAlunos)
-			foreach (KeyValuePair<string, string?> mensagem
-			         in mensagensAluno)
-				inputUsuario.LerEntrada(mensagem.Key,
-				                        mensagem.Value);
-
-		DetalhesView detalhesView = new("Confirmar Cadastro",
-		                                inputUsuario
-			                                .EntradasUsuario);
-
-		detalhesView.ConstruirLayout();
-
-		StringBuilder mensagemConfirmacao = new();
-		mensagemConfirmacao.AppendLine(detalhesView.Layout
-		                                           .ToString());
-
-		mensagemConfirmacao.AppendLine("Confirma o Cadastro?\n");
-		mensagemConfirmacao.Append("[S]im\t[N]ão: ");
-
-		inputUsuario.LerEntrada("Confirma",
-		                        mensagemConfirmacao.ToString());
-
-		return inputUsuario.EntradasUsuario;
-	}
-
-	private Matricula CriarMatricula(Dictionary<string, string> cadastroUsuario)
-	{
-		var conversaoValida = int.TryParse(cadastroUsuario["Periodo"],
-		                                   out var periodoCurso);
-
-		if (!conversaoValida) return null;
-
-		var modalidadeCurso =
-			cadastroUsuario["Modalidade"] switch
-			{
-				"Ead"        => Modalidade.Ead,
-				"Presencial" => Modalidade.Presencial,
-				"Hibrido"    => Modalidade.Hibrido,
-				_            => Modalidade.Invalido
-			};
-
-		if (modalidadeCurso is Modalidade.Invalido) return null;
-
-		Matricula novaMatricula = new(periodoCurso, modalidadeCurso);
-
-		return novaMatricula;
-	}
+	
 
 	public override async Task Editar() { throw new NotImplementedException(); }
 
-	public override async Task Excluir() { throw new NotImplementedException(); }
+	public override async Task Excluir()
+	{
+		throw new NotImplementedException();
+	}
 
 	public override void Visualizar()
 	{
-		var naoTemRestricao = CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita)
-		                      || CargoContexto.TemPermissao(PermissoesAcesso.AcessoAdministradores);
+		var naoTemRestricao
+			= CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita)
+			  || CargoContexto.TemPermissao(
+				  PermissoesAcesso.AcessoAdministradores);
 
 		RelatorioView<Usuario> relatorioView;
 
 		if (naoTemRestricao)
 			relatorioView = new RelatorioView<Usuario>("Visualizar Usuários",
-			                                           BaseDeDados.Usuarios.ObterTodos());
+				BaseDeDados.Usuarios.ObterTodos());
 		else
-			relatorioView = new RelatorioView<Usuario>("Minha Conta", [UsuarioContexto]);
+			relatorioView
+				= new RelatorioView<Usuario>("Minha Conta", [UsuarioContexto]);
 
-		relatorioView.ConstruirLayout();
 
 		InputView inputRelatorio = new(relatorioView.Titulo);
-		inputRelatorio.LerEntrada("Sair", relatorioView.Layout.ToString());
+		inputRelatorio.LerEntrada("Sair", relatorioView.ConstruirLayout());
 	}
 
 	public override void VerDetalhes()
 	{
-		var naoTemRestricao = CargoContexto.TemPermissao(PermissoesAcesso.AcessoAdministradores)
-		                      || CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita);
+		var temPermissao
+			= CargoContexto.TemPermissao(PermissoesAcesso.AcessoAdministradores)
+			  || CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita);
 
-		if (!naoTemRestricao) { }
+		if (!temPermissao)
+		{
+			var detalhesContexto = UtilitarioTipos.ObterPropriedades(
+				UsuarioContexto,
+				[
+					"Login", "Nome",
+					"Credenciais", "CargoId",
+					"Id"
+				]);
+
+			DetalhesView detalhesView
+				= new("Detalhes Usuário", detalhesContexto);
+
+			detalhesView.ConstruirLayout();
+			detalhesView.Exibir();
+
+			return;
+		}
 
 		MenuView menuPesquisa = new("Pesquisar Usuário",
 		                            "Selecione um dos campos para pesquisar.",
@@ -298,14 +230,15 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		menuPesquisa.ConstruirLayout();
 		menuPesquisa.LerEntrada();
 
-		KeyValuePair<string, string>? campoPesquisa = menuPesquisa.OpcaoEscolhida switch
-		{
-			1 => new KeyValuePair<string, string>("Login",
-			                                      "Insira o Login do Usuario: "),
-			2 => new KeyValuePair<string, string>("Id",
-			                                      "Insira o Id do Usuario: "),
-			_ => null
-		};
+		KeyValuePair<string, string>? campoPesquisa
+			= menuPesquisa.OpcaoEscolhida switch
+			{
+				1 => new KeyValuePair<string, string>("Login",
+					"Insira o Login do Usuario: "),
+				2 => new KeyValuePair<string, string>("Id",
+					"Insira o Id do Usuario: "),
+				_ => null
+			};
 
 		InputView inputPesquisa = new("Ver Detalhes: Pesquisar Usuario");
 
@@ -317,20 +250,25 @@ public class ContextoUsuarios : Contexto<Usuario>,
 			return;
 		}
 
-		inputPesquisa.LerEntrada(campoPesquisa?.Key,
+		inputPesquisa.LerEntrada(campoPesquisa?.Key!,
 		                         campoPesquisa?.Value);
 
 		Usuario? usuario = null;
 
-		if (menuPesquisa.OpcaoEscolhida is 1)
+		switch (menuPesquisa.OpcaoEscolhida)
 		{
-			var login = inputPesquisa.ObterEntrada("Login");
-			usuario = BaseDeDados.Usuarios.ObterPorLogin(login);
-		}
-		else if (menuPesquisa.OpcaoEscolhida is 2)
-		{
-			var id = inputPesquisa.ObterEntrada("Id");
-			usuario = BaseDeDados.Usuarios.ObterPorId(id);
+			case 1:
+			{
+				var login = inputPesquisa.ObterEntrada("Login");
+				usuario = BaseDeDados.Usuarios.ObterPorLogin(login);
+				break;
+			}
+			case 2:
+			{
+				var id = inputPesquisa.ObterEntrada("Id");
+				usuario = BaseDeDados.Usuarios.ObterPorId(id);
+				break;
+			}
 		}
 
 		if (usuario is null)
@@ -341,13 +279,14 @@ public class ContextoUsuarios : Contexto<Usuario>,
 			return;
 		}
 
-		Dictionary<string, string> detalhes =
+		var detalhes =
 			UtilitarioTipos.ObterPropriedades(usuario,
-			                                  ["Login", "Nome", "Credenciais", "CargoId", "Id"]);
+			[
+				"Login", "Nome", "Credenciais", "CargoId", "Id"
+			]);
 
 		DetalhesView detalhesUsuario = new("Usuário Encontrado", detalhes);
 		detalhesUsuario.ConstruirLayout();
-
-		inputPesquisa.LerEntrada("Sair", detalhesUsuario.Layout.ToString());
+		detalhesUsuario.Exibir();
 	}
 }
