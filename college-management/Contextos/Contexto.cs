@@ -7,6 +7,7 @@ using college_management.Views;
 
 namespace college_management.Contextos;
 
+
 public abstract class Contexto<T> : IContexto<T> where T : Modelo
 {
 	protected readonly BaseDeDados BaseDeDados;
@@ -42,8 +43,11 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 
 	public bool AcessoRestrito()
 	{
-		if (CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita))
+		if (CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita) ||
+		    CargoContexto.TemPermissao(PermissoesAcesso.AcessoAdministradores))
+		{
 			return true;
+		}
 
 		InputView inputPermissao = new("Permissão insuficiente");
 		inputPermissao.ConstruirLayout();
