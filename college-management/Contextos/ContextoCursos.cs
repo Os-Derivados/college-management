@@ -137,9 +137,9 @@ public class ContextoCursos : Contexto<Curso>,
         Dictionary<string, string> detalhes =
             UtilitarioTipos.ObterPropriedades(curso, ["Nome"]);
 
-        detalhes.Add("MateriasId", $"{string.Join(", ", curso.MatriculasIds ?? new())}");
+        detalhes.Add("MateriasId",      $"{string.Join(", ", curso.MatriculasIds ?? new())}");
         detalhes.Add("GradeCurricular", $"{string.Join(", ", curso.GradeCurricular.Select(i => i.Nome))}");
-        detalhes.Add("CargaHoraria", $"{curso.ObterCargaHoraria()}h");
+        detalhes.Add("CargaHoraria",    $"{curso.ObterCargaHoraria()}h");
 
         DetalhesView detalhesCurso = new("Curso Encontrado", detalhes);
         detalhesCurso.ConstruirLayout();
