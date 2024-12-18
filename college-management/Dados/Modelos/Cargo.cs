@@ -20,7 +20,6 @@ public sealed class Cargo : Modelo
 
 	public string?       Nome        { get; set; }
 	public List<string>  Permissoes  { get; set; }
-	public List<string>? UsuariosIds { get; set; } = [];
 
 	public bool TemPermissao(string permissao)
 	{
