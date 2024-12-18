@@ -125,7 +125,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		if (! validacaoCargo.ValidarModelo()) return;
 
 		var novaMatricula = cargoEscolhido.Nome is CargosPadrao.CargoAlunos
-			? CriarMatricula(inputCadastro.DadosCadastro)
+			? Matricula.CriarMatricula(inputCadastro.DadosCadastro)
 			: null;
 
 		var cursoEscolhido = novaMatricula is not null
@@ -169,28 +169,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		inputSucesso.LerEntrada("Sair", mensagemOperacao);
 	}
 
-	private Matricula CriarMatricula(Dictionary<string, string> cadastroUsuario)
-	{
-		var conversaoValida = int.TryParse(cadastroUsuario["Periodo"],
-		                                   out var periodoCurso);
-
-		if (!conversaoValida) return null;
-
-		var modalidadeCurso =
-			cadastroUsuario["Modalidade"] switch
-			{
-				"Ead"        => Modalidade.Ead,
-				"Presencial" => Modalidade.Presencial,
-				"Hibrido"    => Modalidade.Hibrido,
-				_            => Modalidade.Invalido
-			};
-
-		if (modalidadeCurso is Modalidade.Invalido) return null;
-
-		Matricula novaMatricula = new(periodoCurso, modalidadeCurso);
-
-		return novaMatricula;
-	}
+	
 
 	public override async Task Editar() { throw new NotImplementedException(); }
 
