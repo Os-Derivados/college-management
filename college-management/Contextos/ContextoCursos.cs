@@ -20,7 +20,6 @@ public class ContextoCursos : Contexto<Curso>,
     private bool TemPermissoes => CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita) ||
             CargoContexto.TemPermissao(PermissoesAcesso.AcessoAdministradores);
 
-
     public void VerGradeHoraria()
 	{
 		// TODO: Desenvolver um algoritmo para visualização de grade horária
@@ -95,42 +94,8 @@ public class ContextoCursos : Contexto<Curso>,
 
 		if (TemPermissoes)
 		{
-            MenuView menuPesquisa = new("Pesquisar Curso",
-                                        "Escolha o método de pesquisa.",
-                                        ["Nome", "Id"]);
-
-            menuPesquisa.ConstruirLayout();
-            menuPesquisa.LerEntrada();
-
-            (string Campo, string Mensagem)? campoPesquisa = menuPesquisa.OpcaoEscolhida switch
-            {
-                1 => ("Nome", "Insira o Nome do curso: "),
-                2 => ("Id", "Insira o Id do curso: "),
-                _ => ("Campo", "Campo inválido. Tente novamente.")
-            };
-
-            InputView inputPesquisa = new("Ver Grade Curricular: Pesquisar Curso");
-
-            inputPesquisa.LerEntrada(campoPesquisa?.Campo!, campoPesquisa?.Mensagem);
-
-            Curso? curso = null;
-
-            if (menuPesquisa.OpcaoEscolhida == 1)
-            {
-                var nome = inputPesquisa.ObterEntrada("Nome");
-				curso = BaseDeDados.Cursos.ObterPorNome(nome);
-            }
-            else if (menuPesquisa.OpcaoEscolhida == 2)
-            {
-                var id = inputPesquisa.ObterEntrada("Id");
-                curso = BaseDeDados.Cursos.ObterPorId(id);
-            }
-			else
-			{
-				return;
-			}
-
-            inputPesquisa.LerEntrada("Sair", obterLayout(curso));
+            Curso curso = PesquisarCurso();
+            inputRelatorio.LerEntrada("Sair", obterLayout(curso));
 			return;
 		}
 
@@ -167,9 +132,24 @@ public class ContextoCursos : Contexto<Curso>,
 
 	public override void VerDetalhes()
 	{
+        Curso curso = PesquisarCurso();
+
+        Dictionary<string, string> detalhes =
+            UtilitarioTipos.ObterPropriedades(curso, ["Nome", "GradeCurricular", "MatriculasIds"]);
+
+        detalhes.Add("CargaHoraria", $"{curso.ObterCargaHoraria()}h");
+
+        DetalhesView detalhesCurso = new("Curso Encontrado", detalhes);
+        detalhesCurso.ConstruirLayout();
+
+        new InputView("Cursos: Ver Detalhes").LerEntrada("Sair", detalhesCurso.Layout.ToString());
+    }
+
+    private Curso PesquisarCurso()
+    {
         MenuView menuPesquisa = new("Pesquisar Curso",
-                                    "Escolha o método de pesquisa.",
-                                    ["Nome", "Id"]);
+                            "Escolha o método de pesquisa.",
+                            ["Nome", "Id"]);
 
         menuPesquisa.ConstruirLayout();
         menuPesquisa.LerEntrada();
@@ -183,34 +163,22 @@ public class ContextoCursos : Contexto<Curso>,
 
         InputView inputPesquisa = new("Ver Grade Curricular: Pesquisar Curso");
 
-        inputPesquisa.LerEntrada(campoPesquisa?.Campo!, campoPesquisa?.Mensagem);
-
         Curso? curso = null;
 
-        if (menuPesquisa.OpcaoEscolhida == 1)
+        inputPesquisa.LerEntrada(campoPesquisa?.Campo!, campoPesquisa?.Mensagem);
+        curso = menuPesquisa.OpcaoEscolhida switch
         {
-            var nome = inputPesquisa.ObterEntrada("Nome");
-            curso = BaseDeDados.Cursos.ObterPorNome(nome);
-        }
-        else if (menuPesquisa.OpcaoEscolhida == 2)
+            1 => BaseDeDados.Cursos.ObterPorNome(inputPesquisa.ObterEntrada("Nome")),
+            2 => BaseDeDados.Cursos.ObterPorNome(inputPesquisa.ObterEntrada("Id")),
+            _ => null
+        };
+
+        if (curso is null)
         {
-            var id = inputPesquisa.ObterEntrada("Id");
-            curso = BaseDeDados.Cursos.ObterPorId(id);
-        }
-        else
-        {
-            return;
+            inputPesquisa.LerEntrada("Erro", "Curso não encontrado.");
+            return PesquisarCurso();
         }
 
-        Dictionary<string, string> detalhes =
-            UtilitarioTipos.ObterPropriedades(curso,
-                                              ["Nome", "GradeCurricular", "MatriculasIds"]);
-
-        detalhes.Add("CargaHoraria", $"{curso.ObterCargaHoraria()}h");
-
-        DetalhesView detalhesCurso = new("Curso Encontrado", detalhes);
-        detalhesCurso.ConstruirLayout();
-
-        inputPesquisa.LerEntrada("Sair", detalhesCurso.Layout.ToString());
+        return curso;
     }
 }
