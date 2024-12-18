@@ -185,7 +185,7 @@ public class ContextoCursos : Contexto<Curso>,
         {
             return operacao();
         }
-        catch (Exception e) when (e is InvalidOperationException || e is Exception)
+        catch (Exception e)
         {
             inputPesquisa.LerEntrada("Erro", e.Message);
             return PesquisarCurso();
