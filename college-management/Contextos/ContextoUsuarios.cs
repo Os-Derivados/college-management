@@ -120,17 +120,9 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		var cargoEscolhido = BaseDeDados.Cargos.ObterPorNome(cargo);
 
-		if (cargoEscolhido is null)
-		{
-			InputView erroInput = new("Cargo Inexistente");
+		ValidacaoView<Cargo> validacaoCargo = new("Validação Cargo", cargoEscolhido);
 
-			erroInput.LerEntrada("Cargo Inexistente",
-			                     "O Cargo inserido não foi "
-			                     + "encontrado na base de dados."
-			                     + "Pressione Enter para continuar.");
-
-			return;
-		}
+		if (! validacaoCargo.ValidarModelo()) return;
 
 		var novaMatricula = cargoEscolhido.Nome is CargosPadrao.CargoAlunos
 			? CriarMatricula(inputCadastro.DadosCadastro)
