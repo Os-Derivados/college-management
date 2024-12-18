@@ -135,8 +135,10 @@ public class ContextoCursos : Contexto<Curso>,
         Curso curso = PesquisarCurso();
 
         Dictionary<string, string> detalhes =
-            UtilitarioTipos.ObterPropriedades(curso, ["Nome", "GradeCurricular", "MatriculasIds"]);
+            UtilitarioTipos.ObterPropriedades(curso, ["Nome"]);
 
+        detalhes.Add("MateriasId", $"{string.Join(", ", curso.MatriculasIds ?? new())}");
+        detalhes.Add("GradeCurricular", $"{string.Join(", ", curso.GradeCurricular.Select(i => i.Nome))}");
         detalhes.Add("CargaHoraria", $"{curso.ObterCargaHoraria()}h");
 
         DetalhesView detalhesCurso = new("Curso Encontrado", detalhes);
