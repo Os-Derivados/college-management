@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "college-management": {
+      "commandName": "Project",
+      "commandLineArgs": "false false"
+    }
+  }
+}
