@@ -117,7 +117,34 @@ public class ContextoCursos : Contexto<Curso>,
 
 	public override async Task Cadastrar() { throw new NotImplementedException(); }
 
-	public override async Task Editar() { throw new NotImplementedException(); }
+	public override async Task Editar()
+    {
+        Curso curso = PesquisarCurso();
+
+        var propriedades = curso.GetType().GetProperties();
+        var nomesPropriedadesRaw = propriedades.Select(i => i.Name).ToList();
+
+        // Essas propriedades devem ser editadas por outros meios.
+        nomesPropriedadesRaw.Remove("GradeCurricular");
+        nomesPropriedadesRaw.Remove("MatriculasIds");
+        // Essa aqui nem se fala. Deveríamos adicionar um método de filtrar essas propriedades.
+        nomesPropriedadesRaw.Remove("Id");
+
+        MenuView menuView = new(
+            "Editar Curso",
+            "Selecione uma propriedade do curso para editar.",
+            nomesPropriedadesRaw.ToArray()
+        );
+
+        menuView.ConstruirLayout();
+
+        do
+        {
+            menuView.LerEntrada();
+        } while (!EditarPropriedade(curso,
+                    nomesPropriedadesRaw.ElementAtOrDefault(menuView.OpcaoEscolhida - 1))
+                );
+    }
 
 	public override async Task Excluir()
     {
@@ -217,5 +244,27 @@ public class ContextoCursos : Contexto<Curso>,
         detalhes.Add("CargaHoraria", $"{curso.ObterCargaHoraria()}h");
 
         return detalhes;
+    }
+
+    private bool EditarPropriedade(Curso curso, string? propriedade)
+    {
+        InputView inputView = new("Editar " + (propriedade ?? "Curso"));
+
+        switch (propriedade)
+        {
+            case "Nome":
+            {
+                inputView.LerEntrada("Nome", $"Novo nome [Vazio para \"{curso.Nome}\"]: ");
+                var nome = inputView.ObterEntrada("Nome");
+                curso.Nome = string.IsNullOrEmpty(nome.Trim())
+                             ? curso.Nome
+                             : nome;
+                return true;
+            }
+
+            default:
+                inputView.LerEntrada("Erro", "Campo inválido, tente novamente.");
+                return false;
+        }
     }
 }
