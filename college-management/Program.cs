@@ -7,12 +7,46 @@ UtilitarioArquivos.Inicializar();
 
 BaseDeDados baseDeDados = new();
 
-_ = bool.TryParse(args[1], out var seed);
+bool seed = false;
+
+try
+{
+	if (!bool.TryParse(args[1], out seed))
+	{
+		throw new Exception();
+	}
+}
+catch (Exception)
+{
+	Console.WriteLine("Aviso : Argumento seed não informado ou incorreto, utilizando o valor padrão : false");
+}
 
 if (seed)
+{
 	await UtilitarioSeed.IniciarBaseDeDados(baseDeDados);
+}
+else
+{
+	if (!UtilitarioSeed.ValidaDadosIniciais(baseDeDados))
+	{
+		Console.WriteLine("Base de Dados não inicializada com valores padrão. Execute o programa novamente com o argumento seed definido como true");
+		return;
+	}
+}
 
-_ = bool.TryParse(args[0], out var modoDesenvolvimento);
+bool modoDesenvolvimento = false;
+
+try
+{
+	if (!bool.TryParse(args[0], out modoDesenvolvimento))
+	{
+		throw new Exception();
+	}
+}
+catch (Exception)
+{
+	Console.WriteLine("Aviso : Argumento modoDesenvolvimento não informado ou incorreto, utilizando o valor padrão : false");
+}
 
 var usuarioLogado =
 	MiddlewareAutenticacao.Autenticar(modoDesenvolvimento,

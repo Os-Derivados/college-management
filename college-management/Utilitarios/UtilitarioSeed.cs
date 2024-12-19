@@ -1,7 +1,6 @@
 using college_management.Constantes;
 using college_management.Dados;
 using college_management.Dados.Modelos;
-using college_management.Dados.Repositorios;
 
 
 namespace college_management.Utilitarios;
@@ -15,11 +14,6 @@ public static class UtilitarioSeed
 		      .Cargos
 		      .Adicionar(new Cargo(CargosPadrao.CargoAdministradores,
 		                           [PermissoesAcesso.AcessoAdministradores]));
-
-		await baseDeDados
-		      .Cargos
-		      .Adicionar(new Cargo(CargosPadrao.CargoAlunos,
-		                           [PermissoesAcesso.AcessoLeitura]));
 
 		await baseDeDados
 		      .Cargos
@@ -89,5 +83,40 @@ public static class UtilitarioSeed
 		    .TryGetValue(senha, out var senhaDefault);
 
         return (loginDefault, nomeDefault, new(senhaDefault));
+	}
+	public static bool ValidaDadosIniciais(BaseDeDados baseDeDados)
+	{
+
+		var _cargoAdms = baseDeDados
+			.Cargos
+			.ObterPorNome(CargosPadrao.CargoAdministradores) is { } _;
+		
+		var _cargoAlunos = baseDeDados
+			.Cargos
+			.ObterPorNome(CargosPadrao.CargoAlunos) is { } _;
+		
+		_ = UtilitarioAmbiente
+			.Variaveis
+			.TryGetValue(VariaveisAmbiente.MasterAdminNome, out var nomeDefault);
+		var _cargoMaster = baseDeDados
+			.Usuarios
+			.ObterPorNome(nomeDefault) is { } _;
+		
+		var _materiaTeste = baseDeDados
+			.Materias
+			.ObterPorNome("Matéria Teste") is { } _;
+		
+		var _cursoTeste = baseDeDados
+			.Cursos
+			.ObterPorNome("Curso Teste") is { } _;
+		
+		_ = UtilitarioAmbiente
+			.Variaveis
+			.TryGetValue(VariaveisAmbiente.UsuarioTesteLogin, out var loginAluno);
+		var _usuarioTeste = baseDeDados
+			.Usuarios
+			.ObterPorLogin(loginAluno) is { } _;
+		
+		return _cargoMaster & _cargoAdms & _cargoAlunos & _cursoTeste & _usuarioTeste & _materiaTeste;
 	}
 }
