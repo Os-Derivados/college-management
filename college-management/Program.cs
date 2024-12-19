@@ -22,7 +22,17 @@ catch (Exception)
 }
 
 if (seed)
+{
 	await UtilitarioSeed.IniciarBaseDeDados(baseDeDados);
+}
+else
+{
+	if (!UtilitarioSeed.ValidaDadosIniciais(baseDeDados))
+	{
+		Console.WriteLine("Base de Dados não inicializada com valores padrão. Execute o programa novamente com o argumento seed definido como true");
+		return;
+	}
+}
 
 bool modoDesenvolvimento = false;
 
