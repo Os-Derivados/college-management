@@ -119,7 +119,30 @@ public class ContextoCursos : Contexto<Curso>,
 
 	public override async Task Editar() { throw new NotImplementedException(); }
 
-	public override async Task Excluir() { throw new NotImplementedException(); }
+	public override async Task Excluir()
+    {
+        var curso = PesquisarCurso();
+
+        int confirmacao = -1;
+
+        do
+        {
+            DetalhesView detalhesCurso = new(string.Empty, ObterDetalhes(curso));
+            detalhesCurso.ConstruirLayout();
+
+            InputView inputView = new("Confirmar Remoção");
+            inputView.LerEntrada("Confirmação", detalhesCurso.Layout.ToString() + 
+                                 "\n\nTem certeza que deseja excluir esse curso? ([S]im/[N]ão)");
+
+            confirmacao = inputView.ObterEntrada("Confirmação").ToLower().FirstOrDefault() switch
+            {
+                's' =>  0,
+                'n' =>  1,
+                _   => -1
+            };
+        }
+        while (confirmacao < 0);
+    }
 
 	public override void Visualizar()
 	{
