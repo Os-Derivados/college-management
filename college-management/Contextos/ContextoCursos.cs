@@ -141,9 +141,10 @@ public class ContextoCursos : Contexto<Curso>,
             var valor = propriedade.GetValue(curso)?.ToString() ?? string.Empty;
             inputView.LerEntrada(propriedade.Name, $"Insira um novo valor para {propriedade.Name} [Vazio para \"{valor}\"]:");
 
-            var mudanca = string.IsNullOrEmpty(inputView.ObterEntrada(propriedade.Name).Trim())
+            var entrada = inputView.ObterEntrada(propriedade.Name).Trim();
+            var mudanca = string.IsNullOrEmpty(entrada)
                           ? valor
-                          : inputView.ObterEntrada(propriedade.Name);
+                          : entrada;
 
             if (mudanca != valor)
             {
@@ -219,7 +220,7 @@ public class ContextoCursos : Contexto<Curso>,
             menuPesquisa.ConstruirLayout();
             menuPesquisa.LerEntrada();
 
-            (string Campo, string Mensagem)? campoPesquisa = menuPesquisa.OpcaoEscolhida switch
+            (string Campo, string Mensagem) campoPesquisa = menuPesquisa.OpcaoEscolhida switch
             {
                 1 => ("Nome", "Insira o Nome do curso: "),
                 2 => ("Id", "Insira o Id do curso: "),
@@ -228,7 +229,7 @@ public class ContextoCursos : Contexto<Curso>,
 
             Curso? curso = null;
 
-            inputPesquisa.LerEntrada(campoPesquisa?.Campo!, campoPesquisa?.Mensagem);
+            inputPesquisa.LerEntrada(campoPesquisa.Campo, campoPesquisa.Mensagem);
             curso = menuPesquisa.OpcaoEscolhida switch
             {
                 1 => BaseDeDados.Cursos.ObterPorNome(inputPesquisa.ObterEntrada("Nome")),
@@ -254,9 +255,9 @@ public class ContextoCursos : Contexto<Curso>,
     {
         Dictionary<string, string> detalhes = UtilitarioTipos.ObterPropriedades(curso, ["Nome"]);
 
-        detalhes.Add("MateriasId", $"{string.Join(", ", curso.MatriculasIds ?? new())}");
+        detalhes.Add("MateriasId",      $"{string.Join(", ", curso.MatriculasIds ?? new())}");
         detalhes.Add("GradeCurricular", $"{string.Join(", ", curso.GradeCurricular.Select(i => i.Nome))}");
-        detalhes.Add("CargaHoraria", $"{curso.ObterCargaHoraria()}h");
+        detalhes.Add("CargaHoraria",    $"{curso.ObterCargaHoraria()}h");
 
         return detalhes;
     }
@@ -284,12 +285,12 @@ public class ContextoCursos : Contexto<Curso>,
         {
             InputView inputView = new("Confirmar Remoção");
             inputView.LerEntrada("Confirmação", layout +
-                                 $"\n\n{mensagem} ([S]im/[N]ão)");
+                                 $"\n\n{mensagem} (S/N)");
 
             confirmacao = inputView.ObterEntrada("Confirmação").ToLower().FirstOrDefault() switch
             {
-                'n' => 0,
-                's' => 1,
+                'n' =>  0,
+                's' =>  1,
                  _  => -1
             };
         }
