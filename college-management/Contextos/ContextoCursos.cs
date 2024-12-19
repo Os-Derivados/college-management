@@ -134,14 +134,7 @@ public class ContextoCursos : Contexto<Curso>,
 	{
         Curso curso = PesquisarCurso();
 
-        Dictionary<string, string> detalhes =
-            UtilitarioTipos.ObterPropriedades(curso, ["Nome"]);
-
-        detalhes.Add("MateriasId",      $"{string.Join(", ", curso.MatriculasIds ?? new())}");
-        detalhes.Add("GradeCurricular", $"{string.Join(", ", curso.GradeCurricular.Select(i => i.Nome))}");
-        detalhes.Add("CargaHoraria",    $"{curso.ObterCargaHoraria()}h");
-
-        DetalhesView detalhesCurso = new("Curso Encontrado", detalhes);
+        DetalhesView detalhesCurso = new("Curso Encontrado", ObterDetalhes(curso));
         detalhesCurso.ConstruirLayout();
 
         new InputView("Cursos: Ver Detalhes").LerEntrada("Sair", detalhesCurso.Layout.ToString());
@@ -190,5 +183,16 @@ public class ContextoCursos : Contexto<Curso>,
             inputPesquisa.LerEntrada("Erro", e.Message);
             return PesquisarCurso();
         }
+    }
+
+    private Dictionary<string, string> ObterDetalhes(Curso curso)
+    {
+        Dictionary<string, string> detalhes = UtilitarioTipos.ObterPropriedades(curso, ["Nome"]);
+
+        detalhes.Add("MateriasId", $"{string.Join(", ", curso.MatriculasIds ?? new())}");
+        detalhes.Add("GradeCurricular", $"{string.Join(", ", curso.GradeCurricular.Select(i => i.Nome))}");
+        detalhes.Add("CargaHoraria", $"{curso.ObterCargaHoraria()}h");
+
+        return detalhes;
     }
 }
