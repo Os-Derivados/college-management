@@ -4,6 +4,7 @@ using college_management.Dados;
 using college_management.Dados.Modelos;
 using college_management.Utilitarios;
 using college_management.Views;
+using System.Text;
 
 
 namespace college_management.Contextos;
@@ -121,54 +122,59 @@ public class ContextoCursos : Contexto<Curso>,
     {
         Curso curso = PesquisarCurso();
 
-        var propriedades = curso.GetType().GetProperties();
-        var nomesPropriedadesRaw = propriedades.Select(i => i.Name).ToList();
-
+        var propriedades = curso.GetType().GetProperties().ToList();
         // Essas propriedades devem ser editadas por outros meios.
-        nomesPropriedadesRaw.Remove("GradeCurricular");
-        nomesPropriedadesRaw.Remove("MatriculasIds");
+        propriedades.RemoveAll(i => i.Name == "GradeCurricular");
+        propriedades.RemoveAll(i => i.Name == "MatriculasIds");
         // Essa aqui nem se fala. Deveríamos adicionar um método de filtrar essas propriedades.
-        nomesPropriedadesRaw.Remove("Id");
+        propriedades.RemoveAll(i => i.Name == "Id");
 
-        MenuView menuView = new(
-            "Editar Curso",
-            "Selecione uma propriedade do curso para editar.",
-            nomesPropriedadesRaw.ToArray()
-        );
+        var nomesPropriedadesRaw = propriedades.Select(i => i.Name);
 
-        menuView.ConstruirLayout();
+        InputView inputView = new("Editar Curso");
 
-        do
+        StringBuilder detalhes = new("As seguintes mudanças serão aplicadas:\n\n");
+
+        Dictionary<string, string> mudancas = new();
+        foreach (var propriedade in propriedades)
         {
-            menuView.LerEntrada();
-        } while (!EditarPropriedade(curso,
-                    nomesPropriedadesRaw.ElementAtOrDefault(menuView.OpcaoEscolhida - 1))
-                );
+            var valor = propriedade.GetValue(curso)?.ToString() ?? string.Empty;
+            inputView.LerEntrada(propriedade.Name, $"Insira um novo valor para {propriedade.Name} [Vazio para \"{valor}\"]:");
+
+            var mudanca = string.IsNullOrEmpty(inputView.ObterEntrada(propriedade.Name).Trim())
+                          ? valor
+                          : inputView.ObterEntrada(propriedade.Name);
+
+            if (mudanca != valor)
+            {
+                detalhes.AppendLine($"{propriedade.Name}: {valor} => {mudanca}");
+                mudancas.Add(propriedade.Name, mudanca.Trim());
+            }
+        }
+
+        if (mudancas.Count <= 0)
+        {
+            inputView.LerEntrada("Erro", "Nenhuma edição foi feita.");
+            return;
+        }
+
+        if (Confirmar(detalhes.ToString(), "Deseja aplicar mudanças?"))
+        {
+            foreach ((string propriedade, string valor) in mudancas)
+                EditarPropriedade(curso, propriedade, valor);
+        }
     }
 
 	public override async Task Excluir()
     {
         var curso = PesquisarCurso();
 
-        int confirmacao = -1;
+        DetalhesView detalhesCurso = new(string.Empty, ObterDetalhes(curso));
+        detalhesCurso.ConstruirLayout();
 
-        do
-        {
-            DetalhesView detalhesCurso = new(string.Empty, ObterDetalhes(curso));
-            detalhesCurso.ConstruirLayout();
-
-            InputView inputView = new("Confirmar Remoção");
-            inputView.LerEntrada("Confirmação", detalhesCurso.Layout.ToString() + 
-                                 "\n\nTem certeza que deseja excluir esse curso? ([S]im/[N]ão)");
-
-            confirmacao = inputView.ObterEntrada("Confirmação").ToLower().FirstOrDefault() switch
-            {
-                's' =>  0,
-                'n' =>  1,
-                _   => -1
-            };
-        }
-        while (confirmacao < 0);
+        var confimacao = Confirmar(detalhesCurso.Layout.ToString(), "Tem certeza que deseja excluir esse curso?");
+        if (confimacao)
+            await BaseDeDados.Cursos.Remover(curso.Id);
     }
 
 	public override void Visualizar()
@@ -246,25 +252,40 @@ public class ContextoCursos : Contexto<Curso>,
         return detalhes;
     }
 
-    private bool EditarPropriedade(Curso curso, string? propriedade)
+    private bool EditarPropriedade(Curso curso, string propriedade, string? valor)
     {
-        InputView inputView = new("Editar " + (propriedade ?? "Curso"));
-
         switch (propriedade)
         {
             case "Nome":
             {
-                inputView.LerEntrada("Nome", $"Novo nome [Vazio para \"{curso.Nome}\"]: ");
-                var nome = inputView.ObterEntrada("Nome");
-                curso.Nome = string.IsNullOrEmpty(nome.Trim())
-                             ? curso.Nome
-                             : nome;
+                curso.Nome = valor ?? curso.Nome;
                 return true;
             }
 
             default:
-                inputView.LerEntrada("Erro", "Campo inválido, tente novamente.");
                 return false;
         }
+    }
+
+    private bool Confirmar(string layout, string mensagem)
+    {
+        int confirmacao = -1;
+
+        do
+        {
+            InputView inputView = new("Confirmar Remoção");
+            inputView.LerEntrada("Confirmação", layout +
+                                 $"\n\n{mensagem} ([S]im/[N]ão)");
+
+            confirmacao = inputView.ObterEntrada("Confirmação").ToLower().FirstOrDefault() switch
+            {
+                'n' => 0,
+                's' => 1,
+                 _  => -1
+            };
+        }
+        while (confirmacao < 0);
+
+        return confirmacao == 1;
     }
 }
