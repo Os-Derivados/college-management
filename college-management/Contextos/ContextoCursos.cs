@@ -179,11 +179,20 @@ public class ContextoCursos : Contexto<Curso>,
 
 	public override void Visualizar()
 	{
-        RelatorioView<Curso> relatorioView = new("Visualizar Cursos", BaseDeDados.Cursos.ObterTodos());
-        relatorioView.ConstruirLayout();
+        var cursos = BaseDeDados.Cursos.ObterTodos();
+        
+        InputView inputRelatorio = new("Visualizar Cursos");
+        if (cursos.Count > 0)
+        {
+            RelatorioView<Curso> relatorioView = new(inputRelatorio.Titulo, cursos);
+            relatorioView.ConstruirLayout();
 
-        InputView inputRelatorio = new(relatorioView.Titulo);
-        inputRelatorio.LerEntrada("Sair", relatorioView.Layout.ToString());
+            inputRelatorio.LerEntrada("Sair", relatorioView.Layout.ToString());
+        }
+        else
+        {
+            inputRelatorio.LerEntrada("Erro", "Nenhum curso cadastrado.");
+        }
     }
 
 	public override void VerDetalhes()
