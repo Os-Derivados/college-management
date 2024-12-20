@@ -1,4 +1,5 @@
 using System.Text.Json;
+using college_management.Constantes;
 using college_management.Dados.Modelos;
 using college_management.Dados.Repositorios.Interfaces;
 using college_management.Servicos;
@@ -8,10 +9,10 @@ namespace college_management.Dados.Repositorios;
 
 
 public abstract class Repositorio<T> : IRepositorio<T>
-where T : Modelo
+	where T : Modelo
 {
 	protected          List<T>?        BaseDeDados;
-	protected readonly ServicoDados<T> _servicoDados = new();
+	private readonly ServicoDados<T> _servicoDados = new();
 
 	protected Repositorio()
 	{
@@ -22,8 +23,7 @@ where T : Modelo
 		    {
 			    try
 			    {
-				    using Task<List<T>>? dadosSalvos =
-					    _servicoDados.CarregarAssincrono();
+				    using var dadosSalvos = _servicoDados.CarregarAssincrono();
 
 				    BaseDeDados = await dadosSalvos;
 			    }
@@ -37,64 +37,93 @@ where T : Modelo
 		    .Wait();
 	}
 
-	public virtual async Task<bool> Adicionar(T modelo)
+	public virtual async Task<RespostaRecurso<T>> Adicionar(T modelo)
 	{
-		if (Existe(modelo)) return false;
+		if (Existe(modelo))
+		{
+			return new RespostaRecurso<T>(modelo, StatusResposta.ErroDuplicata);
+		}
 
-		BaseDeDados.Add(modelo);
+		BaseDeDados!.Add(modelo);
 
 		await _servicoDados.SalvarAssicrono(BaseDeDados);
 
-		return true;
+		return new RespostaRecurso<T>(modelo, StatusResposta.Sucesso);
 	}
 
-	public List<T> ObterTodos() { return BaseDeDados; }
-
-	public T ObterPorId(string? id) { return BaseDeDados.FirstOrDefault(t => t.Id == id); }
-
-	public T ObterPorNome(string? nome)
+	public RespostaRecurso<List<T>> ObterTodos()
 	{
-		return BaseDeDados.FirstOrDefault(t =>
+		return new RespostaRecurso<List<T>>(BaseDeDados,
+		                                    StatusResposta.Sucesso);
+	}
+
+	public RespostaRecurso<T> ObterPorId(string? id)
+	{
+		var registro = BaseDeDados!.FirstOrDefault(t => t.Id.Equals(id));
+
+		if (registro is null)
 		{
-			var propriedadeNome
-				= t.GetType().GetProperty("Nome");
+			return new RespostaRecurso<T>(registro,
+			                              StatusResposta.ErroNaoEncontrado);
+		}
 
-			var valorNome
-				= propriedadeNome.GetValue(t).ToString();
-
-			return valorNome is not null
-			       && valorNome == nome;
-		});
+		return new RespostaRecurso<T>(registro, StatusResposta.Sucesso);
 	}
 
-	public async Task<bool> Atualizar(T modelo)
+	public RespostaRecurso<T> ObterPorNome(string? nome)
 	{
-		var modeloAntigo = ObterPorId(modelo.Id);
+		var registro = BaseDeDados!.FirstOrDefault(t =>
+		{
+			var propriedadeNome = t.GetType().GetProperty("Nome");
 
-		if (modeloAntigo is null) return await Adicionar(modelo);
+			var valorNome = propriedadeNome?.GetValue(t)?.ToString();
 
-		var foiRemovido = await Remover(modelo.Id);
+			return (valorNome is not null) && (valorNome.Equals(nome));
+		});
 
-		if (!foiRemovido) return false;
+		if (registro is null)
+		{
+			return new RespostaRecurso<T>(registro,
+			                              StatusResposta.ErroNaoEncontrado);
+		}
+
+		return new RespostaRecurso<T>(registro, StatusResposta.Sucesso);
+	}
+
+	public async Task<RespostaRecurso<T>> Atualizar(T modelo)
+	{
+		var resposta = ObterPorId(modelo.Id);
+
+		if (resposta.Modelo is null) return await Adicionar(modelo);
+
+		var respostaRemocao = await Remover(modelo.Id);
+
+		if (respostaRemocao.Status is not StatusResposta.Sucesso)
+		{
+			return respostaRemocao;
+		}
 
 		await Adicionar(modelo);
 		await _servicoDados.SalvarAssicrono(BaseDeDados);
 
-		return true;
+		return respostaRemocao;
 	}
 
-	public async Task<bool> Remover(string? id)
+	public async Task<RespostaRecurso<T>> Remover(string? id)
 	{
-		var modelo = ObterPorId(id);
+		var resposta = ObterPorId(id);
 
-		if (modelo is null)
-			return false;
+		if (resposta.Status is not StatusResposta.Sucesso ||
+		    resposta.Modelo is null)
+		{
+			return resposta;
+		}
 
-		BaseDeDados.Remove(modelo);
+		BaseDeDados!.Remove(resposta.Modelo);
 
 		await _servicoDados.SalvarAssicrono(BaseDeDados);
 
-		return true;
+		return resposta;
 	}
 
 	public abstract bool Existe(T modelo);

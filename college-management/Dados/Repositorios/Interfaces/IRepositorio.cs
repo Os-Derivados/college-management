@@ -6,17 +6,17 @@ namespace college_management.Dados.Repositorios.Interfaces;
 
 public interface IRepositorio<T> where T : Modelo
 {
-	public Task<bool> Adicionar(T modelo);
+	public Task<RespostaRecurso<T>> Adicionar(T modelo);
 
-	public List<T> ObterTodos();
+	public RespostaRecurso<List<T>> ObterTodos();
 
-	public T ObterPorId(string? id);
+	public RespostaRecurso<T> ObterPorId(string? id);
 
-	public T ObterPorNome(string? nome);
+	public RespostaRecurso<T> ObterPorNome(string? nome);
 
-	public Task<bool> Atualizar(T modelo);
+	public Task<RespostaRecurso<T>> Atualizar(T modelo);
 
-	public Task<bool> Remover(string? id);
+	public Task<RespostaRecurso<T>> Remover(string? id);
 
 	public bool Existe(T modelo);
 }

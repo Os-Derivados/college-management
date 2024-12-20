@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text.Json.Serialization;
+using college_management.Constantes;
 using college_management.Dados.Repositorios;
 namespace college_management.Dados.Modelos;
 
@@ -36,10 +37,10 @@ public class Usuario : Modelo
 		// master.admin
 		var usuarioExistente = repositorio.ObterPorLogin(loginUsuario);
 
-		if (usuarioExistente is null) return null;
+		if (usuarioExistente.Status is StatusResposta.ErroNaoEncontrado) return null;
 
-		return usuarioExistente.Credenciais.Validar(senhaUsuario)
-			       ? usuarioExistente
+		return usuarioExistente.Modelo!.Credenciais!.Validar(senhaUsuario)
+			       ? usuarioExistente.Modelo
 			       : null;
 	}
 

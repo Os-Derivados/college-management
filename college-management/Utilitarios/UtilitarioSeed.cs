@@ -34,7 +34,7 @@ public static class UtilitarioSeed
 		      .Adicionar(new Funcionario(loginMestre,
 		                                 nomeMestre,
 		                                 senhaMestre,
-		                                 cargoAdmin.Id));
+		                                 cargoAdmin.Modelo!.Id));
 
 		var (loginTeste, nomeTeste, senhaTeste)
 			= ObterCredenciais(VariaveisAmbiente.UsuarioTesteLogin,
@@ -56,7 +56,7 @@ public static class UtilitarioSeed
 		var alunoTeste = new Aluno(loginTeste,
 		                           nomeTeste,
 		                           senhaTeste,
-		                           cargoAluno.Id,
+		                           cargoAluno.Modelo!.Id,
 		                           matriculaTeste.Id);
 
 		await baseDeDados.Usuarios.Adicionar(alunoTeste);
