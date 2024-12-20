@@ -27,22 +27,44 @@ public class ContextoCargos : Contexto<Cargo>
 
 	public override void Visualizar()  
 	{
-        var permissaoAdmin = CargoContexto.TemPermissao(PermissoesAcesso.AcessoAdministradores);
+        var temPermissao = CargoContexto.TemPermissao(PermissoesAcesso.AcessoAdministradores) ||
+                                           CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita);
+
+        RelatorioView<Cargo> relatorioView;
+
+        if (temPermissao)
+        {
+            relatorioView = new RelatorioView<Cargo>("Visualizar Usuários",
+                                                       BaseDeDados.Cargos.ObterTodos());
+
+        }
+
+        else
+            relatorioView = new RelatorioView<Cargo>("Visualizar Usuário", new List<Cargo>() 
+            { 
+                BaseDeDados.Cargos.ObterPorId(UsuarioContexto.CargoId) 
+            });
 
 
-		if(permissaoAdmin)
-		{
-            OpcoesDeVisualizacao();
+        relatorioView.ConstruirLayout();
+        relatorioView.Exibir();
 
-            Console.ReadKey();
-		}
-
+        InputView inputRelatorio = new(relatorioView.Titulo);
+        inputRelatorio.LerEntrada("Sair", relatorioView.Layout.ToString());
     }
 
 
 	public override void VerDetalhes() 
     {
+        var permissaoAdmin = CargoContexto.TemPermissao(PermissoesAcesso.AcessoAdministradores);
 
+
+        if (permissaoAdmin)
+        {
+            OpcoesDeVisualizacao();
+
+            Console.ReadKey();
+        }
     }
 
 
@@ -69,9 +91,6 @@ public class ContextoCargos : Contexto<Cargo>
                                                   "Insira o Nome do Cargo: "),
             2 => new KeyValuePair<string, string>("Id",
                                                   "Insira o Id do Cargo: "),
-
-            3 => new KeyValuePair<string, string>("Exiir Todos", 
-                                                  "Pressione Enter para ver todos os cargos"),
 
             _ => null
         };
@@ -101,11 +120,6 @@ public class ContextoCargos : Contexto<Cargo>
         {
             var id = inputPesquisa.ObterEntrada("Id");
             cargos.Add(BaseDeDados.Cargos.ObterPorId(id));
-        }
-
-        else if(menuPesquisa.OpcaoEscolhida is 3)
-        {
-            cargos = BaseDeDados.Cargos.ObterTodos();
         }
 
         if (!cargos.Any())
