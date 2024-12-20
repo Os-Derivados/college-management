@@ -37,7 +37,7 @@ where T : Modelo
 		    .Wait();
 	}
 
-	public virtual async Task<bool> Adicionar(T modelo)
+	public virtual async Task<RespostaRecurso<T>> Adicionar(T modelo)
 	{
 		if (Existe(modelo)) return false;
 
@@ -48,11 +48,11 @@ where T : Modelo
 		return true;
 	}
 
-	public List<T> ObterTodos() { return BaseDeDados; }
+	public RespostaRecurso<List<T>> ObterTodos() { return BaseDeDados; }
 
-	public T ObterPorId(string? id) { return BaseDeDados.FirstOrDefault(t => t.Id == id); }
+	public RespostaRecurso<T> ObterPorId(string? id) { return BaseDeDados.FirstOrDefault(t => t.Id == id); }
 
-	public T ObterPorNome(string? nome)
+	public RespostaRecurso<T> ObterPorNome(string? nome)
 	{
 		return BaseDeDados.FirstOrDefault(t =>
 		{
@@ -67,7 +67,7 @@ where T : Modelo
 		});
 	}
 
-	public async Task<bool> Atualizar(T modelo)
+	public async Task<RespostaRecurso<T>> Atualizar(T modelo)
 	{
 		var modeloAntigo = ObterPorId(modelo.Id);
 
@@ -83,7 +83,7 @@ where T : Modelo
 		return true;
 	}
 
-	public async Task<bool> Remover(string? id)
+	public async Task<RespostaRecurso<T>> Remover(string? id)
 	{
 		var modelo = ObterPorId(id);
 
