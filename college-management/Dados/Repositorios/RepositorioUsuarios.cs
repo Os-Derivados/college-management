@@ -1,3 +1,4 @@
+using college_management.Constantes;
 using college_management.Dados.Modelos;
 using college_management.Dados.Repositorios.Interfaces;
 
@@ -8,14 +9,21 @@ namespace college_management.Dados.Repositorios;
 public class RepositorioUsuarios : Repositorio<Usuario>,
                                    IRepositorioUsuarios
 {
-	public Usuario ObterPorLogin(string login) { return BaseDeDados.FirstOrDefault(u => u.Login == login); }
+	public RespostaRecurso<Usuario> ObterPorLogin(string login)
+	{
+		var usuario = BaseDeDados.FirstOrDefault(u => u.Login == login);
+		
+		return usuario is null
+		       ? new RespostaRecurso<Usuario>(usuario, StatusResposta.ErroNaoEncontrado)
+		       : new RespostaRecurso<Usuario>(usuario, StatusResposta.Sucesso);
+	}
 
 	public override bool Existe(Usuario modelo)
 	{
-		Usuario loginExistente = ObterPorLogin(modelo.Login),
-		        idExistente    = ObterPorId(modelo.Id);
+		RespostaRecurso<Usuario> loginExistente = ObterPorLogin(modelo.Login),
+		        idExistente                     = ObterPorId(modelo.Id);
 
-		return loginExistente is not null
-		       || idExistente is not null;
+		return loginExistente.Status is StatusResposta.Sucesso
+		       || idExistente.Status is StatusResposta.Sucesso;
 	}
 }

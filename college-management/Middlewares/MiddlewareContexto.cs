@@ -14,7 +14,7 @@ public static class MiddlewareContexto
 	                               Usuario     usuario)
 	{
 		var cargoUsuario  = baseDeDados.Cargos.ObterPorId(usuario.CargoId);
-		var opcaoContexto = EscolherContexto(cargoUsuario);
+		var opcaoContexto = EscolherContexto(cargoUsuario.Modelo!);
 
 		if (opcaoContexto is "") return;
 

@@ -11,14 +11,16 @@ namespace college_management.Contextos;
 public abstract class Contexto<T> : IContexto<T> where T : Modelo
 {
 	protected Contexto(BaseDeDados baseDeDados,
-	                   Usuario     usuarioContexto)
+	                   Usuario usuarioContexto)
 	{
 		BaseDeDados     = baseDeDados;
 		UsuarioContexto = usuarioContexto;
-		CargoContexto
-			= BaseDeDados
-			  .Cargos
-			  .ObterPorId(UsuarioContexto.CargoId);
+		var respostaLeitura
+			= BaseDeDados.Cargos.ObterPorId(UsuarioContexto.CargoId);
+		
+		CargoContexto = respostaLeitura.Status is StatusResposta.Sucesso
+			? respostaLeitura.Modelo!
+			: throw new InvalidOperationException("Cargo não encontrado");
 	}
 
 	protected readonly BaseDeDados BaseDeDados;
@@ -41,8 +43,10 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 	{
 		string[] recursosDisponiveis;
 
-		var temPermissaoAdmin = CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita)
-		                        || CargoContexto.TemPermissao(PermissoesAcesso.AcessoAdministradores);
+		var temPermissaoAdmin
+			= CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita)
+			  || CargoContexto.TemPermissao(
+				  PermissoesAcesso.AcessoAdministradores);
 
 		if (temPermissaoAdmin)
 		{
@@ -85,7 +89,7 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 			throw new
 				InvalidOperationException("Recurso inexistente");
 
-		var task = (Task) recurso.Invoke(this, []);
+		var task = (Task)recurso.Invoke(this, []);
 
 		task?.Wait();
 	}

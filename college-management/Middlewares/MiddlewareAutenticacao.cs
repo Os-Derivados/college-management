@@ -23,7 +23,7 @@ public static class MiddlewareAutenticacao
             .TryGetValue(VariaveisAmbiente.LoginTeste,
                 out var loginTeste);
 
-        return repositorioUsuarios.ObterPorLogin(loginTeste);
+        return repositorioUsuarios.ObterPorLogin(loginTeste).Modelo;
     }
 
     private static Usuario Login(RepositorioUsuarios repositorioUsuarios)
