@@ -13,10 +13,16 @@ namespace college_management.Contextos;
 public class ContextoUsuarios : Contexto<Usuario>,
                                 IContextoUsuarios
 {
-	public ContextoUsuarios(BaseDeDados baseDeDados,
-	                        Usuario     usuarioContexto) :
-		base(baseDeDados,
-		     usuarioContexto) { }
+	public ContextoUsuarios(BaseDeDados baseDeDados, Usuario usuarioContexto) :
+		base(baseDeDados, usuarioContexto)
+	{
+		_temPermissao
+			= CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita)
+			  || CargoContexto.TemPermissao(
+				  PermissoesAcesso.AcessoAdministradores);
+	}
+
+	private readonly bool _temPermissao;
 
 	public void VerMatricula()
 	{
@@ -30,8 +36,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		// Curso: Ciência da Computação
 		// Período: 2
 
-		if (CargoContexto.TemPermissao(PermissoesAcesso
-			                               .AcessoEscrita))
+		if (_temPermissao)
 			// [REQUISITO]: A visualização do Gestor deve permitir a busca
 			// de um Aluno em específico na base de dados
 			//
@@ -70,8 +75,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		// | Calculo 1      |    9.0     | Aprovado |
 		// | Algebra Linear |    N/A     |   N/A    |
 
-		if (CargoContexto.TemPermissao(PermissoesAcesso
-			                               .AcessoEscrita))
+		if (_temPermissao)
 			// [REQUISITO]: A visualização do Gestor deve permitir a busca
 			// de uma Aluno em específico na base de dados
 			//
@@ -101,14 +105,10 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 	public override async Task Cadastrar()
 	{
-		var temPermissao =
-			CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita)
-			|| CargoContexto.TemPermissao(PermissoesAcesso.AcessoAdministradores);
-
 		InputView inputUsuario = new("Cadastrar Usuário");
 		inputUsuario.ConstruirLayout();
 
-		if (!temPermissao)
+		if (!_temPermissao)
 		{
 			inputUsuario.LerEntrada("Erro",
 			                        "Você não tem permissão "
@@ -138,26 +138,28 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		}
 
 		var novaMatricula = cargoEscolhido.Nome
-			                    is CargosPadrao.CargoAlunos
-			                    ? CriarMatricula(cadastroUsuario)
-			                    : null;
+			is CargosPadrao.CargoAlunos
+			? CriarMatricula(cadastroUsuario)
+			: null;
 
 		var cursoEscolhido = novaMatricula is not null
-			                     ? BaseDeDados
-			                       .Cursos
-			                       .ObterPorNome(cadastroUsuario["Curso"])
-			                     : null;
+			? BaseDeDados
+			  .Cursos
+			  .ObterPorNome(cadastroUsuario["Curso"])
+			: null;
 
 		Usuario? novoUsuario = cargoEscolhido.Nome switch
 		{
 			CargosPadrao.CargoAlunos => new Aluno(cadastroUsuario["Login"],
 			                                      cadastroUsuario["Nome"],
-			                                      new CredenciaisUsuario(cadastroUsuario["Senha"]),
+			                                      new CredenciaisUsuario(
+				                                      cadastroUsuario["Senha"]),
 			                                      cargoEscolhido.Id,
 			                                      novaMatricula.Id),
 			_ => new Funcionario(cadastroUsuario["Login"],
 			                     cadastroUsuario["Nome"],
-			                     new CredenciaisUsuario(cadastroUsuario["Senha"]),
+			                     new CredenciaisUsuario(
+				                     cadastroUsuario["Senha"]),
 			                     cargoEscolhido.Id)
 		};
 
@@ -180,17 +182,19 @@ public class ContextoUsuarios : Contexto<Usuario>,
 			novaMatricula.AlunoId = novoUsuario.Id;
 			novaMatricula.CursoId = cursoEscolhido.Id;
 
-			foiAdicionado = await BaseDeDados.Matriculas.Adicionar(novaMatricula);
+			foiAdicionado
+				= await BaseDeDados.Matriculas.Adicionar(novaMatricula);
 		}
 
 		var mensagemOperacao = foiAdicionado
-			                       ? $"{nameof(Usuario)} cadastrado com sucesso."
-			                       : $"Não foi possível cadastrar novo {nameof(Usuario)}.";
+			? $"{nameof(Usuario)} cadastrado com sucesso."
+			: $"Não foi possível cadastrar novo {nameof(Usuario)}.";
 
 		inputUsuario.LerEntrada("Sair", mensagemOperacao);
 	}
 
-	private Dictionary<string, string> ObterCadastroUsuario(InputView inputUsuario)
+	private Dictionary<string, string> ObterCadastroUsuario(
+		InputView inputUsuario)
 	{
 		KeyValuePair<string, string?>[] mensagensUsuario =
 		[
@@ -263,20 +267,25 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 	public override async Task Editar() { throw new NotImplementedException(); }
 
-	public override async Task Excluir() { throw new NotImplementedException(); }
+	public override async Task Excluir()
+	{
+		throw new NotImplementedException();
+	}
 
 	public override void Visualizar()
 	{
-		var naoTemRestricao = CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita)
-		                      || CargoContexto.TemPermissao(PermissoesAcesso.AcessoAdministradores);
-
 		RelatorioView<Usuario> relatorioView;
 
-		if (naoTemRestricao)
+		if (_temPermissao)
+		{
 			relatorioView = new RelatorioView<Usuario>("Visualizar Usuários",
-			                                           BaseDeDados.Usuarios.ObterTodos());
+				BaseDeDados.Usuarios.ObterTodos());
+		}
 		else
-			relatorioView = new RelatorioView<Usuario>("Minha Conta", [UsuarioContexto]);
+		{
+			relatorioView
+				= new RelatorioView<Usuario>("Minha Conta", [UsuarioContexto]);
+		}
 
 		relatorioView.ConstruirLayout();
 
@@ -286,10 +295,9 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 	public override void VerDetalhes()
 	{
-		var naoTemRestricao = CargoContexto.TemPermissao(PermissoesAcesso.AcessoAdministradores)
-		                      || CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita);
-
-		if (!naoTemRestricao) { }
+		if (!_temPermissao)
+		{
+		}
 
 		MenuView menuPesquisa = new("Pesquisar Usuário",
 		                            "Selecione um dos campos para pesquisar.",
@@ -298,14 +306,15 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		menuPesquisa.ConstruirLayout();
 		menuPesquisa.LerEntrada();
 
-		KeyValuePair<string, string>? campoPesquisa = menuPesquisa.OpcaoEscolhida switch
-		{
-			1 => new KeyValuePair<string, string>("Login",
-			                                      "Insira o Login do Usuario: "),
-			2 => new KeyValuePair<string, string>("Id",
-			                                      "Insira o Id do Usuario: "),
-			_ => null
-		};
+		KeyValuePair<string, string>? campoPesquisa
+			= menuPesquisa.OpcaoEscolhida switch
+			{
+				1 => new KeyValuePair<string, string>("Login",
+					"Insira o Login do Usuario: "),
+				2 => new KeyValuePair<string, string>("Id",
+					"Insira o Id do Usuario: "),
+				_ => null
+			};
 
 		InputView inputPesquisa = new("Ver Detalhes: Pesquisar Usuario");
 
@@ -341,9 +350,11 @@ public class ContextoUsuarios : Contexto<Usuario>,
 			return;
 		}
 
-		Dictionary<string, string> detalhes =
+		var detalhes =
 			UtilitarioTipos.ObterPropriedades(usuario,
-			                                  ["Login", "Nome", "Credenciais", "CargoId", "Id"]);
+			[
+				"Login", "Nome", "Credenciais", "CargoId", "Id"
+			]);
 
 		DetalhesView detalhesUsuario = new("Usuário Encontrado", detalhes);
 		detalhesUsuario.ConstruirLayout();
