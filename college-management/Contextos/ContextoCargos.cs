@@ -18,6 +18,24 @@ public class ContextoCargos : Contexto<Cargo>
 
 	public override async Task Cadastrar() 
     {
+        var temPermissao =
+        CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita) || 
+        CargoContexto.TemPermissao(PermissoesAcesso.AcessoAdministradores);
+
+        Cargo novoCargo = null;
+
+        if (temPermissao)
+            novoCargo = TelaDeCadastro();
+
+        if(novoCargo is null) return;
+
+        var resultado = await BaseDeDados.Cargos.Adicionar(novoCargo);
+
+        if (resultado) Console.WriteLine("Cargo salvo com sucesso!");
+
+        Console.ReadKey();
+        
+
 
     }
 
@@ -72,11 +90,39 @@ public class ContextoCargos : Contexto<Cargo>
 
     #region Metodos privados uteis
 
+    Cargo TelaDeCadastro()
+    {
+        InputView inputUsuario = new("Cadastrar cargo");
+        inputUsuario.ConstruirLayout();
+
+        /*KeyValuePair<string, string?>[] mensagensUsuario =
+        {
+            new("Nome", "insira o nome do cargo"),
+            new("Permissões","Selecione o nivel de permissão do cargo")
+        };*/
+
+        inputUsuario.LerEntrada("Nome", "Insira o nome do novo cargo: ");
+
+        string nivelDePermissao = SelecaoDePermissao();
+        string nomeCargo = inputUsuario.EntradasUsuario["Nome"];
+
+        if (nomeCargo is not null &&
+            nivelDePermissao is not null)
+        {
+            return new Cargo(nomeCargo, new List<string>() { nivelDePermissao });
+        }
+
+        else
+            return null;
+    }
+
+
+
 	void OpcoesDeVisualizacao()
 	{
         MenuView menuPesquisa = new("Cargos",
                                     "Selecione um dos campos:",
-                                    ["Nome do Cargo", "Id", "Exibir Todos"]);
+                                    ["Nome do Cargo", "Id"]);
 
         List<Cargo> cargos = new();
         RelatorioView<Cargo> relatorioView = null!;
@@ -134,6 +180,30 @@ public class ContextoCargos : Contexto<Cargo>
 
         relatorioView.ConstruirLayout();
         relatorioView.Exibir();
+    }
+
+
+    string SelecaoDePermissao()
+    {
+
+        var propriedades = typeof(PermissoesAcesso).GetFields();
+        string[] nomePropriedades = new string[propriedades.Length];
+
+        for (int i = 0; i < propriedades.Length; i++)
+        {
+            nomePropriedades[i] = propriedades[i].Name;
+        }
+
+        MenuView menuView = new MenuView("Permissões", "Selecione o nivel de permissão do novo cargo,", nomePropriedades);
+
+        menuView.ConstruirLayout();
+        menuView.Exibir();
+        menuView.LerEntrada();
+        Console.Clear();
+
+
+
+        return nomePropriedades[menuView.OpcaoEscolhida-1];
     }
 
     #endregion
