@@ -39,9 +39,57 @@ public class ContextoCargos : Contexto<Cargo>
 
     }
 
-	public override async Task Editar() { throw new NotImplementedException(); }
+	public override async Task Editar() 
+    {
+        var temPermissao =
+        CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita) ||
+        CargoContexto.TemPermissao(PermissoesAcesso.AcessoAdministradores);
 
-	public override async Task Excluir() { throw new NotImplementedException(); }
+        Cargo cargo = null;
+        string nomeCargo = "";
+
+
+        InputView inputView = new InputView("--Editor de cargos--");
+
+        if(temPermissao)
+        {
+            nomeCargo = TelaSelecaoParaEditar(inputView);
+
+            cargo = BaseDeDados.Cargos.ObterPorNome(nomeCargo);
+
+            cargo = TelaDeEdicao(cargo, inputView);
+
+            if(await BaseDeDados.Cargos.Atualizar(cargo))
+                inputView.LerEntrada("Sair", "Cargo Editado com sucesso");
+
+        }
+    }
+
+	public override async Task Excluir() 
+    {
+        var temPermissao =
+        CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita) ||
+        CargoContexto.TemPermissao(PermissoesAcesso.AcessoAdministradores);
+
+        InputView inputView = new InputView("Exclusao de Cargo");
+        string cargoNome = "";
+        string cargoId = "";
+
+        if(temPermissao)
+        {
+            cargoNome = TelaExclusao(inputView);
+
+            cargoId = BaseDeDados.Cargos.ObterPorNome(cargoNome).Id!;
+
+            
+            if (await BaseDeDados.Cargos.Remover(cargoId))
+                inputView.LerEntrada("Sair", "Exclusão realizada com sucesso");
+
+            
+        }
+
+
+    }
 
 	public override void Visualizar()  
 	{
@@ -194,7 +242,7 @@ public class ContextoCargos : Contexto<Cargo>
             nomePropriedades[i] = propriedades[i].Name;
         }
 
-        MenuView menuView = new MenuView("Permissões", "Selecione o nivel de permissão do novo cargo,", nomePropriedades);
+        MenuView menuView = new MenuView("Permissões", "Selecione o nivel de permissão do cargo,", nomePropriedades);
 
         menuView.ConstruirLayout();
         menuView.Exibir();
@@ -204,6 +252,41 @@ public class ContextoCargos : Contexto<Cargo>
 
 
         return nomePropriedades[menuView.OpcaoEscolhida-1];
+    }
+
+
+    public string TelaExclusao(InputView inputView)
+    {
+
+        inputView.LerEntrada("name", "Insira o nome do cargo a ser excluido do banco de dados: ");
+
+        var nomeCargo = inputView.ObterEntrada("name");
+
+        return nomeCargo;
+    }
+
+    public string TelaSelecaoParaEditar(InputView inputView)
+    {
+
+        inputView.LerEntrada("name", "Insira o nome do cargo a ser editado: ");
+
+        var cargoId = inputView.ObterEntrada("name");
+
+        return cargoId;
+    }
+
+
+    public Cargo TelaDeEdicao(Cargo cargoAtual, InputView inputView)
+    {
+
+        inputView.LerEntrada("nome",
+            $"Nome Atual: {cargoAtual.Nome}\n\nEscolha um novo nome: ");
+
+        cargoAtual.Permissoes[0] = SelecaoDePermissao();
+
+        cargoAtual.Nome = inputView.ObterEntrada("nome");
+
+        return cargoAtual;
     }
 
     #endregion
