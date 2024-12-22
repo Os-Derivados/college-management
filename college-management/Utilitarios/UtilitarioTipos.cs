@@ -28,9 +28,9 @@ public static class UtilitarioTipos
 		foreach (var nome in nomesPropriedades)
 		{
 			var propriedade = tipoModelo.GetProperty(nome);
-			var valor       = propriedade.GetValue(modelo);
+ 			var valor       = propriedade?.GetValue(modelo)?.ToString() ?? string.Empty;
 
-			resultado.Add(nome, valor.ToString());
+			resultado.Add(nome, valor);
 		}
 
 		return resultado;
