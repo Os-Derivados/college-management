@@ -25,18 +25,20 @@ public class ContextoCargos : Contexto<Cargo>
         Cargo novoCargo = null;
 
         if (temPermissao)
+        {
             novoCargo = TelaDeCadastro();
 
-        if(novoCargo is null) return;
+            if (novoCargo is null)
+            {
+                TelaErro("");
+            }
 
-        var resultado = await BaseDeDados.Cargos.Adicionar(novoCargo);
+            var resultado = await BaseDeDados.Cargos.Adicionar(novoCargo);
 
-        if (resultado) Console.WriteLine("Cargo salvo com sucesso!");
+            if (resultado) Console.WriteLine("Cargo salvo com sucesso!");
 
-        Console.ReadKey();
-        
-
-
+            Console.ReadKey();
+        }
     }
 
 	public override async Task Editar() 
@@ -58,6 +60,12 @@ public class ContextoCargos : Contexto<Cargo>
             cargo = BaseDeDados.Cargos.ObterPorNome(nomeCargo);
 
             cargo = TelaDeEdicao(cargo, inputView);
+
+            if (cargo is null)
+            {
+                TelaErro("Nome inválido");
+                return;
+            }
 
             if(await BaseDeDados.Cargos.Atualizar(cargo))
                 inputView.LerEntrada("Sair", "Cargo Editado com sucesso");
@@ -143,25 +151,23 @@ public class ContextoCargos : Contexto<Cargo>
         InputView inputUsuario = new("Cadastrar cargo");
         inputUsuario.ConstruirLayout();
 
-        /*KeyValuePair<string, string?>[] mensagensUsuario =
+        inputUsuario.LerEntrada("nome", "Insira o nome do novo cargo: ");
+
+        if (EVazioOuNulo(inputUsuario, "nome"))
         {
-            new("Nome", "insira o nome do cargo"),
-            new("Permissões","Selecione o nivel de permissão do cargo")
-        };*/
 
-        inputUsuario.LerEntrada("Nome", "Insira o nome do novo cargo: ");
+            List<string> nivelDePermissao = SelecaoDePermissao();
+            string nomeCargo = inputUsuario.EntradasUsuario["nome"];
 
-        string nivelDePermissao = SelecaoDePermissao();
-        string nomeCargo = inputUsuario.EntradasUsuario["Nome"];
+            if (nomeCargo is not null &&
+                nivelDePermissao is not null)
+            {
+                return new Cargo(nomeCargo, nivelDePermissao);
+            }
 
-        if (nomeCargo is not null &&
-            nivelDePermissao is not null)
-        {
-            return new Cargo(nomeCargo, new List<string>() { nivelDePermissao });
         }
-
-        else
-            return null;
+        
+        return null;
     }
 
 
@@ -231,31 +237,54 @@ public class ContextoCargos : Contexto<Cargo>
     }
 
 
-    string SelecaoDePermissao()
+    List<string> SelecaoDePermissao()
     {
+        List<string> permissoes = new List<string>();
 
         var propriedades = typeof(PermissoesAcesso).GetFields();
         string[] nomePropriedades = new string[propriedades.Length];
+        int index = 0;
 
         for (int i = 0; i < propriedades.Length; i++)
         {
             nomePropriedades[i] = propriedades[i].Name;
+            index++;
+        }
+        index = 0;
+        
+
+        while(index < nomePropriedades.Length)
+        {
+            MenuView menuView = new 
+                MenuView("Permissões", "Selecione o nivel de permissão do cargo,", 
+                nomePropriedades);
+
+            menuView.ConstruirLayout();
+            menuView.Exibir();
+            menuView.LerEntrada();
+
+            int opcao = menuView.OpcaoEscolhida-1;
+
+            if (opcao >= nomePropriedades.Length || opcao < 0) break;
+
+            if (!permissoes.Contains
+                (nomePropriedades
+                [opcao]))
+
+                permissoes.Add(nomePropriedades[opcao]);
+
+
+
+            index = opcao;
         }
 
-        MenuView menuView = new MenuView("Permissões", "Selecione o nivel de permissão do cargo,", nomePropriedades);
-
-        menuView.ConstruirLayout();
-        menuView.Exibir();
-        menuView.LerEntrada();
         Console.Clear();
-
-
-
-        return nomePropriedades[menuView.OpcaoEscolhida-1];
+        return permissoes;
+        
     }
 
 
-    public string TelaExclusao(InputView inputView)
+    string TelaExclusao(InputView inputView)
     {
 
         inputView.LerEntrada("name", "Insira o nome do cargo a ser excluido do banco de dados: ");
@@ -265,7 +294,7 @@ public class ContextoCargos : Contexto<Cargo>
         return nomeCargo;
     }
 
-    public string TelaSelecaoParaEditar(InputView inputView)
+    string TelaSelecaoParaEditar(InputView inputView)
     {
 
         inputView.LerEntrada("name", "Insira o nome do cargo a ser editado: ");
@@ -276,18 +305,48 @@ public class ContextoCargos : Contexto<Cargo>
     }
 
 
-    public Cargo TelaDeEdicao(Cargo cargoAtual, InputView inputView)
+    Cargo TelaDeEdicao(Cargo cargoAtual, InputView inputView)
     {
 
         inputView.LerEntrada("nome",
             $"Nome Atual: {cargoAtual.Nome}\n\nEscolha um novo nome: ");
 
-        cargoAtual.Permissoes[0] = SelecaoDePermissao();
+        if (EVazioOuNulo(inputView, "nome"))
+        {
 
-        cargoAtual.Nome = inputView.ObterEntrada("nome");
+            cargoAtual.Permissoes = SelecaoDePermissao();
 
-        return cargoAtual;
+            cargoAtual.Nome = inputView.ObterEntrada("nome");
+
+            return cargoAtual;
+        }
+
+        return null;
     }
+
+    bool EVazioOuNulo(InputView inputView, string chave)
+    {
+
+        string item = inputView.ObterEntrada(chave);
+
+
+        if (string.IsNullOrEmpty(item)) 
+        {
+            return false; 
+        }
+
+        else return true;
+    }
+
+    void TelaErro(string menssagem)
+    {
+        Console.Clear();
+
+        Console.WriteLine(menssagem);
+        Console.WriteLine("\t\t\n\n <--- Pressione alguma tecla para Sair --->");
+        Console.ReadKey();
+    }
+
 
     #endregion
 }
