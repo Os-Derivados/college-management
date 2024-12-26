@@ -110,7 +110,6 @@ public class ContextoCargos : Contexto<Cargo>
         {
             relatorioView = new RelatorioView<Cargo>("Visualizar Usuários",
                                                        BaseDeDados.Cargos.ObterTodos());
-
         }
 
         else
@@ -178,8 +177,9 @@ public class ContextoCargos : Contexto<Cargo>
                                     "Selecione um dos campos:",
                                     ["Nome do Cargo", "Id"]);
 
-        List<Cargo> cargos = new();
-        RelatorioView<Cargo> relatorioView = null!;
+        Cargo cargo = null!;
+        DetalhesView detalhesView = null!;
+        
 
 
         menuPesquisa.ConstruirLayout();
@@ -213,27 +213,23 @@ public class ContextoCargos : Contexto<Cargo>
         if (menuPesquisa.OpcaoEscolhida is 1)
         {
             var nomeDoCargo = inputPesquisa.ObterEntrada("Nome do Cargo");
-            cargos.Add(BaseDeDados.Cargos.ObterPorNome(nomeDoCargo));
+            cargo = BaseDeDados.Cargos.ObterPorNome(nomeDoCargo);
         }
 
         else if (menuPesquisa.OpcaoEscolhida is 2)
         {
             var id = inputPesquisa.ObterEntrada("Id");
-            cargos.Add(BaseDeDados.Cargos.ObterPorId(id));
+            cargo = BaseDeDados.Cargos.ObterPorId(id);
         }
 
-        if (!cargos.Any())
+        if (cargo == null)
         {
             inputPesquisa.LerEntrada("Cargo",
                                      "Cargo não encontrado.");
             return;
         }
 
-        relatorioView = new RelatorioView<Cargo>("Cargos", cargos);
-        
-
-        relatorioView.ConstruirLayout();
-        relatorioView.Exibir();
+        ExibirDetalhesCargo(cargo, detalhesView);
     }
 
 
@@ -347,6 +343,35 @@ public class ContextoCargos : Contexto<Cargo>
         Console.ReadKey();
     }
 
+    void ExibirDetalhesCargo(Cargo cargo, DetalhesView detalhesView)
+    {
+        var dicionario = new Dictionary<string, string>();
+        string permissoes = ListaParaString(cargo.Permissoes);
+        string usuarioId = ListaParaString(cargo.UsuariosIds);
+
+        dicionario.Add("Id", cargo.Id);
+        dicionario.Add("Nome", cargo.Nome);
+        dicionario.Add("Permissões", permissoes);
+        dicionario.Add("Ids de Usuários", usuarioId);
+
+        detalhesView = new DetalhesView("Cargo", dicionario);
+
+        detalhesView.ConstruirLayout();
+        detalhesView.Exibir();
+    }
+
+    string ListaParaString(List<string> strings)
+    {
+        string output = "\n[\n";
+        foreach (string str in strings) 
+        {
+            output += $"\t{str}\n";
+        }
+
+        output += "]";
+
+        return output;
+    }
 
     #endregion
 }
