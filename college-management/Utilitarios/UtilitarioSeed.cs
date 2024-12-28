@@ -61,7 +61,8 @@ public static class UtilitarioSeed
 		                           cargoAluno.Id,
 		                           matriculaTeste.Id);
 
-		await baseDeDados.Usuarios.Adicionar(alunoTeste);
+		var alunoCriado = await baseDeDados.Usuarios.Adicionar(alunoTeste);
+		if(!alunoCriado) return;
 
 		matriculaTeste.AlunoId = alunoTeste.Id;
 		matriculaTeste.CursoId = cursoTeste.Id;
