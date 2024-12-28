@@ -30,7 +30,8 @@ public class ContextoCargos : Contexto<Cargo>
 
             if (novoCargo is null)
             {
-                TelaErro("");
+                TelaErro("O cargo precisa de um nome e permissões válidas");
+                return;
             }
 
             var resultado = await BaseDeDados.Cargos.Adicionar(novoCargo);
@@ -47,7 +48,7 @@ public class ContextoCargos : Contexto<Cargo>
         CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita) ||
         CargoContexto.TemPermissao(PermissoesAcesso.AcessoAdministradores);
 
-        Cargo cargo = null;
+        Cargo? cargo = null;
         string nomeCargo = "";
 
 
@@ -55,19 +56,26 @@ public class ContextoCargos : Contexto<Cargo>
 
         if(temPermissao)
         {
-            nomeCargo = TelaSelecaoParaEditar(inputView);
+            nomeCargo = SelecionaCargoParaEdicao(inputView);
 
             cargo = BaseDeDados.Cargos.ObterPorNome(nomeCargo);
+
+            if (cargo is null)
+            {
+                TelaErro("Cargo não existe");
+                return;
+            }
 
             cargo = TelaDeEdicao(cargo, inputView);
 
             if (cargo is null)
             {
-                TelaErro("Nome inválido");
+                TelaErro("O cargo precisa de um nome e permissões válidas");
                 return;
             }
 
-            if(await BaseDeDados.Cargos.Atualizar(cargo))
+
+            if (await BaseDeDados.Cargos.Atualizar(cargo))
                 inputView.LerEntrada("Sair", "Cargo Editado com sucesso");
 
         }
@@ -138,9 +146,7 @@ public class ContextoCargos : Contexto<Cargo>
 
         if (permissaoAdmin)
         {
-            OpcoesDeVisualizacao();
-
-            Console.ReadKey();
+            PesquisaCargo();
         }
     }
 
@@ -163,7 +169,7 @@ public class ContextoCargos : Contexto<Cargo>
             string nomeCargo = inputUsuario.EntradasUsuario["nome"];
 
             if (nomeCargo is not null &&
-                nivelDePermissao is not null)
+                nivelDePermissao.Any())
             {
                 return new Cargo(nomeCargo, nivelDePermissao);
             }
@@ -175,7 +181,7 @@ public class ContextoCargos : Contexto<Cargo>
 
 
 
-	void OpcoesDeVisualizacao()
+	void PesquisaCargo()
 	{
         MenuView menuPesquisa = new("Cargos",
                                     "Selecione um dos campos:",
@@ -256,7 +262,8 @@ public class ContextoCargos : Contexto<Cargo>
         while(index < nomePropriedades.Length)
         {
             MenuView menuView = new 
-                MenuView("Permissões", "Selecione o nivel de permissão do cargo,", 
+                MenuView("Permissões", 
+                "\t>>> Para sair selecione uma opção não listada <<<\n\n\n", 
                 nomePropriedades);
 
             menuView.ConstruirLayout();
@@ -294,7 +301,7 @@ public class ContextoCargos : Contexto<Cargo>
         return nomeCargo;
     }
 
-    string TelaSelecaoParaEditar(InputView inputView)
+    string SelecionaCargoParaEdicao(InputView inputView)
     {
 
         inputView.LerEntrada("name", "Insira o nome do cargo a ser editado: ");
@@ -314,7 +321,12 @@ public class ContextoCargos : Contexto<Cargo>
         if (ValidaEntrada(inputView, "nome"))
         {
 
-            cargoAtual.Permissoes = SelecaoDePermissao();
+            var permissoes = SelecaoDePermissao();
+
+            if (permissoes.Any())
+                cargoAtual.Permissoes = permissoes;
+
+            else return null;
 
             cargoAtual.Nome = inputView.ObterEntrada("nome");
 
