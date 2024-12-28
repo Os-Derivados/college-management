@@ -86,8 +86,14 @@ public class ContextoCargos : Contexto<Cargo>
         if(temPermissao)
         {
             cargoNome = TelaExclusao(inputView);
+            cargoId = BaseDeDados.Cargos?.ObterPorNome(cargoNome)?.Id!; 
 
-            cargoId = BaseDeDados.Cargos.ObterPorNome(cargoNome).Id!;
+            if (cargoId is null)
+            {
+                TelaErro("Esse cargo não existe");
+
+                return;
+            }
 
             
             if (await BaseDeDados.Cargos.Remover(cargoId))
@@ -95,8 +101,6 @@ public class ContextoCargos : Contexto<Cargo>
 
             
         }
-
-
     }
 
 	public override void Visualizar()  
@@ -152,7 +156,7 @@ public class ContextoCargos : Contexto<Cargo>
 
         inputUsuario.LerEntrada("nome", "Insira o nome do novo cargo: ");
 
-        if (EVazioOuNulo(inputUsuario, "nome"))
+        if (ValidaEntrada(inputUsuario, "nome"))
         {
 
             List<string> nivelDePermissao = SelecaoDePermissao();
@@ -307,7 +311,7 @@ public class ContextoCargos : Contexto<Cargo>
         inputView.LerEntrada("nome",
             $"Nome Atual: {cargoAtual.Nome}\n\nEscolha um novo nome: ");
 
-        if (EVazioOuNulo(inputView, "nome"))
+        if (ValidaEntrada(inputView, "nome"))
         {
 
             cargoAtual.Permissoes = SelecaoDePermissao();
@@ -320,7 +324,7 @@ public class ContextoCargos : Contexto<Cargo>
         return null;
     }
 
-    bool EVazioOuNulo(InputView inputView, string chave)
+    bool ValidaEntrada(InputView inputView, string chave)
     {
 
         string item = inputView.ObterEntrada(chave);
