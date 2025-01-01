@@ -30,7 +30,7 @@ public class ContextoCargos : Contexto<Cargo>
 
             if (novoCargo is null)
             {
-                TelaErro("O cargo precisa de um nome e permissões válidas");
+                TelaErro("O cargo precisa de um nome e permissï¿½es vï¿½lidas");
                 return;
             }
 
@@ -62,7 +62,7 @@ public class ContextoCargos : Contexto<Cargo>
 
             if (cargo is null)
             {
-                TelaErro("Cargo não existe");
+                TelaErro("Cargo nï¿½o existe");
                 return;
             }
 
@@ -70,7 +70,7 @@ public class ContextoCargos : Contexto<Cargo>
 
             if (cargo is null)
             {
-                TelaErro("O cargo precisa de um nome e permissões válidas");
+                TelaErro("O cargo precisa de um nome e permissï¿½es vï¿½lidas");
                 return;
             }
 
@@ -98,14 +98,14 @@ public class ContextoCargos : Contexto<Cargo>
 
             if (cargoId is null)
             {
-                TelaErro("Esse cargo não existe");
+                TelaErro("Esse cargo nï¿½o existe");
 
                 return;
             }
 
             
             if (await BaseDeDados.Cargos.Remover(cargoId))
-                inputView.LerEntrada("Sair", "Exclusão realizada com sucesso");
+                inputView.LerEntrada("Sair", "Exclusï¿½o realizada com sucesso");
 
             
         }
@@ -120,12 +120,12 @@ public class ContextoCargos : Contexto<Cargo>
 
         if (temPermissao)
         {
-            relatorioView = new RelatorioView<Cargo>("Visualizar Usuários",
+            relatorioView = new RelatorioView<Cargo>("Visualizar Usuï¿½rios",
                                                        BaseDeDados.Cargos.ObterTodos());
         }
 
         else
-            relatorioView = new RelatorioView<Cargo>("Visualizar Usuário", new List<Cargo>() 
+            relatorioView = new RelatorioView<Cargo>("Visualizar Usuï¿½rio", new List<Cargo>() 
             { 
                 BaseDeDados.Cargos.ObterPorId(UsuarioContexto.CargoId) 
             });
@@ -210,7 +210,7 @@ public class ContextoCargos : Contexto<Cargo>
         if (campoPesquisa is null)
         {
             inputPesquisa.LerEntrada("Campo",
-                                     "Campo inválido. Tente novamente.");
+                                     "Campo invï¿½lido. Tente novamente.");
 
             return;
         }
@@ -235,11 +235,12 @@ public class ContextoCargos : Contexto<Cargo>
         if (cargo == null)
         {
             inputPesquisa.LerEntrada("Cargo",
-                                     "Cargo não encontrado.");
+                                     "Cargo nï¿½o encontrado.");
             return;
         }
 
         ExibirDetalhesCargo(cargo, detalhesView);
+        Console.ReadKey();
     }
 
 
@@ -262,8 +263,8 @@ public class ContextoCargos : Contexto<Cargo>
         while(index < nomePropriedades.Length)
         {
             MenuView menuView = new 
-                MenuView("Permissões", 
-                "\t>>> Para sair selecione uma opção não listada <<<\n\n\n", 
+                MenuView("Permissï¿½es", 
+                "\t>>> Para sair selecione uma opï¿½ï¿½o nï¿½o listada <<<\n\n\n", 
                 nomePropriedades);
 
             menuView.ConstruirLayout();
@@ -367,8 +368,8 @@ public class ContextoCargos : Contexto<Cargo>
 
         dicionario.Add("Id", cargo.Id);
         dicionario.Add("Nome", cargo.Nome);
-        dicionario.Add("Permissões", permissoes);
-        dicionario.Add("Ids de Usuários", usuarioId);
+        dicionario.Add("Permissï¿½es", permissoes);
+        dicionario.Add("Ids de Usuï¿½rios", usuarioId);
 
         detalhesView = new DetalhesView("Cargo", dicionario);
 
