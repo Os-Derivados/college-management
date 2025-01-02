@@ -19,18 +19,14 @@ Antes da primeira inicialização, abra uma janela de terminal e execute um dos 
 1. No Linux (bash): 
 
 ```shell
-# Obs.: substitua [username] pelo seu nome de usuário.
-
-cd /home/username/.config/OsDerivados/CollegeManagement/
+cd $HOME/.config/OsDerivados/CollegeManagement/
 touch .env
 ```
 
 2. No Windows (PowerShell):
 
 ```powershell
-# Obs.: substitua [username] pelo seu nome de usuário.
-
-cd C:\Users\username\AppData\Roaming\OsDerivados\CollegeManagement
+cd $env:APPDATA\OsDerivados\CollegeManagement
 New-Item -Type File .env
 ```
 
