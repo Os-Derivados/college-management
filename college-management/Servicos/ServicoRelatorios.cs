@@ -1,7 +1,5 @@
 using System.Reflection;
-using System.Runtime.Serialization.Json;
 using System.Text;
-using System.Text.Json;
 using college_management.Constantes;
 using college_management.Dados.Modelos;
 using college_management.Dados.Repositorios;
@@ -21,54 +19,39 @@ where T : Modelo
 	private readonly List<T> _modelos;
 
 	public ServicoRelatorios(Usuario usuario,
-                             Nota nota,
-                             List<T> modelos)
+	                         List<T> modelos)
 	{
-
-                           
-                _arquivoRelatorios =Path.Combine(UtilitarioArquivos.DiretorioBase,
-                                $"{typeof(T).Name}.csv");
-
+		_arquivoRelatorios
+			= Path.Combine(SpecialDirectories.MyDocuments,
+			               "OsDerivados",
+			               "CollegeManagement",
+			               "Relatorios",
+			               $"{typeof(T).Name}.csv");
 
 		_usuario = usuario;
 		_modelos = modelos;
 	}
 
-
-
-
 	public string GerarRelatorio(T modelo, Cargo? cargoUsuario)
 	{
-        if (cargoUsuario == null) throw new NullReferenceException(
-                                                        $"ERROR: {typeof(Cargo).Name} é null. " +
-                                                        $"(ServicoRelatorios<{typeof(T).Name}>.GerarRelatorio)"
-                                                    );
-
-
-        return cargoUsuario
+		return cargoUsuario
 			       .TemPermissao(PermissoesAcesso.AcessoEscrita)
 			       ? GerarEntradasRelatorio()
-			       : modelo.ToString() ?? throw new NullReferenceException(
-                                                        $"ERROR: {typeof(T).Name}.ToString() retorna null. " +
-                                                        $"(ServicoRelatorios<{typeof(T).Name}>.GerarRelatorio)"
-                                                    );
-
-                   
+			       : modelo.ToString();
 	}
 
-	public string  GerarEntradasRelatorio()
+	public string GerarEntradasRelatorio()
 	{
         if (_modelos.Count == 0)
             return "Nenhum registro encontrado.";
 
         else
         {
-            
             var relatorio = new StringBuilder();
             var propriedades = typeof(T).GetProperties();
 
 
-            //  Adiciona o cabeçalho à string CSV relatorio
+            //  Adiciona o cabecalho à string CSV
             foreach (var propriedade in propriedades)
             {
                 if (propriedades.Last() == propriedade)
@@ -84,7 +67,7 @@ where T : Modelo
                 if (modelo == null)
                     relatorio.Append("Registro nulo\n");
 
-                else // Adiciona os valores do registro à string CSV relatorio
+                else // Adiciona os valores do registro à string CSV
                 {
                     foreach (var propriedade in propriedades)
                     {
@@ -102,7 +85,9 @@ where T : Modelo
     }
 
 	public async Task ExportarRelatorio(string relatorio)
-    {
-        await File.WriteAllTextAsync(_arquivoRelatorios, relatorio);
+	{
+		// TODO: Implementar um algoritmo para exportar relatórios no formato CSV
+
+		throw new NotImplementedException();
 	}
 }
