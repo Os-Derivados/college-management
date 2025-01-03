@@ -1,6 +1,10 @@
+using System.Reflection;
+using System.Text;
 using college_management.Constantes;
 using college_management.Dados.Modelos;
+using college_management.Dados.Repositorios;
 using college_management.Servicos.Interfaces;
+using college_management.Utilitarios;
 using Microsoft.VisualBasic.FileIO;
 
 
@@ -8,11 +12,11 @@ namespace college_management.Servicos;
 
 
 public sealed class ServicoRelatorios<T> : IServicoRelatorios<T>
-	where T : Modelo
+where T : Modelo
 {
 	private readonly string  _arquivoRelatorios;
-	private readonly List<T> _modelos;
 	private readonly Usuario _usuario;
+	private readonly List<T> _modelos;
 
 	public ServicoRelatorios(Usuario usuario,
 	                         List<T> modelos)
@@ -31,9 +35,9 @@ public sealed class ServicoRelatorios<T> : IServicoRelatorios<T>
 	public string GerarRelatorio(T modelo, Cargo? cargoUsuario)
 	{
 		return cargoUsuario
-			.TemPermissao(PermissoesAcesso.AcessoEscrita)
-			? GerarEntradasRelatorio()
-			: modelo.ToString();
+			       .TemPermissao(PermissoesAcesso.AcessoEscrita)
+			       ? GerarEntradasRelatorio()
+			       : modelo.ToString();
 	}
 
 	public string GerarEntradasRelatorio()
@@ -47,7 +51,7 @@ public sealed class ServicoRelatorios<T> : IServicoRelatorios<T>
             var propriedades = typeof(T).GetProperties();
 
 
-            //  Adiciona o cabeçalho à string CSV relatorio
+            //  Adiciona o cabecalho à string CSV
             foreach (var propriedade in propriedades)
             {
                 if (propriedades.Last() == propriedade)
@@ -57,13 +61,13 @@ public sealed class ServicoRelatorios<T> : IServicoRelatorios<T>
                     relatorio.Append($"{propriedade.Name},");
             }
 
-            // Adiciona os valores à string CSV relatorio
+            // Adiciona os valores à string CSV
             foreach (var modelo in _modelos)
             {
                 if (modelo == null)
                     relatorio.Append("Registro nulo\n");
 
-                else // Adiciona os valores do registro à string CSV relatorio
+                else // Adiciona os valores do registro à string CSV
                 {
                     foreach (var propriedade in propriedades)
                     {
