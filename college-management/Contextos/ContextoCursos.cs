@@ -90,6 +90,8 @@ public class ContextoCursos : Contexto<Curso>,
 		if (TemPermissoes)
 		{
             curso = PesquisarCurso();
+            if (curso is null)
+                return;
             inputRelatorio.LerEntrada("Sair", obterLayout(curso));
 			return;
 		}
@@ -122,7 +124,9 @@ public class ContextoCursos : Contexto<Curso>,
 
 	public override async Task Editar()
     {
-        Curso curso = PesquisarCurso();
+        Curso? curso = PesquisarCurso();
+        if (curso is null)
+            return;
 
         var propriedades = curso.GetType().GetProperties().ToList();
         // Essas propriedades devem ser editadas por outros meios.
@@ -169,6 +173,8 @@ public class ContextoCursos : Contexto<Curso>,
 	public override async Task Excluir()
     {
         var curso = PesquisarCurso();
+        if (curso is null)
+            return;
 
         DetalhesView detalhesCurso = new(string.Empty, ObterDetalhes(curso));
         detalhesCurso.ConstruirLayout();
@@ -198,7 +204,9 @@ public class ContextoCursos : Contexto<Curso>,
 
 	public override void VerDetalhes()
 	{
-        Curso curso = PesquisarCurso();
+        Curso? curso = PesquisarCurso();
+        if (curso is null)
+            return;
 
         DetalhesView detalhesCurso = new("Curso Encontrado", ObterDetalhes(curso));
         detalhesCurso.ConstruirLayout();
@@ -206,7 +214,7 @@ public class ContextoCursos : Contexto<Curso>,
         new InputView("Cursos: Ver Detalhes").LerEntrada("Sair", detalhesCurso.Layout.ToString());
     }
 
-    private Curso PesquisarCurso()
+    private Curso? PesquisarCurso()
     {
         MenuView menuPesquisa = new("Pesquisar Curso",
                 "Escolha o método de pesquisa.",
@@ -226,8 +234,7 @@ public class ContextoCursos : Contexto<Curso>,
 
         if (campoPesquisa is null)
         {
-            inputPesquisa.LerEntrada("Erro", "Campo inválido. Tente novamente.");
-            return PesquisarCurso();
+            return null;
         }
 
         Curso? curso = null;
