@@ -83,35 +83,37 @@ public class ContextoCursos : Contexto<Curso>,
                    $"{string.Join('\n', curso.GradeCurricular.Select(i => i.Nome))}";
         };
 
-        var obterLayoutAluno = (Aluno aluno) =>
-        {
-            var curso = BaseDeDados.Cursos.ObterTodos()
-                .Where(i => i.MatriculasIds?.Contains(aluno.MatriculaId) ?? false)
-                .FirstOrDefault() ?? throw new InvalidOperationException("O atual usuário não está matriculado em nenhum curso.");
-            return obterLayout(curso);
-        };
-
         InputView inputRelatorio = new("Ver Grade Curricular");
+
+        Curso? curso = null;
 
 		if (TemPermissoes)
 		{
-            Curso curso = PesquisarCurso();
+            curso = PesquisarCurso();
             inputRelatorio.LerEntrada("Sair", obterLayout(curso));
 			return;
 		}
 
         string layout = string.Empty;
 
-        try
+        Aluno? aluno = UsuarioContexto as Aluno;
+        if (aluno is null)
         {
-            Aluno? aluno = UsuarioContexto as Aluno ?? throw new InvalidOperationException("O usuário atual não é um aluno.");
-            layout = obterLayoutAluno(aluno);
-        }
-        catch (InvalidOperationException e)
-        {
-            inputRelatorio.LerEntrada("Erro", e.Message);
+            inputRelatorio.LerEntrada("Erro", "O usuário atual não é um aluno.");
             return;
         }
+
+        curso = BaseDeDados.Cursos.ObterTodos()
+                .Where(i => i.MatriculasIds?.Contains(aluno.MatriculaId) ?? false)
+                .FirstOrDefault();
+
+        if (curso is null)
+        {
+            inputRelatorio.LerEntrada("Erro", "O aluno não está matriculado em nenhum curso.");
+            return;
+        }
+
+        layout = obterLayout(curso);
 
         inputRelatorio.LerEntrada("Sair", layout);
 	}
@@ -128,8 +130,6 @@ public class ContextoCursos : Contexto<Curso>,
         propriedades.RemoveAll(i => i.Name == "MatriculasIds");
         // Essa aqui nem se fala. Deveríamos adicionar um método de filtrar essas propriedades.
         propriedades.RemoveAll(i => i.Name == "Id");
-
-        var nomesPropriedadesRaw = propriedades.Select(i => i.Name);
 
         InputView inputView = new("Editar Curso");
 
@@ -214,41 +214,39 @@ public class ContextoCursos : Contexto<Curso>,
 
         InputView inputPesquisa = new("Ver Grade Curricular: Pesquisar Curso");
 
-        // Real lógica da pesquisa.
-        var operacao = () =>
+        menuPesquisa.ConstruirLayout();
+        menuPesquisa.LerEntrada();
+
+        (string Campo, string Mensagem)? campoPesquisa = menuPesquisa.OpcaoEscolhida switch
         {
-            menuPesquisa.ConstruirLayout();
-            menuPesquisa.LerEntrada();
-
-            (string Campo, string Mensagem) campoPesquisa = menuPesquisa.OpcaoEscolhida switch
-            {
-                1 => ("Nome", "Insira o Nome do curso: "),
-                2 => ("Id", "Insira o Id do curso: "),
-                _ => throw new InvalidOperationException("Campo inválido. Tente novamente.")
-            };
-
-            Curso? curso = null;
-
-            inputPesquisa.LerEntrada(campoPesquisa.Campo, campoPesquisa.Mensagem);
-            curso = menuPesquisa.OpcaoEscolhida switch
-            {
-                1 => BaseDeDados.Cursos.ObterPorNome(inputPesquisa.ObterEntrada("Nome")),
-                2 => BaseDeDados.Cursos.ObterPorNome(inputPesquisa.ObterEntrada("Id")),
-                _ => null
-            };
-
-            return curso ?? throw new Exception("Curso não encontrado.");
+            1 => ("Nome", "Insira o Nome do curso: "),
+            2 => ("Id", "Insira o Id do curso: "),
+            _ => null
         };
 
-        try
+        if (campoPesquisa is null)
         {
-            return operacao();
-        }
-        catch (Exception e)
-        {
-            inputPesquisa.LerEntrada("Erro", e.Message);
+            inputPesquisa.LerEntrada("Erro", "Campo inválido. Tente novamente.");
             return PesquisarCurso();
         }
+
+        Curso? curso = null;
+
+        inputPesquisa.LerEntrada(campoPesquisa?.Campo!, campoPesquisa?.Mensagem);
+        curso = menuPesquisa.OpcaoEscolhida switch
+        {
+            1 => BaseDeDados.Cursos.ObterPorNome(inputPesquisa.ObterEntrada("Nome")),
+            2 => BaseDeDados.Cursos.ObterPorNome(inputPesquisa.ObterEntrada("Id")),
+            _ => null
+        };
+
+        if (curso is null)
+        {
+            inputPesquisa.LerEntrada("Erro", "Curso não encontrado.");
+            return PesquisarCurso();
+        }
+
+        return curso;
     }
 
     private Dictionary<string, string> ObterDetalhes(Curso curso)
