@@ -21,4 +21,11 @@ public class DetalhesView : View
 		         _detalhes)
 			Layout.AppendLine($"{detalhe.Key}: {detalhe.Value}");
 	}
+
+	public override void Exibir()
+	{
+		base.Exibir();
+
+		Console.ReadLine();
+	}
 }
