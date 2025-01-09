@@ -111,8 +111,10 @@ public class ContextoUsuarios : Contexto<Usuario>,
 			return;
 		}
 
-		Dictionary<string, string> cadastroUsuario
-			= ObterCadastroUsuario(inputUsuario);
+		CadastroUsuarioView cadastroUsuarioView = new();
+		cadastroUsuarioView.ObterDados();
+
+		var cadastroUsuario = cadastroUsuarioView.CadastroUsuario;
 
 		if (cadastroUsuario["Confirma"] is not "S") return;
 
@@ -182,54 +184,6 @@ public class ContextoUsuarios : Contexto<Usuario>,
 			                       : $"Não foi possível cadastrar novo {nameof(Usuario)}.";
 
 		inputUsuario.LerEntrada("Sair", mensagemOperacao);
-	}
-
-	private Dictionary<string, string> ObterCadastroUsuario(InputView inputUsuario)
-	{
-		KeyValuePair<string, string?>[] mensagensUsuario =
-		[
-			new("Nome", "Insira o Nome: "),
-			new("Login", "Insira o Login: "),
-			new("Senha", "Insira a Senha: "),
-			new("Cargo", "Insira o Cargo: ")
-		];
-
-		foreach (KeyValuePair<string, string?> mensagem
-		         in mensagensUsuario)
-			inputUsuario.LerEntrada(mensagem.Key,
-			                        mensagem.Value);
-
-		KeyValuePair<string, string?>[] mensagensAluno =
-		[
-			new("Periodo", "Insira o Período: "),
-			new("Curso", "Insira o nome do Curso: "),
-			new("Modalidade", "Insira a Modalidade: ")
-		];
-
-		if (inputUsuario.ObterEntrada("Cargo")
-		    is CargosPadrao.CargoAlunos)
-			foreach (KeyValuePair<string, string?> mensagem
-			         in mensagensAluno)
-				inputUsuario.LerEntrada(mensagem.Key,
-				                        mensagem.Value);
-
-		DetalhesView detalhesView = new("Confirmar Cadastro",
-		                                inputUsuario
-			                                .EntradasUsuario);
-
-		detalhesView.ConstruirLayout();
-
-		StringBuilder mensagemConfirmacao = new();
-		mensagemConfirmacao.AppendLine(detalhesView.Layout
-		                                           .ToString());
-
-		mensagemConfirmacao.AppendLine("Confirma o Cadastro?\n");
-		mensagemConfirmacao.Append("[S]im\t[N]ão: ");
-
-		inputUsuario.LerEntrada("Confirma",
-		                        mensagemConfirmacao.ToString());
-
-		return inputUsuario.EntradasUsuario;
 	}
 
 	private Matricula CriarMatricula(Dictionary<string, string> cadastroUsuario)
