@@ -30,15 +30,21 @@ public class ContextoCargos : Contexto<Cargo>
 
             if (novoCargo is null)
             {
-                TelaErro("O cargo precisa de um nome e permiss�es v�lidas");
+                TelaErro("O cargo precisa de um nome e permissões válidas");
                 return;
             }
 
             var resultado = await BaseDeDados.Cargos.Adicionar(novoCargo);
 
-            if (resultado) Console.WriteLine("Cargo salvo com sucesso!");
+            if (resultado)
+            {
+                Console.WriteLine("Cargo salvo com sucesso!");
+                Console.ReadKey();
+            }
 
-            Console.ReadKey();
+            else TelaErro("Não foi possível inserir esse cargo no banco de dados");
+
+            
         }
     }
 
@@ -62,7 +68,7 @@ public class ContextoCargos : Contexto<Cargo>
 
             if (cargo is null)
             {
-                TelaErro("Cargo n�o existe");
+                TelaErro("Cargo não existe");
                 return;
             }
 
@@ -70,7 +76,7 @@ public class ContextoCargos : Contexto<Cargo>
 
             if (cargo is null)
             {
-                TelaErro("O cargo precisa de um nome e permiss�es v�lidas");
+                TelaErro("O cargo precisa de um nome e permissões válidas");
                 return;
             }
 
@@ -98,14 +104,14 @@ public class ContextoCargos : Contexto<Cargo>
 
             if (cargoId is null)
             {
-                TelaErro("Esse cargo n�o existe");
+                TelaErro("Esse cargo não existe");
 
                 return;
             }
 
             
             if (await BaseDeDados.Cargos.Remover(cargoId))
-                inputView.LerEntrada("Sair", "Exclus�o realizada com sucesso");
+                inputView.LerEntrada("Sair", "Exclusão realizada com sucesso");
 
             
         }
@@ -120,12 +126,12 @@ public class ContextoCargos : Contexto<Cargo>
 
         if (temPermissao)
         {
-            relatorioView = new RelatorioView<Cargo>("Visualizar Usu�rios",
+            relatorioView = new RelatorioView<Cargo>("Visualizar Usuários",
                                                        BaseDeDados.Cargos.ObterTodos());
         }
 
         else
-            relatorioView = new RelatorioView<Cargo>("Visualizar Usu�rio", new List<Cargo>() 
+            relatorioView = new RelatorioView<Cargo>("Visualizar Usuário", new List<Cargo>() 
             { 
                 BaseDeDados.Cargos.ObterPorId(UsuarioContexto.CargoId) 
             });
@@ -210,7 +216,7 @@ public class ContextoCargos : Contexto<Cargo>
         if (campoPesquisa is null)
         {
             inputPesquisa.LerEntrada("Campo",
-                                     "Campo inv�lido. Tente novamente.");
+                                     "Campo inválido. Tente novamente.");
 
             return;
         }
@@ -235,7 +241,7 @@ public class ContextoCargos : Contexto<Cargo>
         if (cargo == null)
         {
             inputPesquisa.LerEntrada("Cargo",
-                                     "Cargo n�o encontrado.");
+                                     "Cargo não encontrado.");
             return;
         }
 
@@ -263,8 +269,8 @@ public class ContextoCargos : Contexto<Cargo>
         while(index < nomePropriedades.Length)
         {
             MenuView menuView = new 
-                MenuView("Permiss�es", 
-                "\t>>> Para sair selecione uma op��o n�o listada <<<\n\n\n", 
+                MenuView("Permissões", 
+                "\t>>> Para sair selecione uma opçãoo não listada ou tecle Enter <<<\n\n\n", 
                 nomePropriedades);
 
             menuView.ConstruirLayout();
@@ -368,8 +374,8 @@ public class ContextoCargos : Contexto<Cargo>
 
         dicionario.Add("Id", cargo.Id);
         dicionario.Add("Nome", cargo.Nome);
-        dicionario.Add("Permiss�es", permissoes);
-        dicionario.Add("Ids de Usu�rios", usuarioId);
+        dicionario.Add("Permissões", permissoes);
+        dicionario.Add("Ids de Usuários", usuarioId);
 
         detalhesView = new DetalhesView("Cargo", dicionario);
 
