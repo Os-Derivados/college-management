@@ -261,7 +261,10 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		return novaMatricula;
 	}
 
-	public override async Task Editar() { throw new NotImplementedException(); }
+	public override async Task Editar()
+	{
+		
+	}
 
 	public override async Task Excluir() { throw new NotImplementedException(); }
 

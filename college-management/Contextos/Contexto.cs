@@ -11,7 +11,7 @@ namespace college_management.Contextos;
 public abstract class Contexto<T> : IContexto<T> where T : Modelo
 {
 	protected Contexto(BaseDeDados baseDeDados,
-	                   Usuario     usuarioContexto)
+	                   Usuario usuarioContexto)
 	{
 		BaseDeDados     = baseDeDados;
 		UsuarioContexto = usuarioContexto;
@@ -24,6 +24,10 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 	protected readonly BaseDeDados BaseDeDados;
 	protected readonly Usuario     UsuarioContexto;
 	protected readonly Cargo       CargoContexto;
+
+	protected bool TemAcessoRestrito =>
+		CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita) ||
+		CargoContexto.TemPermissao(PermissoesAcesso.AcessoAdministradores);
 
 	public void ListarOpcoes()
 	{
@@ -41,10 +45,7 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 	{
 		string[] recursosDisponiveis;
 
-		var temPermissaoAdmin = CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita)
-		                        || CargoContexto.TemPermissao(PermissoesAcesso.AcessoAdministradores);
-
-		if (temPermissaoAdmin)
+		if (TemAcessoRestrito)
 		{
 			recursosDisponiveis = typeof(T).Name switch
 			{
@@ -85,7 +86,7 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 			throw new
 				InvalidOperationException("Recurso inexistente");
 
-		var task = (Task) recurso.Invoke(this, []);
+		var task = (Task)recurso.Invoke(this, []);
 
 		task?.Wait();
 	}
