@@ -63,19 +63,27 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 
 		recursosDisponiveis = typeof(T).Name switch
 		{
-			nameof(Usuario) => OperacoesRecursos
-				.RecursosLeituraUsuarios,
-			nameof(Curso) => OperacoesRecursos
-				.RecursosLeituraCursos,
-			_ => OperacoesRecursos.RecursosLeitura
+			nameof(Usuario) => OperacoesRecursos.RecursosLeituraUsuarios,
+			nameof(Curso)   => OperacoesRecursos.RecursosLeituraCursos,
+			_               => OperacoesRecursos.RecursosLeitura
 		};
 
 		return recursosDisponiveis;
 	}
 
+	public bool ValidarPermissoes()
+	{
+		if (TemAcessoRestrito) return true;
+		
+		InputView inputPermissao = new("Acesso Restrito");
+		inputPermissao.LerEntrada("Sem Permissão", "Você não tem permissão para acessar este recurso. Pressione [Enter] para voltar.");
+
+		return false;
+	}
+
 	public void AcessarRecurso(string nomeRecurso)
 	{
-		Type[] interfacesContexto = GetType().GetInterfaces();
+		var interfacesContexto = GetType().GetInterfaces();
 
 		var recurso =
 			interfacesContexto
