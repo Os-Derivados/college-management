@@ -44,10 +44,12 @@ public static class UtilitarioSeed
 		Materia materiaTeste = new("Matéria Teste", Turno.Integral, 60);
 		await baseDeDados.Materias.Adicionar(materiaTeste);
 
+		Matricula matriculaTeste = new(1, Modalidade.Presencial);
+
 		Curso cursoTeste = new("Curso Teste", [materiaTeste]);
+		(cursoTeste.MatriculasIds = new()).Add(matriculaTeste.Id!);
 		await baseDeDados.Cursos.Adicionar(cursoTeste);
 
-		Matricula matriculaTeste = new(1, Modalidade.Presencial);
 
 		var cargoAluno = baseDeDados
 		                 .Cargos
