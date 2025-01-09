@@ -280,7 +280,18 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 	public override void VerDetalhes()
 	{
-		if (!TemAcessoRestrito) { }
+		if (!TemAcessoRestrito)
+		{
+			
+			DetalhesView detalhesContexto = new("Detalhes da Conta",
+			                                   UtilitarioTipos.ObterPropriedades(UsuarioContexto,
+			                                                                   ["Login", "Nome", "Credenciais", "CargoId", "Id"]));
+			detalhesContexto.ConstruirLayout();
+			detalhesContexto.Exibir();
+			
+			
+			return;
+		}
 
 		MenuView menuPesquisa = new("Pesquisar Usuário",
 		                            "Selecione um dos campos para pesquisar.",
