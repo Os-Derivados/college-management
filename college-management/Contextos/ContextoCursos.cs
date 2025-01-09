@@ -18,9 +18,6 @@ public class ContextoCursos : Contexto<Curso>,
 		base(baseDeDados,
 		     usuarioContexto) { }
 
-    private bool TemPermissoes => CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita) ||
-            CargoContexto.TemPermissao(PermissoesAcesso.AcessoAdministradores);
-
     public void VerGradeHoraria()
 	{
 		// TODO: Desenvolver um algoritmo para visualização de grade horária
@@ -87,7 +84,7 @@ public class ContextoCursos : Contexto<Curso>,
 
         Curso? curso = null;
 
-		if (TemPermissoes)
+		if (TemAcessoRestrito)
 		{
             curso = PesquisarCurso();
             if (curso is null)

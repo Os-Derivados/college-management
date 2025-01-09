@@ -30,8 +30,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		// Curso: Ciência da Computação
 		// Período: 2
 
-		if (CargoContexto.TemPermissao(PermissoesAcesso
-			                               .AcessoEscrita))
+		if (TemAcessoRestrito)
 			// [REQUISITO]: A visualização do Gestor deve permitir a busca
 			// de um Aluno em específico na base de dados
 			//
@@ -70,8 +69,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		// | Calculo 1      |    9.0     | Aprovado |
 		// | Algebra Linear |    N/A     |   N/A    |
 
-		if (CargoContexto.TemPermissao(PermissoesAcesso
-			                               .AcessoEscrita))
+		if (TemAcessoRestrito)
 			// [REQUISITO]: A visualização do Gestor deve permitir a busca
 			// de uma Aluno em específico na base de dados
 			//
@@ -101,14 +99,10 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 	public override async Task Cadastrar()
 	{
-		var temPermissao =
-			CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita)
-			|| CargoContexto.TemPermissao(PermissoesAcesso.AcessoAdministradores);
-
 		InputView inputUsuario = new("Cadastrar Usuário");
 		inputUsuario.ConstruirLayout();
 
-		if (!temPermissao)
+		if (!TemAcessoRestrito)
 		{
 			inputUsuario.LerEntrada("Erro",
 			                        "Você não tem permissão "
@@ -270,12 +264,9 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 	public override void Visualizar()
 	{
-		var naoTemRestricao = CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita)
-		                      || CargoContexto.TemPermissao(PermissoesAcesso.AcessoAdministradores);
-
 		RelatorioView<Usuario> relatorioView;
 
-		if (naoTemRestricao)
+		if (TemAcessoRestrito)
 			relatorioView = new RelatorioView<Usuario>("Visualizar Usuários",
 			                                           BaseDeDados.Usuarios.ObterTodos());
 		else
@@ -289,10 +280,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 	public override void VerDetalhes()
 	{
-		var naoTemRestricao = CargoContexto.TemPermissao(PermissoesAcesso.AcessoAdministradores)
-		                      || CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita);
-
-		if (!naoTemRestricao) { }
+		if (!TemAcessoRestrito) { }
 
 		MenuView menuPesquisa = new("Pesquisar Usuário",
 		                            "Selecione um dos campos para pesquisar.",

@@ -14,11 +14,9 @@ public class ContextoMaterias : Contexto<Materia>
 		base(baseDeDados,
 		     usuarioContexto) { }
 
-    private bool TemPermissaoEscrita => CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita) || CargoContexto.TemPermissao(PermissoesAcesso.AcessoAdministradores);
-
     private async Task<Materia?> ObterMateriaComValidacao()
     {
-        if (!TemPermissaoEscrita)
+        if (!TemAcessoRestrito)
         {
             ExibirMensagemErro("Você não tem permissão para acessar esse recurso.");
             return null;
@@ -152,7 +150,7 @@ public class ContextoMaterias : Contexto<Materia>
 
     public override async Task Cadastrar()
     {
-        if (!TemPermissaoEscrita)
+        if (!TemAcessoRestrito)
         {
             ExibirMensagemErro("Você não tem permissão para acessar esse recurso.");
             return;
