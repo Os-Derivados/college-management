@@ -349,7 +349,6 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		DetalhesView detalhesUsuario = new("Usuário Encontrado", detalhes);
 		detalhesUsuario.ConstruirLayout();
-
-		inputPesquisa.LerEntrada("Sair", detalhesUsuario.Layout.ToString());
+		detalhesUsuario.Exibir();
 	}
 }
