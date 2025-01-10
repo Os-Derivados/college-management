@@ -218,7 +218,6 @@ public class ContextoUsuarios : Contexto<Usuario>,
 					                                    UsuarioContexto,
 					                                    [
 						                                    "Login", "Nome",
-						                                    "Credenciais",
 						                                    "CargoId", "Id"
 					                                    ]));
 			detalhesContexto.ConstruirLayout();
