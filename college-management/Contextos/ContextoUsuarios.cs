@@ -111,7 +111,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		var cadastroUsuario = cadastroUsuarioView.CadastroUsuario;
 
-		if (cadastroUsuario["Confirma"] is not "S") return;
+		if (cadastroUsuario["Confirma"].ToLower() is not "S") return;
 
 		var cargoEscolhido = BaseDeDados
 		                     .Cargos
@@ -279,11 +279,10 @@ public class ContextoUsuarios : Contexto<Usuario>,
 			return;
 		}
 
-		Dictionary<string, string> detalhes =
-			UtilitarioTipos.ObterPropriedades(usuario,
-			[
-				"Login", "Nome", "Credenciais", "CargoId", "Id"
-			]);
+		var detalhes = UtilitarioTipos.ObterPropriedades(usuario,
+		[
+			"Login", "Nome", "Credenciais", "CargoId", "Id"
+		]);
 
 		DetalhesView detalhesUsuario = new("Usuário Encontrado", detalhes);
 		detalhesUsuario.ConstruirLayout();
