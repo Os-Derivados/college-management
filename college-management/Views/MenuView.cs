@@ -29,7 +29,7 @@ public class MenuView : View, IMenuView
 			Layout.AppendLine($"[{i + 1}] {_opcoes[i]}");
 
 		Layout.AppendLine();
-		Layout.Append("Sua opção (somente números): ");
+		Layout.Append("Digite 0 para sair. Sua opção (somente números): ");
 	}
 
 	public void LerEntrada()
