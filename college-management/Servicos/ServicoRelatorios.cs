@@ -42,9 +42,47 @@ where T : Modelo
 
 	public string GerarEntradasRelatorio()
 	{
-		// TODO: Implementar um algoritmo para converter registros JSON para o formato CSV
-		throw new NotImplementedException();
-	}
+        if (_modelos.Count == 0)
+            return "Nenhum registro encontrado.";
+
+        else
+        {
+            var relatorio = new StringBuilder();
+            var propriedades = typeof(T).GetProperties();
+
+
+            //  Adiciona o cabeçalho à string CSV relatorio
+            foreach (var propriedade in propriedades)
+            {
+                if (propriedades.Last() == propriedade)
+                    relatorio.Append($"{propriedade.Name}\n");
+
+                else
+                    relatorio.Append($"{propriedade.Name},");
+            }
+
+            // Adiciona os valores à string CSV relatorio
+            foreach (var modelo in _modelos)
+            {
+                if (modelo == null)
+                    relatorio.Append("Registro nulo\n");
+
+                else // Adiciona os valores do registro à string CSV relatorio
+                {
+                    foreach (var propriedade in propriedades)
+                    {
+                        if (propriedades.Last() == propriedade)
+                            relatorio.Append($"{propriedade.GetValue(modelo)}\n");
+                        
+                        else
+                            relatorio.Append($"{propriedade.GetValue(modelo)},");
+                    }
+                }
+            }
+
+            return relatorio.ToString();
+        }
+    }
 
 	public async Task ExportarRelatorio(string relatorio)
 	{
