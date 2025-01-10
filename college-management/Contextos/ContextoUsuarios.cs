@@ -111,7 +111,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		var cadastroUsuario = cadastroUsuarioView.CadastroUsuario;
 
-		if (cadastroUsuario["Confirma"].ToLower() is not "S") return;
+		if (cadastroUsuario["Confirma"] is not "S") return;
 
 		var cargoEscolhido = BaseDeDados
 		                     .Cargos
@@ -139,32 +139,13 @@ public class ContextoUsuarios : Contexto<Usuario>,
 			  .ObterPorNome(cadastroUsuario["Curso"])
 			: null;
 
-		Usuario? novoUsuario = cargoEscolhido.Nome switch
-		{
-			CargosPadrao.CargoAlunos => new Aluno(cadastroUsuario["Login"],
-			                                      cadastroUsuario["Nome"],
-			                                      new CredenciaisUsuario(
-				                                      cadastroUsuario["Senha"]),
-			                                      cargoEscolhido.Id,
-			                                      novaMatricula.Id),
-			_ => new Funcionario(cadastroUsuario["Login"],
-			                     cadastroUsuario["Nome"],
-			                     new CredenciaisUsuario(
-				                     cadastroUsuario["Senha"]),
-			                     cargoEscolhido.Id)
-		};
+		var novoUsuario = Usuario.CriarUsuario(cargoEscolhido,
+		                                       cadastroUsuario,
+		                                       novaMatricula!);
 
-		if (novoUsuario is null)
-		{
-			inputUsuario
-				.LerEntrada("Erro",
-				            $"Não foi possível criar um novo {nameof(Usuario)}.");
-
-			return;
-		}
-
-		var foiAdicionado
-			= await BaseDeDados.Usuarios.Adicionar(novoUsuario);
+		var foiAdicionado = await BaseDeDados
+		                          .Usuarios
+		                          .Adicionar(novoUsuario);
 
 		if (foiAdicionado
 		    && novaMatricula is not null
