@@ -51,7 +51,7 @@ where T : Modelo
             var propriedades = typeof(T).GetProperties();
 
 
-            //  Adiciona o cabecalho à string CSV
+            //  Adiciona o cabeçalho à string CSV relatorio
             foreach (var propriedade in propriedades)
             {
                 if (propriedades.Last() == propriedade)
@@ -61,13 +61,13 @@ where T : Modelo
                     relatorio.Append($"{propriedade.Name},");
             }
 
-            // Adiciona os valores à string CSV
+            // Adiciona os valores à string CSV relatorio
             foreach (var modelo in _modelos)
             {
                 if (modelo == null)
                     relatorio.Append("Registro nulo\n");
 
-                else // Adiciona os valores do registro à string CSV
+                else // Adiciona os valores do registro à string CSV relatorio
                 {
                     foreach (var propriedade in propriedades)
                     {
