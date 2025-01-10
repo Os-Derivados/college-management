@@ -175,16 +175,18 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		RelatorioView<Usuario> relatorioView;
 
 		if (ValidarPermissoes())
+		{
 			relatorioView = new RelatorioView<Usuario>("Visualizar Usuários",
 				BaseDeDados.Usuarios.ObterTodos());
+		}
 		else
-			relatorioView
-				= new RelatorioView<Usuario>("Minha Conta", [UsuarioContexto]);
+		{
+			relatorioView = new RelatorioView<Usuario>("Minha Conta",
+				[UsuarioContexto]);
+		}
 
 		relatorioView.ConstruirLayout();
-
-		InputView inputRelatorio = new(relatorioView.Titulo);
-		inputRelatorio.LerEntrada("Sair", relatorioView.Layout.ToString());
+		relatorioView.Exibir();
 	}
 
 	public override void VerDetalhes()

@@ -23,6 +23,9 @@ public class RelatorioView<T> : View where T : Modelo
 		var nomesPropriedades =
 			UtilitarioTipos.ObterNomesPropriedades(propriedades);
 
+		Layout.AppendLine($"Relatório de {typeof(T).Name}");
+		Layout.AppendLine();
+		
 		Layout.AppendLine(nomesPropriedades);
 
 		foreach (var p in propriedades)
@@ -32,5 +35,12 @@ public class RelatorioView<T> : View where T : Modelo
 
 		foreach (var modelo in _modelos)
 			Layout.AppendLine(modelo.ToString());
+	}
+
+	public override void Exibir()
+	{
+		base.Exibir();
+
+		Console.ReadLine();
 	}
 }
