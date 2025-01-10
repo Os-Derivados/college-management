@@ -260,15 +260,20 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		Usuario? usuario = null;
 
-		if (menuPesquisa.OpcaoEscolhida is 1)
+		switch (menuPesquisa.OpcaoEscolhida)
 		{
-			var login = inputPesquisa.ObterEntrada("Login");
-			usuario = BaseDeDados.Usuarios.ObterPorLogin(login);
-		}
-		else if (menuPesquisa.OpcaoEscolhida is 2)
-		{
-			var id = inputPesquisa.ObterEntrada("Id");
-			usuario = BaseDeDados.Usuarios.ObterPorId(id);
+			case 1:
+			{
+				var login = inputPesquisa.ObterEntrada("Login");
+				usuario = BaseDeDados.Usuarios.ObterPorLogin(login);
+				break;
+			}
+			case 2:
+			{
+				var id = inputPesquisa.ObterEntrada("Id");
+				usuario = BaseDeDados.Usuarios.ObterPorId(id);
+				break;
+			}
 		}
 
 		if (usuario is null)
