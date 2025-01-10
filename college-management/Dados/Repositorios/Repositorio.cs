@@ -52,9 +52,9 @@ where T : Modelo
 
 	public T ObterPorId(string? id) { return BaseDeDados.FirstOrDefault(t => t.Id == id); }
 
-	public T ObterPorNome(string? nome)
+	public T? ObterPorNome(string? nome)
 	{
-		return BaseDeDados.FirstOrDefault(t =>
+		return BaseDeDados?.FirstOrDefault(t =>
 		{
 			var propriedadeNome
 				= t.GetType().GetProperty("Nome");

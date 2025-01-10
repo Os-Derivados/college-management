@@ -1,4 +1,3 @@
-using System.Text;
 using college_management.Constantes;
 using college_management.Contextos.Interfaces;
 using college_management.Dados;
@@ -115,8 +114,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		var cargoEscolhido = BaseDeDados
 		                     .Cargos
-		                     .ObterPorNome(cadastroUsuario
-			                                   ["Cargo"]);
+		                     .ObterPorNome(cadastroUsuario["Cargo"]);
 
 		if (cargoEscolhido is null)
 		{
@@ -235,7 +233,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 			return;
 		}
 
-		inputPesquisa.LerEntrada(campoPesquisa?.Key,
+		inputPesquisa.LerEntrada(campoPesquisa?.Key!,
 		                         campoPesquisa?.Value);
 
 		Usuario? usuario = null;
