@@ -28,6 +28,29 @@ public sealed class Matricula : Modelo
 		foreach (var materia in curso.GradeCurricular)
 			Notas.Add(new Nota(materia.Nome, materia.Id));
 	}
+	
+	public static Matricula CriarMatricula(Dictionary<string, string> cadastroUsuario)
+	{
+		var conversaoValida = int.TryParse(cadastroUsuario["Periodo"],
+		                                   out var periodoCurso);
+
+		if (!conversaoValida) return null;
+
+		var modalidadeCurso =
+			cadastroUsuario["Modalidade"] switch
+			{
+				"Ead"        => Modalidade.Ead,
+				"Presencial" => Modalidade.Presencial,
+				"Hibrido"    => Modalidade.Hibrido,
+				_            => Modalidade.Invalido
+			};
+
+		if (modalidadeCurso is Modalidade.Invalido) return null;
+
+		Matricula novaMatricula = new(periodoCurso, modalidadeCurso);
+
+		return novaMatricula;
+	}
 }
 
 public enum Modalidade
