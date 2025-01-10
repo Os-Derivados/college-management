@@ -229,25 +229,26 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		camposEditaveis.ConstruirLayout();
 		camposEditaveis.LerEntrada();
-		
+
 		while (camposEditaveis.OpcaoEscolhida is not 0)
 		{
+			var indiceOpcao    = camposEditaveis.OpcaoEscolhida;
+			var opcaoEscolhida = camposEditaveis.Opcoes[indiceOpcao - 1];
+			var mensagemCampo  = $"Insira um novo valor para \"{opcaoEscolhida}\": ";
+
 			InputView inputEdicao = new("Editar Usuário");
+			inputEdicao.LerEntrada(opcaoEscolhida, mensagemCampo);
 
 			switch (camposEditaveis.OpcaoEscolhida)
 			{
 				case 1:
 				{
-					inputEdicao.LerEntrada("Nome",
-					                       "Insira o novo Nome: ");
 					usuario.Nome = inputEdicao.ObterEntrada("Nome");
 
 					break;
 				}
 				case 2:
 				{
-					inputEdicao.LerEntrada("Senha",
-					                       "Insira a nova Senha: ");
 					usuario.Credenciais
 						= new CredenciaisUsuario(
 							inputEdicao.ObterEntrada("Senha"));
@@ -256,9 +257,6 @@ public class ContextoUsuarios : Contexto<Usuario>,
 				}
 				case 3:
 				{
-					inputEdicao.LerEntrada("Cargo",
-					                       "Insira o novo Cargo: ");
-
 					var cargoInserido = BaseDeDados.Cargos.ObterPorNome(
 						inputEdicao.ObterEntrada("Cargo"));
 
@@ -290,35 +288,32 @@ public class ContextoUsuarios : Contexto<Usuario>,
 			camposEditaveis = new MenuView("Editar Usuário",
 			                               $"""
 			                                {detalhesUsuario.Layout}
-			                                
+
 			                                Os campos editáveis estão abaixo.
 			                                """,
 			                               ["Nome", "Senha", "Cargo"]);
-			
+
 			camposEditaveis.ConstruirLayout();
 			camposEditaveis.LerEntrada();
 		}
-		
+
 		InputView inputConfirmacao = new("Editar Usuário");
 		inputConfirmacao.LerEntrada("Confirmação",
-		                            "Deseja confirmar a edição? [S/N]");
-		
+		                            "Deseja confirmar a edição? [S/N]: ");
+
 		if (inputConfirmacao.ObterEntrada("Confirmação").ToLower()
 		    is not "s") return;
-		
+
 		var foiEditado = await BaseDeDados.Usuarios.Atualizar(usuario);
-		
+
 		var mensagemOperacao = foiEditado
 			? $"{nameof(Usuario)} editado com sucesso."
 			: $"Não foi possível editar o {nameof(Usuario)}.";
-		
+
 		inputConfirmacao.LerEntrada("Sair", mensagemOperacao);
 	}
 
-	public override async Task Excluir()
-	{
-		throw new NotImplementedException();
-	}
+	public override async Task Excluir() { }
 
 	public override void Visualizar()
 	{

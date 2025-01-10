@@ -8,7 +8,7 @@ namespace college_management.Views;
 public class MenuView : View, IMenuView
 {
 	private readonly string   _cabecalho;
-	private readonly string[] _opcoes;
+	public readonly string[] Opcoes;
 	public           int      OpcaoEscolhida { get; private set; }
 
 	public MenuView(string   titulo,
@@ -16,7 +16,7 @@ public class MenuView : View, IMenuView
 	                string[] opcoes) : base(titulo)
 	{
 		_cabecalho = cabecalho;
-		_opcoes    = opcoes;
+		Opcoes    = opcoes;
 	}
 
 	public override void ConstruirLayout()
@@ -25,8 +25,8 @@ public class MenuView : View, IMenuView
 		Layout.AppendLine(" Selecione uma das opções abaixo.");
 		Layout.AppendLine();
 
-		for (var i = 0; i < _opcoes.Length; i++)
-			Layout.AppendLine($"[{i + 1}] {_opcoes[i]}");
+		for (var i = 0; i < Opcoes.Length; i++)
+			Layout.AppendLine($"[{i + 1}] {Opcoes[i]}");
 
 		Layout.AppendLine();
 		Layout.Append("Digite 0 para sair. Sua opção (somente números): ");
