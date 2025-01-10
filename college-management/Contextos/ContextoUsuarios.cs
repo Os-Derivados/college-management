@@ -163,7 +163,157 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		inputUsuario.LerEntrada("Sair", mensagemOperacao);
 	}
 
-	public override async Task Editar() { }
+	public override async Task Editar()
+	{
+		if (!ValidarPermissoes()) return;
+
+		MenuView menuPesquisa = new("Editar Usuário",
+		                            "Selecione um dos campos para pesquisar.",
+		                            ["Login", "Id"]);
+
+		menuPesquisa.ConstruirLayout();
+		menuPesquisa.LerEntrada();
+
+		KeyValuePair<string, string>? campoPesquisa
+			= menuPesquisa.OpcaoEscolhida switch
+			{
+				1 => new KeyValuePair<string, string>("Login",
+					"Insira o Login do Usuario: "),
+				2 => new KeyValuePair<string, string>("Id",
+					"Insira o Id do Usuario: "),
+				_ => null
+			};
+
+		InputView inputPesquisa = new("Editar Usuário");
+
+		if (campoPesquisa is null)
+		{
+			inputPesquisa.LerEntrada(
+				"Erro", "Campo inválido. Tente novamente.");
+
+			return;
+		}
+
+		inputPesquisa.LerEntrada(campoPesquisa?.Key!,
+		                         campoPesquisa?.Value);
+
+		Usuario? usuario = null;
+
+		switch (menuPesquisa.OpcaoEscolhida)
+		{
+			case 1:
+			{
+				var login = inputPesquisa.ObterEntrada("Login");
+				usuario = BaseDeDados.Usuarios.ObterPorLogin(login);
+				break;
+			}
+			case 2:
+			{
+				var id = inputPesquisa.ObterEntrada("Id");
+				usuario = BaseDeDados.Usuarios.ObterPorId(id);
+				break;
+			}
+		}
+
+		if (usuario is null)
+		{
+			inputPesquisa.LerEntrada("Usuario",
+			                         "Usuário não encontrado.");
+
+			return;
+		}
+
+		MenuView camposEditaveis = new("Editar Usuário",
+		                               "Selecione um dos campos para editar.",
+		                               ["Nome", "Senha", "Cargo"]);
+
+		camposEditaveis.ConstruirLayout();
+		camposEditaveis.LerEntrada();
+		
+		while (camposEditaveis.OpcaoEscolhida is not 0)
+		{
+			InputView inputEdicao = new("Editar Usuário");
+
+			switch (camposEditaveis.OpcaoEscolhida)
+			{
+				case 1:
+				{
+					inputEdicao.LerEntrada("Nome",
+					                       "Insira o novo Nome: ");
+					usuario.Nome = inputEdicao.ObterEntrada("Nome");
+
+					break;
+				}
+				case 2:
+				{
+					inputEdicao.LerEntrada("Senha",
+					                       "Insira a nova Senha: ");
+					usuario.Credenciais
+						= new CredenciaisUsuario(
+							inputEdicao.ObterEntrada("Senha"));
+
+					break;
+				}
+				case 3:
+				{
+					inputEdicao.LerEntrada("Cargo",
+					                       "Insira o novo Cargo: ");
+
+					var cargoInserido = BaseDeDados.Cargos.ObterPorNome(
+						inputEdicao.ObterEntrada("Cargo"));
+
+					if (cargoInserido is null)
+					{
+						inputEdicao.LerEntrada(
+							"Erro",
+							"Cargo Inválido. Pressione [Enter] para continuar.");
+
+						break;
+					}
+
+					usuario.CargoId = cargoInserido.Id!;
+
+					break;
+				}
+			}
+
+			DetalhesView detalhesUsuario = new("Editar Usuário",
+			                                   UtilitarioTipos
+				                                   .ObterPropriedades(usuario,
+				                                   [
+					                                   "Nome", "Senha",
+					                                   "CargoId"
+				                                   ]));
+
+			detalhesUsuario.ConstruirLayout();
+
+			camposEditaveis = new MenuView("Editar Usuário",
+			                               $"""
+			                                {detalhesUsuario.Layout}
+			                                
+			                                Os campos editáveis estão abaixo.
+			                                """,
+			                               ["Nome", "Senha", "Cargo"]);
+			
+			camposEditaveis.ConstruirLayout();
+			camposEditaveis.LerEntrada();
+		}
+		
+		InputView inputConfirmacao = new("Editar Usuário");
+		inputConfirmacao.LerEntrada("Confirmação",
+		                            "Deseja confirmar a edição? [S/N]");
+		
+		if (inputConfirmacao.ObterEntrada("Confirmação").ToLower()
+		    is not "s") return;
+		
+		var foiEditado = await BaseDeDados.Usuarios.Atualizar(usuario);
+		
+		var mensagemOperacao = foiEditado
+			? $"{nameof(Usuario)} editado com sucesso."
+			: $"Não foi possível editar o {nameof(Usuario)}.";
+		
+		inputConfirmacao.LerEntrada("Sair", mensagemOperacao);
+	}
 
 	public override async Task Excluir()
 	{
