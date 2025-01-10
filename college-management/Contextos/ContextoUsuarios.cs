@@ -111,7 +111,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		var cadastroUsuario = cadastroUsuarioView.CadastroUsuario;
 
-		if (cadastroUsuario["Confirma"] is not "S") return;
+		if (cadastroUsuario["Confirma"].ToLower() is not "s") return;
 
 		var cargoEscolhido = BaseDeDados
 		                     .Cargos
