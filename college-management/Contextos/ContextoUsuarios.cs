@@ -206,7 +206,54 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		inputConfirmacao.LerEntrada("Sair", mensagemOperacao);
 	}
 
-	public override async Task Excluir() { }
+	public override async Task Excluir()
+	{
+		if (!ValidarPermissoes()) return;
+
+		BuscaUsuarioView buscaUsuario = new();
+
+		var resultadoBusca = buscaUsuario.Buscar();
+		var chaveBusca     = resultadoBusca.Value;
+
+		var usuario = resultadoBusca.Key switch
+		{
+			1 => BaseDeDados.Usuarios.ObterPorLogin(chaveBusca),
+			2 => BaseDeDados.Usuarios.ObterPorId(chaveBusca),
+			_ => null
+		};
+
+		if (usuario is null)
+		{
+			InputView inputPesquisa = new("Erro ao buscar Usuario");
+
+			inputPesquisa.LerEntrada("Usuario", "Usuário não encontrado.");
+
+			return;
+		}
+		
+		
+		DetalhesView detalhesUsuario = new("Excluir Usuário",
+		                                   UtilitarioTipos.ObterPropriedades(
+			                                   usuario,
+			                                   [
+				                                   "Nome", "Login", "Id",
+				                                   "CargoId"
+			                                   ]));
+		detalhesUsuario.ConstruirLayout();
+		
+		ConfirmaView confirmaExclusao = new("Excluir Usuário");
+		
+		if (confirmaExclusao.Confirmar($"{detalhesUsuario.Layout}") is not 's') return;
+		
+		var foiExcluido = await BaseDeDados.Usuarios.Remover(usuario.Id);
+		
+		var mensagemOperacao = foiExcluido
+			? $"{nameof(Usuario)} excluído com sucesso."
+			: $"Não foi possível excluir o {nameof(Usuario)}.";
+		
+		InputView inputConfirmacao = new("Excluir Usuário");
+		inputConfirmacao.LerEntrada("Sair", mensagemOperacao);
+	}
 
 	public override void Visualizar()
 	{
