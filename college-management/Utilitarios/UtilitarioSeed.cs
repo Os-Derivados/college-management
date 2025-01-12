@@ -89,7 +89,7 @@ public static class UtilitarioSeed
 		return (loginDefault, nomeDefault, new(senhaDefault));
 	}
 
-	public static bool ValidaDadosIniciais(BaseDeDados baseDeDados)
+	public static bool ValidarDadosIniciais(BaseDeDados baseDeDados)
 	{
 		var cargoAdms = baseDeDados
 			.Cargos
