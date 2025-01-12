@@ -223,79 +223,8 @@ public class ContextoUsuarios : Contexto<Usuario>,
 			return;
 		}
 
-		MenuView camposEditaveis = new("Editar Usuário",
-		                               "Selecione um dos campos para editar.",
-		                               ["Nome", "Senha", "Cargo"]);
-
-		camposEditaveis.ConstruirLayout();
-		camposEditaveis.LerEntrada();
-
-		while (camposEditaveis.OpcaoEscolhida is not 0)
-		{
-			var indiceOpcao    = camposEditaveis.OpcaoEscolhida;
-			var opcaoEscolhida = camposEditaveis.Opcoes[indiceOpcao - 1];
-			var mensagemCampo  = $"Insira um novo valor para \"{opcaoEscolhida}\": ";
-
-			InputView inputEdicao = new("Editar Usuário");
-			inputEdicao.LerEntrada(opcaoEscolhida, mensagemCampo);
-
-			switch (camposEditaveis.OpcaoEscolhida)
-			{
-				case 1:
-				{
-					usuario.Nome = inputEdicao.ObterEntrada("Nome");
-
-					break;
-				}
-				case 2:
-				{
-					usuario.Credenciais
-						= new CredenciaisUsuario(
-							inputEdicao.ObterEntrada("Senha"));
-
-					break;
-				}
-				case 3:
-				{
-					var cargoInserido = BaseDeDados.Cargos.ObterPorNome(
-						inputEdicao.ObterEntrada("Cargo"));
-
-					if (cargoInserido is null)
-					{
-						inputEdicao.LerEntrada(
-							"Erro",
-							"Cargo Inválido. Pressione [Enter] para continuar.");
-
-						break;
-					}
-
-					usuario.CargoId = cargoInserido.Id!;
-
-					break;
-				}
-			}
-
-			DetalhesView detalhesUsuario = new("Editar Usuário",
-			                                   UtilitarioTipos
-				                                   .ObterPropriedades(usuario,
-				                                   [
-					                                   "Nome", "Senha",
-					                                   "CargoId"
-				                                   ]));
-
-			detalhesUsuario.ConstruirLayout();
-
-			camposEditaveis = new MenuView("Editar Usuário",
-			                               $"""
-			                                {detalhesUsuario.Layout}
-
-			                                Os campos editáveis estão abaixo.
-			                                """,
-			                               ["Nome", "Senha", "Cargo"]);
-
-			camposEditaveis.ConstruirLayout();
-			camposEditaveis.LerEntrada();
-		}
+		EditarUsuarioView editarUsuarioView = new(usuario, BaseDeDados.Cargos);
+		var usuarioEditado = editarUsuarioView.Editar();
 
 		InputView inputConfirmacao = new("Editar Usuário");
 		inputConfirmacao.LerEntrada("Confirmação",
@@ -304,7 +233,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		if (inputConfirmacao.ObterEntrada("Confirmação").ToLower()
 		    is not "s") return;
 
-		var foiEditado = await BaseDeDados.Usuarios.Atualizar(usuario);
+		var foiEditado = await BaseDeDados.Usuarios.Atualizar(usuarioEditado);
 
 		var mensagemOperacao = foiEditado
 			? $"{nameof(Usuario)} editado com sucesso."
