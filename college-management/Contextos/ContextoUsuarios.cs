@@ -167,56 +167,22 @@ public class ContextoUsuarios : Contexto<Usuario>,
 	{
 		if (!ValidarPermissoes()) return;
 
-		MenuView menuPesquisa = new("Editar Usuário",
-		                            "Selecione um dos campos para pesquisar.",
-		                            ["Login", "Id"]);
+		BuscaUsuarioView buscaUsuario = new();
+		
+		var resultadoBusca = buscaUsuario.Buscar();
+		var chaveBusca     = resultadoBusca.Value;
 
-		menuPesquisa.ConstruirLayout();
-		menuPesquisa.LerEntrada();
-
-		KeyValuePair<string, string>? campoPesquisa
-			= menuPesquisa.OpcaoEscolhida switch
-			{
-				1 => new KeyValuePair<string, string>("Login",
-					"Insira o Login do Usuario: "),
-				2 => new KeyValuePair<string, string>("Id",
-					"Insira o Id do Usuario: "),
-				_ => null
-			};
-
-		InputView inputPesquisa = new("Editar Usuário");
-
-		if (campoPesquisa is null)
+		Usuario? usuario = resultadoBusca.Key switch
 		{
-			inputPesquisa.LerEntrada(
-				"Erro", "Campo inválido. Tente novamente.");
-
-			return;
-		}
-
-		inputPesquisa.LerEntrada(campoPesquisa?.Key!,
-		                         campoPesquisa?.Value);
-
-		Usuario? usuario = null;
-
-		switch (menuPesquisa.OpcaoEscolhida)
-		{
-			case 1:
-			{
-				var login = inputPesquisa.ObterEntrada("Login");
-				usuario = BaseDeDados.Usuarios.ObterPorLogin(login);
-				break;
-			}
-			case 2:
-			{
-				var id = inputPesquisa.ObterEntrada("Id");
-				usuario = BaseDeDados.Usuarios.ObterPorId(id);
-				break;
-			}
-		}
+			1 => BaseDeDados.Usuarios.ObterPorLogin(chaveBusca),
+			2 => BaseDeDados.Usuarios.ObterPorId(chaveBusca),
+			_ => null
+		};
 
 		if (usuario is null)
 		{
+			InputView inputPesquisa = new("Erro ao buscar Usuario");
+			
 			inputPesquisa.LerEntrada("Usuario",
 			                         "Usuário não encontrado.");
 
@@ -282,57 +248,23 @@ public class ContextoUsuarios : Contexto<Usuario>,
 			return;
 		}
 
-		MenuView menuPesquisa = new("Pesquisar Usuário",
-		                            "Selecione um dos campos para pesquisar.",
-		                            ["Login", "Id"]);
+		BuscaUsuarioView buscaUsuario = new();
+		
+		var resultadoBusca = buscaUsuario.Buscar();
+		var chaveBusca = resultadoBusca.Value;
 
-		menuPesquisa.ConstruirLayout();
-		menuPesquisa.LerEntrada();
-
-		KeyValuePair<string, string>? campoPesquisa
-			= menuPesquisa.OpcaoEscolhida switch
-			{
-				1 => new KeyValuePair<string, string>("Login",
-					"Insira o Login do Usuario: "),
-				2 => new KeyValuePair<string, string>("Id",
-					"Insira o Id do Usuario: "),
-				_ => null
-			};
-
-		InputView inputPesquisa = new("Ver Detalhes: Pesquisar Usuario");
-
-		if (campoPesquisa is null)
+		var usuario = resultadoBusca.Key switch
 		{
-			inputPesquisa.LerEntrada("Campo",
-			                         "Campo inválido. Tente novamente.");
-
-			return;
-		}
-
-		inputPesquisa.LerEntrada(campoPesquisa?.Key!,
-		                         campoPesquisa?.Value);
-
-		Usuario? usuario = null;
-
-		switch (menuPesquisa.OpcaoEscolhida)
-		{
-			case 1:
-			{
-				var login = inputPesquisa.ObterEntrada("Login");
-				usuario = BaseDeDados.Usuarios.ObterPorLogin(login);
-				break;
-			}
-			case 2:
-			{
-				var id = inputPesquisa.ObterEntrada("Id");
-				usuario = BaseDeDados.Usuarios.ObterPorId(id);
-				break;
-			}
-		}
+			1 => BaseDeDados.Usuarios.ObterPorLogin(chaveBusca),
+			2 => BaseDeDados.Usuarios.ObterPorId(chaveBusca),
+			_ => null
+		};
 
 		if (usuario is null)
 		{
-			inputPesquisa.LerEntrada("Usuario",
+			InputView inputErro = new("Erro ao buscar Usuario");
+			
+			inputErro.LerEntrada("Usuario",
 			                         "Usuário não encontrado.");
 
 			return;
