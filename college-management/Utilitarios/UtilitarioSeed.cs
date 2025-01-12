@@ -62,16 +62,17 @@ public static class UtilitarioSeed
 		                           matriculaTeste.Id);
 
 		var alunoCriado = await baseDeDados.Usuarios.Adicionar(alunoTeste);
-		if(!alunoCriado) return;
+		if (!alunoCriado) return;
 
 		matriculaTeste.AlunoId = alunoTeste.Id;
 		matriculaTeste.CursoId = cursoTeste.Id;
 		await baseDeDados.Matriculas.Adicionar(matriculaTeste);
 	}
 
-	private static (string, string, CredenciaisUsuario) ObterCredenciais(string login,
-	                                                         string nome,
-	                                                         string senha)
+	private static (string, string, CredenciaisUsuario) ObterCredenciais(
+		string login,
+		string nome,
+		string senha)
 	{
 		_ = UtilitarioAmbiente
 		    .Variaveis
@@ -85,41 +86,45 @@ public static class UtilitarioSeed
 		    .Variaveis
 		    .TryGetValue(senha, out var senhaDefault);
 
-        return (loginDefault, nomeDefault, new(senhaDefault));
+		return (loginDefault, nomeDefault, new(senhaDefault));
 	}
+
 	public static bool ValidaDadosIniciais(BaseDeDados baseDeDados)
 	{
+		var cargoAdms = baseDeDados
+			.Cargos
+			.ObterPorNome(CargosPadrao.CargoAdministradores) is not
+			null;
 
-		var _cargoAdms = baseDeDados
-			.Cargos
-			.ObterPorNome(CargosPadrao.CargoAdministradores) is { } _;
-		
-		var _cargoAlunos = baseDeDados
-			.Cargos
-			.ObterPorNome(CargosPadrao.CargoAlunos) is { } _;
-		
+		var cargoAlunos = baseDeDados
+		                  .Cargos
+		                  .ObterPorNome(CargosPadrao.CargoAlunos) is not null;
+
 		_ = UtilitarioAmbiente
-			.Variaveis
-			.TryGetValue(VariaveisAmbiente.MasterAdminNome, out var nomeDefault);
-		var _cargoMaster = baseDeDados
-			.Usuarios
-			.ObterPorNome(nomeDefault) is { } _;
-		
-		var _materiaTeste = baseDeDados
-			.Materias
-			.ObterPorNome("Matéria Teste") is { } _;
-		
-		var _cursoTeste = baseDeDados
-			.Cursos
-			.ObterPorNome("Curso Teste") is { } _;
-		
+		    .Variaveis
+		    .TryGetValue(VariaveisAmbiente.MasterAdminNome,
+		                 out var nomeDefault);
+		var usuarioMestre = baseDeDados
+		                    .Usuarios
+		                    .ObterPorNome(nomeDefault) is not null;
+
+		var materiaTeste = baseDeDados
+		                   .Materias
+		                   .ObterPorNome("Matéria Teste") is not null;
+
+		var cursoTeste = baseDeDados
+		                 .Cursos
+		                 .ObterPorNome("Curso Teste") is not null;
+
 		_ = UtilitarioAmbiente
-			.Variaveis
-			.TryGetValue(VariaveisAmbiente.UsuarioTesteLogin, out var loginAluno);
-		var _usuarioTeste = baseDeDados
-			.Usuarios
-			.ObterPorLogin(loginAluno) is { } _;
-		
-		return _cargoMaster & _cargoAdms & _cargoAlunos & _cursoTeste & _usuarioTeste & _materiaTeste;
+		    .Variaveis
+		    .TryGetValue(VariaveisAmbiente.UsuarioTesteLogin,
+		                 out var loginAluno);
+		var usuarioTeste = baseDeDados
+		                   .Usuarios
+		                   .ObterPorLogin(loginAluno) is not null;
+
+		return usuarioMestre & cargoAdms & cargoAlunos & cursoTeste &
+		       usuarioTeste & materiaTeste;
 	}
 }
