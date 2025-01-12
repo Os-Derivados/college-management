@@ -12,6 +12,8 @@ namespace college_management.Dados.Modelos;
 [JsonDerivedType(typeof(Funcionario), "funcionario")]
 public class Usuario : Modelo
 {
+	private static long _contagemId = 10000000000;
+
 	public Usuario(string login,
 	               string nome,
 	               CredenciaisUsuario credenciais,
@@ -25,8 +27,6 @@ public class Usuario : Modelo
 		Id = _contagemId.ToString(CultureInfo.InvariantCulture);
 		_contagemId++;
 	}
-
-	private static long _contagemId = 10000000000;
 
 	public string?             Login       { get; set; }
 	public string?             Nome        { get; set; }

@@ -1,4 +1,3 @@
-using System.Reflection;
 using college_management.Dados.Modelos;
 using college_management.Utilitarios;
 
@@ -18,14 +17,14 @@ public class RelatorioView<T> : View where T : Modelo
 
 	public override void ConstruirLayout()
 	{
-		var             tipo         = typeof(T);
-		PropertyInfo[]? propriedades = tipo.GetProperties();
+		var tipo         = typeof(T);
+		var propriedades = tipo.GetProperties();
 		var nomesPropriedades =
 			UtilitarioTipos.ObterNomesPropriedades(propriedades);
 
 		Layout.AppendLine($"Relatório de {typeof(T).Name}");
 		Layout.AppendLine();
-		
+
 		Layout.AppendLine(nomesPropriedades);
 
 		foreach (var p in propriedades)

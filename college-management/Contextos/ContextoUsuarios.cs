@@ -230,8 +230,8 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 			return;
 		}
-		
-		
+
+
 		DetalhesView detalhesUsuario = new("Excluir Usuário",
 		                                   UtilitarioTipos.ObterPropriedades(
 			                                   usuario,
@@ -240,17 +240,18 @@ public class ContextoUsuarios : Contexto<Usuario>,
 				                                   "CargoId"
 			                                   ]));
 		detalhesUsuario.ConstruirLayout();
-		
+
 		ConfirmaView confirmaExclusao = new("Excluir Usuário");
-		
-		if (confirmaExclusao.Confirmar($"{detalhesUsuario.Layout}") is not 's') return;
-		
+
+		if (confirmaExclusao.Confirmar($"{detalhesUsuario.Layout}") is not 's')
+			return;
+
 		var foiExcluido = await BaseDeDados.Usuarios.Remover(usuario.Id);
-		
+
 		var mensagemOperacao = foiExcluido
 			? $"{nameof(Usuario)} excluído com sucesso."
 			: $"Não foi possível excluir o {nameof(Usuario)}.";
-		
+
 		InputView inputConfirmacao = new("Excluir Usuário");
 		inputConfirmacao.LerEntrada("Sair", mensagemOperacao);
 	}
@@ -260,15 +261,11 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		RelatorioView<Usuario> relatorioView;
 
 		if (ValidarPermissoes())
-		{
 			relatorioView = new RelatorioView<Usuario>("Visualizar Usuários",
 				BaseDeDados.Usuarios.ObterTodos());
-		}
 		else
-		{
 			relatorioView = new RelatorioView<Usuario>("Minha Conta",
 				[UsuarioContexto]);
-		}
 
 		relatorioView.ConstruirLayout();
 		relatorioView.Exibir();

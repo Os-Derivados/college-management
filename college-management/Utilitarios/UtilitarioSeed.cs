@@ -47,7 +47,7 @@ public static class UtilitarioSeed
 		Matricula matriculaTeste = new(1, Modalidade.Presencial);
 
 		Curso cursoTeste = new("Curso Teste", [materiaTeste]);
-		(cursoTeste.MatriculasIds = new()).Add(matriculaTeste.Id!);
+		(cursoTeste.MatriculasIds = new List<string>()).Add(matriculaTeste.Id!);
 		await baseDeDados.Cursos.Adicionar(cursoTeste);
 
 
@@ -86,7 +86,8 @@ public static class UtilitarioSeed
 		    .Variaveis
 		    .TryGetValue(senha, out var senhaDefault);
 
-		return (loginDefault, nomeDefault, new(senhaDefault));
+		return (loginDefault, nomeDefault,
+			new CredenciaisUsuario(senhaDefault));
 	}
 
 	public static bool ValidarDadosIniciais(BaseDeDados baseDeDados)

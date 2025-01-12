@@ -2,16 +2,13 @@
 using college_management.Middlewares;
 using college_management.Utilitarios;
 
-
 UtilitarioArquivos.Inicializar();
 
 BaseDeDados baseDeDados = new();
 
 if (!bool.TryParse(args[1], out var seed))
-{
 	Console.WriteLine(
 		"Aviso : Argumento \"seed\" não informado ou incorreto, utilizando o valor padrão : false");
-}
 
 if (seed)
 {
@@ -26,10 +23,8 @@ else if (!UtilitarioSeed.ValidarDadosIniciais(baseDeDados))
 }
 
 if (!bool.TryParse(args[0], out var modoDesenvolvimento))
-{
 	Console.WriteLine(
 		"Aviso : Argumento modoDesenvolvimento não informado ou incorreto, utilizando o valor padrão : false");
-}
 
 var usuarioLogado =
 	MiddlewareAutenticacao.Autenticar(modoDesenvolvimento,

@@ -13,7 +13,7 @@ public class CadastroUsuarioView : ICadastroUsuarioView
 	public char ObterDados()
 	{
 		InputView inputCadastro = new("Cadastro de Usuário");
-		
+
 		KeyValuePair<string, string?>[] mensagensUsuario =
 		[
 			new("Nome", "Insira o Nome: "),
@@ -22,10 +22,10 @@ public class CadastroUsuarioView : ICadastroUsuarioView
 			new("Cargo", "Insira o Cargo: ")
 		];
 
-		foreach (KeyValuePair<string, string?> mensagem
+		foreach (var mensagem
 		         in mensagensUsuario)
 			inputCadastro.LerEntrada(mensagem.Key,
-			                        mensagem.Value);
+			                         mensagem.Value);
 
 		KeyValuePair<string, string?>[] mensagensAluno =
 		[
@@ -36,23 +36,21 @@ public class CadastroUsuarioView : ICadastroUsuarioView
 
 		if (inputCadastro.ObterEntrada("Cargo")
 		    is CargosPadrao.CargoAlunos)
-		{
-			foreach (KeyValuePair<string, string?> mensagem in mensagensAluno)
+			foreach (var mensagem in mensagensAluno)
 				inputCadastro.LerEntrada(mensagem.Key, mensagem.Value);
-		}
 
 		CadastroUsuario = inputCadastro.EntradasUsuario;
 
-		
+
 		DetalhesView detalhesView = new("Confirmar Cadastro",
 		                                inputCadastro.EntradasUsuario);
 		detalhesView.ConstruirLayout();
 
 		StringBuilder mensagemConfirmacao = new();
 		mensagemConfirmacao.Append(detalhesView.Layout);
-		
+
 		ConfirmaView confirmarCadastro = new("Cadastrar Usuário");
-		
+
 		return confirmarCadastro.Confirmar(mensagemConfirmacao.ToString());
 	}
 }

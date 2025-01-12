@@ -33,7 +33,7 @@ public class EditarUsuarioView : View, IEditarUsuarioView
 		while (camposEditaveis.OpcaoEscolhida is not 0)
 		{
 			Console.Clear();
-			
+
 			var indiceOpcao    = camposEditaveis.OpcaoEscolhida;
 			var opcaoEscolhida = camposEditaveis.Opcoes[indiceOpcao - 1];
 			var mensagemCampo

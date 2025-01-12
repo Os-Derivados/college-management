@@ -1,6 +1,4 @@
-using college_management.Dados;
 using college_management.Dados.Modelos;
-using college_management.Dados.Repositorios;
 
 
 namespace college_management.Contextos.Interfaces;

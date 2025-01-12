@@ -6,9 +6,7 @@ namespace college_management.Views;
 
 public class BuscaUsuarioView : View, IBuscaUsuarioView
 {
-	public BuscaUsuarioView() : base("Pesquisar Usuario")
-	{
-	}
+	public BuscaUsuarioView() : base("Pesquisar Usuario") { }
 
 	public KeyValuePair<int, string> Buscar()
 	{
@@ -41,8 +39,9 @@ public class BuscaUsuarioView : View, IBuscaUsuarioView
 
 		inputPesquisa.LerEntrada(campoPesquisa?.Key!,
 		                         campoPesquisa?.Value);
-		
+
 		return new KeyValuePair<int, string>(menuPesquisa.OpcaoEscolhida,
-		                                     inputPesquisa.ObterEntrada(campoPesquisa?.Key!));
+		                                     inputPesquisa.ObterEntrada(
+			                                     campoPesquisa?.Key!));
 	}
 }
