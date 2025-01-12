@@ -10,7 +10,7 @@ public class CadastroUsuarioView : ICadastroUsuarioView
 {
 	public Dictionary<string, string> CadastroUsuario;
 
-	public void ObterDados()
+	public char ObterDados()
 	{
 		InputView inputCadastro = new("Cadastro de Usuário");
 		
@@ -36,27 +36,23 @@ public class CadastroUsuarioView : ICadastroUsuarioView
 
 		if (inputCadastro.ObterEntrada("Cargo")
 		    is CargosPadrao.CargoAlunos)
-			foreach (KeyValuePair<string, string?> mensagem
-			         in mensagensAluno)
-				inputCadastro.LerEntrada(mensagem.Key,
-				                        mensagem.Value);
+		{
+			foreach (KeyValuePair<string, string?> mensagem in mensagensAluno)
+				inputCadastro.LerEntrada(mensagem.Key, mensagem.Value);
+		}
 
+		CadastroUsuario = inputCadastro.EntradasUsuario;
+
+		
 		DetalhesView detalhesView = new("Confirmar Cadastro",
-		                                inputCadastro
-			                                .EntradasUsuario);
-
+		                                inputCadastro.EntradasUsuario);
 		detalhesView.ConstruirLayout();
 
 		StringBuilder mensagemConfirmacao = new();
-		mensagemConfirmacao.AppendLine(detalhesView.Layout
-		                                           .ToString());
-
-		mensagemConfirmacao.AppendLine("Confirma o Cadastro?\n");
-		mensagemConfirmacao.Append("[S]im\t[N]ão: ");
-
-		inputCadastro.LerEntrada("Confirma",
-		                        mensagemConfirmacao.ToString());
-
-		CadastroUsuario = inputCadastro.EntradasUsuario;
+		mensagemConfirmacao.Append(detalhesView.Layout);
+		
+		ConfirmaView confirmarCadastro = new("Cadastrar Usuário");
+		
+		return confirmarCadastro.Confirmar(mensagemConfirmacao.ToString());
 	}
 }

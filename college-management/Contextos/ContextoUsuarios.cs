@@ -106,11 +106,11 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		if (!ValidarPermissoes()) return;
 
 		CadastroUsuarioView cadastroUsuarioView = new();
-		cadastroUsuarioView.ObterDados();
 
-		var cadastroUsuario = cadastroUsuarioView.CadastroUsuario;
+		var confirmaCadastro = cadastroUsuarioView.ObterDados();
+		var cadastroUsuario  = cadastroUsuarioView.CadastroUsuario;
 
-		if (cadastroUsuario["Confirma"].ToLower() is not "s") return;
+		if (confirmaCadastro is not 's') return;
 
 		var cargoEscolhido = BaseDeDados
 		                     .Cargos
@@ -168,11 +168,11 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		if (!ValidarPermissoes()) return;
 
 		BuscaUsuarioView buscaUsuario = new();
-		
+
 		var resultadoBusca = buscaUsuario.Buscar();
 		var chaveBusca     = resultadoBusca.Value;
 
-		Usuario? usuario = resultadoBusca.Key switch
+		var usuario = resultadoBusca.Key switch
 		{
 			1 => BaseDeDados.Usuarios.ObterPorLogin(chaveBusca),
 			2 => BaseDeDados.Usuarios.ObterPorId(chaveBusca),
@@ -182,28 +182,26 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		if (usuario is null)
 		{
 			InputView inputPesquisa = new("Erro ao buscar Usuario");
-			
-			inputPesquisa.LerEntrada("Usuario",
-			                         "Usuário não encontrado.");
+
+			inputPesquisa.LerEntrada("Usuario", "Usuário não encontrado.");
 
 			return;
 		}
 
 		EditarUsuarioView editarUsuarioView = new(usuario, BaseDeDados.Cargos);
-		var usuarioEditado = editarUsuarioView.Editar();
+		var               usuarioEditado    = editarUsuarioView.Editar();
 
-		InputView inputConfirmacao = new("Editar Usuário");
-		inputConfirmacao.LerEntrada("Confirmação",
-		                            "Deseja confirmar a edição? [S/N]: ");
+		ConfirmaView confirmaEdicao = new("Editar Usuário");
 
-		if (inputConfirmacao.ObterEntrada("Confirmação").ToLower()
-		    is not "s") return;
+		if (confirmaEdicao.Confirmar("Editar Usuário") is not 's') return;
 
 		var foiEditado = await BaseDeDados.Usuarios.Atualizar(usuarioEditado);
 
 		var mensagemOperacao = foiEditado
 			? $"{nameof(Usuario)} editado com sucesso."
 			: $"Não foi possível editar o {nameof(Usuario)}.";
+
+		InputView inputConfirmacao = new("Editar Usuário");
 
 		inputConfirmacao.LerEntrada("Sair", mensagemOperacao);
 	}
@@ -249,9 +247,9 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		}
 
 		BuscaUsuarioView buscaUsuario = new();
-		
+
 		var resultadoBusca = buscaUsuario.Buscar();
-		var chaveBusca = resultadoBusca.Value;
+		var chaveBusca     = resultadoBusca.Value;
 
 		var usuario = resultadoBusca.Key switch
 		{
@@ -263,9 +261,9 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		if (usuario is null)
 		{
 			InputView inputErro = new("Erro ao buscar Usuario");
-			
+
 			inputErro.LerEntrada("Usuario",
-			                         "Usuário não encontrado.");
+			                     "Usuário não encontrado.");
 
 			return;
 		}
