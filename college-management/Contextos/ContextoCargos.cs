@@ -34,16 +34,19 @@ public class ContextoCargos : Contexto<Cargo>
                 return;
             }
 
-            var resultado = await BaseDeDados.Cargos.Adicionar(novoCargo);
+            
 
-            if (resultado)
+            if (ConfirmarEscolha("Deseja salvar o cargo: ", novoCargo))
             {
-                Console.WriteLine("Cargo salvo com sucesso!");
-                Console.ReadKey();
+                var resultado = await BaseDeDados.Cargos.Adicionar(novoCargo);
+                if (resultado)
+                {
+                    Console.WriteLine("Cargo salvo com sucesso!");
+                    Console.ReadKey();
+                }
+
+                else TelaErro("Cargo não salvo, pois outro com o mesmo nome já existe no banco de dados!");
             }
-
-            else TelaErro("Não foi possível inserir esse cargo no banco de dados");
-
             
         }
     }
@@ -81,8 +84,11 @@ public class ContextoCargos : Contexto<Cargo>
             }
 
 
-            if (await BaseDeDados.Cargos.Atualizar(cargo))
+            if (ConfirmarEscolha("", cargo))
+            {
+                await BaseDeDados.Cargos.Atualizar(cargo);
                 inputView.LerEntrada("Sair", "Cargo Editado com sucesso");
+            }
 
         }
     }
@@ -270,7 +276,7 @@ public class ContextoCargos : Contexto<Cargo>
         {
             MenuView menuView = new 
                 MenuView("Permissões", 
-                "\t>>> Para sair selecione uma opçãoo não listada ou tecle Enter <<<\n\n\n", 
+                "\t\tPermissões\n\n\n", 
                 nomePropriedades);
 
             menuView.ConstruirLayout();
@@ -289,7 +295,14 @@ public class ContextoCargos : Contexto<Cargo>
 
 
 
-            index = opcao;
+            if (ConfirmarEscolha($"Adicionou {permissoes.Last()}" +
+                $", deseja adicionar mais permissões?\n"))
+
+                index = opcao;
+
+            else break;
+
+
         }
 
         Console.Clear();
@@ -394,6 +407,30 @@ public class ContextoCargos : Contexto<Cargo>
         output += "]";
 
         return output;
+    }
+
+
+    bool ConfirmarEscolha(string menssagem, Cargo cargo = null)
+    {
+        Console.Clear();
+        Console.WriteLine(menssagem);
+
+        if (cargo is not null)
+        {
+            DetalhesView detalhesView = null;
+            ExibirDetalhesCargo(cargo, detalhesView);
+        }
+
+        Console.WriteLine("\n\nPara confirmar:\n\n[S]im ou [N]ão: ");
+
+        var opcao = Console.ReadKey();
+
+        Console.Clear();
+
+        if (opcao.KeyChar == 's' || opcao.KeyChar == 'S')
+            return true;
+
+        else return false;
     }
 
     #endregion
