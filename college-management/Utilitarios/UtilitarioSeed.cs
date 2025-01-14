@@ -62,7 +62,8 @@ public static class UtilitarioSeed
 		                           matriculaTeste.Id);
 
 		var alunoCriado = await baseDeDados.Usuarios.Adicionar(alunoTeste);
-		if (!alunoCriado) return;
+		
+		if (alunoCriado.Status is not StatusResposta.Sucesso) return;
 
 		matriculaTeste.AlunoId = alunoTeste.Id;
 		matriculaTeste.CursoId = cursoTeste.Id;

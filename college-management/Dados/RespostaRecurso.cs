@@ -1,7 +1,7 @@
 namespace college_management.Dados;
 
 
-public record RespostaRecurso<T>(T? modelo, StatusResposta status);
+public record RespostaRecurso<T>(T? Modelo, StatusResposta Status);
 
 public enum StatusResposta
 {

@@ -6,7 +6,7 @@ namespace college_management.Dados.Repositorios.Interfaces;
 
 public interface IRepositorio<T> where T : Modelo
 {
-	public Task<bool> Adicionar(T modelo);
+	public Task<RespostaRecurso<T>> Adicionar(T modelo);
 
 	public List<T> ObterTodos();
 

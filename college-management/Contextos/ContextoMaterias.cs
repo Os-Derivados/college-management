@@ -74,15 +74,15 @@ public class ContextoMaterias : Contexto<Materia>
 	}
 
 	private async Task<bool> ValidarECadastrarMateria(
-		Dictionary<string, string> cadastroMateria)
+		Dictionary<string, string> dadosMateria)
 	{
-		if (!Enum.TryParse(cadastroMateria["Turno"], out Turno turnoEscolhido))
+		if (!Enum.TryParse(dadosMateria["Turno"], out Turno turnoEscolhido))
 		{
 			ExibirMensagemErro("O Turno inserido não foi encontrado.");
 			return false;
 		}
 
-		if (!int.TryParse(cadastroMateria["CargaHoraria"],
+		if (!int.TryParse(dadosMateria["CargaHoraria"],
 		                  out var cargaHoraria))
 		{
 			ExibirMensagemErro("A carga horária inserida não é válida.");
@@ -90,7 +90,7 @@ public class ContextoMaterias : Contexto<Materia>
 		}
 
 		Materia? novaMateria
-			= new(cadastroMateria["Nome"], turnoEscolhido, cargaHoraria);
+			= new(dadosMateria["Nome"], turnoEscolhido, cargaHoraria);
 
 		if (novaMateria is null)
 		{
@@ -99,7 +99,9 @@ public class ContextoMaterias : Contexto<Materia>
 			return false;
 		}
 
-		return await BaseDeDados.Materias.Adicionar(novaMateria);
+		var cadastroMateria = await BaseDeDados.Materias.Adicionar(novaMateria);
+		
+		return cadastroMateria.Status is StatusResposta.Sucesso;
 	}
 
 	private async Task<bool> ValidarEAtualizarMateria(

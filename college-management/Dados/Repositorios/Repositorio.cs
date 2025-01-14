@@ -37,15 +37,15 @@ public abstract class Repositorio<T> : IRepositorio<T>
 		    .Wait();
 	}
 
-	public virtual async Task<bool> Adicionar(T modelo)
+	public virtual async Task<RespostaRecurso<T>> Adicionar(T modelo)
 	{
-		if (Existe(modelo)) return false;
+		if (Existe(modelo)) return new RespostaRecurso<T>(modelo, StatusResposta.ErroDuplicata);
 
 		BaseDeDados.Add(modelo);
 
 		await _servicoDados.SalvarAssicrono(BaseDeDados);
 
-		return true;
+		return new RespostaRecurso<T>(modelo, StatusResposta.Sucesso);
 	}
 
 	public List<T> ObterTodos() { return BaseDeDados; }
@@ -74,7 +74,12 @@ public abstract class Repositorio<T> : IRepositorio<T>
 	{
 		var modeloAntigo = ObterPorId(modelo.Id);
 
-		if (modeloAntigo is null) return await Adicionar(modelo);
+		if (modeloAntigo is null)
+		{
+			var foiAdicionado = await Adicionar(modelo);
+			
+			return foiAdicionado.Status is StatusResposta.Sucesso;
+		}
 
 		var foiRemovido = await Remover(modelo.Id);
 

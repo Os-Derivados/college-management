@@ -108,13 +108,13 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		CadastroUsuarioView cadastroUsuarioView = new();
 
 		var confirmaCadastro = cadastroUsuarioView.ObterDados();
-		var cadastroUsuario  = cadastroUsuarioView.CadastroUsuario;
+		var dadosUsuario  = cadastroUsuarioView.CadastroUsuario;
 
 		if (confirmaCadastro is not 's') return;
 
 		var cargoEscolhido = BaseDeDados
 		                     .Cargos
-		                     .ObterPorNome(cadastroUsuario["Cargo"]);
+		                     .ObterPorNome(dadosUsuario["Cargo"]);
 
 		if (cargoEscolhido is null)
 		{
@@ -128,22 +128,24 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		var novaMatricula = cargoEscolhido.Nome
 			is CargosPadrao.CargoAlunos
-			? Matricula.CriarMatricula(cadastroUsuario)
+			? Matricula.CriarMatricula(dadosUsuario)
 			: null;
 
 		var cursoEscolhido = novaMatricula is not null
 			? BaseDeDados
 			  .Cursos
-			  .ObterPorNome(cadastroUsuario["Curso"])
+			  .ObterPorNome(dadosUsuario["Curso"])
 			: null;
 
 		var novoUsuario = Usuario.CriarUsuario(cargoEscolhido,
-		                                       cadastroUsuario,
+		                                       dadosUsuario,
 		                                       novaMatricula!);
 
-		var foiAdicionado = await BaseDeDados
+		var cadastroUsuario = await BaseDeDados
 		                          .Usuarios
 		                          .Adicionar(novoUsuario);
+
+		var foiAdicionado = cadastroUsuario.Status is StatusResposta.Sucesso;
 
 		if (foiAdicionado
 		    && novaMatricula is not null
@@ -152,8 +154,10 @@ public class ContextoUsuarios : Contexto<Usuario>,
 			novaMatricula.AlunoId = novoUsuario.Id;
 			novaMatricula.CursoId = cursoEscolhido.Id;
 
-			foiAdicionado
+			var cadastroMatricula
 				= await BaseDeDados.Matriculas.Adicionar(novaMatricula);
+			
+			foiAdicionado = foiAdicionado && cadastroMatricula.Status is StatusResposta.Sucesso;
 		}
 
 		var mensagemOperacao = foiAdicionado
