@@ -1,4 +1,3 @@
-using System.Text;
 using college_management.Constantes;
 using college_management.Contextos.Interfaces;
 using college_management.Dados;
@@ -14,9 +13,11 @@ public class ContextoUsuarios : Contexto<Usuario>,
                                 IContextoUsuarios
 {
 	public ContextoUsuarios(BaseDeDados baseDeDados,
-	                        Usuario     usuarioContexto) :
+	                        Usuario usuarioContexto) :
 		base(baseDeDados,
-		     usuarioContexto) { }
+		     usuarioContexto)
+	{
+	}
 
 	public void VerMatricula()
 	{
@@ -30,8 +31,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		// Curso: Ciência da Computação
 		// Período: 2
 
-		if (CargoContexto.TemPermissao(PermissoesAcesso
-			                               .AcessoEscrita))
+		if (ValidarPermissoes())
 			// [REQUISITO]: A visualização do Gestor deve permitir a busca
 			// de um Aluno em específico na base de dados
 			//
@@ -70,8 +70,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		// | Calculo 1      |    9.0     | Aprovado |
 		// | Algebra Linear |    N/A     |   N/A    |
 
-		if (CargoContexto.TemPermissao(PermissoesAcesso
-			                               .AcessoEscrita))
+		if (ValidarPermissoes())
 			// [REQUISITO]: A visualização do Gestor deve permitir a busca
 			// de uma Aluno em específico na base de dados
 			//
@@ -101,31 +100,21 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 	public override async Task Cadastrar()
 	{
-		var temPermissao =
-			CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita)
-			|| CargoContexto.TemPermissao(PermissoesAcesso.AcessoAdministradores);
-
 		InputView inputUsuario = new("Cadastrar Usuário");
 		inputUsuario.ConstruirLayout();
 
-		if (!temPermissao)
-		{
-			inputUsuario.LerEntrada("Erro",
-			                        "Você não tem permissão "
-			                        + "para acessar esse recurso. ");
+		if (!ValidarPermissoes()) return;
 
-			return;
-		}
+		CadastroUsuarioView cadastroUsuarioView = new();
 
-		Dictionary<string, string> cadastroUsuario
-			= ObterCadastroUsuario(inputUsuario);
+		var confirmaCadastro = cadastroUsuarioView.ObterDados();
+		var cadastroUsuario  = cadastroUsuarioView.CadastroUsuario;
 
-		if (cadastroUsuario["Confirma"] is not "S") return;
+		if (confirmaCadastro is not 's') return;
 
 		var cargoEscolhido = BaseDeDados
 		                     .Cargos
-		                     .ObterPorNome(cadastroUsuario
-			                                   ["Cargo"]);
+		                     .ObterPorNome(cadastroUsuario["Cargo"]);
 
 		if (cargoEscolhido is null)
 		{
@@ -138,40 +127,23 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		}
 
 		var novaMatricula = cargoEscolhido.Nome
-			                    is CargosPadrao.CargoAlunos
-			                    ? CriarMatricula(cadastroUsuario)
-			                    : null;
+			is CargosPadrao.CargoAlunos
+			? Matricula.CriarMatricula(cadastroUsuario)
+			: null;
 
 		var cursoEscolhido = novaMatricula is not null
-			                     ? BaseDeDados
-			                       .Cursos
-			                       .ObterPorNome(cadastroUsuario["Curso"])
-			                     : null;
+			? BaseDeDados
+			  .Cursos
+			  .ObterPorNome(cadastroUsuario["Curso"])
+			: null;
 
-		Usuario? novoUsuario = cargoEscolhido.Nome switch
-		{
-			CargosPadrao.CargoAlunos => new Aluno(cadastroUsuario["Login"],
-			                                      cadastroUsuario["Nome"],
-			                                      new CredenciaisUsuario(cadastroUsuario["Senha"]),
-			                                      cargoEscolhido.Id,
-			                                      novaMatricula.Id),
-			_ => new Funcionario(cadastroUsuario["Login"],
-			                     cadastroUsuario["Nome"],
-			                     new CredenciaisUsuario(cadastroUsuario["Senha"]),
-			                     cargoEscolhido.Id)
-		};
+		var novoUsuario = Usuario.CriarUsuario(cargoEscolhido,
+		                                       cadastroUsuario,
+		                                       novaMatricula!);
 
-		if (novoUsuario is null)
-		{
-			inputUsuario
-				.LerEntrada("Erro",
-				            $"Não foi possível criar um novo {nameof(Usuario)}.");
-
-			return;
-		}
-
-		var foiAdicionado
-			= await BaseDeDados.Usuarios.Adicionar(novoUsuario);
+		var foiAdicionado = await BaseDeDados
+		                          .Usuarios
+		                          .Adicionar(novoUsuario);
 
 		if (foiAdicionado
 		    && novaMatricula is not null
@@ -180,174 +152,173 @@ public class ContextoUsuarios : Contexto<Usuario>,
 			novaMatricula.AlunoId = novoUsuario.Id;
 			novaMatricula.CursoId = cursoEscolhido.Id;
 
-			foiAdicionado = await BaseDeDados.Matriculas.Adicionar(novaMatricula);
+			foiAdicionado
+				= await BaseDeDados.Matriculas.Adicionar(novaMatricula);
 		}
 
 		var mensagemOperacao = foiAdicionado
-			                       ? $"{nameof(Usuario)} cadastrado com sucesso."
-			                       : $"Não foi possível cadastrar novo {nameof(Usuario)}.";
+			? $"{nameof(Usuario)} cadastrado com sucesso."
+			: $"Não foi possível cadastrar novo {nameof(Usuario)}.";
 
 		inputUsuario.LerEntrada("Sair", mensagemOperacao);
 	}
 
-	private Dictionary<string, string> ObterCadastroUsuario(InputView inputUsuario)
+	public override async Task Editar()
 	{
-		KeyValuePair<string, string?>[] mensagensUsuario =
-		[
-			new("Nome", "Insira o Nome: "),
-			new("Login", "Insira o Login: "),
-			new("Senha", "Insira a Senha: "),
-			new("Cargo", "Insira o Cargo: ")
-		];
+		if (!ValidarPermissoes()) return;
 
-		foreach (KeyValuePair<string, string?> mensagem
-		         in mensagensUsuario)
-			inputUsuario.LerEntrada(mensagem.Key,
-			                        mensagem.Value);
+		BuscaUsuarioView buscaUsuario = new();
 
-		KeyValuePair<string, string?>[] mensagensAluno =
-		[
-			new("Periodo", "Insira o Período: "),
-			new("Curso", "Insira o nome do Curso: "),
-			new("Modalidade", "Insira a Modalidade: ")
-		];
+		var resultadoBusca = buscaUsuario.Buscar();
+		var chaveBusca     = resultadoBusca.Value;
 
-		if (inputUsuario.ObterEntrada("Cargo")
-		    is CargosPadrao.CargoAlunos)
-			foreach (KeyValuePair<string, string?> mensagem
-			         in mensagensAluno)
-				inputUsuario.LerEntrada(mensagem.Key,
-				                        mensagem.Value);
+		var usuario = resultadoBusca.Key switch
+		{
+			1 => BaseDeDados.Usuarios.ObterPorLogin(chaveBusca),
+			2 => BaseDeDados.Usuarios.ObterPorId(chaveBusca),
+			_ => null
+		};
 
-		DetalhesView detalhesView = new("Confirmar Cadastro",
-		                                inputUsuario
-			                                .EntradasUsuario);
+		if (usuario is null)
+		{
+			InputView inputPesquisa = new("Erro ao buscar Usuario");
 
-		detalhesView.ConstruirLayout();
+			inputPesquisa.LerEntrada("Usuario", "Usuário não encontrado.");
 
-		StringBuilder mensagemConfirmacao = new();
-		mensagemConfirmacao.AppendLine(detalhesView.Layout
-		                                           .ToString());
+			return;
+		}
 
-		mensagemConfirmacao.AppendLine("Confirma o Cadastro?\n");
-		mensagemConfirmacao.Append("[S]im\t[N]ão: ");
+		EditarUsuarioView editarUsuarioView = new(usuario, BaseDeDados.Cargos);
+		var               usuarioEditado    = editarUsuarioView.Editar();
 
-		inputUsuario.LerEntrada("Confirma",
-		                        mensagemConfirmacao.ToString());
+		ConfirmaView confirmaEdicao = new("Editar Usuário");
 
-		return inputUsuario.EntradasUsuario;
+		if (confirmaEdicao.Confirmar("Editar Usuário") is not 's') return;
+
+		var foiEditado = await BaseDeDados.Usuarios.Atualizar(usuarioEditado);
+
+		var mensagemOperacao = foiEditado
+			? $"{nameof(Usuario)} editado com sucesso."
+			: $"Não foi possível editar o {nameof(Usuario)}.";
+
+		InputView inputConfirmacao = new("Editar Usuário");
+
+		inputConfirmacao.LerEntrada("Sair", mensagemOperacao);
 	}
 
-	private Matricula CriarMatricula(Dictionary<string, string> cadastroUsuario)
+	public override async Task Excluir()
 	{
-		var conversaoValida = int.TryParse(cadastroUsuario["Periodo"],
-		                                   out var periodoCurso);
+		if (!ValidarPermissoes()) return;
 
-		if (!conversaoValida) return null;
+		BuscaUsuarioView buscaUsuario = new();
 
-		var modalidadeCurso =
-			cadastroUsuario["Modalidade"] switch
-			{
-				"Ead"        => Modalidade.Ead,
-				"Presencial" => Modalidade.Presencial,
-				"Hibrido"    => Modalidade.Hibrido,
-				_            => Modalidade.Invalido
-			};
+		var resultadoBusca = buscaUsuario.Buscar();
+		var chaveBusca     = resultadoBusca.Value;
 
-		if (modalidadeCurso is Modalidade.Invalido) return null;
+		var usuario = resultadoBusca.Key switch
+		{
+			1 => BaseDeDados.Usuarios.ObterPorLogin(chaveBusca),
+			2 => BaseDeDados.Usuarios.ObterPorId(chaveBusca),
+			_ => null
+		};
 
-		Matricula novaMatricula = new(periodoCurso, modalidadeCurso);
+		if (usuario is null)
+		{
+			InputView inputPesquisa = new("Erro ao buscar Usuario");
 
-		return novaMatricula;
+			inputPesquisa.LerEntrada("Usuario", "Usuário não encontrado.");
+
+			return;
+		}
+
+
+		DetalhesView detalhesUsuario = new("Excluir Usuário",
+		                                   UtilitarioTipos.ObterPropriedades(
+			                                   usuario,
+			                                   [
+				                                   "Nome", "Login", "Id",
+				                                   "CargoId"
+			                                   ]));
+		detalhesUsuario.ConstruirLayout();
+
+		ConfirmaView confirmaExclusao = new("Excluir Usuário");
+
+		if (confirmaExclusao.Confirmar($"{detalhesUsuario.Layout}") is not 's')
+			return;
+
+		var foiExcluido = await BaseDeDados.Usuarios.Remover(usuario.Id);
+
+		var mensagemOperacao = foiExcluido
+			? $"{nameof(Usuario)} excluído com sucesso."
+			: $"Não foi possível excluir o {nameof(Usuario)}.";
+
+		InputView inputConfirmacao = new("Excluir Usuário");
+		inputConfirmacao.LerEntrada("Sair", mensagemOperacao);
 	}
-
-	public override async Task Editar() { throw new NotImplementedException(); }
-
-	public override async Task Excluir() { throw new NotImplementedException(); }
 
 	public override void Visualizar()
 	{
-		var naoTemRestricao = CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita)
-		                      || CargoContexto.TemPermissao(PermissoesAcesso.AcessoAdministradores);
-
 		RelatorioView<Usuario> relatorioView;
 
-		if (naoTemRestricao)
+		if (ValidarPermissoes())
 			relatorioView = new RelatorioView<Usuario>("Visualizar Usuários",
-			                                           BaseDeDados.Usuarios.ObterTodos());
+				BaseDeDados.Usuarios.ObterTodos());
 		else
-			relatorioView = new RelatorioView<Usuario>("Minha Conta", [UsuarioContexto]);
+			relatorioView = new RelatorioView<Usuario>("Minha Conta",
+				[UsuarioContexto]);
 
 		relatorioView.ConstruirLayout();
-
-		InputView inputRelatorio = new(relatorioView.Titulo);
-		inputRelatorio.LerEntrada("Sair", relatorioView.Layout.ToString());
+		relatorioView.Exibir();
 	}
 
 	public override void VerDetalhes()
 	{
-		var naoTemRestricao = CargoContexto.TemPermissao(PermissoesAcesso.AcessoAdministradores)
-		                      || CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita);
-
-		if (!naoTemRestricao) { }
-
-		MenuView menuPesquisa = new("Pesquisar Usuário",
-		                            "Selecione um dos campos para pesquisar.",
-		                            ["Login", "Id"]);
-
-		menuPesquisa.ConstruirLayout();
-		menuPesquisa.LerEntrada();
-
-		KeyValuePair<string, string>? campoPesquisa = menuPesquisa.OpcaoEscolhida switch
+		if (!ValidarPermissoes())
 		{
-			1 => new KeyValuePair<string, string>("Login",
-			                                      "Insira o Login do Usuario: "),
-			2 => new KeyValuePair<string, string>("Id",
-			                                      "Insira o Id do Usuario: "),
+			DetalhesView detalhesContexto = new("Detalhes da Conta",
+			                                    UtilitarioTipos
+				                                    .ObterPropriedades(
+					                                    UsuarioContexto,
+					                                    [
+						                                    "Login", "Nome",
+						                                    "CargoId", "Id"
+					                                    ]));
+			detalhesContexto.ConstruirLayout();
+			detalhesContexto.Exibir();
+
+
+			return;
+		}
+
+		BuscaUsuarioView buscaUsuario = new();
+
+		var resultadoBusca = buscaUsuario.Buscar();
+		var chaveBusca     = resultadoBusca.Value;
+
+		var usuario = resultadoBusca.Key switch
+		{
+			1 => BaseDeDados.Usuarios.ObterPorLogin(chaveBusca),
+			2 => BaseDeDados.Usuarios.ObterPorId(chaveBusca),
 			_ => null
 		};
 
-		InputView inputPesquisa = new("Ver Detalhes: Pesquisar Usuario");
-
-		if (campoPesquisa is null)
-		{
-			inputPesquisa.LerEntrada("Campo",
-			                         "Campo inválido. Tente novamente.");
-
-			return;
-		}
-
-		inputPesquisa.LerEntrada(campoPesquisa?.Key,
-		                         campoPesquisa?.Value);
-
-		Usuario? usuario = null;
-
-		if (menuPesquisa.OpcaoEscolhida is 1)
-		{
-			var login = inputPesquisa.ObterEntrada("Login");
-			usuario = BaseDeDados.Usuarios.ObterPorLogin(login);
-		}
-		else if (menuPesquisa.OpcaoEscolhida is 2)
-		{
-			var id = inputPesquisa.ObterEntrada("Id");
-			usuario = BaseDeDados.Usuarios.ObterPorId(id);
-		}
-
 		if (usuario is null)
 		{
-			inputPesquisa.LerEntrada("Usuario",
-			                         "Usuário não encontrado.");
+			InputView inputErro = new("Erro ao buscar Usuario");
+
+			inputErro.LerEntrada("Usuario",
+			                     "Usuário não encontrado.");
 
 			return;
 		}
 
-		Dictionary<string, string> detalhes =
-			UtilitarioTipos.ObterPropriedades(usuario,
-			                                  ["Login", "Nome", "Credenciais", "CargoId", "Id"]);
+		var detalhes = UtilitarioTipos.ObterPropriedades(usuario,
+		[
+			"Login", "Nome", "Credenciais", "CargoId", "Id"
+		]);
 
 		DetalhesView detalhesUsuario = new("Usuário Encontrado", detalhes);
 		detalhesUsuario.ConstruirLayout();
-
-		inputPesquisa.LerEntrada("Sair", detalhesUsuario.Layout.ToString());
+		detalhesUsuario.Exibir();
 	}
 }
