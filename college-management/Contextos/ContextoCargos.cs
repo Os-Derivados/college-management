@@ -12,9 +12,11 @@ namespace college_management.Contextos;
 public class ContextoCargos : Contexto<Cargo>
 {
 	public ContextoCargos(BaseDeDados baseDeDados,
-	                      Usuario     usuarioContexto) :
+	                      Usuario usuarioContexto) :
 		base(baseDeDados,
-		     usuarioContexto) { }
+		     usuarioContexto)
+	{
+	}
 
 	public override async Task Cadastrar() 
     {

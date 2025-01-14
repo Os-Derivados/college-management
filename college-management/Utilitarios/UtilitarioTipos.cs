@@ -19,8 +19,8 @@ public static class UtilitarioTipos
 		return propriedades.ToString();
 	}
 
-	public static Dictionary<string, string> ObterPropriedades<T>(T        modelo,
-	                                                              string[] nomesPropriedades)
+	public static Dictionary<string, string> ObterPropriedades<T>(T modelo,
+		string[] nomesPropriedades)
 	{
 		Dictionary<string, string> resultado  = new();
 		var                        tipoModelo = typeof(T);
@@ -28,7 +28,8 @@ public static class UtilitarioTipos
 		foreach (var nome in nomesPropriedades)
 		{
 			var propriedade = tipoModelo.GetProperty(nome);
- 			var valor       = propriedade?.GetValue(modelo)?.ToString() ?? string.Empty;
+			var valor = propriedade?.GetValue(modelo)?.ToString() ??
+			            string.Empty;
 
 			resultado.Add(nome, valor);
 		}

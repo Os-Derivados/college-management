@@ -1,240 +1,271 @@
-using college_management.Constantes;
+using System.Text;
 using college_management.Dados;
 using college_management.Dados.Modelos;
 using college_management.Utilitarios;
 using college_management.Views;
-using System.Text;
+
 
 namespace college_management.Contextos;
+
 
 public class ContextoMaterias : Contexto<Materia>
 {
 	public ContextoMaterias(BaseDeDados baseDeDados,
-	                        Usuario     usuarioContexto) :
+	                        Usuario usuarioContexto) :
 		base(baseDeDados,
-		     usuarioContexto) { }
+		     usuarioContexto)
+	{
+	}
 
-    private bool TemPermissaoEscrita => CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita) || CargoContexto.TemPermissao(PermissoesAcesso.AcessoAdministradores);
+	private async Task<Materia?> ObterMateriaComValidacao()
+	{
+		if (!TemAcessoRestrito)
+		{
+			ExibirMensagemErro(
+				"Você não tem permissão para acessar esse recurso.");
+			return null;
+		}
 
-    private async Task<Materia?> ObterMateriaComValidacao()
-    {
-        if (!TemPermissaoEscrita)
-        {
-            ExibirMensagemErro("Você não tem permissão para acessar esse recurso.");
-            return null;
-        }
+		var materia = ObterDetalhesMateria();
 
-        var materia = ObterDetalhesMateria();
-        if (materia == null)
-        {
-            ExibirMensagemErro("Matéria não encontrada."); // Mensagem mais específica
-            return null;
-        }
-        return materia;
-    }
+		if (materia == null)
+		{
+			ExibirMensagemErro(
+				"Matéria não encontrada."); // Mensagem mais específica
+			return null;
+		}
 
-    private Dictionary<string, string> ObterEntradasUsuario(string titulo, string mensagemConfir)
-    {
-        InputView inputUsuario = new(titulo);
-        inputUsuario.ConstruirLayout();
+		return materia;
+	}
 
-        KeyValuePair<string, string?>[] mensagensUsuario =
-        [
-            new("Nome", "Insira o Nome: "),
-            new("Turno", "Insira o Turno: "),
-            new("CargaHoraria", "Insira a Carga Horária: ")
-        ];
+	private Dictionary<string, string> ObterEntradasUsuario(
+		string titulo,
+		string mensagemConfir)
+	{
+		InputView inputUsuario = new(titulo);
+		inputUsuario.ConstruirLayout();
 
-        foreach (KeyValuePair<string, string?> mensagem in mensagensUsuario)
-            inputUsuario.LerEntrada(mensagem.Key, mensagem.Value);
+		KeyValuePair<string, string?>[] mensagensUsuario =
+		[
+			new("Nome", "Insira o Nome: "),
+			new("Turno", "Insira o Turno: "),
+			new("CargaHoraria", "Insira a Carga Horária: ")
+		];
 
-        DetalhesView detalhesView = new(mensagemConfir, inputUsuario.EntradasUsuario);
-        detalhesView.ConstruirLayout();
+		foreach (var mensagem in mensagensUsuario)
+			inputUsuario.LerEntrada(mensagem.Key, mensagem.Value);
 
-        var mensagemConfirmacao = new StringBuilder(detalhesView.Layout.ToString());
-        mensagemConfirmacao.AppendLine($"{mensagemConfir}?\n[S]im\t[N]ão: ");
+		DetalhesView detalhesView
+			= new(mensagemConfir, inputUsuario.EntradasUsuario);
+		detalhesView.ConstruirLayout();
 
-        inputUsuario.LerEntrada("Confirma", mensagemConfirmacao.ToString());
-        return inputUsuario.EntradasUsuario;
-    }
+		var mensagemConfirmacao
+			= new StringBuilder(detalhesView.Layout.ToString());
+		mensagemConfirmacao.AppendLine($"{mensagemConfir}?\n[S]im\t[N]ão: ");
 
-    private void ExibirMensagemErro(string mensagem)
-    {
-        InputView inputUsuario = new(""); //evita criar inputview desnecessario
-        inputUsuario.LerEntrada("Erro", mensagem);
-    }
+		inputUsuario.LerEntrada("Confirma", mensagemConfirmacao.ToString());
+		return inputUsuario.EntradasUsuario;
+	}
 
-    private async Task<bool> ValidarECadastrarMateria(Dictionary<string, string> cadastroMateria)
-    {
-        if (!Enum.TryParse(cadastroMateria["Turno"], out Turno turnoEscolhido))
-        {
-            ExibirMensagemErro("O Turno inserido não foi encontrado.");
-            return false;
-        }
+	private void ExibirMensagemErro(string mensagem)
+	{
+		InputView inputUsuario = new(""); //evita criar inputview desnecessario
+		inputUsuario.LerEntrada("Erro", mensagem);
+	}
 
-        if (!int.TryParse(cadastroMateria["CargaHoraria"], out int cargaHoraria))
-        {
-            ExibirMensagemErro("A carga horária inserida não é válida.");
-            return false;
-        }
+	private async Task<bool> ValidarECadastrarMateria(
+		Dictionary<string, string> cadastroMateria)
+	{
+		if (!Enum.TryParse(cadastroMateria["Turno"], out Turno turnoEscolhido))
+		{
+			ExibirMensagemErro("O Turno inserido não foi encontrado.");
+			return false;
+		}
 
-        Materia? novaMateria = new(cadastroMateria["Nome"], turnoEscolhido, cargaHoraria);
-        if (novaMateria is null)
-        {
-            ExibirMensagemErro($"Não foi possível criar uma nova {nameof(Materia)}.");
-            return false;
-        }
+		if (!int.TryParse(cadastroMateria["CargaHoraria"],
+		                  out var cargaHoraria))
+		{
+			ExibirMensagemErro("A carga horária inserida não é válida.");
+			return false;
+		}
 
-        return await BaseDeDados.Materias.Adicionar(novaMateria);
-    }
+		Materia? novaMateria
+			= new(cadastroMateria["Nome"], turnoEscolhido, cargaHoraria);
 
-    private async Task<bool> ValidarEAtualizarMateria(Materia materia, Dictionary<string, string> editarMateria)
-    {
-        if (!string.IsNullOrEmpty(editarMateria["Nome"]))
-        {
-            materia.Nome = editarMateria["Nome"];
-        }
+		if (novaMateria is null)
+		{
+			ExibirMensagemErro(
+				$"Não foi possível criar uma nova {nameof(Materia)}.");
+			return false;
+		}
 
-        if (!string.IsNullOrEmpty(editarMateria["Turno"]))
-        {
-            if (!Enum.TryParse(editarMateria["Turno"], out Turno turnoEscolhido))
-            {
-                ExibirMensagemErro("O Turno inserido não foi encontrado.");
-                return false;
-            }
-            materia.Turno = turnoEscolhido;
-        }
+		return await BaseDeDados.Materias.Adicionar(novaMateria);
+	}
 
-        if (!string.IsNullOrEmpty(editarMateria["CargaHoraria"]))
-        {
-            if (!int.TryParse(editarMateria["CargaHoraria"], out int cargaHoraria))
-            {
-                ExibirMensagemErro("A carga horária inserida não é válida.");
-                return false;
-            }
-            materia.CargaHoraria = cargaHoraria;
-        }
+	private async Task<bool> ValidarEAtualizarMateria(
+		Materia materia,
+		Dictionary<string, string> editarMateria)
+	{
+		if (!string.IsNullOrEmpty(editarMateria["Nome"]))
+			materia.Nome = editarMateria["Nome"];
 
-        return await BaseDeDados.Materias.Atualizar(materia);
-    }
+		if (!string.IsNullOrEmpty(editarMateria["Turno"]))
+		{
+			if (!Enum.TryParse(editarMateria["Turno"],
+			                   out Turno turnoEscolhido))
+			{
+				ExibirMensagemErro("O Turno inserido não foi encontrado.");
+				return false;
+			}
 
-    private Materia? ObterDetalhesMateria()
-    {
-        MenuView menuPesquisa = new("Pesquisar Matéria", "Selecione um dos campos para pesquisar.", ["Nome", "Id"]);
-        menuPesquisa.ConstruirLayout();
-        menuPesquisa.LerEntrada();
+			materia.Turno = turnoEscolhido;
+		}
 
-        string campoPesquisa = menuPesquisa.OpcaoEscolhida switch
-        {
-            1 => "Nome",
-            2 => "Id",
-            _ => null
-        };
+		if (!string.IsNullOrEmpty(editarMateria["CargaHoraria"]))
+		{
+			if (!int.TryParse(editarMateria["CargaHoraria"],
+			                  out var cargaHoraria))
+			{
+				ExibirMensagemErro("A carga horária inserida não é válida.");
+				return false;
+			}
 
-        if (campoPesquisa == null)
-        {
-            ExibirMensagemErro("Campo inválido. Tente novamente.");
-            return null;
-        }
+			materia.CargaHoraria = cargaHoraria;
+		}
 
-        InputView inputPesquisa = new($"Pesquisar por {campoPesquisa}");
-        inputPesquisa.LerEntrada(campoPesquisa, $"Insira o {campoPesquisa} da Matéria: ");
+		return await BaseDeDados.Materias.Atualizar(materia);
+	}
 
-        string valorPesquisa = inputPesquisa.ObterEntrada(campoPesquisa);
+	private Materia? ObterDetalhesMateria()
+	{
+		MenuView menuPesquisa = new("Pesquisar Matéria",
+		                            "Selecione um dos campos para pesquisar.",
+		                            ["Nome", "Id"]);
+		menuPesquisa.ConstruirLayout();
+		menuPesquisa.LerEntrada();
 
-        return campoPesquisa switch
-        {
-            "Nome" => BaseDeDados.Materias.ObterPorNome(valorPesquisa),
-            "Id" => BaseDeDados.Materias.ObterPorId(valorPesquisa),
-            _ => null // Nunca deve acontecer, mas para garantir
-        };
-    }
+		var campoPesquisa = menuPesquisa.OpcaoEscolhida switch
+		{
+			1 => "Nome",
+			2 => "Id",
+			_ => null
+		};
 
-    public override async Task Cadastrar()
-    {
-        if (!TemPermissaoEscrita)
-        {
-            ExibirMensagemErro("Você não tem permissão para acessar esse recurso.");
-            return;
-        }
+		if (campoPesquisa == null)
+		{
+			ExibirMensagemErro("Campo inválido. Tente novamente.");
+			return null;
+		}
 
-        Dictionary<string, string> cadastroMateria = ObterEntradasUsuario("Cadastrar Matéria", "Confirmar Cadastro");
+		InputView inputPesquisa = new($"Pesquisar por {campoPesquisa}");
+		inputPesquisa.LerEntrada(campoPesquisa,
+		                         $"Insira o {campoPesquisa} da Matéria: ");
 
-        if (cadastroMateria["Confirma"] is not "S") return;
+		var valorPesquisa = inputPesquisa.ObterEntrada(campoPesquisa);
 
-        var foiAdicionado = await ValidarECadastrarMateria(cadastroMateria);
+		return campoPesquisa switch
+		{
+			"Nome" => BaseDeDados.Materias.ObterPorNome(valorPesquisa),
+			"Id"   => BaseDeDados.Materias.ObterPorId(valorPesquisa),
+			_      => null // Nunca deve acontecer, mas para garantir
+		};
+	}
 
-        var mensagemOperacao = foiAdicionado
-            ? $"{nameof(Materia)} cadastrada com sucesso."
-            : $"Não foi possível cadastrar uma nova {nameof(Materia)}.";
+	public override async Task Cadastrar()
+	{
+		if (!TemAcessoRestrito)
+		{
+			ExibirMensagemErro(
+				"Você não tem permissão para acessar esse recurso.");
+			return;
+		}
 
-        ExibirMensagemErro(mensagemOperacao);
-    }
+		var cadastroMateria
+			= ObterEntradasUsuario("Cadastrar Matéria", "Confirmar Cadastro");
 
-    public override async Task Editar()
-    {
-        var materia = await ObterMateriaComValidacao();
-        if (materia == null) return;
+		if (cadastroMateria["Confirma"] is not "S") return;
 
-        Dictionary<string, string> editarMateria = ObterEntradasUsuario("Editar Matéria", "Confirmar Edição");
+		var foiAdicionado = await ValidarECadastrarMateria(cadastroMateria);
 
-        if (editarMateria["Confirma"] is not "S") return;
+		var mensagemOperacao = foiAdicionado
+			? $"{nameof(Materia)} cadastrada com sucesso."
+			: $"Não foi possível cadastrar uma nova {nameof(Materia)}.";
 
-        var foiAtualizado = await ValidarEAtualizarMateria(materia, editarMateria);
+		ExibirMensagemErro(mensagemOperacao);
+	}
 
-        var mensagemOperacao = foiAtualizado
-            ? $"{nameof(Materia)} atualizada com sucesso."
-            : $"Não foi possível atualizar a {nameof(Materia)}.";
+	public override async Task Editar()
+	{
+		var materia = await ObterMateriaComValidacao();
+		if (materia == null) return;
 
-        ExibirMensagemErro(mensagemOperacao);
-    }
+		var editarMateria
+			= ObterEntradasUsuario("Editar Matéria", "Confirmar Edição");
 
-    public override async Task Excluir()
-    {
-        var materia = await ObterMateriaComValidacao();
-        if (materia == null) return;
+		if (editarMateria["Confirma"] is not "S") return;
 
-        InputView inputUsuario = new("Deletar Matéria");
-        var mensagemConfirmacao = new StringBuilder(inputUsuario.Layout.ToString());
-        mensagemConfirmacao.AppendLine("Tem certeza que deseja deletar essa matéria?\n[S]im\t[N]ão: ");
-        inputUsuario.LerEntrada("Confirma", mensagemConfirmacao.ToString());
+		var foiAtualizado
+			= await ValidarEAtualizarMateria(materia, editarMateria);
 
-        if (inputUsuario.EntradasUsuario["Confirma"] is not "S") return;
+		var mensagemOperacao = foiAtualizado
+			? $"{nameof(Materia)} atualizada com sucesso."
+			: $"Não foi possível atualizar a {nameof(Materia)}.";
 
-        var foiDeletado = await BaseDeDados.Materias.Remover(materia.Id);
+		ExibirMensagemErro(mensagemOperacao);
+	}
 
-        var mensagemOperacao = foiDeletado
-            ? $"{nameof(Materia)} deletada com sucesso."
-            : $"Não foi possível deletar a {nameof(Materia)}.";
+	public override async Task Excluir()
+	{
+		var materia = await ObterMateriaComValidacao();
+		if (materia == null) return;
 
-        ExibirMensagemErro(mensagemOperacao);
-    }
+		InputView inputUsuario = new("Deletar Matéria");
+		var mensagemConfirmacao
+			= new StringBuilder(inputUsuario.Layout.ToString());
+		mensagemConfirmacao.AppendLine(
+			"Tem certeza que deseja deletar essa matéria?\n[S]im\t[N]ão: ");
+		inputUsuario.LerEntrada("Confirma", mensagemConfirmacao.ToString());
 
-    public override void Visualizar()
-    {
-        var materias = BaseDeDados.Materias.ObterTodos();
-        if (materias == null || !materias.Any())
-        {
-            ExibirMensagemErro("Nenhuma matéria cadastrada.");
-            return;
-        }
+		if (inputUsuario.EntradasUsuario["Confirma"] is not "S") return;
 
-        RelatorioView<Materia> relatorioView = new("Visualizar Matérias", materias);
-        relatorioView.ConstruirLayout();
+		var foiDeletado = await BaseDeDados.Materias.Remover(materia.Id);
 
-        ExibirMensagemErro(relatorioView.Layout.ToString());
-    }
+		var mensagemOperacao = foiDeletado
+			? $"{nameof(Materia)} deletada com sucesso."
+			: $"Não foi possível deletar a {nameof(Materia)}.";
 
-    public override void VerDetalhes()
-    {
-        var materia = ObterDetalhesMateria();
-        if (materia == null) return;
+		ExibirMensagemErro(mensagemOperacao);
+	}
 
-        var detalhes = UtilitarioTipos.ObterPropriedades(materia, ["Nome", "Turno", "CargaHoraria", "Id"]);
+	public override void Visualizar()
+	{
+		var materias = BaseDeDados.Materias.ObterTodos();
 
-        DetalhesView detalhesMateria = new("Matéria Encontrada", detalhes);
-        detalhesMateria.ConstruirLayout();
+		if (materias == null || !materias.Any())
+		{
+			ExibirMensagemErro("Nenhuma matéria cadastrada.");
+			return;
+		}
 
-        ExibirMensagemErro(detalhesMateria.Layout.ToString());
-    }
+		RelatorioView<Materia> relatorioView
+			= new("Visualizar Matérias", materias);
+		relatorioView.ConstruirLayout();
+
+		ExibirMensagemErro(relatorioView.Layout.ToString());
+	}
+
+	public override void VerDetalhes()
+	{
+		var materia = ObterDetalhesMateria();
+		if (materia == null) return;
+
+		var detalhes
+			= UtilitarioTipos.ObterPropriedades(
+				materia, ["Nome", "Turno", "CargaHoraria", "Id"]);
+
+		DetalhesView detalhesMateria = new("Matéria Encontrada", detalhes);
+		detalhesMateria.ConstruirLayout();
+
+		ExibirMensagemErro(detalhesMateria.Layout.ToString());
+	}
 }

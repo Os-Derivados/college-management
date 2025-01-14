@@ -10,7 +10,7 @@ public sealed class Aluno : Usuario
 	             string matriculaId)
 		: base(login,
 		       nome,
-               credenciais,
+		       credenciais,
 		       cargoId)
 	{
 		MatriculaId = matriculaId;
