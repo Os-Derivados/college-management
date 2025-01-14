@@ -8,15 +8,15 @@ namespace college_management.Servicos;
 
 public sealed class ServicoDados<T> : IServicoDados<T>
 {
+	private readonly string _caminhoArquivo
+		= Path.Combine(UtilitarioArquivos.DiretorioDados,
+		               $"{typeof(T).Name}s.json");
+
 	public ServicoDados()
 	{
 		if (!File.Exists(_caminhoArquivo))
 			File.Create(_caminhoArquivo).Dispose();
 	}
-
-	private readonly string _caminhoArquivo
-		= Path.Combine(UtilitarioArquivos.DiretorioDados,
-		               $"{typeof(T).Name}s.json");
 
 	public async Task SalvarAssicrono(List<T>? items)
 	{
@@ -33,6 +33,6 @@ public sealed class ServicoDados<T> : IServicoDados<T>
 			= File.OpenRead(_caminhoArquivo);
 
 		return await JsonSerializer
-			       .DeserializeAsync<List<T>>(streamArquivo);
+			.DeserializeAsync<List<T>>(streamArquivo);
 	}
 }

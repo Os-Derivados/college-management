@@ -8,10 +8,10 @@ namespace college_management.Dados.Repositorios;
 
 
 public abstract class Repositorio<T> : IRepositorio<T>
-where T : Modelo
+	where T : Modelo
 {
-	protected          List<T>?        BaseDeDados;
 	protected readonly ServicoDados<T> _servicoDados = new();
+	protected          List<T>?        BaseDeDados;
 
 	protected Repositorio()
 	{
@@ -50,11 +50,14 @@ where T : Modelo
 
 	public List<T> ObterTodos() { return BaseDeDados; }
 
-	public T ObterPorId(string? id) { return BaseDeDados.FirstOrDefault(t => t.Id == id); }
-
-	public T ObterPorNome(string? nome)
+	public T ObterPorId(string? id)
 	{
-		return BaseDeDados.FirstOrDefault(t =>
+		return BaseDeDados.FirstOrDefault(t => t.Id == id);
+	}
+
+	public T? ObterPorNome(string? nome)
+	{
+		return BaseDeDados?.FirstOrDefault(t =>
 		{
 			var propriedadeNome
 				= t.GetType().GetProperty("Nome");
