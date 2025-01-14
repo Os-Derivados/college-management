@@ -265,11 +265,16 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		RelatorioView<Usuario> relatorioView;
 
 		if (ValidarPermissoes())
-			relatorioView = new RelatorioView<Usuario>("Visualizar Usuários",
-				BaseDeDados.Usuarios.ObterTodos());
+		{
+			var verUsuarios = BaseDeDados.Usuarios.ObterTodos(); 
+			
+			relatorioView = new RelatorioView<Usuario>("Visualizar Usuários", verUsuarios.Modelo!);
+		}
 		else
+		{
 			relatorioView = new RelatorioView<Usuario>("Minha Conta",
 				[UsuarioContexto]);
+		}
 
 		relatorioView.ConstruirLayout();
 		relatorioView.Exibir();

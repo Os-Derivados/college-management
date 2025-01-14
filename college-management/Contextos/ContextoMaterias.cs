@@ -241,16 +241,18 @@ public class ContextoMaterias : Contexto<Materia>
 
 	public override void Visualizar()
 	{
-		var materias = BaseDeDados.Materias.ObterTodos();
+		var verMaterias = BaseDeDados.Materias.ObterTodos();
 
-		if (materias == null || !materias.Any())
+		if (verMaterias.Modelo!.Count is 0)
 		{
 			ExibirMensagemErro("Nenhuma matéria cadastrada.");
+			
 			return;
 		}
 
 		RelatorioView<Materia> relatorioView
-			= new("Visualizar Matérias", materias);
+			= new("Visualizar Matérias", verMaterias.Modelo);
+		
 		relatorioView.ConstruirLayout();
 
 		ExibirMensagemErro(relatorioView.Layout.ToString());

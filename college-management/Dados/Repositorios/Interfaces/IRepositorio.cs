@@ -8,7 +8,7 @@ public interface IRepositorio<T> where T : Modelo
 {
 	public Task<RespostaRecurso<T>> Adicionar(T modelo);
 
-	public List<T> ObterTodos();
+	public RespostaRecurso<List<T>> ObterTodos();
 
 	public T ObterPorId(string? id);
 

@@ -6,7 +6,7 @@ public record RespostaRecurso<T>(T? Modelo, StatusResposta Status);
 public enum StatusResposta
 {
 	Sucesso,
-	NaoEncontrado,
+	ErroNaoEncontrado,
 	ErroDuplicata,
 	ErroInvalido,
 	ErroInterno,

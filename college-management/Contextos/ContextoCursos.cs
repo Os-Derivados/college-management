@@ -107,12 +107,15 @@ public class ContextoCursos : Contexto<Curso>,
 			return;
 		}
 
-		curso = BaseDeDados.Cursos.ObterTodos()
-		                   .Where(i => i.MatriculasIds?.Contains(
-			                          aluno.MatriculaId) ?? false)
-		                   .FirstOrDefault();
+		var verCursos = BaseDeDados.Cursos.ObterTodos();
 
-		if (curso is null)
+		curso = verCursos
+		        .Modelo
+		        .FirstOrDefault(
+			        i => i.MatriculasIds?.Contains(aluno.MatriculaId)
+			             ?? false);
+
+		if (verCursos.Modelo!.Count is 0 || curso is null)
 		{
 			inputRelatorio.LerEntrada(
 				"Erro", "O aluno não está matriculado em nenhum curso.");
@@ -196,14 +199,14 @@ public class ContextoCursos : Contexto<Curso>,
 
 	public override void Visualizar()
 	{
-		var cursos = BaseDeDados.Cursos.ObterTodos();
+		var verCursos = BaseDeDados.Cursos.ObterTodos();
 
 		InputView inputRelatorio = new("Visualizar Cursos");
 
-		if (cursos.Count > 0)
+		if (verCursos.Modelo!.Count > 0)
 		{
 			RelatorioView<Curso> relatorioView
-				= new(inputRelatorio.Titulo, cursos);
+				= new(inputRelatorio.Titulo, verCursos.Modelo);
 			relatorioView.ConstruirLayout();
 
 			inputRelatorio.LerEntrada("Sair", relatorioView.Layout.ToString());

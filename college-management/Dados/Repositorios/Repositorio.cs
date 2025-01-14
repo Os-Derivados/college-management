@@ -39,7 +39,8 @@ public abstract class Repositorio<T> : IRepositorio<T>
 
 	public virtual async Task<RespostaRecurso<T>> Adicionar(T modelo)
 	{
-		if (Existe(modelo)) return new RespostaRecurso<T>(modelo, StatusResposta.ErroDuplicata);
+		if (Existe(modelo))
+			return new RespostaRecurso<T>(modelo, StatusResposta.ErroDuplicata);
 
 		BaseDeDados.Add(modelo);
 
@@ -48,7 +49,11 @@ public abstract class Repositorio<T> : IRepositorio<T>
 		return new RespostaRecurso<T>(modelo, StatusResposta.Sucesso);
 	}
 
-	public List<T> ObterTodos() { return BaseDeDados; }
+	public RespostaRecurso<List<T>> ObterTodos()
+	{
+		return new RespostaRecurso<List<T>>(BaseDeDados ?? [],
+		                                    StatusResposta.Sucesso);
+	}
 
 	public T ObterPorId(string? id)
 	{
@@ -77,7 +82,7 @@ public abstract class Repositorio<T> : IRepositorio<T>
 		if (modeloAntigo is null)
 		{
 			var foiAdicionado = await Adicionar(modelo);
-			
+
 			return foiAdicionado.Status is StatusResposta.Sucesso;
 		}
 
