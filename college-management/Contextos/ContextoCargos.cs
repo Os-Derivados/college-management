@@ -174,7 +174,7 @@ public class ContextoCargos : Contexto<Cargo>
 
         inputUsuario.LerEntrada("nome", "Insira o nome do novo cargo: ");
 
-        if (ValidaEntrada(inputUsuario, "nome"))
+        if (ValidarEntrada(inputUsuario, "nome"))
         {
 
             List<string> nivelDePermissao = SelecaoDePermissao();
@@ -332,31 +332,26 @@ public class ContextoCargos : Contexto<Cargo>
     }
 
 
-    Cargo TelaDeEdicao(Cargo cargoAtual, InputView inputView)
+    Cargo? TelaDeEdicao(Cargo cargoAtual, InputView inputView)
     {
-
         inputView.LerEntrada("nome",
             $"Nome Atual: {cargoAtual.Nome}\n\nEscolha um novo nome: ");
-
-        if (ValidaEntrada(inputView, "nome"))
+        if (ValidarEntrada(inputView, "nome"))
         {
+            List<string> permissoes = SelecaoDePermissao();
+            if (!permissoes.Any()) return null;
 
-            var permissoes = SelecaoDePermissao();
-
-            if (permissoes.Any())
-                cargoAtual.Permissoes = permissoes;
-
-            else return null;
-
-            cargoAtual.Nome = inputView.ObterEntrada("nome");
-
-            return cargoAtual;
+            return new Cargo(inputView.ObterEntrada("nome"), permissoes)
+            {
+                Id = cargoAtual.Id 
+            };
         }
-
         return null;
     }
 
-    bool ValidaEntrada(InputView inputView, string chave)
+
+
+    bool ValidarEntrada(InputView inputView, string chave)
     {
 
         string item = inputView.ObterEntrada(chave);
