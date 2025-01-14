@@ -108,7 +108,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		CadastroUsuarioView cadastroUsuarioView = new();
 
 		var confirmaCadastro = cadastroUsuarioView.ObterDados();
-		var dadosUsuario  = cadastroUsuarioView.CadastroUsuario;
+		var dadosUsuario     = cadastroUsuarioView.CadastroUsuario;
 
 		if (confirmaCadastro is not 's') return;
 
@@ -142,8 +142,8 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		                                       novaMatricula!);
 
 		var cadastroUsuario = await BaseDeDados
-		                          .Usuarios
-		                          .Adicionar(novoUsuario);
+		                            .Usuarios
+		                            .Adicionar(novoUsuario);
 
 		var foiAdicionado = cadastroUsuario.Status is StatusResposta.Sucesso;
 
@@ -156,8 +156,9 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 			var cadastroMatricula
 				= await BaseDeDados.Matriculas.Adicionar(novaMatricula);
-			
-			foiAdicionado = foiAdicionado && cadastroMatricula.Status is StatusResposta.Sucesso;
+
+			foiAdicionado = foiAdicionado &&
+			                cadastroMatricula.Status is StatusResposta.Sucesso;
 		}
 
 		var mensagemOperacao = foiAdicionado
@@ -176,12 +177,9 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		var resultadoBusca = buscaUsuario.Buscar();
 		var chaveBusca     = resultadoBusca.Value;
 
-		var usuario = resultadoBusca.Key switch
-		{
-			1 => BaseDeDados.Usuarios.ObterPorLogin(chaveBusca),
-			2 => BaseDeDados.Usuarios.ObterPorId(chaveBusca),
-			_ => null
-		};
+		var usuario = resultadoBusca.Key is 1
+			? BaseDeDados.Usuarios.ObterPorLogin(chaveBusca)
+			: BaseDeDados.Usuarios.ObterPorId(chaveBusca).Modelo;
 
 		if (usuario is null)
 		{
@@ -219,12 +217,9 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		var resultadoBusca = buscaUsuario.Buscar();
 		var chaveBusca     = resultadoBusca.Value;
 
-		var usuario = resultadoBusca.Key switch
-		{
-			1 => BaseDeDados.Usuarios.ObterPorLogin(chaveBusca),
-			2 => BaseDeDados.Usuarios.ObterPorId(chaveBusca),
-			_ => null
-		};
+		var usuario = resultadoBusca.Key is 1
+			? BaseDeDados.Usuarios.ObterPorLogin(chaveBusca)
+			: BaseDeDados.Usuarios.ObterPorId(chaveBusca).Modelo;
 
 		if (usuario is null)
 		{
@@ -266,9 +261,11 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		if (ValidarPermissoes())
 		{
-			var verUsuarios = BaseDeDados.Usuarios.ObterTodos(); 
-			
-			relatorioView = new RelatorioView<Usuario>("Visualizar Usuários", verUsuarios.Modelo!);
+			var verUsuarios = BaseDeDados.Usuarios.ObterTodos();
+
+			relatorioView
+				= new RelatorioView<Usuario>("Visualizar Usuários",
+				                             verUsuarios.Modelo!);
 		}
 		else
 		{
@@ -304,12 +301,9 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		var resultadoBusca = buscaUsuario.Buscar();
 		var chaveBusca     = resultadoBusca.Value;
 
-		var usuario = resultadoBusca.Key switch
-		{
-			1 => BaseDeDados.Usuarios.ObterPorLogin(chaveBusca),
-			2 => BaseDeDados.Usuarios.ObterPorId(chaveBusca),
-			_ => null
-		};
+		var usuario = resultadoBusca.Key is 1
+			? BaseDeDados.Usuarios.ObterPorLogin(chaveBusca)
+			: BaseDeDados.Usuarios.ObterPorId(chaveBusca).Modelo;
 
 		if (usuario is null)
 		{

@@ -13,8 +13,11 @@ public static class MiddlewareContexto
 	public static void Inicializar(BaseDeDados baseDeDados,
 	                               Usuario usuario)
 	{
-		var cargoUsuario  = baseDeDados.Cargos.ObterPorId(usuario.CargoId);
-		var opcaoContexto = EscolherContexto(cargoUsuario);
+		var obterCargo  = baseDeDados.Cargos.ObterPorId(usuario.CargoId);
+
+		if (obterCargo.Status is StatusResposta.ErroNaoEncontrado) return;
+		
+		var opcaoContexto = EscolherContexto(obterCargo.Modelo!);
 
 		if (opcaoContexto is "") return;
 

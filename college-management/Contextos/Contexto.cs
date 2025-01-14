@@ -18,11 +18,13 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 	                   Usuario usuarioContexto)
 	{
 		BaseDeDados     = baseDeDados;
+		
+		var obterCargo = BaseDeDados
+		                 .Cargos
+		                 .ObterPorId(usuarioContexto.CargoId);
+
 		UsuarioContexto = usuarioContexto;
-		CargoContexto
-			= BaseDeDados
-			  .Cargos
-			  .ObterPorId(UsuarioContexto.CargoId);
+		CargoContexto   = obterCargo.Modelo!;
 	}
 
 	protected bool TemAcessoRestrito =>

@@ -55,9 +55,13 @@ public abstract class Repositorio<T> : IRepositorio<T>
 		                                    StatusResposta.Sucesso);
 	}
 
-	public T ObterPorId(string? id)
+	public RespostaRecurso<T> ObterPorId(string? id)
 	{
-		return BaseDeDados.FirstOrDefault(t => t.Id == id);
+		var registro = BaseDeDados.FirstOrDefault(t => t.Id == id);
+
+		return registro is null
+			? new RespostaRecurso<T>(null, StatusResposta.ErroNaoEncontrado)
+			: new RespostaRecurso<T>(registro, StatusResposta.Sucesso);
 	}
 
 	public T? ObterPorNome(string? nome)
@@ -98,12 +102,12 @@ public abstract class Repositorio<T> : IRepositorio<T>
 
 	public async Task<bool> Remover(string? id)
 	{
-		var modelo = ObterPorId(id);
+		var obterModelo = ObterPorId(id);
 
-		if (modelo is null)
+		if (obterModelo.Status is StatusResposta.ErroNaoEncontrado)
 			return false;
 
-		BaseDeDados.Remove(modelo);
+		BaseDeDados!.Remove(obterModelo.Modelo!);
 
 		await _servicoDados.SalvarAssicrono(BaseDeDados);
 

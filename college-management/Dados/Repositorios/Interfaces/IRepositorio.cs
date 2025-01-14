@@ -10,7 +10,7 @@ public interface IRepositorio<T> where T : Modelo
 
 	public RespostaRecurso<List<T>> ObterTodos();
 
-	public T ObterPorId(string? id);
+	public RespostaRecurso<T> ObterPorId(string? id);
 
 	public T? ObterPorNome(string? nome);
 
