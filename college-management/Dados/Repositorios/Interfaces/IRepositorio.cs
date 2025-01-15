@@ -12,7 +12,7 @@ public interface IRepositorio<T> where T : Modelo
 
 	public RespostaRecurso<T> ObterPorId(string? id);
 
-	public T? ObterPorNome(string? nome);
+	public RespostaRecurso<T> ObterPorNome(string? nome);
 
 	public Task<bool> Atualizar(T modelo);
 

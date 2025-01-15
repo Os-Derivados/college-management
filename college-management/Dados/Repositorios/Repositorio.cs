@@ -64,9 +64,9 @@ public abstract class Repositorio<T> : IRepositorio<T>
 			: new RespostaRecurso<T>(registro, StatusResposta.Sucesso);
 	}
 
-	public T? ObterPorNome(string? nome)
+	public RespostaRecurso<T> ObterPorNome(string? nome)
 	{
-		return BaseDeDados?.FirstOrDefault(t =>
+		var registro = BaseDeDados?.FirstOrDefault(t =>
 		{
 			var propriedadeNome
 				= t.GetType().GetProperty("Nome");
@@ -77,6 +77,10 @@ public abstract class Repositorio<T> : IRepositorio<T>
 			return valorNome is not null
 			       && valorNome == nome;
 		});
+		
+		return registro is null
+			? new RespostaRecurso<T>(null, StatusResposta.ErroNaoEncontrado)
+			: new RespostaRecurso<T>(registro, StatusResposta.Sucesso);
 	}
 
 	public async Task<bool> Atualizar(T modelo)

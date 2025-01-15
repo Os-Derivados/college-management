@@ -75,42 +75,40 @@ public class ContextoCursos : Contexto<Curso>,
 
 	public void VerGradeCurricular()
 	{
-		var obterLayout = (Curso curso) =>
+		string ObterLayout(Curso curso)
 		{
 			return $"Curso: {curso.Nome}\n" +
 			       $"Ano: {DateTime.Today.Year}\n\n" +
 			       $"{string.Join('\n', curso.GradeCurricular.Select(i => i.Nome))}";
-		};
+		}
 
 		InputView inputRelatorio = new("Ver Grade Curricular");
 
-		Curso? curso = null;
+		Curso? curso;
 
 		if (TemAcessoRestrito)
 		{
 			curso = PesquisarCurso();
-			if (curso is null)
-				return;
+			
+			if (curso is null) return;
 
-			inputRelatorio.LerEntrada("Sair", obterLayout(curso));
+			inputRelatorio.LerEntrada("Sair", ObterLayout(curso));
+			
 			return;
 		}
 
-		var layout = string.Empty;
-
-		var aluno = UsuarioContexto as Aluno;
-
-		if (aluno is null)
+		if (UsuarioContexto is not Aluno aluno)
 		{
 			inputRelatorio.LerEntrada(
 				"Erro", "O usuário atual não é um aluno.");
+			
 			return;
 		}
 
 		var verCursos = BaseDeDados.Cursos.ObterTodos();
 
 		curso = verCursos
-		        .Modelo
+		        .Modelo!
 		        .FirstOrDefault(
 			        i => i.MatriculasIds?.Contains(aluno.MatriculaId)
 			             ?? false);
@@ -119,10 +117,11 @@ public class ContextoCursos : Contexto<Curso>,
 		{
 			inputRelatorio.LerEntrada(
 				"Erro", "O aluno não está matriculado em nenhum curso.");
+			
 			return;
 		}
 
-		layout = obterLayout(curso);
+		var layout = ObterLayout(curso);
 
 		inputRelatorio.LerEntrada("Sair", layout);
 	}
@@ -135,6 +134,7 @@ public class ContextoCursos : Contexto<Curso>,
 	public override async Task Editar()
 	{
 		var curso = PesquisarCurso();
+
 		if (curso is null)
 			return;
 
@@ -163,12 +163,12 @@ public class ContextoCursos : Contexto<Curso>,
 				? valor
 				: entrada;
 
-			if (mudanca != valor)
-			{
-				detalhes.AppendLine(
-					$"{propriedade.Name}: {valor} => {mudanca}");
-				mudancas.Add(propriedade.Name, mudanca.Trim());
-			}
+			if (mudanca == valor) continue;
+
+			detalhes.AppendLine(
+				$"{propriedade.Name}: {valor} => {mudanca}");
+			
+			mudancas.Add(propriedade.Name, mudanca.Trim());
 		}
 
 		if (mudancas.Count <= 0)
@@ -185,14 +185,15 @@ public class ContextoCursos : Contexto<Curso>,
 	public override async Task Excluir()
 	{
 		var curso = PesquisarCurso();
-		if (curso is null)
-			return;
+
+		if (curso is null) return;
 
 		DetalhesView detalhesCurso = new(string.Empty, ObterDetalhes(curso));
 		detalhesCurso.ConstruirLayout();
 
 		var confimacao = Confirmar(detalhesCurso.Layout.ToString(),
 		                           "Tem certeza que deseja excluir esse curso?");
+
 		if (confimacao)
 			await BaseDeDados.Cursos.Remover(curso.Id);
 	}
@@ -252,26 +253,23 @@ public class ContextoCursos : Contexto<Curso>,
 
 		if (campoPesquisa is null) return null;
 
-		Curso? curso = null;
-
 		inputPesquisa.LerEntrada(campoPesquisa?.Campo!,
 		                         campoPesquisa?.Mensagem);
-		curso = menuPesquisa.OpcaoEscolhida switch
+
+		var curso = menuPesquisa.OpcaoEscolhida switch
 		{
-			1 => BaseDeDados.Cursos.ObterPorNome(
-				inputPesquisa.ObterEntrada("Nome")),
-			2 => BaseDeDados.Cursos.ObterPorNome(
-				inputPesquisa.ObterEntrada("Id")),
+			1 => BaseDeDados.Cursos
+			                .ObterPorNome(inputPesquisa.ObterEntrada("Nome"))
+			                .Modelo,
+			2 => BaseDeDados.Cursos.ObterPorId(inputPesquisa.ObterEntrada("Id"))
+			                .Modelo,
 			_ => null
 		};
 
-		if (curso is null)
-		{
-			inputPesquisa.LerEntrada("Erro", "Curso não encontrado.");
-			return PesquisarCurso();
-		}
+		if (curso is not null) return curso;
 
-		return curso;
+		inputPesquisa.LerEntrada("Erro", "Curso não encontrado.");
+		return PesquisarCurso();
 	}
 
 	private Dictionary<string, string> ObterDetalhes(Curso curso)
@@ -279,7 +277,7 @@ public class ContextoCursos : Contexto<Curso>,
 		var detalhes = UtilitarioTipos.ObterPropriedades(curso, ["Nome"]);
 
 		detalhes.Add("MateriasId",
-		             $"{string.Join(", ", curso.MatriculasIds ?? new List<string>())}");
+		             $"{string.Join(", ", curso.MatriculasIds ?? [])}");
 		detalhes.Add("GradeCurricular",
 		             $"{string.Join(", ", curso.GradeCurricular.Select(i => i.Nome))}");
 		detalhes.Add("CargaHoraria", $"{curso.ObterCargaHoraria()}h");
@@ -287,7 +285,7 @@ public class ContextoCursos : Contexto<Curso>,
 		return detalhes;
 	}
 
-	private bool EditarPropriedade(Curso curso,
+	private void EditarPropriedade(Curso curso,
 	                               string propriedade,
 	                               string? valor)
 	{
@@ -296,17 +294,18 @@ public class ContextoCursos : Contexto<Curso>,
 			case "Nome":
 			{
 				curso.Nome = valor ?? curso.Nome;
-				return true;
+
+				return;
 			}
 
 			default:
-				return false;
+				return;
 		}
 	}
 
 	private bool Confirmar(string layout, string mensagem)
 	{
-		var confirmacao = -1;
+		int confirmacao;
 
 		do
 		{
@@ -324,6 +323,6 @@ public class ContextoCursos : Contexto<Curso>,
 			};
 		} while (confirmacao < 0);
 
-		return confirmacao == 1;
+		return confirmacao is 1;
 	}
 }

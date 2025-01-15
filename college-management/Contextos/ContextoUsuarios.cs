@@ -112,11 +112,11 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		if (confirmaCadastro is not 's') return;
 
-		var cargoEscolhido = BaseDeDados
+		var obterCargoPorNome = BaseDeDados
 		                     .Cargos
 		                     .ObterPorNome(dadosUsuario["Cargo"]);
 
-		if (cargoEscolhido is null)
+		if (obterCargoPorNome.Status is StatusResposta.ErroNaoEncontrado)
 		{
 			inputUsuario.LerEntrada("Erro",
 			                        "O Cargo inserido não foi "
@@ -126,7 +126,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 			return;
 		}
 
-		var novaMatricula = cargoEscolhido.Nome
+		var novaMatricula = obterCargoPorNome.Modelo!.Nome
 			is CargosPadrao.CargoAlunos
 			? Matricula.CriarMatricula(dadosUsuario)
 			: null;
@@ -137,7 +137,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 			  .ObterPorNome(dadosUsuario["Curso"])
 			: null;
 
-		var novoUsuario = Usuario.CriarUsuario(cargoEscolhido,
+		var novoUsuario = Usuario.CriarUsuario(obterCargoPorNome.Modelo,
 		                                       dadosUsuario,
 		                                       novaMatricula!);
 
@@ -152,7 +152,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		    && cursoEscolhido is not null)
 		{
 			novaMatricula.AlunoId = novoUsuario.Id;
-			novaMatricula.CursoId = cursoEscolhido.Id;
+			novaMatricula.CursoId = cursoEscolhido.Modelo!.Id;
 
 			var cadastroMatricula
 				= await BaseDeDados.Matriculas.Adicionar(novaMatricula);

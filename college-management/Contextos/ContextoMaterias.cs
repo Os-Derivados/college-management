@@ -167,7 +167,7 @@ public class ContextoMaterias : Contexto<Materia>
 
 		return campoPesquisa switch
 		{
-			"Nome" => BaseDeDados.Materias.ObterPorNome(valorPesquisa),
+			"Nome" => BaseDeDados.Materias.ObterPorNome(valorPesquisa).Modelo,
 			"Id"   => BaseDeDados.Materias.ObterPorId(valorPesquisa).Modelo,
 			_      => null // Nunca deve acontecer, mas para garantir
 		};

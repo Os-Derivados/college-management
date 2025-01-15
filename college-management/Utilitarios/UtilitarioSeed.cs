@@ -25,16 +25,18 @@ public static class UtilitarioSeed
 			                   VariaveisAmbiente.MasterAdminNome,
 			                   VariaveisAmbiente.MasterAdminSenha);
 
-		var cargoAdmin = baseDeDados
+		var obterCargoAdmin = baseDeDados
 		                 .Cargos
 		                 .ObterPorNome(CargosPadrao.CargoAdministradores);
+
+		if (obterCargoAdmin.Status is StatusResposta.ErroNaoEncontrado) return;
 
 		await baseDeDados
 		      .Usuarios
 		      .Adicionar(new Funcionario(loginMestre,
 		                                 nomeMestre,
 		                                 senhaMestre,
-		                                 cargoAdmin.Id));
+		                                 obterCargoAdmin.Modelo!.Id!));
 
 		var (loginTeste, nomeTeste, senhaTeste)
 			= ObterCredenciais(VariaveisAmbiente.UsuarioTesteLogin,
@@ -47,19 +49,21 @@ public static class UtilitarioSeed
 		Matricula matriculaTeste = new(1, Modalidade.Presencial);
 
 		Curso cursoTeste = new("Curso Teste", [materiaTeste]);
-		(cursoTeste.MatriculasIds = new List<string>()).Add(matriculaTeste.Id!);
+		(cursoTeste.MatriculasIds = []).Add(matriculaTeste.Id!);
 		await baseDeDados.Cursos.Adicionar(cursoTeste);
 
 
-		var cargoAluno = baseDeDados
+		var obterCargoAluno = baseDeDados
 		                 .Cargos
 		                 .ObterPorNome(CargosPadrao.CargoAlunos);
+		
+		if (obterCargoAluno.Status is StatusResposta.ErroNaoEncontrado) return;
 
 		var alunoTeste = new Aluno(loginTeste,
 		                           nomeTeste,
 		                           senhaTeste,
-		                           cargoAluno.Id,
-		                           matriculaTeste.Id);
+		                           obterCargoAluno.Modelo!.Id!,
+		                           matriculaTeste.Id!);
 
 		var alunoCriado = await baseDeDados.Usuarios.Adicionar(alunoTeste);
 		
@@ -67,6 +71,7 @@ public static class UtilitarioSeed
 
 		matriculaTeste.AlunoId = alunoTeste.Id;
 		matriculaTeste.CursoId = cursoTeste.Id;
+		
 		await baseDeDados.Matriculas.Adicionar(matriculaTeste);
 	}
 
