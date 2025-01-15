@@ -8,11 +8,11 @@ public class RepositorioCursos : Repositorio<Curso>
 {
 	public override bool Existe(Curso modelo)
 	{
-		var nomeExistente = ObterTodos().Modelo!.FirstOrDefault(c => c.Nome == modelo.Nome);
+		var nomeExistente = ObterPorNome(modelo.Nome);
 
 		var idExistente = ObterPorId(modelo.Id);
 
-		return nomeExistente is not null
-		       || idExistente is not null;
+		return nomeExistente.Status is StatusResposta.Sucesso
+		       || idExistente.Status is StatusResposta.Sucesso;
 	}
 }
