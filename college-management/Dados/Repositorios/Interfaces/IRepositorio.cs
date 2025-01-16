@@ -16,7 +16,7 @@ public interface IRepositorio<T> where T : Modelo
 
 	public Task<RespostaRecurso<T>> Atualizar(T modelo);
 
-	public Task<bool> Remover(string? id);
+	public Task<RespostaRecurso<T>> Remover(string? id);
 
 	public bool Existe(T modelo);
 }

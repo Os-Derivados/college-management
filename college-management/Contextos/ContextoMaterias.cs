@@ -234,9 +234,12 @@ public class ContextoMaterias : Contexto<Materia>
 
 		var foiDeletado = await BaseDeDados.Materias.Remover(materia.Id);
 
-		var mensagemOperacao = foiDeletado
-			? $"{nameof(Materia)} deletada com sucesso."
-			: $"Não foi possível deletar a {nameof(Materia)}.";
+		var mensagemOperacao = foiDeletado.Status switch
+		{
+			StatusResposta.Sucesso => $"{nameof(Materia)} deletada com sucesso.",
+			StatusResposta.ErroNaoEncontrado => "Matéria não encontrada.",
+			_ => "Não foi possível deletar a matéria."
+		};
 
 		ExibirMensagemErro(mensagemOperacao);
 	}

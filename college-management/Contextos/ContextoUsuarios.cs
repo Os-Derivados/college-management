@@ -250,9 +250,13 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		var foiExcluido = await BaseDeDados.Usuarios.Remover(usuario.Id);
 
-		var mensagemOperacao = foiExcluido
-			? $"{nameof(Usuario)} excluído com sucesso."
-			: $"Não foi possível excluir o {nameof(Usuario)}.";
+		var mensagemOperacao = foiExcluido.Status switch
+		{
+			StatusResposta.Sucesso =>
+				$"{nameof(Usuario)} excluído com sucesso.",
+			StatusResposta.ErroNaoEncontrado => $"{nameof(Usuario)} não encontrado.",
+			_ => $"Não foi possível excluir o {nameof(Usuario)}."
+		};
 
 		InputView inputConfirmacao = new("Excluir Usuário");
 		inputConfirmacao.LerEntrada("Sair", mensagemOperacao);

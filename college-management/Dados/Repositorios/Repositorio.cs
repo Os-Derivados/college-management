@@ -94,8 +94,8 @@ public abstract class Repositorio<T> : IRepositorio<T>
 
 		var foiRemovido = await Remover(modelo.Id);
 
-		if (!foiRemovido)
-			return new RespostaRecurso<T>(modelo, StatusResposta.ErroInterno);
+		if (foiRemovido.Status is not StatusResposta.Sucesso)
+			return foiRemovido with { Modelo = modelo };
 
 		var atualizar = await Adicionar(modelo);
 
@@ -105,18 +105,18 @@ public abstract class Repositorio<T> : IRepositorio<T>
 		return atualizar;
 	}
 
-	public async Task<bool> Remover(string? id)
+	public async Task<RespostaRecurso<T>> Remover(string? id)
 	{
 		var obterModelo = ObterPorId(id);
 
 		if (obterModelo.Status is StatusResposta.ErroNaoEncontrado)
-			return false;
+			return obterModelo;
 
 		BaseDeDados!.Remove(obterModelo.Modelo!);
 
 		await _servicoDados.SalvarAssicrono(BaseDeDados);
 
-		return true;
+		return new RespostaRecurso<T>(null, StatusResposta.Sucesso);
 	}
 
 	public abstract bool Existe(T modelo);
