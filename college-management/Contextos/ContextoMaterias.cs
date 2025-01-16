@@ -135,7 +135,9 @@ public class ContextoMaterias : Contexto<Materia>
 			materia.CargaHoraria = cargaHoraria;
 		}
 
-		return await BaseDeDados.Materias.Atualizar(materia);
+		var atualizarMateria = await BaseDeDados.Materias.Atualizar(materia);
+		
+		return atualizarMateria.Status is StatusResposta.Sucesso;
 	}
 
 	private Materia? ObterDetalhesMateria()

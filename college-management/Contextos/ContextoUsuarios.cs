@@ -113,8 +113,8 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		if (confirmaCadastro is not 's') return;
 
 		var obterCargoPorNome = BaseDeDados
-		                     .Cargos
-		                     .ObterPorNome(dadosUsuario["Cargo"]);
+		                        .Cargos
+		                        .ObterPorNome(dadosUsuario["Cargo"]);
 
 		if (obterCargoPorNome.Status is StatusResposta.ErroNaoEncontrado)
 		{
@@ -197,13 +197,16 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		if (confirmaEdicao.Confirmar("Editar Usuário") is not 's') return;
 
-		var foiEditado = await BaseDeDados.Usuarios.Atualizar(usuarioEditado);
-
-		var mensagemOperacao = foiEditado
-			? $"{nameof(Usuario)} editado com sucesso."
-			: $"Não foi possível editar o {nameof(Usuario)}.";
+		var atualizarUsuario
+			= await BaseDeDados.Usuarios.Atualizar(usuarioEditado);
 
 		InputView inputConfirmacao = new("Editar Usuário");
+
+		var mensagemOperacao = atualizarUsuario.Status switch
+		{
+			StatusResposta.Sucesso => $"{nameof(Usuario)} editado com sucesso.",
+			_ => $"Não foi possível editar o {nameof(Usuario)}."
+		};
 
 		inputConfirmacao.LerEntrada("Sair", mensagemOperacao);
 	}

@@ -77,31 +77,32 @@ public abstract class Repositorio<T> : IRepositorio<T>
 			return valorNome is not null
 			       && valorNome == nome;
 		});
-		
+
 		return registro is null
 			? new RespostaRecurso<T>(null, StatusResposta.ErroNaoEncontrado)
 			: new RespostaRecurso<T>(registro, StatusResposta.Sucesso);
 	}
 
-	public async Task<bool> Atualizar(T modelo)
+	public async Task<RespostaRecurso<T>> Atualizar(T modelo)
 	{
 		var modeloAntigo = ObterPorId(modelo.Id);
 
-		if (modeloAntigo is null)
+		if (modeloAntigo.Status is StatusResposta.ErroNaoEncontrado)
 		{
-			var foiAdicionado = await Adicionar(modelo);
-
-			return foiAdicionado.Status is StatusResposta.Sucesso;
+			return await Adicionar(modelo);
 		}
 
 		var foiRemovido = await Remover(modelo.Id);
 
-		if (!foiRemovido) return false;
+		if (!foiRemovido)
+			return new RespostaRecurso<T>(modelo, StatusResposta.ErroInterno);
 
-		await Adicionar(modelo);
-		await _servicoDados.SalvarAssicrono(BaseDeDados);
+		var atualizar = await Adicionar(modelo);
 
-		return true;
+		if (atualizar.Status is StatusResposta.Sucesso)
+			await _servicoDados.SalvarAssicrono(BaseDeDados);
+
+		return atualizar;
 	}
 
 	public async Task<bool> Remover(string? id)
