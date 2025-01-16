@@ -18,14 +18,14 @@ public static class MiddlewareAutenticacao
 			: Login(repositorioUsuarios);
 	}
 
-	private static Usuario ObterUsuarioTeste(
+	private static Usuario? ObterUsuarioTeste(
 		RepositorioUsuarios repositorioUsuarios)
 	{
 		_ = UtilitarioAmbiente.Variaveis
 		                      .TryGetValue(VariaveisAmbiente.LoginTeste,
 		                                   out var loginTeste);
 
-		return repositorioUsuarios.ObterPorLogin(loginTeste);
+		return repositorioUsuarios.ObterPorLogin(loginTeste!).Modelo;
 	}
 
 	private static Usuario Login(RepositorioUsuarios repositorioUsuarios)

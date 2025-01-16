@@ -177,11 +177,11 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		var resultadoBusca = buscaUsuario.Buscar();
 		var chaveBusca     = resultadoBusca.Value;
 
-		var usuario = resultadoBusca.Key is 1
+		var obterUsuario = resultadoBusca.Key is 1
 			? BaseDeDados.Usuarios.ObterPorLogin(chaveBusca)
-			: BaseDeDados.Usuarios.ObterPorId(chaveBusca).Modelo;
+			: BaseDeDados.Usuarios.ObterPorId(chaveBusca);
 
-		if (usuario is null)
+		if (obterUsuario.Status is StatusResposta.ErroNaoEncontrado)
 		{
 			InputView inputPesquisa = new("Erro ao buscar Usuario");
 
@@ -190,8 +190,9 @@ public class ContextoUsuarios : Contexto<Usuario>,
 			return;
 		}
 
-		EditarUsuarioView editarUsuarioView = new(usuario, BaseDeDados.Cargos);
-		var               usuarioEditado    = editarUsuarioView.Editar();
+		EditarUsuarioView editarUsuarioView
+			= new(obterUsuario.Modelo!, BaseDeDados.Cargos);
+		var usuarioEditado = editarUsuarioView.Editar();
 
 		ConfirmaView confirmaEdicao = new("Editar Usuário");
 
@@ -220,11 +221,11 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		var resultadoBusca = buscaUsuario.Buscar();
 		var chaveBusca     = resultadoBusca.Value;
 
-		var usuario = resultadoBusca.Key is 1
+		var obterUsuario = resultadoBusca.Key is 1
 			? BaseDeDados.Usuarios.ObterPorLogin(chaveBusca)
-			: BaseDeDados.Usuarios.ObterPorId(chaveBusca).Modelo;
+			: BaseDeDados.Usuarios.ObterPorId(chaveBusca);
 
-		if (usuario is null)
+		if (obterUsuario.Status is StatusResposta.ErroNaoEncontrado)
 		{
 			InputView inputPesquisa = new("Erro ao buscar Usuario");
 
@@ -236,7 +237,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		DetalhesView detalhesUsuario = new("Excluir Usuário",
 		                                   UtilitarioTipos.ObterPropriedades(
-			                                   usuario,
+			                                   obterUsuario,
 			                                   [
 				                                   "Nome", "Login", "Id",
 				                                   "CargoId"
@@ -248,13 +249,15 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		if (confirmaExclusao.Confirmar($"{detalhesUsuario.Layout}") is not 's')
 			return;
 
-		var foiExcluido = await BaseDeDados.Usuarios.Remover(usuario.Id);
+		var foiExcluido
+			= await BaseDeDados.Usuarios.Remover(obterUsuario.Modelo!.Id);
 
 		var mensagemOperacao = foiExcluido.Status switch
 		{
 			StatusResposta.Sucesso =>
 				$"{nameof(Usuario)} excluído com sucesso.",
-			StatusResposta.ErroNaoEncontrado => $"{nameof(Usuario)} não encontrado.",
+			StatusResposta.ErroNaoEncontrado =>
+				$"{nameof(Usuario)} não encontrado.",
 			_ => $"Não foi possível excluir o {nameof(Usuario)}."
 		};
 
@@ -308,11 +311,11 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		var resultadoBusca = buscaUsuario.Buscar();
 		var chaveBusca     = resultadoBusca.Value;
 
-		var usuario = resultadoBusca.Key is 1
+		var obterUsuario = resultadoBusca.Key is 1
 			? BaseDeDados.Usuarios.ObterPorLogin(chaveBusca)
-			: BaseDeDados.Usuarios.ObterPorId(chaveBusca).Modelo;
+			: BaseDeDados.Usuarios.ObterPorId(chaveBusca);
 
-		if (usuario is null)
+		if (obterUsuario.Status is StatusResposta.ErroNaoEncontrado)
 		{
 			InputView inputErro = new("Erro ao buscar Usuario");
 
@@ -322,7 +325,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 			return;
 		}
 
-		var detalhes = UtilitarioTipos.ObterPropriedades(usuario,
+		var detalhes = UtilitarioTipos.ObterPropriedades(obterUsuario.Modelo,
 		[
 			"Login", "Nome", "Credenciais", "CargoId", "Id"
 		]);
