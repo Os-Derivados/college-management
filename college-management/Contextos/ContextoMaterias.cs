@@ -15,15 +15,6 @@ public class ContextoMaterias : Contexto<Materia>
 	{
 	}
 
-	private Materia? ObterMateriaComValidacao()
-	{
-		if (TemAcessoRestrito) return ObterDetalhesMateria();
-
-		ExibirMensagemErro("Você não tem permissão para acessar esse recurso.");
-
-		return null;
-	}
-
 	private Dictionary<string, string> ObterEntradasUsuario(string titulo)
 	{
 		InputView inputUsuario = new(titulo);
@@ -126,23 +117,31 @@ public class ContextoMaterias : Contexto<Materia>
 			_ => null
 		};
 
-		if (campoPesquisa == null)
+		while (campoPesquisa is null)
 		{
 			ExibirMensagemErro("Campo inválido. Tente novamente.");
-			return null;
+			
+			menuPesquisa.LerEntrada();
+			
+			campoPesquisa = menuPesquisa.OpcaoEscolhida switch
+			{
+				1 => "Nome",
+				2 => "Id",
+				_ => null
+			};
 		}
 
 		InputView inputPesquisa = new($"Pesquisar por {campoPesquisa}");
 		inputPesquisa.LerEntrada(campoPesquisa,
 		                         $"Insira o {campoPesquisa} da Matéria: ");
 
-		var valorPesquisa = inputPesquisa.ObterEntrada(campoPesquisa);
+		var chaveBusca = inputPesquisa.ObterEntrada(campoPesquisa);
 
 		return campoPesquisa switch
 		{
-			"Nome" => BaseDeDados.Materias.ObterPorNome(valorPesquisa).Modelo,
-			"Id"   => BaseDeDados.Materias.ObterPorId(valorPesquisa).Modelo,
-			_      => null // Nunca deve acontecer, mas para garantir
+			"Nome" => BaseDeDados.Materias.ObterPorNome(chaveBusca).Modelo,
+			"Id"   => BaseDeDados.Materias.ObterPorId(chaveBusca).Modelo,
+			_      => null
 		};
 	}
 
@@ -180,12 +179,11 @@ public class ContextoMaterias : Contexto<Materia>
 
 	public override async Task Editar()
 	{
-		var materia = ObterMateriaComValidacao();
+		var materia = ObterDetalhesMateria();
 
 		if (materia is null) return;
 
-		var editarMateria
-			= ObterEntradasUsuario("Editar Matéria");
+		var editarMateria = ObterEntradasUsuario("Editar Matéria");
 
 		DetalhesView detalhesMateria
 			= new("Detalhes da Matéria", editarMateria);
@@ -209,7 +207,7 @@ public class ContextoMaterias : Contexto<Materia>
 
 	public override async Task Excluir()
 	{
-		var materia = ObterMateriaComValidacao();
+		var materia = ObterDetalhesMateria();
 
 		if (materia is null) return;
 
