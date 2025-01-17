@@ -10,8 +10,8 @@ namespace college_management.Dados.Repositorios;
 public abstract class Repositorio<T> : IRepositorio<T>
 	where T : Modelo
 {
-	protected readonly ServicoDados<T> _servicoDados = new();
-	protected          List<T>?        BaseDeDados;
+	private readonly ServicoDados<T> _servicoDados = new();
+	protected        List<T>?        BaseDeDados;
 
 	protected Repositorio()
 	{
@@ -22,8 +22,7 @@ public abstract class Repositorio<T> : IRepositorio<T>
 		    {
 			    try
 			    {
-				    using Task<List<T>>? dadosSalvos =
-					    _servicoDados.CarregarAssincrono();
+				    using var dadosSalvos = _servicoDados.CarregarAssincrono();
 
 				    BaseDeDados = await dadosSalvos;
 			    }
@@ -42,7 +41,7 @@ public abstract class Repositorio<T> : IRepositorio<T>
 		if (Existe(modelo))
 			return new RespostaRecurso<T>(modelo, StatusResposta.ErroDuplicata);
 
-		BaseDeDados.Add(modelo);
+		BaseDeDados!.Add(modelo);
 
 		await _servicoDados.SalvarAssicrono(BaseDeDados);
 
@@ -57,7 +56,7 @@ public abstract class Repositorio<T> : IRepositorio<T>
 
 	public RespostaRecurso<T> ObterPorId(string? id)
 	{
-		var registro = BaseDeDados.FirstOrDefault(t => t.Id == id);
+		var registro = BaseDeDados!.FirstOrDefault(t => t.Id == id);
 
 		return registro is null
 			? new RespostaRecurso<T>(null, StatusResposta.ErroNaoEncontrado)
@@ -71,11 +70,9 @@ public abstract class Repositorio<T> : IRepositorio<T>
 			var propriedadeNome
 				= t.GetType().GetProperty("Nome");
 
-			var valorNome
-				= propriedadeNome.GetValue(t).ToString();
+			var valorNome = propriedadeNome?.GetValue(t)?.ToString();
 
-			return valorNome is not null
-			       && valorNome == nome;
+			return valorNome is not null && valorNome == nome;
 		});
 
 		return registro is null

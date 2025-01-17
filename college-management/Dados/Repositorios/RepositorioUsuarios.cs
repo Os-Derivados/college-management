@@ -20,10 +20,10 @@ public class RepositorioUsuarios : Repositorio<Usuario>,
 
 	public override bool Existe(Usuario modelo)
 	{
-		var loginExistente = ObterPorLogin(modelo.Login);
-		var idExistente    = ObterPorId(modelo.Id);
+		var obterPorLogin = ObterPorLogin(modelo.Login!);
+		var obterPorId    = ObterPorId(modelo.Id);
 
-		return loginExistente is not null
-		       || idExistente.Status is StatusResposta.Sucesso;
+		return obterPorLogin.Status is StatusResposta.Sucesso
+		       || obterPorId.Status is StatusResposta.Sucesso;
 	}
 }
