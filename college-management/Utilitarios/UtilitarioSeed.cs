@@ -15,6 +15,10 @@ public static class UtilitarioSeed
 		      .Adicionar(new Cargo(CargosPadrao.CargoAdministradores,
 		                           [PermissoesAcesso.AcessoAdministradores]));
 
+		await baseDeDados.Cargos.Adicionar(
+			new Cargo(CargosPadrao.CargoGestores,
+			          [PermissoesAcesso.AcessoEscrita]));
+
 		await baseDeDados
 		      .Cargos
 		      .Adicionar(new Cargo(CargosPadrao.CargoAlunos,
@@ -26,8 +30,8 @@ public static class UtilitarioSeed
 			                   VariaveisAmbiente.MasterAdminSenha);
 
 		var obterCargoAdmin = baseDeDados
-		                 .Cargos
-		                 .ObterPorNome(CargosPadrao.CargoAdministradores);
+		                      .Cargos
+		                      .ObterPorNome(CargosPadrao.CargoAdministradores);
 
 		if (obterCargoAdmin.Status is StatusResposta.ErroNaoEncontrado) return;
 
@@ -54,9 +58,9 @@ public static class UtilitarioSeed
 
 
 		var obterCargoAluno = baseDeDados
-		                 .Cargos
-		                 .ObterPorNome(CargosPadrao.CargoAlunos);
-		
+		                      .Cargos
+		                      .ObterPorNome(CargosPadrao.CargoAlunos);
+
 		if (obterCargoAluno.Status is StatusResposta.ErroNaoEncontrado) return;
 
 		var alunoTeste = new Aluno(loginTeste,
@@ -66,12 +70,12 @@ public static class UtilitarioSeed
 		                           matriculaTeste.Id!);
 
 		var alunoCriado = await baseDeDados.Usuarios.Adicionar(alunoTeste);
-		
+
 		if (alunoCriado.Status is not StatusResposta.Sucesso) return;
 
 		matriculaTeste.AlunoId = alunoTeste.Id;
 		matriculaTeste.CursoId = cursoTeste.Id;
-		
+
 		await baseDeDados.Matriculas.Adicionar(matriculaTeste);
 	}
 
