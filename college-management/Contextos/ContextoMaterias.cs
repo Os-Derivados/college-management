@@ -33,25 +33,19 @@ public class ContextoMaterias : Contexto<Materia>
 		return inputUsuario.EntradasUsuario;
 	}
 
-	private void ExibirMensagemErro(string mensagem)
-	{
-		InputView inputUsuario = new(""); //evita criar inputview desnecessario
-		inputUsuario.LerEntrada("Erro", mensagem);
-	}
-
 	private async Task<bool> ValidarECadastrarMateria(
 		Dictionary<string, string> dadosMateria)
 	{
 		if (!Enum.TryParse(dadosMateria["Turno"], out Turno turnoEscolhido))
 		{
-			ExibirMensagemErro("O Turno inserido não foi encontrado.");
+			View.Aviso("O Turno inserido não foi encontrado.");
 
 			return false;
 		}
 
 		if (!int.TryParse(dadosMateria["CargaHoraria"], out var cargaHoraria))
 		{
-			ExibirMensagemErro("A carga horária inserida não é válida.");
+			View.Aviso("A carga horária inserida não é válida.");
 
 			return false;
 		}
@@ -77,7 +71,7 @@ public class ContextoMaterias : Contexto<Materia>
 			if (!Enum.TryParse(editarMateria["Turno"],
 			                   out Turno turnoEscolhido))
 			{
-				ExibirMensagemErro("O Turno inserido não foi encontrado.");
+				View.Aviso("O Turno inserido não foi encontrado.");
 
 				return false;
 			}
@@ -90,7 +84,7 @@ public class ContextoMaterias : Contexto<Materia>
 			if (!int.TryParse(editarMateria["CargaHoraria"],
 			                  out var cargaHoraria))
 			{
-				ExibirMensagemErro("A carga horária inserida não é válida.");
+				View.Aviso("A carga horária inserida não é válida.");
 				return false;
 			}
 
@@ -106,7 +100,7 @@ public class ContextoMaterias : Contexto<Materia>
 	{
 		if (!TemAcessoRestrito)
 		{
-			ExibirMensagemErro(
+			View.Aviso(
 				"Você não tem permissão para acessar esse recurso.");
 
 			return;
@@ -131,7 +125,7 @@ public class ContextoMaterias : Contexto<Materia>
 			? $"{nameof(Materia)} cadastrada com sucesso."
 			: $"Não foi possível cadastrar uma nova {nameof(Materia)}.";
 
-		ExibirMensagemErro(mensagemOperacao);
+		View.Aviso(mensagemOperacao);
 	}
 
 	public override async Task Editar()
@@ -170,7 +164,7 @@ public class ContextoMaterias : Contexto<Materia>
 			? $"{nameof(Materia)} atualizada com sucesso."
 			: $"Não foi possível atualizar a {nameof(Materia)}.";
 
-		ExibirMensagemErro(mensagemOperacao);
+		View.Aviso(mensagemOperacao);
 	}
 
 	public override async Task Excluir()
@@ -212,7 +206,7 @@ public class ContextoMaterias : Contexto<Materia>
 			_ => "Não foi possível deletar a matéria."
 		};
 
-		ExibirMensagemErro(mensagemOperacao);
+		View.Aviso(mensagemOperacao);
 	}
 
 	public override void Visualizar()
@@ -221,7 +215,7 @@ public class ContextoMaterias : Contexto<Materia>
 
 		if (verMaterias.Modelo!.Count is 0)
 		{
-			ExibirMensagemErro("Nenhuma matéria cadastrada.");
+			View.Aviso("Nenhuma matéria cadastrada.");
 
 			return;
 		}
@@ -230,8 +224,7 @@ public class ContextoMaterias : Contexto<Materia>
 			= new("Visualizar Matérias", verMaterias.Modelo);
 
 		relatorioView.ConstruirLayout();
-
-		ExibirMensagemErro(relatorioView.Layout.ToString());
+		relatorioView.Exibir();
 	}
 
 	public override void VerDetalhes()
@@ -255,7 +248,6 @@ public class ContextoMaterias : Contexto<Materia>
 
 		DetalhesView detalhesMateria = new("Matéria Encontrada", detalhes);
 		detalhesMateria.ConstruirLayout();
-
-		ExibirMensagemErro(detalhesMateria.Layout.ToString());
+		detalhesMateria.Exibir();
 	}
 }
