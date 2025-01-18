@@ -102,49 +102,6 @@ public class ContextoMaterias : Contexto<Materia>
 		return atualizarMateria.Status is StatusResposta.Sucesso;
 	}
 
-	private Materia? ObterDetalhesMateria()
-	{
-		MenuView menuPesquisa = new("Pesquisar Matéria",
-		                            "Selecione um dos campos para pesquisar.",
-		                            ["Nome", "Id"]);
-		menuPesquisa.ConstruirLayout();
-		menuPesquisa.LerEntrada();
-
-		var campoPesquisa = menuPesquisa.OpcaoEscolhida switch
-		{
-			1 => "Nome",
-			2 => "Id",
-			_ => null
-		};
-
-		while (campoPesquisa is null)
-		{
-			ExibirMensagemErro("Campo inválido. Tente novamente.");
-			
-			menuPesquisa.LerEntrada();
-			
-			campoPesquisa = menuPesquisa.OpcaoEscolhida switch
-			{
-				1 => "Nome",
-				2 => "Id",
-				_ => null
-			};
-		}
-
-		InputView inputPesquisa = new($"Pesquisar por {campoPesquisa}");
-		inputPesquisa.LerEntrada(campoPesquisa,
-		                         $"Insira o {campoPesquisa} da Matéria: ");
-
-		var chaveBusca = inputPesquisa.ObterEntrada(campoPesquisa);
-
-		return campoPesquisa switch
-		{
-			"Nome" => BaseDeDados.Materias.ObterPorNome(chaveBusca).Modelo,
-			"Id"   => BaseDeDados.Materias.ObterPorId(chaveBusca).Modelo,
-			_      => null
-		};
-	}
-
 	public override async Task Cadastrar()
 	{
 		if (!TemAcessoRestrito)
@@ -179,9 +136,19 @@ public class ContextoMaterias : Contexto<Materia>
 
 	public override async Task Editar()
 	{
-		var materia = ObterDetalhesMateria();
+		BuscaMateriaView buscaMateria = new("Buscar Matéria");
+		var              chaveBusca   = buscaMateria.Buscar();
 
-		if (materia is null) return;
+		var obterMateria = chaveBusca.Key is 1
+			? BaseDeDados.Materias.ObterPorNome(chaveBusca.Value)
+			: BaseDeDados.Materias.ObterPorId(chaveBusca.Value);
+
+		if (obterMateria.Status is StatusResposta.ErroNaoEncontrado)
+		{
+			View.Aviso("Matéria não encontrada.");
+
+			return;
+		}
 
 		var editarMateria = ObterEntradasUsuario("Editar Matéria");
 
@@ -196,7 +163,8 @@ public class ContextoMaterias : Contexto<Materia>
 		if (confirmacao.ToString().ToLower() is not "s") return;
 
 		var foiAtualizado
-			= await ValidarEAtualizarMateria(materia, editarMateria);
+			= await ValidarEAtualizarMateria(obterMateria.Modelo!,
+			                                 editarMateria);
 
 		var mensagemOperacao = foiAtualizado
 			? $"{nameof(Materia)} atualizada com sucesso."
@@ -207,13 +175,23 @@ public class ContextoMaterias : Contexto<Materia>
 
 	public override async Task Excluir()
 	{
-		var materia = ObterDetalhesMateria();
+		BuscaMateriaView buscaMateria = new("Buscar Matéria");
+		var              chaveBusca   = buscaMateria.Buscar();
 
-		if (materia is null) return;
+		var obterMateria = chaveBusca.Key is 1
+			? BaseDeDados.Materias.ObterPorNome(chaveBusca.Value)
+			: BaseDeDados.Materias.ObterPorId(chaveBusca.Value);
+
+		if (obterMateria.Status is StatusResposta.ErroNaoEncontrado)
+		{
+			View.Aviso("Matéria não encontrada.");
+
+			return;
+		}
 
 		DetalhesView detalhesMateria
 			= new("Detalhes da Matéria", UtilitarioTipos.ObterPropriedades(
-				      materia,
+				      obterMateria.Modelo,
 				      ["Nome", "Id", "CargaHoraria", "Turno"]));
 		detalhesMateria.ConstruirLayout();
 
@@ -223,7 +201,8 @@ public class ContextoMaterias : Contexto<Materia>
 
 		if (confirmacao.ToString().ToLower() is not "s") return;
 
-		var excluirMateria = await BaseDeDados.Materias.Remover(materia.Id);
+		var excluirMateria
+			= await BaseDeDados.Materias.Remover(obterMateria.Modelo!.Id);
 
 		var mensagemOperacao = excluirMateria.Status switch
 		{
@@ -257,13 +236,22 @@ public class ContextoMaterias : Contexto<Materia>
 
 	public override void VerDetalhes()
 	{
-		var materia = ObterDetalhesMateria();
+		BuscaMateriaView buscaMateria = new("Buscar Matéria");
+		var              chaveBusca   = buscaMateria.Buscar();
 
-		if (materia is null) return;
+		var obterMateria = chaveBusca.Key is 1
+			? BaseDeDados.Materias.ObterPorNome(chaveBusca.Value)
+			: BaseDeDados.Materias.ObterPorId(chaveBusca.Value);
 
-		var detalhes
-			= UtilitarioTipos.ObterPropriedades(
-				materia, ["Nome", "Turno", "CargaHoraria", "Id"]);
+		if (obterMateria.Status is StatusResposta.ErroNaoEncontrado)
+		{
+			View.Aviso("Matéria não encontrada.");
+
+			return;
+		}
+
+		var detalhes = UtilitarioTipos.ObterPropriedades(
+			obterMateria.Modelo, ["Nome", "Turno", "CargaHoraria", "Id"]);
 
 		DetalhesView detalhesMateria = new("Matéria Encontrada", detalhes);
 		detalhesMateria.ConstruirLayout();
