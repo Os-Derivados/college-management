@@ -10,5 +10,4 @@ public enum StatusResposta
 	ErroDuplicata,
 	ErroInvalido,
 	ErroInterno,
-	ErroNaoAutorizado
 }
