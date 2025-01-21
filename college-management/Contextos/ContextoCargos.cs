@@ -103,24 +103,30 @@ public class ContextoCargos : Contexto<Cargo>
 
         InputView inputView = new InputView("Exclusao de Cargo");
         string cargoNome = "";
-        string cargoId = "";
+        Cargo cargo = null!;
 
         if(temPermissao)
         {
             cargoNome = TelaExclusao(inputView);
-            cargoId = BaseDeDados.Cargos?.ObterPorNome(cargoNome)?.Id!; 
+            cargo = BaseDeDados.Cargos?.ObterPorNome(cargoNome)!;
 
-            if (cargoId is null)
+            if (cargo is null)
             {
                 TelaErro("Esse cargo não existe");
 
                 return;
             }
 
-            
-            if (await BaseDeDados.Cargos.Remover(cargoId))
-                inputView.LerEntrada("Sair", "Exclusão realizada com sucesso");
 
+            else
+            {
+                if (ConfirmarEscolha("Tem certeza que " +
+                    $"deseja excluir o cargo {cargoNome}?"))
+                {
+                    await BaseDeDados.Cargos.Remover(cargo.Id);
+                    inputView.LerEntrada("Sair", "Exclusão realizada com sucesso");
+                }
+            }
             
         }
     }
@@ -148,8 +154,7 @@ public class ContextoCargos : Contexto<Cargo>
         relatorioView.ConstruirLayout();
         relatorioView.Exibir();
 
-        InputView inputRelatorio = new(relatorioView.Titulo);
-        inputRelatorio.LerEntrada("Sair", relatorioView.Layout.ToString());
+
     }
 
 
