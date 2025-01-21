@@ -118,10 +118,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		if (obterCargoPorNome.Status is StatusResposta.ErroNaoEncontrado)
 		{
-			inputUsuario.LerEntrada("Erro",
-			                        "O Cargo inserido não foi "
-			                        + "encontrado na base de dados."
-			                        + "Pressione Enter para continuar.");
+			View.Aviso("O Cargo inserido não foi encontrado na base de dados.");
 
 			return;
 		}
@@ -165,7 +162,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 			? $"{nameof(Usuario)} cadastrado com sucesso."
 			: $"Não foi possível cadastrar novo {nameof(Usuario)}.";
 
-		inputUsuario.LerEntrada("Sair", mensagemOperacao);
+		View.Aviso(mensagemOperacao);
 	}
 
 	public override async Task Editar()
@@ -183,9 +180,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		if (obterUsuario.Status is StatusResposta.ErroNaoEncontrado)
 		{
-			InputView inputPesquisa = new("Erro ao buscar Usuario");
-
-			inputPesquisa.LerEntrada("Usuario", "Usuário não encontrado.");
+			View.Aviso("Usuário não encontrado na base de dados.");
 
 			return;
 		}
@@ -196,12 +191,16 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		ConfirmaView confirmaEdicao = new("Editar Usuário");
 
-		if (confirmaEdicao.Confirmar("Editar Usuário") is not 's') return;
+		if (confirmaEdicao.Confirmar("Editar Usuário").ToString().ToLower() is
+		    not "s")
+		{
+			View.Aviso($"Editar {nameof(Usuario)}: Operação cancelada.");
+
+			return;
+		}
 
 		var atualizarUsuario
 			= await BaseDeDados.Usuarios.Atualizar(usuarioEditado);
-
-		InputView inputConfirmacao = new("Editar Usuário");
 
 		var mensagemOperacao = atualizarUsuario.Status switch
 		{
@@ -209,7 +208,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 			_ => $"Não foi possível editar o {nameof(Usuario)}."
 		};
 
-		inputConfirmacao.LerEntrada("Sair", mensagemOperacao);
+		View.Aviso(mensagemOperacao);
 	}
 
 	public override async Task Excluir()
@@ -227,9 +226,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		if (obterUsuario.Status is StatusResposta.ErroNaoEncontrado)
 		{
-			InputView inputPesquisa = new("Erro ao buscar Usuario");
-
-			inputPesquisa.LerEntrada("Usuario", "Usuário não encontrado.");
+			View.Aviso("Usuário não encontrado.");
 
 			return;
 		}
@@ -261,8 +258,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 			_ => $"Não foi possível excluir o {nameof(Usuario)}."
 		};
 
-		InputView inputConfirmacao = new("Excluir Usuário");
-		inputConfirmacao.LerEntrada("Sair", mensagemOperacao);
+		View.Aviso(mensagemOperacao);
 	}
 
 	public override void Visualizar()
@@ -317,10 +313,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		if (obterUsuario.Status is StatusResposta.ErroNaoEncontrado)
 		{
-			InputView inputErro = new("Erro ao buscar Usuario");
-
-			inputErro.LerEntrada("Usuario",
-			                     "Usuário não encontrado.");
+			View.Aviso("Usuário não encontrado.");
 
 			return;
 		}

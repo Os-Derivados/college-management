@@ -89,11 +89,11 @@ public class ContextoCursos : Contexto<Curso>,
 		if (TemAcessoRestrito)
 		{
 			curso = PesquisarCurso();
-			
+
 			if (curso is null) return;
 
 			inputRelatorio.LerEntrada("Sair", ObterLayout(curso));
-			
+
 			return;
 		}
 
@@ -101,7 +101,7 @@ public class ContextoCursos : Contexto<Curso>,
 		{
 			inputRelatorio.LerEntrada(
 				"Erro", "O usuário atual não é um aluno.");
-			
+
 			return;
 		}
 
@@ -117,7 +117,7 @@ public class ContextoCursos : Contexto<Curso>,
 		{
 			inputRelatorio.LerEntrada(
 				"Erro", "O aluno não está matriculado em nenhum curso.");
-			
+
 			return;
 		}
 
@@ -167,19 +167,32 @@ public class ContextoCursos : Contexto<Curso>,
 
 			detalhes.AppendLine(
 				$"{propriedade.Name}: {valor} => {mudanca}");
-			
+
 			mudancas.Add(propriedade.Name, mudanca.Trim());
 		}
 
 		if (mudancas.Count <= 0)
 		{
-			inputView.LerEntrada("Erro", "Nenhuma edição foi feita.");
+			View.Aviso("Nenhuma edição foi feita.");
+
 			return;
 		}
 
-		if (Confirmar(detalhes.ToString(), "Deseja aplicar mudanças?"))
-			foreach ((var propriedade, var valor) in mudancas)
-				EditarPropriedade(curso, propriedade, valor);
+		ConfirmaView confirmacao = new("Editar Curso");
+
+		if (confirmacao.Confirmar(detalhes.ToString())
+		               .ToString()
+		               .ToLower() is not "s")
+		{
+			View.Aviso($"Editar {nameof(Curso)}: Operação cancelada.");
+
+			return;
+		}
+
+		foreach (var (propriedade, valor) in mudancas)
+		{
+			EditarPropriedade(curso, propriedade, valor);
+		}
 	}
 
 	public override async Task Excluir()
@@ -191,11 +204,23 @@ public class ContextoCursos : Contexto<Curso>,
 		DetalhesView detalhesCurso = new(string.Empty, ObterDetalhes(curso));
 		detalhesCurso.ConstruirLayout();
 
-		var confimacao = Confirmar(detalhesCurso.Layout.ToString(),
-		                           "Tem certeza que deseja excluir esse curso?");
+		ConfirmaView confirmacao = new("Excluir Curso");
 
-		if (confimacao)
-			await BaseDeDados.Cursos.Remover(curso.Id);
+		if (confirmacao.Confirmar(detalhesCurso.Layout.ToString())
+		               .ToString()
+		               .ToLower() is not "s")
+		{
+			View.Aviso($"Excluir {nameof(Curso)}: Operação cancelada.");
+
+			return;
+		}
+
+		var removerCurso = await BaseDeDados.Cursos.Remover(curso.Id);
+		var mensagemResultado = removerCurso.Status is StatusResposta.Sucesso
+			? "Curso removido com sucesso."
+			: "Erro ao remover curso.";
+
+		View.Aviso(mensagemResultado);
 	}
 
 	public override void Visualizar()
@@ -204,32 +229,34 @@ public class ContextoCursos : Contexto<Curso>,
 
 		InputView inputRelatorio = new("Visualizar Cursos");
 
-		if (verCursos.Modelo!.Count > 0)
+		if (verCursos.Modelo!.Count is 0)
 		{
-			RelatorioView<Curso> relatorioView
-				= new(inputRelatorio.Titulo, verCursos.Modelo);
-			relatorioView.ConstruirLayout();
+			View.Aviso("Nenhum curso cadastrado.");
 
-			inputRelatorio.LerEntrada("Sair", relatorioView.Layout.ToString());
+			return;
 		}
-		else
-		{
-			inputRelatorio.LerEntrada("Erro", "Nenhum curso cadastrado.");
-		}
+
+		RelatorioView<Curso> relatorioView
+			= new(inputRelatorio.Titulo, verCursos.Modelo);
+		relatorioView.ConstruirLayout();
+		relatorioView.Exibir();
 	}
 
 	public override void VerDetalhes()
 	{
 		var curso = PesquisarCurso();
+		
 		if (curso is null)
+		{
+			View.Aviso("Curso não encontrado.");
+			
 			return;
+		}
 
 		DetalhesView detalhesCurso
 			= new("Curso Encontrado", ObterDetalhes(curso));
 		detalhesCurso.ConstruirLayout();
-
-		new InputView("Cursos: Ver Detalhes").LerEntrada(
-			"Sair", detalhesCurso.Layout.ToString());
+		detalhesCurso.Exibir();
 	}
 
 	private Curso? PesquisarCurso()
@@ -268,7 +295,8 @@ public class ContextoCursos : Contexto<Curso>,
 
 		if (curso is not null) return curso;
 
-		inputPesquisa.LerEntrada("Erro", "Curso não encontrado.");
+		View.Aviso("Curso não encontrado.");
+		
 		return PesquisarCurso();
 	}
 
@@ -301,28 +329,5 @@ public class ContextoCursos : Contexto<Curso>,
 			default:
 				return;
 		}
-	}
-
-	private bool Confirmar(string layout, string mensagem)
-	{
-		int confirmacao;
-
-		do
-		{
-			InputView inputView = new("Confirmar Remoção");
-			inputView.LerEntrada("Confirmação", layout +
-			                                    $"\n\n{mensagem} (S/N)");
-
-			confirmacao = inputView.ObterEntrada("Confirmação")
-			                       .ToLower()
-			                       .FirstOrDefault() switch
-			{
-				'n' => 0,
-				's' => 1,
-				_   => -1
-			};
-		} while (confirmacao < 0);
-
-		return confirmacao is 1;
 	}
 }
