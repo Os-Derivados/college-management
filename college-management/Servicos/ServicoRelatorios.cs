@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Text;
+using System.Text.Json;
 using college_management.Constantes;
 using college_management.Dados.Modelos;
 using college_management.Dados.Repositorios;
@@ -32,6 +33,10 @@ where T : Modelo
 		_modelos = modelos;
 	}
 
+    	private readonly string _caminhoArquivo
+		= Path.Combine(UtilitarioArquivos.DiretorioDados,
+		               $"{typeof(T).Name}s.json");  //preciso saber o caminho dos arquivos json para converte-los
+
 	public string GerarRelatorio(T modelo, Cargo? cargoUsuario)
 	{
 		return cargoUsuario
@@ -40,13 +45,18 @@ where T : Modelo
 			       : modelo.ToString();
 	}
 
-	public string GerarEntradasRelatorio()
+	public string  GerarEntradasRelatorio()
 	{
         if (_modelos.Count == 0)
             return "Nenhum registro encontrado.";
 
         else
         {
+              using var streamArquivo
+			= File.OpenRead(_caminhoArquivo);
+
+		    var listaRelatorios =  JsonSerializer.DeserializeAsync<List<T>>(streamArquivo);
+
             var relatorio = new StringBuilder();
             var propriedades = typeof(T).GetProperties();
 
@@ -80,6 +90,7 @@ where T : Modelo
                 }
             }
 
+            File.WriteAllText(_arquivoRelatorios, relatorio.ToString() );
             return relatorio.ToString();
         }
     }
@@ -87,7 +98,6 @@ where T : Modelo
 	public async Task ExportarRelatorio(string relatorio)
 	{
 		// TODO: Implementar um algoritmo para exportar relatórios no formato CSV
-
-		throw new NotImplementedException();
+                 
 	}
 }
