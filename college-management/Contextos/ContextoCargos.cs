@@ -172,7 +172,8 @@ public class ContextoCargos : Contexto<Cargo>
 
             if (cargo is null)
             {
-                Console.WriteLine("Cargo não encontrado");
+                Console.WriteLine("opção inválida!");
+                Console.ReadKey();
             }
 
             else
@@ -239,11 +240,10 @@ public class ContextoCargos : Contexto<Cargo>
 
         if (campoPesquisa is null)
         {
-            inputPesquisa.LerEntrada("Campo",
-                                     "Voltando ao menu de cargos");
+            Console.Clear();
             return null;
-
         }
+
 
         inputPesquisa.LerEntrada(campoPesquisa?.Key,
                                  campoPesquisa?.Value);
@@ -261,6 +261,8 @@ public class ContextoCargos : Contexto<Cargo>
             var id = inputPesquisa.ObterEntrada("Id");
             cargo = BaseDeDados.Cargos.ObterPorId(id);
         }
+
+        Console.Clear();
 
         return cargo;
     }
