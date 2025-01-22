@@ -1,6 +1,6 @@
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.Json;
 using college_management.Constantes;
 using college_management.Dados.Modelos;
 using college_management.Dados.Repositorios;
@@ -33,6 +33,10 @@ where T : Modelo
 		_modelos = modelos;
 	}
 
+    	private readonly string _caminhoArquivo
+		= Path.Combine(UtilitarioArquivos.DiretorioDados,
+		               $"{typeof(T).Name}s.json");  //preciso saber o caminho dos arquivos json para converte-los
+
 	public string GerarRelatorio(T modelo, Cargo? cargoUsuario)
 	{
 		return cargoUsuario
@@ -41,52 +45,59 @@ where T : Modelo
 			       : modelo.ToString();
 	}
 
-    public string GerarEntradasRelatorio()
+	public string  GerarEntradasRelatorio()
 	{
         if (_modelos.Count == 0)
             return "Nenhum registro encontrado.";
 
-
-        var relatorio = new StringBuilder();
-        var propriedades = typeof(T).GetProperties();
-
-
-        //  Adiciona o cabeçalho à string CSV relatorio
-        foreach (var propriedade in propriedades)
+        else
         {
-            if (propriedades.Last() == propriedade)
-                relatorio.Append($"{propriedade.Name}\n");
+              using var streamArquivo
+			= File.OpenRead(_caminhoArquivo);
 
-            else
-                relatorio.Append($"{propriedade.Name},");
-        }
+		    var listaRelatorios =  JsonSerializer.DeserializeAsync<List<T>>(streamArquivo);
 
-        // Adiciona os valores à string CSV relatorio
-        foreach (var modelo in _modelos)
-        {
-            if (modelo == null)
-                relatorio.Append("Registro nulo\n");
+            var relatorio = new StringBuilder();
+            var propriedades = typeof(T).GetProperties();
 
-            else // Adiciona os valores do registro à string CSV relatorio
+
+            //  Adiciona o cabecalho à string CSV
+            foreach (var propriedade in propriedades)
             {
-                foreach (var propriedade in propriedades)
+                if (propriedades.Last() == propriedade)
+                    relatorio.Append($"{propriedade.Name}\n");
+
+                else
+                    relatorio.Append($"{propriedade.Name},");
+            }
+
+            // Adiciona os valores à string CSV
+            foreach (var modelo in _modelos)
+            {
+                if (modelo == null)
+                    relatorio.Append("Registro nulo\n");
+
+                else // Adiciona os valores do registro à string CSV
                 {
-                    if (propriedades.Last() == propriedade)
-                        relatorio.Append($"{propriedade.GetValue(modelo)}\n");
+                    foreach (var propriedade in propriedades)
+                    {
+                        if (propriedades.Last() == propriedade)
+                            relatorio.Append($"{propriedade.GetValue(modelo)}\n");
                         
-                    else
-                        relatorio.Append($"{propriedade.GetValue(modelo)},");
+                        else
+                            relatorio.Append($"{propriedade.GetValue(modelo)},");
+                    }
                 }
             }
-        }
 
-         return relatorio.ToString();
+            File.WriteAllText(_arquivoRelatorios, relatorio.ToString() );
+            return relatorio.ToString();
         }
+    }
 
 	public async Task ExportarRelatorio(string relatorio)
 	{
 		// TODO: Implementar um algoritmo para exportar relatórios no formato CSV
-
-		throw new NotImplementedException();
+                 
 	}
 }
