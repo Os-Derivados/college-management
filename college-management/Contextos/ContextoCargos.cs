@@ -102,17 +102,15 @@ public class ContextoCargos : Contexto<Cargo>
         CargoContexto.TemPermissao(PermissoesAcesso.AcessoAdministradores);
 
         InputView inputView = new InputView("Exclusao de Cargo");
-        string cargoId = "";
-        string cargoNome = null!;
+        Cargo cargo = null!;
 
         if(temPermissao)
         {
-            cargoNome = TelaExclusao(inputView);
-            cargoId = BaseDeDados.Cargos?.ObterPorNome(cargoNome).Id!;
+            cargo = PesquisaCargo();
 
-            if (cargoId is null)
+            if (cargo is null)
             {
-                TelaErro("Esse cargo não existe");
+                TelaErro("Opção Inválida!");
 
                 return;
             }
@@ -121,9 +119,9 @@ public class ContextoCargos : Contexto<Cargo>
             else
             {
                 if (ConfirmarEscolha("Tem certeza que " +
-                    $"deseja excluir o cargo {cargoNome}?"))
+                    $"deseja excluir o cargo {cargo.Nome}?"))
                 {
-                    await BaseDeDados.Cargos.Remover(cargoId);
+                    await BaseDeDados.Cargos.Remover(cargo.Id);
                     inputView.LerEntrada("Sair", "Exclusão realizada com sucesso");
                 }
             }
@@ -172,8 +170,7 @@ public class ContextoCargos : Contexto<Cargo>
 
             if (cargo is null)
             {
-                Console.WriteLine("opção inválida!");
-                Console.ReadKey();
+                TelaErro("Opção Inválida!");
             }
 
             else
