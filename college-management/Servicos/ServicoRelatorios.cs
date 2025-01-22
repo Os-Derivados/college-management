@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Text.Json;
 using college_management.Constantes;
@@ -52,10 +53,16 @@ where T : Modelo
 
         else
         {
+
+            var serializer = new DataContractJsonSerializer(typeof(List<T>));
+
               using var streamArquivo
 			= File.OpenRead(_caminhoArquivo);
 
-		    var listaRelatorios =  JsonSerializer.DeserializeAsync<List<T>>(streamArquivo);
+            //_modelos = JsonSerializer.DeserializeAsync<List<T>>(streamArquivo);
+		    //var listaRelatorios =  JsonSerializer.DeserializeAsync<List<T>>(streamArquivo);
+
+            var listaRelatorios = (List<T>)serializer.ReadObject(streamArquivo);
 
             var relatorio = new StringBuilder();
             var propriedades = typeof(T).GetProperties();
@@ -72,7 +79,7 @@ where T : Modelo
             }
 
             // Adiciona os valores à string CSV
-            foreach (var modelo in _modelos)
+            foreach (var modelo in listaRelatorios)
             {
                 if (modelo == null)
                     relatorio.Append("Registro nulo\n");
@@ -89,8 +96,7 @@ where T : Modelo
                     }
                 }
             }
-
-            File.WriteAllText(_arquivoRelatorios, relatorio.ToString() );
+                       
             return relatorio.ToString();
         }
     }
@@ -98,6 +104,7 @@ where T : Modelo
 	public async Task ExportarRelatorio(string relatorio)
 	{
 		// TODO: Implementar um algoritmo para exportar relatórios no formato CSV
-                 
+        File.WriteAllText(_arquivoRelatorios, relatorio);
+
 	}
 }
