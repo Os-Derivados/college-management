@@ -2,6 +2,7 @@ using college_management.Constantes;
 using college_management.Dados.Modelos;
 using college_management.Dados.Repositorios;
 using college_management.Utilitarios;
+using college_management.Views;
 
 
 namespace college_management.Middlewares;
@@ -30,22 +31,13 @@ public static class MiddlewareAutenticacao
 
 	private static Usuario Login(RepositorioUsuarios repositorioUsuarios)
 	{
-		// TODO: Desenvolver um algoritmo para autenticar um usuário
-		// [REQUISITO]: O usuário deve existir na base de dados.
-		// [REQUISITO]: O login e senha devem ser validados, avisando o usuário
-		// sobre credenciais inválidas, caso qualquer um dos dois campos
-		// esteja incorretamente digitado
-
-		string loginUsuario,
-			senhaUsuario;
-
 		Console.Write("Login: ");
-		loginUsuario = Console.ReadLine() ?? "";
+		var loginUsuario = Console.ReadLine() ?? "";
 
 		Console.Clear();
 
 		Console.Write("Senha: ");
-		senhaUsuario = Console.ReadLine() ?? "";
+		var senhaUsuario = Console.ReadLine() ?? "";
 
 		var autenticacao
 			= Usuario.Autenticar(repositorioUsuarios, loginUsuario,
@@ -53,11 +45,13 @@ public static class MiddlewareAutenticacao
 
 		if (autenticacao != null)
 		{
-			Console.WriteLine("Login efetuado com sucesso!");
+			View.Aviso("Login efetuado com sucesso!");
+			
 			return autenticacao;
 		}
 
-		Console.WriteLine("Login ou senha incorretos!");
+		View.Aviso("Login ou senha incorretos!");
+		
 		return null;
 	}
 }
