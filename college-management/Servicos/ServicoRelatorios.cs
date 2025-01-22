@@ -96,7 +96,7 @@ where T : Modelo
                     }
                 }
             }
-                       
+                       File.WriteAllText(_arquivoRelatorios, relatorio.ToString());
             return relatorio.ToString();
         }
     }
@@ -104,7 +104,7 @@ where T : Modelo
 	public async Task ExportarRelatorio(string relatorio)
 	{
 		// TODO: Implementar um algoritmo para exportar relatórios no formato CSV
-        File.WriteAllText(_arquivoRelatorios, relatorio);
+        
 
 	}
 }
