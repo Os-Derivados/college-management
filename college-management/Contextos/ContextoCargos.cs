@@ -102,15 +102,15 @@ public class ContextoCargos : Contexto<Cargo>
         CargoContexto.TemPermissao(PermissoesAcesso.AcessoAdministradores);
 
         InputView inputView = new InputView("Exclusao de Cargo");
-        string cargoNome = "";
-        Cargo cargo = null!;
+        string cargoId = "";
+        string cargoNome = null!;
 
         if(temPermissao)
         {
             cargoNome = TelaExclusao(inputView);
-            cargo = BaseDeDados.Cargos?.ObterPorNome(cargoNome)!;
+            cargoId = BaseDeDados.Cargos?.ObterPorNome(cargoNome).Id!;
 
-            if (cargo is null)
+            if (cargoId is null)
             {
                 TelaErro("Esse cargo não existe");
 
@@ -123,7 +123,7 @@ public class ContextoCargos : Contexto<Cargo>
                 if (ConfirmarEscolha("Tem certeza que " +
                     $"deseja excluir o cargo {cargoNome}?"))
                 {
-                    await BaseDeDados.Cargos.Remover(cargo.Id);
+                    await BaseDeDados.Cargos.Remover(cargoId);
                     inputView.LerEntrada("Sair", "Exclusão realizada com sucesso");
                 }
             }
@@ -165,7 +165,18 @@ public class ContextoCargos : Contexto<Cargo>
 
         if (permissaoAdmin)
         {
-            PesquisaCargo();
+            Cargo cargo = null!;
+            DetalhesView detalhesView = null;
+
+            cargo = PesquisaCargo();
+
+            if (cargo is null)
+            {
+                Console.WriteLine("Cargo não encontrado");
+            }
+
+            else
+                ExibirDetalhesCargo(cargo, detalhesView);
         }
     }
 
@@ -200,7 +211,7 @@ public class ContextoCargos : Contexto<Cargo>
 
 
 
-	void PesquisaCargo()
+	Cargo PesquisaCargo()
 	{
         MenuView menuPesquisa = new("Cargos",
                                     "Selecione um dos campos:",
@@ -229,9 +240,9 @@ public class ContextoCargos : Contexto<Cargo>
         if (campoPesquisa is null)
         {
             inputPesquisa.LerEntrada("Campo",
-                                     "Campo inválido. Tente novamente.");
+                                     "Voltando ao menu de cargos");
+            return null;
 
-            return;
         }
 
         inputPesquisa.LerEntrada(campoPesquisa?.Key,
@@ -251,15 +262,7 @@ public class ContextoCargos : Contexto<Cargo>
             cargo = BaseDeDados.Cargos.ObterPorId(id);
         }
 
-        if (cargo == null)
-        {
-            inputPesquisa.LerEntrada("Cargo",
-                                     "Cargo não encontrado.");
-            return;
-        }
-
-        ExibirDetalhesCargo(cargo, detalhesView);
-        Console.ReadKey();
+        return cargo;
     }
 
 
