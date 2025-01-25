@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using college_management.Constantes;
 using college_management.Dados.Modelos;
@@ -40,49 +41,47 @@ where T : Modelo
 			       : modelo.ToString();
 	}
 
-	public string GerarEntradasRelatorio()
+    public string GerarEntradasRelatorio()
 	{
         if (_modelos.Count == 0)
             return "Nenhum registro encontrado.";
 
-        else
+
+        var relatorio = new StringBuilder();
+        var propriedades = typeof(T).GetProperties();
+
+
+        //  Adiciona o cabeçalho à string CSV relatorio
+        foreach (var propriedade in propriedades)
         {
-            var relatorio = new StringBuilder();
-            var propriedades = typeof(T).GetProperties();
+            if (propriedades.Last() == propriedade)
+                relatorio.Append($"{propriedade.Name}\n");
 
+            else
+                relatorio.Append($"{propriedade.Name},");
+        }
 
-            //  Adiciona o cabeçalho à string CSV relatorio
-            foreach (var propriedade in propriedades)
+        // Adiciona os valores à string CSV relatorio
+        foreach (var modelo in _modelos)
+        {
+            if (modelo == null)
+                relatorio.Append("Registro nulo\n");
+
+            else // Adiciona os valores do registro à string CSV relatorio
             {
-                if (propriedades.Last() == propriedade)
-                    relatorio.Append($"{propriedade.Name}\n");
-
-                else
-                    relatorio.Append($"{propriedade.Name},");
-            }
-
-            // Adiciona os valores à string CSV relatorio
-            foreach (var modelo in _modelos)
-            {
-                if (modelo == null)
-                    relatorio.Append("Registro nulo\n");
-
-                else // Adiciona os valores do registro à string CSV relatorio
+                foreach (var propriedade in propriedades)
                 {
-                    foreach (var propriedade in propriedades)
-                    {
-                        if (propriedades.Last() == propriedade)
-                            relatorio.Append($"{propriedade.GetValue(modelo)}\n");
+                    if (propriedades.Last() == propriedade)
+                        relatorio.Append($"{propriedade.GetValue(modelo)}\n");
                         
-                        else
-                            relatorio.Append($"{propriedade.GetValue(modelo)},");
-                    }
+                    else
+                        relatorio.Append($"{propriedade.GetValue(modelo)},");
                 }
             }
-
-            return relatorio.ToString();
         }
-    }
+
+         return relatorio.ToString();
+        }
 
 	public async Task ExportarRelatorio(string relatorio)
 	{
