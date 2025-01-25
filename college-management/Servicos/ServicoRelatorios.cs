@@ -34,9 +34,8 @@ where T : Modelo
 		_modelos = modelos;
 	}
 
-    	private readonly string _caminhoArquivo
-		= Path.Combine(UtilitarioArquivos.DiretorioDados,
-		               $"{typeof(T).Name}s.json");  //preciso saber o caminho dos arquivos json para converte-los
+
+
 
 	public string GerarRelatorio(T modelo, Cargo? cargoUsuario)
 	{
@@ -44,6 +43,8 @@ where T : Modelo
 			       .TemPermissao(PermissoesAcesso.AcessoEscrita)
 			       ? GerarEntradasRelatorio()
 			       : modelo.ToString();
+
+                   
 	}
 
 	public string  GerarEntradasRelatorio()
@@ -53,17 +54,7 @@ where T : Modelo
 
         else
         {
-
-            var serializer = new DataContractJsonSerializer(typeof(List<T>));
-
-              using var streamArquivo
-			= File.OpenRead(_caminhoArquivo);
-
-            //_modelos = JsonSerializer.DeserializeAsync<List<T>>(streamArquivo);
-		    //var listaRelatorios =  JsonSerializer.DeserializeAsync<List<T>>(streamArquivo);
-
-            var listaRelatorios = (List<T>)serializer.ReadObject(streamArquivo);
-
+            
             var relatorio = new StringBuilder();
             var propriedades = typeof(T).GetProperties();
 
@@ -78,13 +69,8 @@ where T : Modelo
                     relatorio.Append($"{propriedade.Name},");
             }
 
-<<<<<<< HEAD
             // Adiciona os valores à string CSV
-            foreach (var modelo in listaRelatorios)
-=======
-            // Adiciona os valores à string CSV relatorio
             foreach (var modelo in _modelos)
->>>>>>> c32b4ea7f99a4ec84de88a03f605aafb261879ff
             {
                 if (modelo == null)
                     relatorio.Append("Registro nulo\n");
@@ -101,7 +87,7 @@ where T : Modelo
                     }
                 }
             }
-                       File.WriteAllText(_arquivoRelatorios, relatorio.ToString());
+
             return relatorio.ToString();
         }
     }
@@ -109,6 +95,10 @@ where T : Modelo
 	public async Task ExportarRelatorio(string relatorio)
 	{
 		// TODO: Implementar um algoritmo para exportar relatórios no formato CSV
+
+
+            File.WriteAllText(_arquivoRelatorios, relatorio);
+
         
 
 	}
