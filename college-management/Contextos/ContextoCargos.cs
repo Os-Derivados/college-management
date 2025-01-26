@@ -292,18 +292,7 @@ public class ContextoCargos : Contexto<Cargo>
 		Console.Clear();
 		return permissoes;
 	}
-
-
-	string TelaExclusao(InputView inputView)
-	{
-		inputView.LerEntrada(
-			"name",
-			"Insira o nome do cargo a ser excluido do banco de dados: ");
-
-		var nomeCargo = inputView.ObterEntrada("name");
-
-		return nomeCargo;
-	}
+	
 
 	string SelecionaCargoParaEdicao(InputView inputView)
 	{
