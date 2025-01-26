@@ -55,7 +55,7 @@ public class ContextoCargos : Contexto<Cargo>
 		string nomeCargo = "";
 
 
-		InputView inputView = new InputView("--Editor de cargos--");
+		InputView inputView = new InputView("Editar Cargo");
 
 		if (TemAcessoRestrito)
 		{
@@ -70,7 +70,7 @@ public class ContextoCargos : Contexto<Cargo>
 				return;
 			}
 
-			cargo = TelaDeEdicao(cargo, inputView);
+			cargo = TelaDeEdicao(obterPorNome.Modelo!, inputView);
 
 			if (cargo is null)
 			{
