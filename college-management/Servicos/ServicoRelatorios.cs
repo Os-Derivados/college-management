@@ -21,14 +21,14 @@ where T : Modelo
 	private readonly List<T> _modelos;
 
 	public ServicoRelatorios(Usuario usuario,
-	                         List<T> modelos)
+                             Nota nota,
+                             List<T> modelos)
 	{
-		_arquivoRelatorios
-			= Path.Combine(SpecialDirectories.MyDocuments,
-			               "OsDerivados",
-			               "CollegeManagement",
-			               "Relatorios",
-			               $"{typeof(T).Name}.csv");
+
+                           
+                _arquivoRelatorios =Path.Combine(UtilitarioArquivos.DiretorioBase,
+                                $"{typeof(T).Name}.csv");
+
 
 		_usuario = usuario;
 		_modelos = modelos;
