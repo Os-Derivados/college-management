@@ -265,7 +265,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 	{
 		RelatorioView<Usuario> relatorioView;
 
-		if (ValidarPermissoes())
+		if (TemAcessoRestrito)
 		{
 			var verUsuarios = BaseDeDados.Usuarios.ObterTodos();
 
