@@ -39,10 +39,19 @@ where T : Modelo
 
 	public string GerarRelatorio(T modelo, Cargo? cargoUsuario)
 	{
-		return cargoUsuario
+        if (cargoUsuario == null) throw new NullReferenceException(
+                                                        $"ERROR: {typeof(Cargo).Name} é null. " +
+                                                        $"(ServicoRelatorios<{typeof(T).Name}>.GerarRelatorio)"
+                                                    );
+
+
+        return cargoUsuario
 			       .TemPermissao(PermissoesAcesso.AcessoEscrita)
 			       ? GerarEntradasRelatorio()
-			       : modelo.ToString();
+			       : modelo.ToString() ?? throw new NullReferenceException(
+                                                        $"ERROR: {typeof(T).Name}.ToString() retorna null. " +
+                                                        $"(ServicoRelatorios<{typeof(T).Name}>.GerarRelatorio)"
+                                                    );
 
                    
 	}
@@ -93,13 +102,7 @@ where T : Modelo
     }
 
 	public async Task ExportarRelatorio(string relatorio)
-	{
-		
-
-
-            File.WriteAllText(_arquivoRelatorios, relatorio);
-
-        
-
+    {
+        await File.WriteAllTextAsync(_arquivoRelatorios, relatorio);
 	}
 }
