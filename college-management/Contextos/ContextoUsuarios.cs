@@ -285,7 +285,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 	public override void VerDetalhes()
 	{
-		if (!ValidarPermissoes())
+		if (!TemAcessoRestrito)
 		{
 			DetalhesView detalhesContexto = new("Detalhes da Conta",
 			                                    UtilitarioTipos
