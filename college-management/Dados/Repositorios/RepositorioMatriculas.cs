@@ -8,6 +8,6 @@ public class RepositorioMatriculas : Repositorio<Matricula>
 {
 	public override bool Existe(Matricula modelo)
 	{
-		return ObterPorId(modelo.Id) is not null;
+		return ObterPorId(modelo.Id).Status is StatusResposta.Sucesso;
 	}
 }

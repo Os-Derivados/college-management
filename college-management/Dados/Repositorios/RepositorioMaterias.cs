@@ -8,13 +8,10 @@ public class RepositorioMaterias : Repositorio<Materia>
 {
 	public override bool Existe(Materia modelo)
 	{
-		var nomeExistente =
-			BaseDeDados.FirstOrDefault(m => m.Nome
-			                                == modelo.Nome);
+		var obterPorNome = ObterPorNome(modelo.Nome);
+		var obterPorId = ObterPorId(modelo.Id);
 
-		var idExistente = ObterPorId(modelo.Id);
-
-		return nomeExistente is not null
-		       || idExistente is not null;
+		return obterPorNome.Status is StatusResposta.Sucesso
+		       || obterPorId.Status is StatusResposta.Sucesso;
 	}
 }

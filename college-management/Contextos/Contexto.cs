@@ -18,11 +18,13 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 	                   Usuario usuarioContexto)
 	{
 		BaseDeDados     = baseDeDados;
+		
+		var obterCargo = BaseDeDados
+		                 .Cargos
+		                 .ObterPorId(usuarioContexto.CargoId);
+
 		UsuarioContexto = usuarioContexto;
-		CargoContexto
-			= BaseDeDados
-			  .Cargos
-			  .ObterPorId(UsuarioContexto.CargoId);
+		CargoContexto   = obterCargo.Modelo!;
 	}
 
 	protected bool TemAcessoRestrito =>
@@ -33,9 +35,7 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 	{
 		if (TemAcessoRestrito) return true;
 
-		InputView inputPermissao = new("Acesso Restrito");
-		inputPermissao.LerEntrada("Sem Permissão",
-		                          "Você não tem permissão para acessar este recurso. Pressione [Enter] para voltar.");
+		View.Aviso("Você não tem permissão para acessar este recurso.");
 
 		return false;
 	}

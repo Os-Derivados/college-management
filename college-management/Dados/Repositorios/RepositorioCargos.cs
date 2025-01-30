@@ -8,13 +8,11 @@ public class RepositorioCargos : Repositorio<Cargo>
 {
 	public override bool Existe(Cargo modelo)
 	{
-		var nomeExistente =
-			BaseDeDados.FirstOrDefault(m => m.Nome
-			                                == modelo.Nome);
+		var obterPorNome = ObterPorNome(modelo.Nome);
 
-		var idExistente = ObterPorId(modelo.Id);
+		var obterPorId = ObterPorId(modelo.Id);
 
-		return nomeExistente is not null
-		       || idExistente is not null;
+		return obterPorNome.Status is StatusResposta.Sucesso ||
+		       obterPorId.Status is StatusResposta.Sucesso;
 	}
 }

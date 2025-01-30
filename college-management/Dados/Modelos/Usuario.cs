@@ -37,13 +37,12 @@ public class Usuario : Modelo
 	                                  string loginUsuario,
 	                                  string senhaUsuario)
 	{
-		// master.admin
-		var usuarioExistente = repositorio.ObterPorLogin(loginUsuario);
+		var obterUsuario = repositorio.ObterPorLogin(loginUsuario);
 
-		if (usuarioExistente is null) return null;
+		if (obterUsuario.Status is StatusResposta.ErroNaoEncontrado) return null;
 
-		return usuarioExistente.Credenciais.Validar(senhaUsuario)
-			? usuarioExistente
+		return obterUsuario.Modelo!.Credenciais!.Validar(senhaUsuario)
+			? obterUsuario.Modelo
 			: null;
 	}
 

@@ -63,7 +63,7 @@ public class EditarUsuarioView : View, IEditarUsuarioView
 					var cargoInserido = RepositorioCargos.ObterPorNome(
 						inputEdicao.ObterEntrada("Cargo"));
 
-					if (cargoInserido is null)
+					if (cargoInserido.Status is StatusResposta.ErroNaoEncontrado)
 					{
 						inputEdicao.LerEntrada(
 							"Erro",
@@ -72,7 +72,7 @@ public class EditarUsuarioView : View, IEditarUsuarioView
 						break;
 					}
 
-					Usuario.CargoId = cargoInserido.Id!;
+					Usuario.CargoId = cargoInserido.Modelo!.Id!;
 
 					break;
 				}

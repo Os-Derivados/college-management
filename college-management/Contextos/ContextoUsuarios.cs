@@ -108,59 +108,61 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		CadastroUsuarioView cadastroUsuarioView = new();
 
 		var confirmaCadastro = cadastroUsuarioView.ObterDados();
-		var cadastroUsuario  = cadastroUsuarioView.CadastroUsuario;
+		var dadosUsuario     = cadastroUsuarioView.CadastroUsuario;
 
 		if (confirmaCadastro is not 's') return;
 
-		var cargoEscolhido = BaseDeDados
-		                     .Cargos
-		                     .ObterPorNome(cadastroUsuario["Cargo"]);
+		var obterCargoPorNome = BaseDeDados
+		                        .Cargos
+		                        .ObterPorNome(dadosUsuario["Cargo"]);
 
-		if (cargoEscolhido is null)
+		if (obterCargoPorNome.Status is StatusResposta.ErroNaoEncontrado)
 		{
-			inputUsuario.LerEntrada("Erro",
-			                        "O Cargo inserido não foi "
-			                        + "encontrado na base de dados."
-			                        + "Pressione Enter para continuar.");
+			View.Aviso("O Cargo inserido não foi encontrado na base de dados.");
 
 			return;
 		}
 
-		var novaMatricula = cargoEscolhido.Nome
+		var novaMatricula = obterCargoPorNome.Modelo!.Nome
 			is CargosPadrao.CargoAlunos
-			? Matricula.CriarMatricula(cadastroUsuario)
+			? Matricula.CriarMatricula(dadosUsuario)
 			: null;
 
 		var cursoEscolhido = novaMatricula is not null
 			? BaseDeDados
 			  .Cursos
-			  .ObterPorNome(cadastroUsuario["Curso"])
+			  .ObterPorNome(dadosUsuario["Curso"])
 			: null;
 
-		var novoUsuario = Usuario.CriarUsuario(cargoEscolhido,
-		                                       cadastroUsuario,
+		var novoUsuario = Usuario.CriarUsuario(obterCargoPorNome.Modelo,
+		                                       dadosUsuario,
 		                                       novaMatricula!);
 
-		var foiAdicionado = await BaseDeDados
-		                          .Usuarios
-		                          .Adicionar(novoUsuario);
+		var cadastroUsuario = await BaseDeDados
+		                            .Usuarios
+		                            .Adicionar(novoUsuario);
+
+		var foiAdicionado = cadastroUsuario.Status is StatusResposta.Sucesso;
 
 		if (foiAdicionado
 		    && novaMatricula is not null
 		    && cursoEscolhido is not null)
 		{
 			novaMatricula.AlunoId = novoUsuario.Id;
-			novaMatricula.CursoId = cursoEscolhido.Id;
+			novaMatricula.CursoId = cursoEscolhido.Modelo!.Id;
 
-			foiAdicionado
+			var cadastroMatricula
 				= await BaseDeDados.Matriculas.Adicionar(novaMatricula);
+
+			foiAdicionado = foiAdicionado &&
+			                cadastroMatricula.Status is StatusResposta.Sucesso;
 		}
 
 		var mensagemOperacao = foiAdicionado
 			? $"{nameof(Usuario)} cadastrado com sucesso."
 			: $"Não foi possível cadastrar novo {nameof(Usuario)}.";
 
-		inputUsuario.LerEntrada("Sair", mensagemOperacao);
+		View.Aviso(mensagemOperacao);
 	}
 
 	public override async Task Editar()
@@ -172,38 +174,41 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		var resultadoBusca = buscaUsuario.Buscar();
 		var chaveBusca     = resultadoBusca.Value;
 
-		var usuario = resultadoBusca.Key switch
-		{
-			1 => BaseDeDados.Usuarios.ObterPorLogin(chaveBusca),
-			2 => BaseDeDados.Usuarios.ObterPorId(chaveBusca),
-			_ => null
-		};
+		var obterUsuario = resultadoBusca.Key is 1
+			? BaseDeDados.Usuarios.ObterPorLogin(chaveBusca)
+			: BaseDeDados.Usuarios.ObterPorId(chaveBusca);
 
-		if (usuario is null)
+		if (obterUsuario.Status is StatusResposta.ErroNaoEncontrado)
 		{
-			InputView inputPesquisa = new("Erro ao buscar Usuario");
-
-			inputPesquisa.LerEntrada("Usuario", "Usuário não encontrado.");
+			View.Aviso("Usuário não encontrado na base de dados.");
 
 			return;
 		}
 
-		EditarUsuarioView editarUsuarioView = new(usuario, BaseDeDados.Cargos);
-		var               usuarioEditado    = editarUsuarioView.Editar();
+		EditarUsuarioView editarUsuarioView
+			= new(obterUsuario.Modelo!, BaseDeDados.Cargos);
+		var usuarioEditado = editarUsuarioView.Editar();
 
 		ConfirmaView confirmaEdicao = new("Editar Usuário");
 
-		if (confirmaEdicao.Confirmar("Editar Usuário") is not 's') return;
+		if (confirmaEdicao.Confirmar("Editar Usuário").ToString().ToLower() is
+		    not "s")
+		{
+			View.Aviso($"Editar {nameof(Usuario)}: Operação cancelada.");
 
-		var foiEditado = await BaseDeDados.Usuarios.Atualizar(usuarioEditado);
+			return;
+		}
 
-		var mensagemOperacao = foiEditado
-			? $"{nameof(Usuario)} editado com sucesso."
-			: $"Não foi possível editar o {nameof(Usuario)}.";
+		var atualizarUsuario
+			= await BaseDeDados.Usuarios.Atualizar(usuarioEditado);
 
-		InputView inputConfirmacao = new("Editar Usuário");
+		var mensagemOperacao = atualizarUsuario.Status switch
+		{
+			StatusResposta.Sucesso => $"{nameof(Usuario)} editado com sucesso.",
+			_ => $"Não foi possível editar o {nameof(Usuario)}."
+		};
 
-		inputConfirmacao.LerEntrada("Sair", mensagemOperacao);
+		View.Aviso(mensagemOperacao);
 	}
 
 	public override async Task Excluir()
@@ -215,18 +220,13 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		var resultadoBusca = buscaUsuario.Buscar();
 		var chaveBusca     = resultadoBusca.Value;
 
-		var usuario = resultadoBusca.Key switch
-		{
-			1 => BaseDeDados.Usuarios.ObterPorLogin(chaveBusca),
-			2 => BaseDeDados.Usuarios.ObterPorId(chaveBusca),
-			_ => null
-		};
+		var obterUsuario = resultadoBusca.Key is 1
+			? BaseDeDados.Usuarios.ObterPorLogin(chaveBusca)
+			: BaseDeDados.Usuarios.ObterPorId(chaveBusca);
 
-		if (usuario is null)
+		if (obterUsuario.Status is StatusResposta.ErroNaoEncontrado)
 		{
-			InputView inputPesquisa = new("Erro ao buscar Usuario");
-
-			inputPesquisa.LerEntrada("Usuario", "Usuário não encontrado.");
+			View.Aviso("Usuário não encontrado.");
 
 			return;
 		}
@@ -234,7 +234,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		DetalhesView detalhesUsuario = new("Excluir Usuário",
 		                                   UtilitarioTipos.ObterPropriedades(
-			                                   usuario,
+			                                   obterUsuario,
 			                                   [
 				                                   "Nome", "Login", "Id",
 				                                   "CargoId"
@@ -246,26 +246,38 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		if (confirmaExclusao.Confirmar($"{detalhesUsuario.Layout}") is not 's')
 			return;
 
-		var foiExcluido = await BaseDeDados.Usuarios.Remover(usuario.Id);
+		var foiExcluido
+			= await BaseDeDados.Usuarios.Remover(obterUsuario.Modelo!.Id);
 
-		var mensagemOperacao = foiExcluido
-			? $"{nameof(Usuario)} excluído com sucesso."
-			: $"Não foi possível excluir o {nameof(Usuario)}.";
+		var mensagemOperacao = foiExcluido.Status switch
+		{
+			StatusResposta.Sucesso =>
+				$"{nameof(Usuario)} excluído com sucesso.",
+			StatusResposta.ErroNaoEncontrado =>
+				$"{nameof(Usuario)} não encontrado.",
+			_ => $"Não foi possível excluir o {nameof(Usuario)}."
+		};
 
-		InputView inputConfirmacao = new("Excluir Usuário");
-		inputConfirmacao.LerEntrada("Sair", mensagemOperacao);
+		View.Aviso(mensagemOperacao);
 	}
 
 	public override void Visualizar()
 	{
 		RelatorioView<Usuario> relatorioView;
 
-		if (ValidarPermissoes())
-			relatorioView = new RelatorioView<Usuario>("Visualizar Usuários",
-				BaseDeDados.Usuarios.ObterTodos());
+		if (TemAcessoRestrito)
+		{
+			var verUsuarios = BaseDeDados.Usuarios.ObterTodos();
+
+			relatorioView
+				= new RelatorioView<Usuario>("Visualizar Usuários",
+				                             verUsuarios.Modelo!);
+		}
 		else
+		{
 			relatorioView = new RelatorioView<Usuario>("Minha Conta",
 				[UsuarioContexto]);
+		}
 
 		relatorioView.ConstruirLayout();
 		relatorioView.Exibir();
@@ -273,7 +285,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 	public override void VerDetalhes()
 	{
-		if (!ValidarPermissoes())
+		if (!TemAcessoRestrito)
 		{
 			DetalhesView detalhesContexto = new("Detalhes da Conta",
 			                                    UtilitarioTipos
@@ -295,24 +307,18 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		var resultadoBusca = buscaUsuario.Buscar();
 		var chaveBusca     = resultadoBusca.Value;
 
-		var usuario = resultadoBusca.Key switch
-		{
-			1 => BaseDeDados.Usuarios.ObterPorLogin(chaveBusca),
-			2 => BaseDeDados.Usuarios.ObterPorId(chaveBusca),
-			_ => null
-		};
+		var obterUsuario = resultadoBusca.Key is 1
+			? BaseDeDados.Usuarios.ObterPorLogin(chaveBusca)
+			: BaseDeDados.Usuarios.ObterPorId(chaveBusca);
 
-		if (usuario is null)
+		if (obterUsuario.Status is StatusResposta.ErroNaoEncontrado)
 		{
-			InputView inputErro = new("Erro ao buscar Usuario");
-
-			inputErro.LerEntrada("Usuario",
-			                     "Usuário não encontrado.");
+			View.Aviso("Usuário não encontrado.");
 
 			return;
 		}
 
-		var detalhes = UtilitarioTipos.ObterPropriedades(usuario,
+		var detalhes = UtilitarioTipos.ObterPropriedades(obterUsuario.Modelo,
 		[
 			"Login", "Nome", "Credenciais", "CargoId", "Id"
 		]);

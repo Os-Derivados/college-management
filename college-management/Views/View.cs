@@ -19,4 +19,16 @@ public abstract class View : IView
 	}
 
 	public virtual void ConstruirLayout() { Layout.AppendLine(Titulo); }
+
+	public static void Aviso(string mensagem)
+	{
+		InputView inputAviso = new("Aviso");
+		inputAviso.ConstruirLayout();
+
+		inputAviso.LerEntrada("Aviso", $"""
+		                                {mensagem}
+
+		                                Pressione [Enter] para continuar.
+		                                """);
+	}
 }

@@ -8,17 +8,22 @@ namespace college_management.Dados.Repositorios;
 public class RepositorioUsuarios : Repositorio<Usuario>,
                                    IRepositorioUsuarios
 {
-	public Usuario ObterPorLogin(string login)
+	public RespostaRecurso<Usuario> ObterPorLogin(string login)
 	{
-		return BaseDeDados.FirstOrDefault(u => u.Login == login);
+		var usuario = BaseDeDados.FirstOrDefault(u => u.Login == login);
+
+		return usuario is null
+			? new RespostaRecurso<Usuario>(
+				null, StatusResposta.ErroNaoEncontrado)
+			: new RespostaRecurso<Usuario>(usuario, StatusResposta.Sucesso);
 	}
 
 	public override bool Existe(Usuario modelo)
 	{
-		Usuario loginExistente = ObterPorLogin(modelo.Login),
-			idExistente        = ObterPorId(modelo.Id);
+		var obterPorLogin = ObterPorLogin(modelo.Login!);
+		var obterPorId    = ObterPorId(modelo.Id);
 
-		return loginExistente is not null
-		       || idExistente is not null;
+		return obterPorLogin.Status is StatusResposta.Sucesso
+		       || obterPorId.Status is StatusResposta.Sucesso;
 	}
 }
