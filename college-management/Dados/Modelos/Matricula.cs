@@ -3,19 +3,19 @@ namespace college_management.Dados.Modelos;
 
 public sealed class Matricula : Modelo
 {
-	private static long _contagemId = 10000000000;
+	private static ulong _contagemId = 10000000000;
 
 	public Matricula(int periodo,
 	                 Modalidade modalidade)
 	{
 		Periodo    = periodo;
 		Modalidade = modalidade;
-		Id         = _contagemId.ToString();
+		Id         = _contagemId;
 
 		_contagemId++;
 	}
 
-	public string?    CursoId    { get; set; }
+	public ulong?    CursoId    { get; set; }
 	public string?    AlunoId    { get; set; }
 	public int        Periodo    { get; set; }
 	public Modalidade Modalidade { get; set; }

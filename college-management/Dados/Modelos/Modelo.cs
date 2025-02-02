@@ -3,5 +3,5 @@ namespace college_management.Dados.Modelos;
 
 public abstract class Modelo
 {
-	public string? Id { get; set; }
+	public ulong Id { get; set; }
 }
