@@ -19,20 +19,17 @@ public class Curso : Modelo
 
 	public string?       Nome            { get; set; }
 	public Materia[]     GradeCurricular { get; set; }
-	public List<string>? MatriculasIds   { get; set; }
 
 	public override string ToString()
 	{
 		return
 			$"| {Nome,-16} "
 			+ $"| {GradeCurricular.Length + " Matéria(s)",-16} "
-			+ $"| {(MatriculasIds?.Count ?? 0) + " Matrícula(s)",-16} "
 			+ $"| {Id,-16} |";
 	}
 
 	public double ObterCargaHoraria()
 	{
-		return GradeCurricular.Sum(materia
-			                           => materia.CargaHoraria);
+		return GradeCurricular.Sum(materia => materia.CargaHoraria);
 	}
 }
