@@ -100,40 +100,44 @@ public static class UtilitarioSeed
 
 	public static bool ValidarDadosIniciais(BaseDeDados baseDeDados)
 	{
-		var cargoAdms = baseDeDados
+		var cargoAdmExiste = baseDeDados
 			.Cargos
-			.ObterPorNome(CargosPadrao.CargoAdministradores) is not
-			null;
+			.ObterPorNome(CargosPadrao.CargoAdministradores) is
+			not null;
 
-		var cargoAlunos = baseDeDados
-		                  .Cargos
-		                  .ObterPorNome(CargosPadrao.CargoAlunos) is not null;
+		var cargoAlunosExiste = baseDeDados
+			.Cargos
+			.ObterPorNome(CargosPadrao.CargoAlunos) is not
+			null;
 
 		_ = UtilitarioAmbiente
 		    .Variaveis
 		    .TryGetValue(VariaveisAmbiente.MasterAdminNome,
 		                 out var nomeDefault);
-		var usuarioMestre = baseDeDados
-		                    .Usuarios
-		                    .ObterPorNome(nomeDefault) is not null;
 
-		var materiaTeste = baseDeDados
-		                   .Materias
-		                   .ObterPorNome("Matéria Teste") is not null;
+		var usuarioMestreExiste = baseDeDados
+		                          .Usuarios
+		                          .ObterPorNome(nomeDefault) is not null;
 
-		var cursoTeste = baseDeDados
-		                 .Cursos
-		                 .ObterPorNome("Curso Teste") is not null;
+		var materiaTesteExiste = baseDeDados
+		                         .Materias
+		                         .ObterPorNome("Matéria Teste") is not null;
+
+		var cursoTesteExiste = baseDeDados
+		                       .Cursos
+		                       .ObterPorNome("Curso Teste") is not null;
 
 		_ = UtilitarioAmbiente
 		    .Variaveis
 		    .TryGetValue(VariaveisAmbiente.UsuarioTesteLogin,
 		                 out var loginAluno);
-		var usuarioTeste = baseDeDados
-		                   .Usuarios
-		                   .ObterPorLogin(loginAluno) is not null;
 
-		return usuarioMestre & cargoAdms & cargoAlunos & cursoTeste &
-		       usuarioTeste & materiaTeste;
+		var usuarioTesteExiste = baseDeDados
+		                         .Usuarios
+		                         .ObterPorLogin(loginAluno) is not null;
+
+		return usuarioMestreExiste & cargoAdmExiste & cargoAlunosExiste &
+		       cursoTesteExiste &
+		       usuarioTesteExiste & materiaTesteExiste;
 	}
 }
