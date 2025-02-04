@@ -20,15 +20,7 @@ public sealed class Matricula : Modelo
 	public int        Periodo    { get; set; }
 	public Modalidade Modalidade { get; set; }
 	public List<Nota> Notas      { get; set; } = [];
-
-	public void InicializarNotas(Curso curso)
-	{
-		if (curso.Id != CursoId) return;
-
-		foreach (var materia in curso.GradeCurricular)
-			Notas.Add(new Nota(materia.Nome, materia.Id));
-	}
-
+	
 	public static Matricula CriarMatricula(
 		Dictionary<string, string> cadastroUsuario)
 	{
