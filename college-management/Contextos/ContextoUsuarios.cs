@@ -174,10 +174,26 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		var resultadoBusca = buscaUsuario.Buscar();
 		var chaveBusca     = resultadoBusca.Value;
 
-		var obterUsuario = resultadoBusca.Key is 1
-			? BaseDeDados.Usuarios.ObterPorLogin(chaveBusca)
-			: BaseDeDados.Usuarios.ObterPorId(chaveBusca);
+		RespostaRecurso<Usuario>? obterUsuario;
 
+		if (resultadoBusca.Key is 1)
+		{
+			obterUsuario = BaseDeDados.Usuarios.ObterPorLogin(chaveBusca);
+		}
+		else
+		{
+			var tentativaCast = ulong.TryParse(chaveBusca, out var id);
+			
+			if (!tentativaCast)
+			{
+				View.Aviso("O Id inserido não é um número válido.");
+
+				return;
+			}
+			
+			obterUsuario = BaseDeDados.Usuarios.ObterPorId(id);
+		}
+		
 		if (obterUsuario.Status is StatusResposta.ErroNaoEncontrado)
 		{
 			View.Aviso("Usuário não encontrado na base de dados.");
@@ -220,9 +236,25 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		var resultadoBusca = buscaUsuario.Buscar();
 		var chaveBusca     = resultadoBusca.Value;
 
-		var obterUsuario = resultadoBusca.Key is 1
-			? BaseDeDados.Usuarios.ObterPorLogin(chaveBusca)
-			: BaseDeDados.Usuarios.ObterPorId(chaveBusca);
+		RespostaRecurso<Usuario>? obterUsuario;
+
+		if (resultadoBusca.Key is 1)
+		{
+			obterUsuario = BaseDeDados.Usuarios.ObterPorLogin(chaveBusca);
+		}
+		else
+		{
+			var tentativaCast = ulong.TryParse(chaveBusca, out var id);
+			
+			if (!tentativaCast)
+			{
+				View.Aviso("O Id inserido não é um número válido.");
+
+				return;
+			}
+			
+			obterUsuario = BaseDeDados.Usuarios.ObterPorId(id);
+		}
 
 		if (obterUsuario.Status is StatusResposta.ErroNaoEncontrado)
 		{
@@ -307,9 +339,25 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		var resultadoBusca = buscaUsuario.Buscar();
 		var chaveBusca     = resultadoBusca.Value;
 
-		var obterUsuario = resultadoBusca.Key is 1
-			? BaseDeDados.Usuarios.ObterPorLogin(chaveBusca)
-			: BaseDeDados.Usuarios.ObterPorId(chaveBusca);
+		RespostaRecurso<Usuario>? obterUsuario;
+
+		if (resultadoBusca.Key is 1)
+		{
+			obterUsuario = BaseDeDados.Usuarios.ObterPorLogin(chaveBusca);
+		}
+		else
+		{
+			var tentativaCast = ulong.TryParse(chaveBusca, out var id);
+			
+			if (!tentativaCast)
+			{
+				View.Aviso("O Id inserido não é um número válido.");
+
+				return;
+			}
+			
+			obterUsuario = BaseDeDados.Usuarios.ObterPorId(id);
+		}
 
 		if (obterUsuario.Status is StatusResposta.ErroNaoEncontrado)
 		{
