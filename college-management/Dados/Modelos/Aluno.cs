@@ -6,12 +6,8 @@ public sealed class Aluno : Usuario
 	public Aluno(string login,
 	             string nome,
 	             CredenciaisUsuario credenciais,
-	             ulong cargoId,
-	             ulong matriculaId)
+	             ulong cargoId)
 		: base(login, nome, credenciais, cargoId)
 	{
-		MatriculaId = matriculaId;
 	}
-
-	public ulong MatriculaId { get; set; }
 }

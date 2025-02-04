@@ -56,8 +56,7 @@ public class Usuario : Modelo
 			                                      cadastro["Nome"],
 			                                      new CredenciaisUsuario(
 				                                      cadastro["Senha"]),
-			                                      cargoEscolhido.Id,
-			                                      novaMatricula.Id),
+			                                      cargoEscolhido.Id),
 			_ => new Funcionario(cadastro["Login"],
 			                     cadastro["Nome"],
 			                     new CredenciaisUsuario(cadastro["Senha"]),
