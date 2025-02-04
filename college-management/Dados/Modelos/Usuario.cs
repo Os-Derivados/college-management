@@ -47,8 +47,7 @@ public class Usuario : Modelo
 	}
 
 	public static Usuario CriarUsuario(Cargo cargoEscolhido,
-	                                   Dictionary<string, string> cadastro,
-	                                   Matricula novaMatricula)
+	                                   Dictionary<string, string> cadastro)
 	{
 		Usuario novoUsuario = cargoEscolhido.Nome switch
 		{
