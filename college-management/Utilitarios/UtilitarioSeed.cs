@@ -40,7 +40,7 @@ public static class UtilitarioSeed
 		      .Adicionar(new Funcionario(loginMestre,
 		                                 nomeMestre,
 		                                 senhaMestre,
-		                                 obterCargoAdmin.Modelo!.Id!));
+		                                 obterCargoAdmin.Modelo!.Id));
 
 		var (loginTeste, nomeTeste, senhaTeste)
 			= ObterCredenciais(VariaveisAmbiente.UsuarioTesteLogin,
@@ -48,12 +48,14 @@ public static class UtilitarioSeed
 			                   VariaveisAmbiente.UsuarioTesteSenha);
 
 		Materia materiaTeste = new("Matéria Teste", Turno.Integral, 60);
+		Curso   cursoTeste   = new("Curso Teste");
+		CursoMateria cursoMateriaTeste = new(cursoTeste.Id, materiaTeste.Id);
+		
 		await baseDeDados.Materias.Adicionar(materiaTeste);
-
-		Matricula matriculaTeste = new(1, Modalidade.Presencial);
-
-		Curso cursoTeste = new("Curso Teste", [materiaTeste]);
 		await baseDeDados.Cursos.Adicionar(cursoTeste);
+		await baseDeDados.CursosMaterias.Adicionar(cursoMateriaTeste);
+		
+		Matricula matriculaTeste = new(1, Modalidade.Presencial);
 
 
 		var obterCargoAluno = baseDeDados
