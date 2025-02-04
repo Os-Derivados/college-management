@@ -135,8 +135,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 			: null;
 
 		var novoUsuario = Usuario.CriarUsuario(obterCargoPorNome.Modelo,
-		                                       dadosUsuario,
-		                                       novaMatricula!);
+		                                       dadosUsuario);
 
 		var cadastroUsuario = await BaseDeDados
 		                            .Usuarios
