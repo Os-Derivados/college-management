@@ -3,7 +3,7 @@ namespace college_management.Dados.Modelos;
 
 public class CursoMateria : Modelo
 {
-	public CursoMateria(ulong cursoId, ulong materiaId)
+	public CursoMateria(ulong? cursoId, ulong? materiaId)
 	{
 		CursoId = cursoId;
 		MateriaId = materiaId;
