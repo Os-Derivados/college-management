@@ -16,7 +16,7 @@ public sealed class Matricula : Modelo
 	}
 
 	public ulong?    CursoId    { get; set; }
-	public string?    AlunoId    { get; set; }
+	public ulong?    AlunoId    { get; set; }
 	public int        Periodo    { get; set; }
 	public Modalidade Modalidade { get; set; }
 	public List<Nota> Notas      { get; set; } = [];

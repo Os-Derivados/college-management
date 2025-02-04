@@ -53,7 +53,6 @@ public static class UtilitarioSeed
 		Matricula matriculaTeste = new(1, Modalidade.Presencial);
 
 		Curso cursoTeste = new("Curso Teste", [materiaTeste]);
-		(cursoTeste.MatriculasIds = []).Add(matriculaTeste.Id!);
 		await baseDeDados.Cursos.Adicionar(cursoTeste);
 
 
@@ -66,8 +65,7 @@ public static class UtilitarioSeed
 		var alunoTeste = new Aluno(loginTeste,
 		                           nomeTeste,
 		                           senhaTeste,
-		                           obterCargoAluno.Modelo!.Id!,
-		                           matriculaTeste.Id!);
+		                           obterCargoAluno.Modelo!.Id);
 
 		var alunoCriado = await baseDeDados.Usuarios.Adicionar(alunoTeste);
 
