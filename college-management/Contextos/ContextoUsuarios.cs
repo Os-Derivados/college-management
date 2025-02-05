@@ -2,6 +2,7 @@ using college_management.Constantes;
 using college_management.Contextos.Interfaces;
 using college_management.Dados;
 using college_management.Dados.Modelos;
+using college_management.Servicos.Interfaces;
 using college_management.Utilitarios;
 using college_management.Views;
 
@@ -12,10 +13,15 @@ namespace college_management.Contextos;
 public class ContextoUsuarios : Contexto<Usuario>,
                                 IContextoUsuarios
 {
-	public ContextoUsuarios(BaseDeDados baseDeDados, Usuario usuarioContexto)
+	public ContextoUsuarios(BaseDeDados baseDeDados,
+	                        Usuario usuarioContexto,
+	                        IServicoCargos servicoCargos)
 		: base(baseDeDados, usuarioContexto)
 	{
+		_servicoCargos = servicoCargos;
 	}
+
+	private readonly IServicoCargos _servicoCargos;
 
 	public void VerMatricula()
 	{
@@ -105,19 +111,11 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		if (confirmaCadastro is not 's') return;
 
-		var obterCargoPorNome = BaseDeDados
-		                        .Cargos
-		                        .ObterPorNome(dadosUsuario["Cargo"]);
+		var cargo = _servicoCargos.BuscarPorNome(dadosUsuario["Cargo"]);
 
-		if (obterCargoPorNome.Status is StatusResposta.ErroNaoEncontrado)
-		{
-			View.Aviso("O Cargo inserido não foi encontrado na base de dados.");
+		if (cargo is null) return;
 
-			return;
-		}
-
-		var novaMatricula = obterCargoPorNome.Modelo!.Nome
-			is CargosPadrao.CargoAlunos
+		var novaMatricula = cargo.Nome is CargosPadrao.CargoAlunos
 			? Matricula.CriarMatricula(dadosUsuario)
 			: null;
 
@@ -127,8 +125,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 			  .ObterPorNome(dadosUsuario["Curso"])
 			: null;
 
-		var novoUsuario = Usuario.CriarUsuario(obterCargoPorNome.Modelo,
-		                                       dadosUsuario);
+		var novoUsuario = Usuario.CriarUsuario(cargo, dadosUsuario);
 
 		var cadastroUsuario = await BaseDeDados
 		                            .Usuarios
