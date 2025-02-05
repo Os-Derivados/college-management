@@ -24,8 +24,7 @@ public class Usuario : Modelo
 		CargoId     = cargoId;
 		Credenciais = credenciais;
 
-		Id = _contagemId;
-		_contagemId++;
+		Id = _contagemId++;
 	}
 
 	public string?             Login       { get; set; }

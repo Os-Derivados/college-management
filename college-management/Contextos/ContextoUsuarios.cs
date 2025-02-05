@@ -117,33 +117,66 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		var novoUsuario = Usuario.CriarUsuario(cargo, dadosUsuario);
 
-		var cadastroUsuario = await BaseDeDados
-		                            .Usuarios
-		                            .Adicionar(novoUsuario);
-
-		var usuarioAdicionado = cadastroUsuario.Status is StatusResposta.Sucesso;
-
-		if (usuarioAdicionado && cargo.Nome is CargosPadrao.CargoAlunos)
+		if (cargo.Nome is not CargosPadrao.CargoAlunos)
 		{
-			var novaMatricula = Matricula.CriarMatricula(dadosUsuario);
+			var cadastroUsuario = await BaseDeDados
+			                            .Usuarios
+			                            .Adicionar(novoUsuario);
 
-			var cursoEscolhido = novaMatricula is not null
-				? BaseDeDados.Cursos.ObterPorNome(dadosUsuario["Curso"])
-				: null;
-			
-			novaMatricula.AlunoId = novoUsuario.Id;
-			novaMatricula.CursoId = cursoEscolhido.Modelo!.Id;
+			View.Aviso(cadastroUsuario.Status is StatusResposta.Sucesso
+				           ? "Usuário cadastrado com sucesso."
+				           : "Não foi possível cadastrar novo usuário.");
 
-			var cadastroMatricula
-				= await BaseDeDados.Matriculas.Adicionar(novaMatricula);
-
-			usuarioAdicionado = usuarioAdicionado &&
-			                cadastroMatricula.Status is StatusResposta.Sucesso;
+			return;
 		}
 
-		var mensagemOperacao = usuarioAdicionado
-			? $"{nameof(Usuario)} cadastrado com sucesso."
-			: $"Não foi possível cadastrar novo {nameof(Usuario)}.";
+		var novaMatricula = Matricula.CriarMatricula(dadosUsuario);
+
+		if (novaMatricula is null)
+		{
+			View.Aviso($"Não foi possível gerar {nameof(Matricula)}.");
+
+			return;
+		}
+		
+		var cursoEscolhido
+			= BaseDeDados.Cursos.ObterPorNome(dadosUsuario["Curso"]);
+
+		if (cursoEscolhido.Status is StatusResposta.ErroNaoEncontrado)
+		{
+			View.Aviso("Curso não encontrado.");
+			
+			return;
+		}
+
+		novaMatricula.AlunoId = novoUsuario.Id;
+		novaMatricula.CursoId = cursoEscolhido.Modelo!.Id;
+
+		var cadastroMatricula
+			= await BaseDeDados.Matriculas.Adicionar(novaMatricula);
+
+		if (cadastroMatricula.Status is not StatusResposta.Sucesso)
+		{
+			View.Aviso("Não foi possível cadastrar nova Matricula.");
+
+			return;
+		}
+		
+		var cadastrarAluno = await BaseDeDados.Usuarios.Adicionar(novoUsuario);
+		
+		if (cadastrarAluno.Status is not StatusResposta.Sucesso)
+		{
+			View.Aviso("Não foi possível cadastrar novo Aluno.");
+
+			await BaseDeDados.Matriculas.Remover(novaMatricula.Id);
+
+			return;
+		}
+		
+		var mensagemOperacao
+			= cadastroMatricula.Status is StatusResposta.Sucesso
+				? $"{nameof(Aluno)} cadastrado com sucesso."
+				: $"Não foi possível cadastrar novo {nameof(Aluno)}.";
 
 		View.Aviso(mensagemOperacao);
 	}
