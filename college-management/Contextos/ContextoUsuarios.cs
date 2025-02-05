@@ -12,10 +12,8 @@ namespace college_management.Contextos;
 public class ContextoUsuarios : Contexto<Usuario>,
                                 IContextoUsuarios
 {
-	public ContextoUsuarios(BaseDeDados baseDeDados,
-	                        Usuario usuarioContexto) :
-		base(baseDeDados,
-		     usuarioContexto)
+	public ContextoUsuarios(BaseDeDados baseDeDados, Usuario usuarioContexto)
+		: base(baseDeDados, usuarioContexto)
 	{
 	}
 
@@ -95,12 +93,9 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		throw new NotImplementedException();
 	}
-	
+
 	public override async Task Cadastrar()
 	{
-		InputView inputUsuario = new("Cadastrar Usuário");
-		inputUsuario.ConstruirLayout();
-
 		if (!ValidarPermissoes()) return;
 
 		CadastroUsuarioView cadastroUsuarioView = new();
@@ -141,9 +136,8 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		var foiAdicionado = cadastroUsuario.Status is StatusResposta.Sucesso;
 
-		if (foiAdicionado
-		    && novaMatricula is not null
-		    && cursoEscolhido is not null)
+		if (foiAdicionado && novaMatricula is not null
+		                  && cursoEscolhido is not null)
 		{
 			novaMatricula.AlunoId = novoUsuario.Id;
 			novaMatricula.CursoId = cursoEscolhido.Modelo!.Id;
@@ -180,17 +174,17 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		else
 		{
 			var tentativaCast = ulong.TryParse(chaveBusca, out var id);
-			
+
 			if (!tentativaCast)
 			{
 				View.Aviso("O Id inserido não é um número válido.");
 
 				return;
 			}
-			
+
 			obterUsuario = BaseDeDados.Usuarios.ObterPorId(id);
 		}
-		
+
 		if (obterUsuario.Status is StatusResposta.ErroNaoEncontrado)
 		{
 			View.Aviso("Usuário não encontrado na base de dados.");
@@ -242,14 +236,14 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		else
 		{
 			var tentativaCast = ulong.TryParse(chaveBusca, out var id);
-			
+
 			if (!tentativaCast)
 			{
 				View.Aviso("O Id inserido não é um número válido.");
 
 				return;
 			}
-			
+
 			obterUsuario = BaseDeDados.Usuarios.ObterPorId(id);
 		}
 
@@ -345,14 +339,14 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		else
 		{
 			var tentativaCast = ulong.TryParse(chaveBusca, out var id);
-			
+
 			if (!tentativaCast)
 			{
 				View.Aviso("O Id inserido não é um número válido.");
 
 				return;
 			}
-			
+
 			obterUsuario = BaseDeDados.Usuarios.ObterPorId(id);
 		}
 
