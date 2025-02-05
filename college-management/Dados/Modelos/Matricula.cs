@@ -23,7 +23,7 @@ public sealed class Matricula : Modelo
 	public Modalidade Modalidade { get; set; }
 	public List<Nota> Notas      { get; set; } = [];
 
-	public static Matricula CriarMatricula(
+	public static Matricula? CriarMatricula(
 		Dictionary<string, string> cadastroUsuario)
 	{
 		var conversaoValida = int.TryParse(cadastroUsuario["Periodo"],

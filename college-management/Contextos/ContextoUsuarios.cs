@@ -115,38 +115,33 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		if (cargo is null) return;
 
-		var novaMatricula = cargo.Nome is CargosPadrao.CargoAlunos
-			? Matricula.CriarMatricula(dadosUsuario)
-			: null;
-
-		var cursoEscolhido = novaMatricula is not null
-			? BaseDeDados
-			  .Cursos
-			  .ObterPorNome(dadosUsuario["Curso"])
-			: null;
-
 		var novoUsuario = Usuario.CriarUsuario(cargo, dadosUsuario);
 
 		var cadastroUsuario = await BaseDeDados
 		                            .Usuarios
 		                            .Adicionar(novoUsuario);
 
-		var foiAdicionado = cadastroUsuario.Status is StatusResposta.Sucesso;
+		var usuarioAdicionado = cadastroUsuario.Status is StatusResposta.Sucesso;
 
-		if (foiAdicionado && novaMatricula is not null
-		                  && cursoEscolhido is not null)
+		if (usuarioAdicionado && cargo.Nome is CargosPadrao.CargoAlunos)
 		{
+			var novaMatricula = Matricula.CriarMatricula(dadosUsuario);
+
+			var cursoEscolhido = novaMatricula is not null
+				? BaseDeDados.Cursos.ObterPorNome(dadosUsuario["Curso"])
+				: null;
+			
 			novaMatricula.AlunoId = novoUsuario.Id;
 			novaMatricula.CursoId = cursoEscolhido.Modelo!.Id;
 
 			var cadastroMatricula
 				= await BaseDeDados.Matriculas.Adicionar(novaMatricula);
 
-			foiAdicionado = foiAdicionado &&
+			usuarioAdicionado = usuarioAdicionado &&
 			                cadastroMatricula.Status is StatusResposta.Sucesso;
 		}
 
-		var mensagemOperacao = foiAdicionado
+		var mensagemOperacao = usuarioAdicionado
 			? $"{nameof(Usuario)} cadastrado com sucesso."
 			: $"Não foi possível cadastrar novo {nameof(Usuario)}.";
 
