@@ -6,21 +6,23 @@ public sealed class Matricula : Modelo
 	private static ulong _contagemId = 10000000000;
 
 	public Matricula(int periodo,
-	                 Modalidade modalidade)
+	                 Modalidade modalidade,
+	                 ulong? cursoId = null,
+	                 ulong? alunoId = null)
 	{
 		Periodo    = periodo;
 		Modalidade = modalidade;
-		Id         = _contagemId;
-
-		_contagemId++;
+		CursoId    = cursoId;
+		AlunoId    = alunoId;
+		Id         = _contagemId++;
 	}
 
-	public ulong?    CursoId    { get; set; }
-	public ulong?    AlunoId    { get; set; }
+	public ulong?     CursoId    { get; set; }
+	public ulong?     AlunoId    { get; set; }
 	public int        Periodo    { get; set; }
 	public Modalidade Modalidade { get; set; }
 	public List<Nota> Notas      { get; set; } = [];
-	
+
 	public static Matricula CriarMatricula(
 		Dictionary<string, string> cadastroUsuario)
 	{
