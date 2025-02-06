@@ -9,6 +9,8 @@ public sealed class Funcionario : Usuario
 	                   string cargoId)
 		: base(login,
 		       nome,
-               credenciais,
-		       cargoId) { }
+		       credenciais,
+		       cargoId)
+	{
+	}
 }

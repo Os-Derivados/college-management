@@ -1,7 +1,7 @@
 using college_management.Constantes;
+using college_management.Contextos;
 using college_management.Dados;
 using college_management.Dados.Modelos;
-using college_management.Contextos;
 using college_management.Views;
 
 
@@ -11,10 +11,13 @@ namespace college_management.Middlewares;
 public static class MiddlewareContexto
 {
 	public static void Inicializar(BaseDeDados baseDeDados,
-	                               Usuario     usuario)
+	                               Usuario usuario)
 	{
-		var cargoUsuario  = baseDeDados.Cargos.ObterPorId(usuario.CargoId);
-		var opcaoContexto = EscolherContexto(cargoUsuario);
+		var obterCargo  = baseDeDados.Cargos.ObterPorId(usuario.CargoId);
+
+		if (obterCargo.Status is StatusResposta.ErroNaoEncontrado) return;
+		
+		var opcaoContexto = EscolherContexto(obterCargo.Modelo!);
 
 		if (opcaoContexto is "") return;
 
@@ -48,7 +51,7 @@ public static class MiddlewareContexto
 	}
 
 	private static void AcessarContexto<T>(Contexto<T> contexto)
-	where T : Modelo
+		where T : Modelo
 	{
 		var estadoAtual = EstadoDoApp.Recurso;
 
@@ -74,13 +77,12 @@ public static class MiddlewareContexto
 			{
 				estadoAtual = EstadoDoApp.Sair;
 			}
-		}
-		while (estadoAtual is EstadoDoApp.Recurso);
+		} while (estadoAtual is EstadoDoApp.Recurso);
 	}
 
-	private static string ConverterParaMetodo<T>(Contexto<T>    contexto,
+	private static string ConverterParaMetodo<T>(Contexto<T> contexto,
 	                                             ConsoleKeyInfo indice)
-	where T : Modelo
+		where T : Modelo
 	{
 		var recursosDisponiveis = contexto.ObterOpcoes();
 
@@ -123,8 +125,7 @@ public static class MiddlewareContexto
 
 			contextoEscolhido = opcoesContextos[opcaoUsuario - 1];
 			estadoAtual       = EstadoDoApp.Recurso;
-		}
-		while (estadoAtual is EstadoDoApp.Contexto);
+		} while (estadoAtual is EstadoDoApp.Contexto);
 
 		return contextoEscolhido;
 	}
@@ -132,12 +133,15 @@ public static class MiddlewareContexto
 	private static string[] ObterOpcoesContextos(Cargo cargoUsuario)
 	{
 		var temPermissoesAdmin = cargoUsuario
-			                         .TemPermissao(PermissoesAcesso.AcessoEscrita)
+			                         .TemPermissao(
+				                         PermissoesAcesso.AcessoEscrita)
 		                         || cargoUsuario
-			                         .TemPermissao(PermissoesAcesso.AcessoAdministradores);
+			                         .TemPermissao(
+				                         PermissoesAcesso
+					                         .AcessoAdministradores);
 
 		return temPermissoesAdmin
-			       ? AcessosContexto.ContextoEscrita
-			       : AcessosContexto.ContextoLeitura;
+			? AcessosContexto.ContextoEscrita
+			: AcessosContexto.ContextoLeitura;
 	}
 }

@@ -41,7 +41,7 @@ public static class OperacoesRecursos
 
 	public static readonly string[] RecursosEscritaCursos =
 	[
-		..RecursosLeituraUsuarios,
+		..RecursosLeituraCursos,
 		..RecursosEscrita
 	];
 }

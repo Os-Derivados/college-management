@@ -6,5 +6,8 @@ namespace college_management.Dados.Repositorios;
 
 public class RepositorioMatriculas : Repositorio<Matricula>
 {
-	public override bool Existe(Matricula modelo) { return ObterPorId(modelo.Id) is not null; }
+	public override bool Existe(Matricula modelo)
+	{
+		return ObterPorId(modelo.Id).Status is StatusResposta.Sucesso;
+	}
 }
