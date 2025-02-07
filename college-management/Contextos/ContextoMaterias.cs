@@ -133,9 +133,26 @@ public class ContextoMaterias : Contexto<Materia>
 		BuscaMateriaView buscaMateria = new("Buscar Matéria");
 		var              chaveBusca   = buscaMateria.Buscar();
 
-		var obterMateria = chaveBusca.Key is 1
-			? BaseDeDados.Materias.ObterPorNome(chaveBusca.Value)
-			: BaseDeDados.Materias.ObterPorId(chaveBusca.Value);
+
+		RespostaRecurso<Materia> obterMateria;
+		
+		if (chaveBusca.Key is 1)
+		{
+			obterMateria = BaseDeDados.Materias.ObterPorNome(chaveBusca.Value);
+		}
+		else
+		{
+			var conversao = ulong.TryParse(chaveBusca.Value, out var materiaId);
+			
+			if (!conversao)
+			{
+				View.Aviso("O Id inserido não é válido.");
+				return;
+			}
+			
+			obterMateria = BaseDeDados.Materias.ObterPorId(materiaId);
+		}
+		
 
 		if (obterMateria.Status is StatusResposta.ErroNaoEncontrado)
 		{
@@ -172,9 +189,24 @@ public class ContextoMaterias : Contexto<Materia>
 		BuscaMateriaView buscaMateria = new("Buscar Matéria");
 		var              chaveBusca   = buscaMateria.Buscar();
 
-		var obterMateria = chaveBusca.Key is 1
-			? BaseDeDados.Materias.ObterPorNome(chaveBusca.Value)
-			: BaseDeDados.Materias.ObterPorId(chaveBusca.Value);
+		RespostaRecurso<Materia> obterMateria;
+		
+		if (chaveBusca.Key is 1)
+		{
+			obterMateria = BaseDeDados.Materias.ObterPorNome(chaveBusca.Value);
+		}
+		else
+		{
+			var conversao = ulong.TryParse(chaveBusca.Value, out var materiaId);
+			
+			if (!conversao)
+			{
+				View.Aviso("O Id inserido não é válido.");
+				return;
+			}
+			
+			obterMateria = BaseDeDados.Materias.ObterPorId(materiaId);
+		}
 
 		if (obterMateria.Status is StatusResposta.ErroNaoEncontrado)
 		{
@@ -232,9 +264,24 @@ public class ContextoMaterias : Contexto<Materia>
 		BuscaMateriaView buscaMateria = new("Buscar Matéria");
 		var              chaveBusca   = buscaMateria.Buscar();
 
-		var obterMateria = chaveBusca.Key is 1
-			? BaseDeDados.Materias.ObterPorNome(chaveBusca.Value)
-			: BaseDeDados.Materias.ObterPorId(chaveBusca.Value);
+		RespostaRecurso<Materia> obterMateria;
+		
+		if (chaveBusca.Key is 1)
+		{
+			obterMateria = BaseDeDados.Materias.ObterPorNome(chaveBusca.Value);
+		}
+		else
+		{
+			var conversao = ulong.TryParse(chaveBusca.Value, out var materiaId);
+			
+			if (!conversao)
+			{
+				View.Aviso("O Id inserido não é válido.");
+				return;
+			}
+			
+			obterMateria = BaseDeDados.Materias.ObterPorId(materiaId);
+		}
 
 		if (obterMateria.Status is StatusResposta.ErroNaoEncontrado)
 		{

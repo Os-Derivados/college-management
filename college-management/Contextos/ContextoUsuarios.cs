@@ -2,6 +2,7 @@ using college_management.Constantes;
 using college_management.Contextos.Interfaces;
 using college_management.Dados;
 using college_management.Dados.Modelos;
+using college_management.Servicos.Interfaces;
 using college_management.Utilitarios;
 using college_management.Views;
 
@@ -13,11 +14,14 @@ public class ContextoUsuarios : Contexto<Usuario>,
                                 IContextoUsuarios
 {
 	public ContextoUsuarios(BaseDeDados baseDeDados,
-	                        Usuario usuarioContexto) :
-		base(baseDeDados,
-		     usuarioContexto)
+	                        Usuario usuarioContexto,
+	                        IServicoCargos servicoCargos)
+		: base(baseDeDados, usuarioContexto)
 	{
+		_servicoCargos = servicoCargos;
 	}
+
+	private readonly IServicoCargos _servicoCargos;
 
 	public void VerMatricula()
 	{
@@ -96,13 +100,8 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		throw new NotImplementedException();
 	}
 
-	public void VerFinanceiro() { throw new NotImplementedException(); }
-
 	public override async Task Cadastrar()
 	{
-		InputView inputUsuario = new("Cadastrar Usuário");
-		inputUsuario.ConstruirLayout();
-
 		if (!ValidarPermissoes()) return;
 
 		CadastroUsuarioView cadastroUsuarioView = new();
@@ -112,55 +111,72 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		if (confirmaCadastro is not 's') return;
 
-		var obterCargoPorNome = BaseDeDados
-		                        .Cargos
-		                        .ObterPorNome(dadosUsuario["Cargo"]);
+		var cargo = _servicoCargos.BuscarPorNome(dadosUsuario["Cargo"]);
 
-		if (obterCargoPorNome.Status is StatusResposta.ErroNaoEncontrado)
+		if (cargo is null) return;
+
+		var novoUsuario = Usuario.CriarUsuario(cargo, dadosUsuario);
+
+		if (cargo.Nome is not CargosPadrao.CargoAlunos)
 		{
-			View.Aviso("O Cargo inserido não foi encontrado na base de dados.");
+			var cadastroUsuario = await BaseDeDados
+			                            .Usuarios
+			                            .Adicionar(novoUsuario);
+
+			View.Aviso(cadastroUsuario.Status is StatusResposta.Sucesso
+				           ? "Usuário cadastrado com sucesso."
+				           : "Não foi possível cadastrar novo usuário.");
 
 			return;
 		}
 
-		var novaMatricula = obterCargoPorNome.Modelo!.Nome
-			is CargosPadrao.CargoAlunos
-			? Matricula.CriarMatricula(dadosUsuario)
-			: null;
+		var novaMatricula = Matricula.CriarMatricula(dadosUsuario);
 
-		var cursoEscolhido = novaMatricula is not null
-			? BaseDeDados
-			  .Cursos
-			  .ObterPorNome(dadosUsuario["Curso"])
-			: null;
-
-		var novoUsuario = Usuario.CriarUsuario(obterCargoPorNome.Modelo,
-		                                       dadosUsuario,
-		                                       novaMatricula!);
-
-		var cadastroUsuario = await BaseDeDados
-		                            .Usuarios
-		                            .Adicionar(novoUsuario);
-
-		var foiAdicionado = cadastroUsuario.Status is StatusResposta.Sucesso;
-
-		if (foiAdicionado
-		    && novaMatricula is not null
-		    && cursoEscolhido is not null)
+		if (novaMatricula is null)
 		{
-			novaMatricula.AlunoId = novoUsuario.Id;
-			novaMatricula.CursoId = cursoEscolhido.Modelo!.Id;
+			View.Aviso($"Não foi possível gerar {nameof(Matricula)}.");
 
-			var cadastroMatricula
-				= await BaseDeDados.Matriculas.Adicionar(novaMatricula);
+			return;
+		}
+		
+		var cursoEscolhido
+			= BaseDeDados.Cursos.ObterPorNome(dadosUsuario["Curso"]);
 
-			foiAdicionado = foiAdicionado &&
-			                cadastroMatricula.Status is StatusResposta.Sucesso;
+		if (cursoEscolhido.Status is StatusResposta.ErroNaoEncontrado)
+		{
+			View.Aviso("Curso não encontrado.");
+			
+			return;
 		}
 
-		var mensagemOperacao = foiAdicionado
-			? $"{nameof(Usuario)} cadastrado com sucesso."
-			: $"Não foi possível cadastrar novo {nameof(Usuario)}.";
+		novaMatricula.AlunoId = novoUsuario.Id;
+		novaMatricula.CursoId = cursoEscolhido.Modelo!.Id;
+
+		var cadastroMatricula
+			= await BaseDeDados.Matriculas.Adicionar(novaMatricula);
+
+		if (cadastroMatricula.Status is not StatusResposta.Sucesso)
+		{
+			View.Aviso("Não foi possível cadastrar nova Matricula.");
+
+			return;
+		}
+		
+		var cadastrarAluno = await BaseDeDados.Usuarios.Adicionar(novoUsuario);
+		
+		if (cadastrarAluno.Status is not StatusResposta.Sucesso)
+		{
+			View.Aviso("Não foi possível cadastrar novo Aluno.");
+
+			await BaseDeDados.Matriculas.Remover(novaMatricula.Id);
+
+			return;
+		}
+		
+		var mensagemOperacao
+			= cadastroMatricula.Status is StatusResposta.Sucesso
+				? $"{nameof(Aluno)} cadastrado com sucesso."
+				: $"Não foi possível cadastrar novo {nameof(Aluno)}.";
 
 		View.Aviso(mensagemOperacao);
 	}
@@ -174,9 +190,25 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		var resultadoBusca = buscaUsuario.Buscar();
 		var chaveBusca     = resultadoBusca.Value;
 
-		var obterUsuario = resultadoBusca.Key is 1
-			? BaseDeDados.Usuarios.ObterPorLogin(chaveBusca)
-			: BaseDeDados.Usuarios.ObterPorId(chaveBusca);
+		RespostaRecurso<Usuario>? obterUsuario;
+
+		if (resultadoBusca.Key is 1)
+		{
+			obterUsuario = BaseDeDados.Usuarios.ObterPorLogin(chaveBusca);
+		}
+		else
+		{
+			var tentativaCast = ulong.TryParse(chaveBusca, out var id);
+
+			if (!tentativaCast)
+			{
+				View.Aviso("O Id inserido não é um número válido.");
+
+				return;
+			}
+
+			obterUsuario = BaseDeDados.Usuarios.ObterPorId(id);
+		}
 
 		if (obterUsuario.Status is StatusResposta.ErroNaoEncontrado)
 		{
@@ -220,9 +252,25 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		var resultadoBusca = buscaUsuario.Buscar();
 		var chaveBusca     = resultadoBusca.Value;
 
-		var obterUsuario = resultadoBusca.Key is 1
-			? BaseDeDados.Usuarios.ObterPorLogin(chaveBusca)
-			: BaseDeDados.Usuarios.ObterPorId(chaveBusca);
+		RespostaRecurso<Usuario>? obterUsuario;
+
+		if (resultadoBusca.Key is 1)
+		{
+			obterUsuario = BaseDeDados.Usuarios.ObterPorLogin(chaveBusca);
+		}
+		else
+		{
+			var tentativaCast = ulong.TryParse(chaveBusca, out var id);
+
+			if (!tentativaCast)
+			{
+				View.Aviso("O Id inserido não é um número válido.");
+
+				return;
+			}
+
+			obterUsuario = BaseDeDados.Usuarios.ObterPorId(id);
+		}
 
 		if (obterUsuario.Status is StatusResposta.ErroNaoEncontrado)
 		{
@@ -307,9 +355,25 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		var resultadoBusca = buscaUsuario.Buscar();
 		var chaveBusca     = resultadoBusca.Value;
 
-		var obterUsuario = resultadoBusca.Key is 1
-			? BaseDeDados.Usuarios.ObterPorLogin(chaveBusca)
-			: BaseDeDados.Usuarios.ObterPorId(chaveBusca);
+		RespostaRecurso<Usuario>? obterUsuario;
+
+		if (resultadoBusca.Key is 1)
+		{
+			obterUsuario = BaseDeDados.Usuarios.ObterPorLogin(chaveBusca);
+		}
+		else
+		{
+			var tentativaCast = ulong.TryParse(chaveBusca, out var id);
+
+			if (!tentativaCast)
+			{
+				View.Aviso("O Id inserido não é um número válido.");
+
+				return;
+			}
+
+			obterUsuario = BaseDeDados.Usuarios.ObterPorId(id);
+		}
 
 		if (obterUsuario.Status is StatusResposta.ErroNaoEncontrado)
 		{

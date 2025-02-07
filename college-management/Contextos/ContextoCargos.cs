@@ -229,7 +229,11 @@ public class ContextoCargos : Contexto<Cargo>
 			}
 			case 2:
 			{
-				var id = inputPesquisa.ObterEntrada("Id");
+				var conversao = ulong.TryParse(inputPesquisa.ObterEntrada("Id"),
+				                             out var id);
+				
+				if (!conversao) return null;
+				
 				cargo = BaseDeDados.Cargos.ObterPorId(id).Modelo!;
 
 				break;
@@ -347,9 +351,9 @@ public class ContextoCargos : Contexto<Cargo>
 	void ExibirDetalhesCargo(Cargo cargo, DetalhesView detalhesView)
 	{
 		var    dicionario = new Dictionary<string, string>();
-		string permissoes = ListaParaString(cargo.Permissoes);
+		var permissoes = ListaParaString(cargo.Permissoes);
 
-		dicionario.Add("Id", cargo.Id);
+		dicionario.Add("Id", cargo.Id.ToString());
 		dicionario.Add("Nome", cargo.Nome);
 		dicionario.Add("Permissões", permissoes);
 

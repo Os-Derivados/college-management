@@ -10,13 +10,13 @@ public interface IRepositorio<T> where T : Modelo
 
 	public RespostaRecurso<List<T>> ObterTodos();
 
-	public RespostaRecurso<T> ObterPorId(string? id);
+	public RespostaRecurso<T> ObterPorId(ulong id);
 
-	public RespostaRecurso<T> ObterPorNome(string? nome);
+	public RespostaRecurso<T> ObterPorNome(string nome);
 
 	public Task<RespostaRecurso<T>> Atualizar(T modelo);
 
-	public Task<RespostaRecurso<T>> Remover(string? id);
+	public Task<RespostaRecurso<T>> Remover(ulong id);
 
 	public bool Existe(T modelo);
 }

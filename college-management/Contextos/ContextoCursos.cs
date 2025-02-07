@@ -77,22 +77,33 @@ public class ContextoCursos : Contexto<Curso>,
 	{
 		string ObterLayout(Curso curso)
 		{
+			var obterMateriasPorCurso
+				= BaseDeDados.CursosMaterias.ObterPorCurso(curso.Id);
+
+			if (obterMateriasPorCurso.Status is not StatusResposta.Sucesso)
+				return "";
+
+			var materias = obterMateriasPorCurso.Modelo!.Select(mc =>
+			{
+				return BaseDeDados.Materias
+				                  .ObterPorId(mc.MateriaId!.Value)
+				                  .Modelo!;
+			});
+
 			return $"Curso: {curso.Nome}\n" +
 			       $"Ano: {DateTime.Today.Year}\n\n" +
-			       $"{string.Join('\n', curso.GradeCurricular.Select(i => i.Nome))}";
+			       $"{string.Join('\n', materias.Select(i => i.Nome))}";
 		}
 
 		InputView inputRelatorio = new("Ver Grade Curricular");
 
-		Curso? curso;
-
 		if (TemAcessoRestrito)
 		{
-			curso = PesquisarCurso();
+			var cursoBuscado = PesquisarCurso();
 
-			if (curso is null) return;
+			if (cursoBuscado is null) return;
 
-			inputRelatorio.LerEntrada("Sair", ObterLayout(curso));
+			inputRelatorio.LerEntrada("Sair", ObterLayout(cursoBuscado));
 
 			return;
 		}
@@ -105,15 +116,14 @@ public class ContextoCursos : Contexto<Curso>,
 			return;
 		}
 
-		var verCursos = BaseDeDados.Cursos.ObterTodos();
+		var obterMatriculaAluno
+			= BaseDeDados.Matriculas.ObterPorAluno(aluno.Id);
+		var cursoId = obterMatriculaAluno.Modelo?.ToArray()[0].CursoId;
 
-		curso = verCursos
-		        .Modelo!
-		        .FirstOrDefault(
-			        i => i.MatriculasIds?.Contains(aluno.MatriculaId)
-			             ?? false);
+		var obterCursoAluno = BaseDeDados.Cursos.ObterPorId(cursoId!.Value);
 
-		if (verCursos.Modelo!.Count is 0 || curso is null)
+
+		if (obterCursoAluno.Status is StatusResposta.ErroNaoEncontrado)
 		{
 			inputRelatorio.LerEntrada(
 				"Erro", "O aluno não está matriculado em nenhum curso.");
@@ -121,7 +131,7 @@ public class ContextoCursos : Contexto<Curso>,
 			return;
 		}
 
-		var layout = ObterLayout(curso);
+		var layout = ObterLayout(obterCursoAluno.Modelo!);
 
 		inputRelatorio.LerEntrada("Sair", layout);
 	}
@@ -245,11 +255,11 @@ public class ContextoCursos : Contexto<Curso>,
 	public override void VerDetalhes()
 	{
 		var curso = PesquisarCurso();
-		
+
 		if (curso is null)
 		{
 			View.Aviso("Curso não encontrado.");
-			
+
 			return;
 		}
 
@@ -283,34 +293,61 @@ public class ContextoCursos : Contexto<Curso>,
 		inputPesquisa.LerEntrada(campoPesquisa?.Campo!,
 		                         campoPesquisa?.Mensagem);
 
-		var curso = menuPesquisa.OpcaoEscolhida switch
+		if (menuPesquisa.OpcaoEscolhida is 2)
 		{
-			1 => BaseDeDados.Cursos
-			                .ObterPorNome(inputPesquisa.ObterEntrada("Nome"))
-			                .Modelo,
-			2 => BaseDeDados.Cursos.ObterPorId(inputPesquisa.ObterEntrada("Id"))
-			                .Modelo,
-			_ => null
-		};
+			var conversaoValida = ulong.TryParse(
+				inputPesquisa.ObterEntrada(campoPesquisa?.Campo!),
+				out var cursoId);
 
-		if (curso is not null) return curso;
+			if (conversaoValida)
+				return BaseDeDados.Cursos.ObterPorId(cursoId).Modelo;
+
+			View.Aviso("Id inválido.");
+
+			return PesquisarCurso();
+		}
+
+		var obterPorNome
+			= BaseDeDados.Cursos.ObterPorNome(
+				inputPesquisa.ObterEntrada(campoPesquisa?.Campo!));
+
+		if (obterPorNome.Status is StatusResposta.Sucesso)
+			return obterPorNome.Modelo;
 
 		View.Aviso("Curso não encontrado.");
-		
+
 		return PesquisarCurso();
 	}
 
 	private Dictionary<string, string> ObterDetalhes(Curso curso)
 	{
-		var detalhes = UtilitarioTipos.ObterPropriedades(curso, ["Nome"]);
+		var detalhesCurso = UtilitarioTipos.ObterPropriedades(curso, ["Nome"]);
+		var obterMateriasPorCurso
+			= BaseDeDados.CursosMaterias.ObterPorCurso(curso.Id);
 
-		detalhes.Add("MateriasId",
-		             $"{string.Join(", ", curso.MatriculasIds ?? [])}");
-		detalhes.Add("GradeCurricular",
-		             $"{string.Join(", ", curso.GradeCurricular.Select(i => i.Nome))}");
-		detalhes.Add("CargaHoraria", $"{curso.ObterCargaHoraria()}h");
+		if (obterMateriasPorCurso.Status is not StatusResposta.Sucesso)
+			return detalhesCurso;
 
-		return detalhes;
+		var materiasCurso = obterMateriasPorCurso.Modelo!.Select(mc =>
+		                                         {
+			                                         return BaseDeDados.Materias
+				                                         .ObterPorId(
+					                                         mc.MateriaId!
+						                                         .Value)
+				                                         .Modelo!;
+		                                         })
+		                                         .ToArray();
+
+		var materiasId   = materiasCurso.Select(i => i.Id.ToString());
+		var materiasNome = materiasCurso.Select(i => i.Nome);
+		var cargaHoraria = materiasCurso.Sum(m => m.CargaHoraria);
+
+		detalhesCurso.Add("MateriasId", $"{string.Join(", ", materiasId)}");
+		detalhesCurso.Add("GradeCurricular",
+		                  $"{string.Join(", ", materiasNome)}");
+		detalhesCurso.Add("CargaHoraria", $"{cargaHoraria}h");
+
+		return detalhesCurso;
 	}
 
 	private void EditarPropriedade(Curso curso,

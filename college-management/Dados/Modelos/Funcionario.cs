@@ -6,7 +6,7 @@ public sealed class Funcionario : Usuario
 	public Funcionario(string login,
 	                   string nome,
 	                   CredenciaisUsuario credenciais,
-	                   string cargoId)
+	                   ulong cargoId)
 		: base(login,
 		       nome,
 		       credenciais,
