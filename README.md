@@ -126,6 +126,15 @@ dotnet run           true                   true
 * Auditoria:
     - Todas as ações realizadas no sistema devem gerar um registro inalterável, para fins de auditoria.
 
+## Overview do sistema
+Segue logo abaixo, o fluxograma de navegação dentro do sistema, contendo as conexões e caminhos entre features de cada requisito: 
+
+![](/college-management/Public/Cargos.png)
+![](/college-management/Public/Contas.png)
+![](/college-management/Public/Cursos.png)
+![](/college-management/Public/Materias.png)
+
+
 ### Modelagem
 
 As entidades e relacionamentos presentes no sistema podem ser descritas através do Diagrama Entidade-Relacionamento abaixo, bem como nos esquemas descritos logo após a diagramação.
