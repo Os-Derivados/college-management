@@ -557,7 +557,7 @@ public static class MiddlewareContexto
 ### Serviços
 
 Serviços são responsáveis por prover um conjunto de funcionalidades pertinentes ao modelo de negócios de um sistema.
-Geralmente, englobam recursos que acessam a lógica e os dados internos, provendo asbtrações para necessidades comuns para diferentes camadas do sistema. 
+Geralmente, englobam recursos que acessam a lógica e os dados internos, provendo abstrações para necessidades comuns para diferentes camadas do sistema. 
 
 O College Management conta com os seguintes serviços:
 
@@ -671,7 +671,7 @@ public static class UtilitarioArquivos
 
 #### Utilitário de Tipos
 
-O `UtilitarioTipos` provê um conjunto global de abstrações para lidar com a chamada **reflexão de objetos**, que consite em manipular objetos em tempo de execução sem, necessariamente, utilizar-se explicitamente deles (como criar instâncias ou fazer referência direta a variáveis e tipos). Este recurso permite a flexibilização de diversos comportamentos que diminuem a redundância dos componentes do sistema, como obter propriedades específicas de objetos.
+O `UtilitarioTipos` provê um conjunto global de abstrações para lidar com a chamada **reflexão de objetos**, que consiste em manipular objetos em tempo de execução sem, necessariamente, utilizar-se explicitamente deles (como criar instâncias ou fazer referência direta a variáveis e tipos). Este recurso permite a flexibilização de diversos comportamentos que diminuem a redundância dos componentes do sistema, como obter propriedades específicas de objetos.
 
 A estrutura do `UtilitarioTipos` se encontra conforme o exemplo abaixo: 
 
