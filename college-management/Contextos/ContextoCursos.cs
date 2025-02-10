@@ -261,35 +261,17 @@ public class ContextoCursos : Contexto<Curso>,
 
 	private Curso? PesquisarCurso()
 	{
-		MenuView menuPesquisa = new("Pesquisar Curso",
-		                            "Escolha o método de pesquisa.",
-		                            ["Nome", "Id"]);
-
-		InputView inputPesquisa = new("Ver Grade Curricular: Pesquisar Curso");
-
-		menuPesquisa.ConstruirLayout();
-		menuPesquisa.LerEntrada();
-
-		(string Campo, string Mensagem)? campoPesquisa
-			= menuPesquisa.OpcaoEscolhida switch
-			{
-				1 => ("Nome", "Insira o Nome do curso: "),
-				2 => ("Id", "Insira o Id do curso: "),
-				_ => null
-			};
-
-		if (campoPesquisa is null) return null;
-
-		inputPesquisa.LerEntrada(campoPesquisa?.Campo!,
-		                         campoPesquisa?.Mensagem);
-
-		var curso = menuPesquisa.OpcaoEscolhida switch
+		Curso? MostrarAviso()
 		{
-			1 => BaseDeDados.Cursos
-			                .ObterPorNome(inputPesquisa.ObterEntrada("Nome"))
-			                .Modelo,
-			2 => BaseDeDados.Cursos.ObterPorId(inputPesquisa.ObterEntrada("Id"))
-			                .Modelo,
+			View.Aviso("Curso não encontrado.");
+			return null;
+		}
+		
+		var busca = new BuscaModeloView<Curso>("Buscar Curso", ["Nome"]).Buscar();
+		var resposta = busca.Key switch
+		{
+			1 => BaseDeDados.Cursos.ObterPorNome(busca.Value),
+			2 => BaseDeDados.Cursos.ObterPorId(busca.Value),
 			_ => null
 		};
 
@@ -298,6 +280,8 @@ public class ContextoCursos : Contexto<Curso>,
 		View.Aviso("Curso não encontrado.");
 		
 		return PesquisarCurso();
+		
+		return resposta.Status is StatusResposta.Sucesso ? resposta.Modelo : MostrarAviso();
 	}
 
 	private Dictionary<string, string> ObterDetalhes(Curso curso)
