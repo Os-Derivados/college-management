@@ -4,7 +4,7 @@ using college_management.Dados.Modelos;
 namespace college_management.Views.Interfaces;
 
 
-public interface IEditarUsuarioView
+public interface IEditarModeloView<out T> where T : Modelo
 {
-	public Usuario Editar();
+	public T Editar();
 }
