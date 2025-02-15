@@ -14,17 +14,19 @@ public static class MiddlewareContexto
 	public static void Inicializar(BaseDeDados baseDeDados,
 	                               Usuario usuario)
 	{
-		var obterCargo  = baseDeDados.Cargos.ObterPorId(usuario.CargoId);
+		var obterCargo = baseDeDados.Cargos.ObterPorId(usuario.CargoId);
 
 		if (obterCargo.Status is StatusResposta.ErroNaoEncontrado) return;
-		
+
 		var opcaoContexto = EscolherContexto(obterCargo.Modelo!);
 
 		if (opcaoContexto is "") return;
-		
-		ServicoCargos servicoCargos = new(baseDeDados.Cargos);
 
-		ContextoUsuarios contextoUsuarios = new(baseDeDados, usuario, servicoCargos);
+		ServicoCargos   servicoCargos   = new(baseDeDados.Cargos);
+		ServicoUsuarios servicoUsuarios = new(baseDeDados.Usuarios);
+
+		ContextoUsuarios contextoUsuarios
+			= new(baseDeDados, usuario, servicoCargos, servicoUsuarios);
 		ContextoCargos   contextoCargos   = new(baseDeDados, usuario);
 		ContextoMaterias contextoMaterias = new(baseDeDados, usuario);
 		ContextoCursos   contextoCursos   = new(baseDeDados, usuario);

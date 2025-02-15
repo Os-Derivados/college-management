@@ -15,13 +15,16 @@ public class ContextoUsuarios : Contexto<Usuario>,
 {
 	public ContextoUsuarios(BaseDeDados baseDeDados,
 	                        Usuario usuarioContexto,
-	                        IServicoCargos servicoCargos)
+	                        IServicoCargos servicoCargos,
+	                        IServicoUsuarios servicoUsuarios)
 		: base(baseDeDados, usuarioContexto)
 	{
-		_servicoCargos = servicoCargos;
+		_servicoCargos   = servicoCargos;
+		_servicoUsuarios = servicoUsuarios;
 	}
 
-	private readonly IServicoCargos _servicoCargos;
+	private readonly IServicoCargos   _servicoCargos;
+	private readonly IServicoUsuarios _servicoUsuarios;
 
 	public void VerMatricula()
 	{
@@ -138,14 +141,14 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 			return;
 		}
-		
+
 		var cursoEscolhido
 			= BaseDeDados.Cursos.ObterPorNome(dadosUsuario["Curso"]);
 
 		if (cursoEscolhido.Status is StatusResposta.ErroNaoEncontrado)
 		{
 			View.Aviso("Curso não encontrado.");
-			
+
 			return;
 		}
 
@@ -161,9 +164,9 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 			return;
 		}
-		
+
 		var cadastrarAluno = await BaseDeDados.Usuarios.Adicionar(novoUsuario);
-		
+
 		if (cadastrarAluno.Status is not StatusResposta.Sucesso)
 		{
 			View.Aviso("Não foi possível cadastrar novo Aluno.");
@@ -172,7 +175,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 			return;
 		}
-		
+
 		var mensagemOperacao
 			= cadastroMatricula.Status is StatusResposta.Sucesso
 				? $"{nameof(Aluno)} cadastrado com sucesso."
@@ -190,29 +193,19 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		var resultadoBusca = buscaUsuario.Buscar();
 		var chaveBusca     = resultadoBusca.Value;
 
-		RespostaRecurso<Usuario>? obterUsuario;
-
-		if (resultadoBusca.Key is 1)
-		{
-			obterUsuario = BaseDeDados.Usuarios.ObterPorLogin(chaveBusca);
-		}
-		else
-		{
-			var tentativaCast = ulong.TryParse(chaveBusca, out var id);
-
-			if (!tentativaCast)
-			{
-				View.Aviso("O Id inserido não é um número válido.");
-
-				return;
-			}
-
-			obterUsuario = BaseDeDados.Usuarios.ObterPorId(id);
-		}
+		var obterUsuario = _servicoUsuarios.BuscarUsuario(resultadoBusca.Key,
+			chaveBusca);
 
 		if (obterUsuario.Status is StatusResposta.ErroNaoEncontrado)
 		{
 			View.Aviso("Usuário não encontrado na base de dados.");
+
+			return;
+		}
+
+		if (obterUsuario.Status is StatusResposta.ErroInvalido)
+		{
+			View.Aviso("O valor da chave de busca é inválida.");
 
 			return;
 		}
