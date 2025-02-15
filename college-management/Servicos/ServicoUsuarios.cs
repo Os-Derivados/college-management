@@ -24,7 +24,7 @@ public class ServicoUsuarios : IServicoUsuarios
 			return _repositorioUsuarios.ObterPorLogin(chaveBusca);
 		}
 
-		var tentativaCast = ulong.TryParse(chaveBusca, out var id);
+		var tentativaCast = Guid.TryParse(chaveBusca, out var id);
 
 		return tentativaCast
 			? _repositorioUsuarios.ObterPorId(id)

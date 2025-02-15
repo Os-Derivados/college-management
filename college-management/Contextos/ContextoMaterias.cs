@@ -142,7 +142,7 @@ public class ContextoMaterias : Contexto<Materia>
 		}
 		else
 		{
-			var conversao = ulong.TryParse(chaveBusca.Value, out var materiaId);
+			var conversao = Guid.TryParse(chaveBusca.Value, out var materiaId);
 			
 			if (!conversao)
 			{
@@ -197,7 +197,7 @@ public class ContextoMaterias : Contexto<Materia>
 		}
 		else
 		{
-			var conversao = ulong.TryParse(chaveBusca.Value, out var materiaId);
+			var conversao = Guid.TryParse(chaveBusca.Value, out var materiaId);
 			
 			if (!conversao)
 			{
@@ -272,7 +272,7 @@ public class ContextoMaterias : Contexto<Materia>
 		}
 		else
 		{
-			var conversao = ulong.TryParse(chaveBusca.Value, out var materiaId);
+			var conversao = Guid.TryParse(chaveBusca.Value, out var materiaId);
 			
 			if (!conversao)
 			{

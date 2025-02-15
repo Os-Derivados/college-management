@@ -229,7 +229,7 @@ public class ContextoCargos : Contexto<Cargo>
 			}
 			case 2:
 			{
-				var conversao = ulong.TryParse(inputPesquisa.ObterEntrada("Id"),
+				var conversao = Guid.TryParse(inputPesquisa.ObterEntrada("Id"),
 				                             out var id);
 				
 				if (!conversao) return null;

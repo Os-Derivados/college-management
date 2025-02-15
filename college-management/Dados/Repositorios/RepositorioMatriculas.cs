@@ -13,7 +13,7 @@ public class RepositorioMatriculas : Repositorio<Matricula>,
 		return ObterPorId(modelo.Id).Status is StatusResposta.Sucesso;
 	}
 
-	public RespostaRecurso<IEnumerable<Matricula>> ObterPorAluno(ulong alunoId)
+	public RespostaRecurso<IEnumerable<Matricula>> ObterPorAluno(Guid alunoId)
 	{
 		var matriculasComAluno
 			= BaseDeDados.Where(m => m.AlunoId == alunoId).ToArray();
@@ -29,7 +29,7 @@ public class RepositorioMatriculas : Repositorio<Matricula>,
 	}
 
 
-	public RespostaRecurso<IEnumerable<Matricula>> ObterPorCurso(ulong cursoId)
+	public RespostaRecurso<IEnumerable<Matricula>> ObterPorCurso(Guid cursoId)
 	{
 		var matriculasComCurso
 			= BaseDeDados.Where(m => m.CursoId == cursoId).ToArray();

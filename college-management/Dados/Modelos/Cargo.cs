@@ -7,15 +7,11 @@ namespace college_management.Dados.Modelos;
 
 public sealed class Cargo : Modelo
 {
-	private static ulong _contagemId = 10000000000;
-
+	
 	public Cargo(string nome, List<string> permissoes)
 	{
 		Nome       = nome;
 		Permissoes = permissoes;
-
-		Id = _contagemId;
-		_contagemId++;
 	}
 
 	public string?       Nome        { get; set; }

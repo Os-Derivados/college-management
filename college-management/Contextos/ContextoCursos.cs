@@ -295,7 +295,7 @@ public class ContextoCursos : Contexto<Curso>,
 
 		if (menuPesquisa.OpcaoEscolhida is 2)
 		{
-			var conversaoValida = ulong.TryParse(
+			var conversaoValida = Guid.TryParse(
 				inputPesquisa.ObterEntrada(campoPesquisa?.Campo!),
 				out var cursoId);
 

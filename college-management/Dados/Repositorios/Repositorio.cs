@@ -54,7 +54,7 @@ public abstract class Repositorio<T> : IRepositorio<T>
 		                                    StatusResposta.Sucesso);
 	}
 
-	public RespostaRecurso<T> ObterPorId(ulong id)
+	public RespostaRecurso<T> ObterPorId(Guid id)
 	{
 		var registro = BaseDeDados!.FirstOrDefault(t => t.Id == id);
 
@@ -102,7 +102,7 @@ public abstract class Repositorio<T> : IRepositorio<T>
 		return atualizar;
 	}
 
-	public async Task<RespostaRecurso<T>> Remover(ulong id)
+	public async Task<RespostaRecurso<T>> Remover(Guid id)
 	{
 		var obterModelo = ObterPorId(id);
 

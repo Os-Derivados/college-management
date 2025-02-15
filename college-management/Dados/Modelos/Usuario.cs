@@ -17,19 +17,17 @@ public class Usuario : Modelo
 	public Usuario(string login,
 	               string nome,
 	               CredenciaisUsuario credenciais,
-	               ulong cargoId)
+	               Guid cargoId)
 	{
 		Login       = login;
 		Nome        = nome;
 		CargoId     = cargoId;
 		Credenciais = credenciais;
-
-		Id = _contagemId++;
 	}
 
 	public string?             Login       { get; set; }
 	public string?             Nome        { get; set; }
-	public ulong              CargoId     { get; set; }
+	public Guid              CargoId     { get; set; }
 	public CredenciaisUsuario? Credenciais { get; set; }
 
 	public static Usuario? Autenticar(RepositorioUsuarios repositorio,

@@ -16,7 +16,7 @@ public class RepositorioCursoMateria : Repositorio<CursoMateria>,
 	}
 
 	public RespostaRecurso<IEnumerable<CursoMateria>> ObterPorCurso(
-		ulong cursoId)
+		Guid cursoId)
 	{
 		var cursosMaterias = BaseDeDados.Where(cm => cm.CursoId == cursoId).ToArray();
 
@@ -30,8 +30,8 @@ public class RepositorioCursoMateria : Repositorio<CursoMateria>,
 			cursosMaterias, StatusResposta.Sucesso);
 	}
 
-	public RespostaRecurso<IEnumerable<CursoMateria>>
-		ObterPorMateria(ulong materiaId)
+	public RespostaRecurso<IEnumerable<CursoMateria>> ObterPorMateria(
+		Guid materiaId)
 	{
 		var cursosMaterias = BaseDeDados.Where(cm => cm.MateriaId == materiaId).ToArray();
 
