@@ -205,7 +205,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		if (obterUsuario.Status is StatusResposta.ErroInvalido)
 		{
-			View.Aviso("O valor da chave de busca é inválida.");
+			View.Aviso("O valor da chave de busca é inválido.");
 
 			return;
 		}
@@ -245,29 +245,19 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		var resultadoBusca = buscaUsuario.Buscar();
 		var chaveBusca     = resultadoBusca.Value;
 
-		RespostaRecurso<Usuario>? obterUsuario;
-
-		if (resultadoBusca.Key is 1)
-		{
-			obterUsuario = BaseDeDados.Usuarios.ObterPorLogin(chaveBusca);
-		}
-		else
-		{
-			var tentativaCast = ulong.TryParse(chaveBusca, out var id);
-
-			if (!tentativaCast)
-			{
-				View.Aviso("O Id inserido não é um número válido.");
-
-				return;
-			}
-
-			obterUsuario = BaseDeDados.Usuarios.ObterPorId(id);
-		}
+		var obterUsuario = _servicoUsuarios.BuscarUsuario(resultadoBusca.Key,
+			chaveBusca);
 
 		if (obterUsuario.Status is StatusResposta.ErroNaoEncontrado)
 		{
 			View.Aviso("Usuário não encontrado.");
+
+			return;
+		}
+
+		if (obterUsuario.Status is StatusResposta.ErroInvalido)
+		{
+			View.Aviso("O valor da chave de busca é inválido.");
 
 			return;
 		}
@@ -348,29 +338,19 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		var resultadoBusca = buscaUsuario.Buscar();
 		var chaveBusca     = resultadoBusca.Value;
 
-		RespostaRecurso<Usuario>? obterUsuario;
-
-		if (resultadoBusca.Key is 1)
-		{
-			obterUsuario = BaseDeDados.Usuarios.ObterPorLogin(chaveBusca);
-		}
-		else
-		{
-			var tentativaCast = ulong.TryParse(chaveBusca, out var id);
-
-			if (!tentativaCast)
-			{
-				View.Aviso("O Id inserido não é um número válido.");
-
-				return;
-			}
-
-			obterUsuario = BaseDeDados.Usuarios.ObterPorId(id);
-		}
+		var obterUsuario
+			= _servicoUsuarios.BuscarUsuario(resultadoBusca.Key, chaveBusca);
 
 		if (obterUsuario.Status is StatusResposta.ErroNaoEncontrado)
 		{
 			View.Aviso("Usuário não encontrado.");
+
+			return;
+		}
+
+		if (obterUsuario.Status is StatusResposta.ErroInvalido)
+		{
+			View.Aviso("O valor da chave de busca é inválido.");
 
 			return;
 		}
