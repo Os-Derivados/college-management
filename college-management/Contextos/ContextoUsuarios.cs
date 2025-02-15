@@ -265,7 +265,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		DetalhesView detalhesUsuario = new("Excluir Usuário",
 		                                   UtilitarioTipos.ObterPropriedades(
-			                                   obterUsuario,
+			                                   obterUsuario.Modelo,
 			                                   [
 				                                   "Nome", "Login", "Id",
 				                                   "CargoId"
