@@ -17,15 +17,15 @@ public class ContextoUsuarios : Contexto<Usuario>,
 	public ContextoUsuarios(BaseDeDados baseDeDados,
 	                        Usuario usuarioContexto,
 	                        IServicoModelos<Cargo> servicoCargos,
-	                        IServicoUsuarios servicoUsuarios)
+	                        IServicoModelos<Usuario> servicoUsuarios)
 		: base(baseDeDados, usuarioContexto)
 	{
 		_servicoCargos   = servicoCargos;
 		_servicoUsuarios = servicoUsuarios;
 	}
 
-	private readonly IServicoModelos<Cargo> _servicoCargos;
-	private readonly IServicoUsuarios       _servicoUsuarios;
+	private readonly IServicoModelos<Cargo>   _servicoCargos;
+	private readonly IServicoModelos<Usuario> _servicoUsuarios;
 
 	public void VerMatricula()
 	{
@@ -120,7 +120,8 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		if (buscarCargo.Status is not StatusResposta.Sucesso) return;
 
-		var novoUsuario = Usuario.CriarUsuario(buscarCargo.Modelo!, dadosUsuario);
+		var novoUsuario
+			= Usuario.CriarUsuario(buscarCargo.Modelo!, dadosUsuario);
 
 		if (buscarCargo.Modelo!.Nome is not CargosPadrao.CargoAlunos)
 		{
@@ -195,8 +196,10 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		var resultadoBusca = buscaUsuario.Buscar();
 		var chaveBusca     = resultadoBusca.Value;
 
-		var obterUsuario = _servicoUsuarios.BuscarUsuario(resultadoBusca.Key,
-			chaveBusca);
+		_ = Enum.TryParse<CriterioBusca>(resultadoBusca.Key,
+		                                 out var criterioBusca);
+
+		var obterUsuario = _servicoUsuarios.Buscar(criterioBusca, chaveBusca);
 
 		if (obterUsuario.Status is StatusResposta.ErroNaoEncontrado)
 		{
@@ -247,8 +250,10 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		var resultadoBusca = buscaUsuario.Buscar();
 		var chaveBusca     = resultadoBusca.Value;
 
-		var obterUsuario = _servicoUsuarios.BuscarUsuario(resultadoBusca.Key,
-			chaveBusca);
+		_ = Enum.TryParse<CriterioBusca>(resultadoBusca.Key,
+		                                 out var criterioBusca);
+
+		var obterUsuario = _servicoUsuarios.Buscar(criterioBusca, chaveBusca);
 
 		if (obterUsuario.Status is StatusResposta.ErroNaoEncontrado)
 		{
@@ -340,8 +345,10 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		var resultadoBusca = buscaUsuario.Buscar();
 		var chaveBusca     = resultadoBusca.Value;
 
-		var obterUsuario
-			= _servicoUsuarios.BuscarUsuario(resultadoBusca.Key, chaveBusca);
+		_ = Enum.TryParse<CriterioBusca>(resultadoBusca.Key,
+		                                 out var criterioBusca);
+
+		var obterUsuario = _servicoUsuarios.Buscar(criterioBusca, chaveBusca);
 
 		if (obterUsuario.Status is StatusResposta.ErroNaoEncontrado)
 		{

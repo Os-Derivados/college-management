@@ -8,7 +8,7 @@ public class BuscaUsuarioView : View, IBuscaUsuarioView
 {
 	public BuscaUsuarioView() : base("Pesquisar Usuario") { }
 
-	public KeyValuePair<int, string> Buscar()
+	public KeyValuePair<string, string> Buscar()
 	{
 		MenuView menuPesquisa = new("Pesquisar Usuário",
 		                            "Selecione um dos campos para pesquisar.",
@@ -34,14 +34,14 @@ public class BuscaUsuarioView : View, IBuscaUsuarioView
 			inputPesquisa.LerEntrada("Campo",
 			                         "Campo inválido. Tente novamente.");
 
-			return new KeyValuePair<int, string>(0, "");
+			return new KeyValuePair<string, string>("", "");
 		}
 
 		inputPesquisa.LerEntrada(campoPesquisa?.Key!,
 		                         campoPesquisa?.Value);
 
-		return new KeyValuePair<int, string>(menuPesquisa.OpcaoEscolhida,
-		                                     inputPesquisa.ObterEntrada(
-			                                     campoPesquisa?.Key!));
+		return new KeyValuePair<string, string>(campoPesquisa?.Key!,
+		                                        inputPesquisa.ObterEntrada(
+			                                        campoPesquisa?.Key!));
 	}
 }

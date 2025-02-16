@@ -218,7 +218,7 @@ public class ContextoCargos : Contexto<Cargo>
 
 		_ = Enum.TryParse<CriterioBusca>(
 			inputPesquisa.EntradasUsuario[campoPesquisa?.Key!], out var chave);
-
+	
 		var valorBusca = inputPesquisa.EntradasUsuario[campoPesquisa?.Key!];
 		
 		var obterCargo = _servicoCargos.Buscar(chave, valorBusca);
