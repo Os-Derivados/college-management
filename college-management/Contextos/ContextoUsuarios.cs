@@ -151,7 +151,11 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		var cursoEscolhido
 			= BaseDeDados.Cursos.ObterPorNome(dadosUsuario["Curso"]);
 
-		if (_servicoCursos.ValidarResposta(cursoEscolhido)) return;
+		if (_servicoCursos.ValidarResposta(cursoEscolhido,
+		                                   ModoOperacao.Leitura))
+		{
+			return;
+		}
 
 		novaMatricula.AlunoId = novoUsuario.Id;
 		novaMatricula.CursoId = cursoEscolhido.Modelo!.Id;
@@ -199,7 +203,11 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		var obterUsuario = _servicoUsuarios.Buscar(criterioBusca, chaveBusca);
 
-		if (_servicoUsuarios.ValidarResposta(obterUsuario)) return;
+		if (_servicoUsuarios.ValidarResposta(obterUsuario,
+		                                     ModoOperacao.Leitura))
+		{
+			return;
+		}
 
 		EditarUsuarioView editarUsuarioView
 			= new(obterUsuario.Modelo!, BaseDeDados.Cargos);
@@ -241,7 +249,11 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		var obterUsuario = _servicoUsuarios.Buscar(criterioBusca, chaveBusca);
 
-		if (_servicoUsuarios.ValidarResposta(obterUsuario)) return;
+		if (_servicoUsuarios.ValidarResposta(obterUsuario,
+		                                     ModoOperacao.Leitura))
+		{
+			return;
+		}
 
 		DetalhesView detalhesUsuario = new("Excluir Usuário",
 		                                   UtilitarioTipos.ObterPropriedades(
@@ -323,7 +335,11 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		var obterUsuario = _servicoUsuarios.Buscar(criterioBusca, chaveBusca);
 
-		if (_servicoUsuarios.ValidarResposta(obterUsuario)) return;
+		if (_servicoUsuarios.ValidarResposta(obterUsuario,
+		                                     ModoOperacao.Leitura))
+		{
+			return;
+		}
 
 		var detalhes = UtilitarioTipos.ObterPropriedades(obterUsuario.Modelo,
 		[

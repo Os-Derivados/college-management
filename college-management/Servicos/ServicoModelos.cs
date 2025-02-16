@@ -58,18 +58,41 @@ public abstract class ServicoModelos<T> : IServicoModelos<T> where T : Modelo
 		}
 	}
 
-	public bool ValidarResposta(RespostaRecurso<T> resposta)
+	public bool ValidarResposta(RespostaRecurso<T> resposta, ModoOperacao modo)
 	{
-		if (resposta.Status is StatusResposta.ErroNaoEncontrado)
+		if (modo is ModoOperacao.Leitura)
 		{
-			View.Aviso($"{typeof(T).Name} não encontrado na base de dados.");
+			if (resposta.Status is StatusResposta.ErroNaoEncontrado)
+			{
+				View.Aviso(
+					$"Falha ao buscar {typeof(T).Name}: registro não encontrado na base de dados.");
+
+				return true;
+			}
+
+			if (resposta.Status is StatusResposta.ErroInvalido)
+			{
+				View.Aviso(
+					$"Falha ao buscar {typeof(T).Name}: O valor da chave de busca é inválido.");
+
+				return true;
+			}
+
+			return false;
+		}
+
+		if (resposta.Status is StatusResposta.ErroDuplicata)
+		{
+			View.Aviso(
+				$"Falha ao gravar informações de {typeof(T).Name}: já existe um registro com a mesma chave primária.");
 
 			return true;
 		}
 
-		if (resposta.Status is StatusResposta.ErroInvalido)
+		if (resposta.Status is StatusResposta.ErroNaoEncontrado)
 		{
-			View.Aviso("O valor da chave de busca é inválido.");
+			View.Aviso(
+				$"Falha ao remover {typeof(T).Name}: registro não encontrado na base de dados.");
 
 			return true;
 		}
@@ -83,4 +106,10 @@ public enum CriterioBusca
 	Nome,
 	Id,
 	Login
+}
+
+public enum ModoOperacao
+{
+	Leitura,
+	Escrita
 }

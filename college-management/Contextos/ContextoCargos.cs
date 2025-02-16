@@ -171,7 +171,7 @@ public class ContextoCargos : Contexto<Cargo>
 		if (!ValidarEntrada(inputUsuario, "Nome")) return null;
 
 		List<string> nivelDePermissao = SelecaoDePermissao();
-		var       nomeCargo        = inputUsuario.EntradasUsuario["Nome"];
+		var          nomeCargo        = inputUsuario.EntradasUsuario["Nome"];
 
 		if (nomeCargo is not null && nivelDePermissao.Count is not 0)
 		{
@@ -221,7 +221,9 @@ public class ContextoCargos : Contexto<Cargo>
 
 		var obterCargo = _servicoCargos.Buscar(chave, valorBusca);
 
-		return _servicoCargos.ValidarResposta(obterCargo) ? null : obterCargo.Modelo;
+		return _servicoCargos.ValidarResposta(obterCargo, ModoOperacao.Leitura)
+			? null
+			: obterCargo.Modelo;
 	}
 
 
