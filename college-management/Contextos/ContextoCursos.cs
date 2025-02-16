@@ -3,6 +3,8 @@ using college_management.Constantes;
 using college_management.Contextos.Interfaces;
 using college_management.Dados;
 using college_management.Dados.Modelos;
+using college_management.Servicos;
+using college_management.Servicos.Interfaces;
 using college_management.Utilitarios;
 using college_management.Views;
 
@@ -14,11 +16,14 @@ public class ContextoCursos : Contexto<Curso>,
                               IContextoCursos
 {
 	public ContextoCursos(BaseDeDados baseDeDados,
-	                      Usuario usuarioContexto) :
-		base(baseDeDados,
-		     usuarioContexto)
+	                      Usuario usuarioContexto,
+	                      IServicoModelos<Curso> servicoCursos)
+		: base(baseDeDados, usuarioContexto)
 	{
+		_servicoCursos = servicoCursos;
 	}
+
+	private readonly IServicoModelos<Curso> _servicoCursos;
 
 	public void VerGradeHoraria()
 	{
@@ -293,30 +298,27 @@ public class ContextoCursos : Contexto<Curso>,
 		inputPesquisa.LerEntrada(campoPesquisa?.Campo!,
 		                         campoPesquisa?.Mensagem);
 
-		if (menuPesquisa.OpcaoEscolhida is 2)
+		_ = Enum.TryParse<CriterioBusca>(campoPesquisa?.Campo!,
+		                                 out var criterioBusca);
+
+		var obterCurso = _servicoCursos.Buscar(criterioBusca,
+		                                       inputPesquisa.ObterEntrada(campoPesquisa?.Campo!));
+
+		if (obterCurso.Status is StatusResposta.ErroNaoEncontrado)
 		{
-			var conversaoValida = Guid.TryParse(
-				inputPesquisa.ObterEntrada(campoPesquisa?.Campo!),
-				out var cursoId);
-
-			if (conversaoValida)
-				return BaseDeDados.Cursos.ObterPorId(cursoId).Modelo;
-
-			View.Aviso("Id inválido.");
+			View.Aviso("Curso não encontrado.");
 
 			return null;
 		}
 
-		var obterPorNome
-			= BaseDeDados.Cursos.ObterPorNome(
-				inputPesquisa.ObterEntrada(campoPesquisa?.Campo!));
+		if (obterCurso.Status is StatusResposta.ErroInvalido)
+		{
+			View.Aviso("O valor da chave de busca é inválido.");
 
-		if (obterPorNome.Status is StatusResposta.Sucesso)
-			return obterPorNome.Modelo;
+			return null;
+		}
 
-		View.Aviso("Curso não encontrado.");
-
-		return null;
+		return obterCurso.Modelo;
 	}
 
 	private Dictionary<string, string> ObterDetalhes(Curso curso)
