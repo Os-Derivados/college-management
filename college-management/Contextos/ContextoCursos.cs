@@ -261,12 +261,7 @@ public class ContextoCursos : Contexto<Curso>,
 	{
 		var curso = PesquisarCurso();
 
-		if (curso is null)
-		{
-			View.Aviso("Curso não encontrado.");
-
-			return;
-		}
+		if (curso is null) return;
 
 		DetalhesView detalhesCurso
 			= new("Curso Encontrado", ObterDetalhes(curso));
@@ -302,23 +297,10 @@ public class ContextoCursos : Contexto<Curso>,
 		                                 out var criterioBusca);
 
 		var obterCurso = _servicoCursos.Buscar(criterioBusca,
-		                                       inputPesquisa.ObterEntrada(campoPesquisa?.Campo!));
+		                                       inputPesquisa.ObterEntrada(
+			                                       campoPesquisa?.Campo!));
 
-		if (obterCurso.Status is StatusResposta.ErroNaoEncontrado)
-		{
-			View.Aviso("Curso não encontrado.");
-
-			return null;
-		}
-
-		if (obterCurso.Status is StatusResposta.ErroInvalido)
-		{
-			View.Aviso("O valor da chave de busca é inválido.");
-
-			return null;
-		}
-
-		return obterCurso.Modelo;
+		return _servicoCursos.Validar(obterCurso) ? null : obterCurso.Modelo;
 	}
 
 	private Dictionary<string, string> ObterDetalhes(Curso curso)
@@ -330,9 +312,11 @@ public class ContextoCursos : Contexto<Curso>,
 		if (obterMateriasPorCurso.Status is not StatusResposta.Sucesso)
 			return detalhesCurso;
 
-		var materiasCurso = obterMateriasPorCurso.Modelo!.Select(mc =>
+		var materiasCurso = obterMateriasPorCurso.Modelo!
+		                                         .Select(mc =>
 		                                         {
-			                                         return BaseDeDados.Materias
+			                                         return BaseDeDados
+				                                         .Materias
 				                                         .ObterPorId(
 					                                         mc.MateriaId!
 						                                         .Value)

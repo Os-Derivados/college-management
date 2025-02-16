@@ -17,15 +17,18 @@ public class ContextoUsuarios : Contexto<Usuario>,
 	public ContextoUsuarios(BaseDeDados baseDeDados,
 	                        Usuario usuarioContexto,
 	                        IServicoModelos<Cargo> servicoCargos,
-	                        IServicoModelos<Usuario> servicoUsuarios)
+	                        IServicoModelos<Usuario> servicoUsuarios,
+	                        IServicoModelos<Curso> servicoCursos)
 		: base(baseDeDados, usuarioContexto)
 	{
 		_servicoCargos   = servicoCargos;
 		_servicoUsuarios = servicoUsuarios;
+		_servicoCursos   = servicoCursos;
 	}
 
 	private readonly IServicoModelos<Cargo>   _servicoCargos;
 	private readonly IServicoModelos<Usuario> _servicoUsuarios;
+	private readonly IServicoModelos<Curso>   _servicoCursos;
 
 	public void VerMatricula()
 	{
@@ -148,12 +151,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		var cursoEscolhido
 			= BaseDeDados.Cursos.ObterPorNome(dadosUsuario["Curso"]);
 
-		if (cursoEscolhido.Status is StatusResposta.ErroNaoEncontrado)
-		{
-			View.Aviso("Curso não encontrado.");
-
-			return;
-		}
+		if (_servicoCursos.Validar(cursoEscolhido)) return;
 
 		novaMatricula.AlunoId = novoUsuario.Id;
 		novaMatricula.CursoId = cursoEscolhido.Modelo!.Id;
@@ -201,19 +199,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		var obterUsuario = _servicoUsuarios.Buscar(criterioBusca, chaveBusca);
 
-		if (obterUsuario.Status is StatusResposta.ErroNaoEncontrado)
-		{
-			View.Aviso("Usuário não encontrado na base de dados.");
-
-			return;
-		}
-
-		if (obterUsuario.Status is StatusResposta.ErroInvalido)
-		{
-			View.Aviso("O valor da chave de busca é inválido.");
-
-			return;
-		}
+		if (_servicoUsuarios.Validar(obterUsuario)) return;
 
 		EditarUsuarioView editarUsuarioView
 			= new(obterUsuario.Modelo!, BaseDeDados.Cargos);
@@ -255,20 +241,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		var obterUsuario = _servicoUsuarios.Buscar(criterioBusca, chaveBusca);
 
-		if (obterUsuario.Status is StatusResposta.ErroNaoEncontrado)
-		{
-			View.Aviso("Usuário não encontrado.");
-
-			return;
-		}
-
-		if (obterUsuario.Status is StatusResposta.ErroInvalido)
-		{
-			View.Aviso("O valor da chave de busca é inválido.");
-
-			return;
-		}
-
+		if (_servicoUsuarios.Validar(obterUsuario)) return;
 
 		DetalhesView detalhesUsuario = new("Excluir Usuário",
 		                                   UtilitarioTipos.ObterPropriedades(
@@ -350,19 +323,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		var obterUsuario = _servicoUsuarios.Buscar(criterioBusca, chaveBusca);
 
-		if (obterUsuario.Status is StatusResposta.ErroNaoEncontrado)
-		{
-			View.Aviso("Usuário não encontrado.");
-
-			return;
-		}
-
-		if (obterUsuario.Status is StatusResposta.ErroInvalido)
-		{
-			View.Aviso("O valor da chave de busca é inválido.");
-
-			return;
-		}
+		if (_servicoUsuarios.Validar(obterUsuario)) return;
 
 		var detalhes = UtilitarioTipos.ObterPropriedades(obterUsuario.Modelo,
 		[

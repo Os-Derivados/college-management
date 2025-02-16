@@ -27,10 +27,15 @@ public static class MiddlewareContexto
 		ServicoCursos   servicoCursos   = new(baseDeDados.Cursos);
 		ServicoMaterias servicoMaterias = new(baseDeDados.Materias);
 
-		ContextoUsuarios contextoUsuarios = new(baseDeDados, usuario, servicoCargos, servicoUsuarios);
-		ContextoCargos contextoCargos = new(baseDeDados, usuario, servicoCargos);
-		ContextoMaterias contextoMaterias = new(baseDeDados, usuario, servicoMaterias);
-		ContextoCursos contextoCursos = new(baseDeDados, usuario, servicoCursos);
+		ContextoUsuarios contextoUsuarios
+			= new(baseDeDados, usuario, servicoCargos, servicoUsuarios,
+			      servicoCursos);
+		ContextoCargos contextoCargos
+			= new(baseDeDados, usuario, servicoCargos);
+		ContextoMaterias contextoMaterias
+			= new(baseDeDados, usuario, servicoMaterias);
+		ContextoCursos contextoCursos
+			= new(baseDeDados, usuario, servicoCursos);
 
 		switch (opcaoContexto)
 		{

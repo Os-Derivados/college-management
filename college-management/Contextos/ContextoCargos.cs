@@ -166,18 +166,16 @@ public class ContextoCargos : Contexto<Cargo>
 		InputView inputUsuario = new("Cadastrar cargo");
 		inputUsuario.ConstruirLayout();
 
-		inputUsuario.LerEntrada("nome", "Insira o nome do novo cargo: ");
+		inputUsuario.LerEntrada("Nome", "Insira o nome do novo cargo: ");
 
-		if (ValidarEntrada(inputUsuario, "nome"))
+		if (!ValidarEntrada(inputUsuario, "Nome")) return null;
+
+		List<string> nivelDePermissao = SelecaoDePermissao();
+		var       nomeCargo        = inputUsuario.EntradasUsuario["Nome"];
+
+		if (nomeCargo is not null && nivelDePermissao.Count is not 0)
 		{
-			List<string> nivelDePermissao = SelecaoDePermissao();
-			string       nomeCargo = inputUsuario.EntradasUsuario["nome"];
-
-			if (nomeCargo is not null &&
-			    nivelDePermissao.Any())
-			{
-				return new Cargo(nomeCargo, nivelDePermissao);
-			}
+			return new Cargo(nomeCargo, nivelDePermissao);
 		}
 
 		return null;
@@ -218,26 +216,12 @@ public class ContextoCargos : Contexto<Cargo>
 
 		_ = Enum.TryParse<CriterioBusca>(
 			inputPesquisa.EntradasUsuario[campoPesquisa?.Key!], out var chave);
-	
+
 		var valorBusca = inputPesquisa.EntradasUsuario[campoPesquisa?.Key!];
-		
+
 		var obterCargo = _servicoCargos.Buscar(chave, valorBusca);
 
-		if (obterCargo.Status is StatusResposta.ErroNaoEncontrado)
-		{
-			View.Aviso("Cargo não encontrado na base de dados.");
-
-			return null;
-		}
-
-		if (obterCargo.Status is StatusResposta.ErroInvalido)
-		{
-			View.Aviso("O valor da chave de busca é inválido.");
-
-			return null;
-		}
-
-		return obterCargo.Modelo;
+		return _servicoCargos.Validar(obterCargo) ? null : obterCargo.Modelo;
 	}
 
 

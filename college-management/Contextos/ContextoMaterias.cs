@@ -105,13 +105,7 @@ public class ContextoMaterias : Contexto<Materia>
 
 	public override async Task Cadastrar()
 	{
-		if (!TemAcessoRestrito)
-		{
-			View.Aviso(
-				"Você não tem permissão para acessar esse recurso.");
-
-			return;
-		}
+		if (!ValidarPermissoes()) return;
 
 		var cadastroMateria
 			= ObterEntradasUsuario("Cadastrar Matéria");
@@ -146,19 +140,7 @@ public class ContextoMaterias : Contexto<Materia>
 		var obterMateria
 			= _servicoMaterias.Buscar(criterioBusca, resultadoBusca.Value);
 
-		if (obterMateria.Status is StatusResposta.ErroNaoEncontrado)
-		{
-			View.Aviso("Matéria não encontrada.");
-
-			return;
-		}
-
-		if (obterMateria.Status is StatusResposta.ErroInvalido)
-		{
-			View.Aviso("O critério de busca inserido não é válido.");
-
-			return;
-		}
+		if (_servicoMaterias.Validar(obterMateria)) return;
 
 		var editarMateria = ObterEntradasUsuario("Editar Matéria");
 
@@ -194,19 +176,7 @@ public class ContextoMaterias : Contexto<Materia>
 		var obterMateria
 			= _servicoMaterias.Buscar(criterioBusca, resultadoBusca.Value);
 
-		if (obterMateria.Status is StatusResposta.ErroNaoEncontrado)
-		{
-			View.Aviso("Matéria não encontrada.");
-
-			return;
-		}
-
-		if (obterMateria.Status is StatusResposta.ErroInvalido)
-		{
-			View.Aviso("O critério de busca inserido não é válido.");
-
-			return;
-		}
+		if (_servicoMaterias.Validar(obterMateria)) return;
 
 		DetalhesView detalhesMateria
 			= new("Detalhes da Matéria", UtilitarioTipos.ObterPropriedades(
@@ -263,19 +233,7 @@ public class ContextoMaterias : Contexto<Materia>
 		var obterMateria
 			= _servicoMaterias.Buscar(criterioBusca, resultadoBusca.Value);
 
-		if (obterMateria.Status is StatusResposta.ErroNaoEncontrado)
-		{
-			View.Aviso("Matéria não encontrada.");
-
-			return;
-		}
-
-		if (obterMateria.Status is StatusResposta.ErroInvalido)
-		{
-			View.Aviso("O critério de busca inserido não é válido.");
-
-			return;
-		}
+		if (_servicoMaterias.Validar(obterMateria)) return;
 
 		var detalhes = UtilitarioTipos.ObterPropriedades(
 			obterMateria.Modelo, ["Nome", "Turno", "CargaHoraria", "Id"]);
