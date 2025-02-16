@@ -300,7 +300,7 @@ public class ContextoCursos : Contexto<Curso>,
 		                                       inputPesquisa.ObterEntrada(
 			                                       campoPesquisa?.Campo!));
 
-		return _servicoCursos.Validar(obterCurso) ? null : obterCurso.Modelo;
+		return _servicoCursos.ValidarResposta(obterCurso) ? null : obterCurso.Modelo;
 	}
 
 	private Dictionary<string, string> ObterDetalhes(Curso curso)

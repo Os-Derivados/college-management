@@ -221,7 +221,7 @@ public class ContextoCargos : Contexto<Cargo>
 
 		var obterCargo = _servicoCargos.Buscar(chave, valorBusca);
 
-		return _servicoCargos.Validar(obterCargo) ? null : obterCargo.Modelo;
+		return _servicoCargos.ValidarResposta(obterCargo) ? null : obterCargo.Modelo;
 	}
 
 

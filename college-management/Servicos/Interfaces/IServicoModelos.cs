@@ -8,5 +8,5 @@ public interface IServicoModelos<T>
 {
 	public RespostaRecurso<T> Buscar(CriterioBusca modoBusca, string chaveBusca);
 
-	public bool Validar(RespostaRecurso<T> resposta);
+	public bool ValidarResposta(RespostaRecurso<T> resposta);
 }

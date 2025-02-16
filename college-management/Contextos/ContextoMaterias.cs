@@ -140,7 +140,7 @@ public class ContextoMaterias : Contexto<Materia>
 		var obterMateria
 			= _servicoMaterias.Buscar(criterioBusca, resultadoBusca.Value);
 
-		if (_servicoMaterias.Validar(obterMateria)) return;
+		if (_servicoMaterias.ValidarResposta(obterMateria)) return;
 
 		var editarMateria = ObterEntradasUsuario("Editar Matéria");
 
@@ -176,7 +176,7 @@ public class ContextoMaterias : Contexto<Materia>
 		var obterMateria
 			= _servicoMaterias.Buscar(criterioBusca, resultadoBusca.Value);
 
-		if (_servicoMaterias.Validar(obterMateria)) return;
+		if (_servicoMaterias.ValidarResposta(obterMateria)) return;
 
 		DetalhesView detalhesMateria
 			= new("Detalhes da Matéria", UtilitarioTipos.ObterPropriedades(
@@ -233,7 +233,7 @@ public class ContextoMaterias : Contexto<Materia>
 		var obterMateria
 			= _servicoMaterias.Buscar(criterioBusca, resultadoBusca.Value);
 
-		if (_servicoMaterias.Validar(obterMateria)) return;
+		if (_servicoMaterias.ValidarResposta(obterMateria)) return;
 
 		var detalhes = UtilitarioTipos.ObterPropriedades(
 			obterMateria.Modelo, ["Nome", "Turno", "CargaHoraria", "Id"]);

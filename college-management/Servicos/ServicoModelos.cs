@@ -58,7 +58,7 @@ public abstract class ServicoModelos<T> : IServicoModelos<T> where T : Modelo
 		}
 	}
 
-	public bool Validar(RespostaRecurso<T> resposta)
+	public bool ValidarResposta(RespostaRecurso<T> resposta)
 	{
 		if (resposta.Status is StatusResposta.ErroNaoEncontrado)
 		{
