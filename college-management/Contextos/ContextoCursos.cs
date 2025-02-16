@@ -304,7 +304,7 @@ public class ContextoCursos : Contexto<Curso>,
 
 			View.Aviso("Id inválido.");
 
-			return PesquisarCurso();
+			return null;
 		}
 
 		var obterPorNome
@@ -316,7 +316,7 @@ public class ContextoCursos : Contexto<Curso>,
 
 		View.Aviso("Curso não encontrado.");
 
-		return PesquisarCurso();
+		return null;
 	}
 
 	private Dictionary<string, string> ObterDetalhes(Curso curso)

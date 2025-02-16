@@ -3,6 +3,8 @@ using college_management.Contextos.Interfaces;
 using college_management.Dados;
 using college_management.Dados.Modelos;
 using college_management.Dados.Repositorios;
+using college_management.Servicos;
+using college_management.Servicos.Interfaces;
 using college_management.Views;
 
 
@@ -12,11 +14,15 @@ namespace college_management.Contextos;
 public class ContextoCargos : Contexto<Cargo>
 {
 	public ContextoCargos(BaseDeDados baseDeDados,
-	                      Usuario usuarioContexto) :
+	                      Usuario usuarioContexto,
+	                      IServicoModelos<Cargo> servicoCargos) :
 		base(baseDeDados,
 		     usuarioContexto)
 	{
+		_servicoCargos = servicoCargos;
 	}
+
+	private readonly IServicoModelos<Cargo> _servicoCargos;
 
 	public override async Task Cadastrar()
 	{
@@ -89,30 +95,25 @@ public class ContextoCargos : Contexto<Cargo>
 
 	public override async Task Excluir()
 	{
-		InputView inputView = new InputView("Exclusao de Cargo");
-		Cargo     cargo     = null!;
+		if (!ValidarPermissoes()) return;
 
-		if (TemAcessoRestrito)
+		InputView inputView = new("Exclusao de Cargo");
+
+		var cargo = PesquisaCargo();
+
+		if (cargo is null)
 		{
-			cargo = PesquisaCargo();
+			TelaErro("Opção Inválida!");
+		}
 
-			if (cargo is null)
+		else
+		{
+			if (ConfirmarEscolha("Tem certeza que " +
+			                     $"deseja excluir o cargo {cargo.Nome}?"))
 			{
-				TelaErro("Opção Inválida!");
-
-				return;
-			}
-
-
-			else
-			{
-				if (ConfirmarEscolha("Tem certeza que " +
-				                     $"deseja excluir o cargo {cargo.Nome}?"))
-				{
-					await BaseDeDados.Cargos.Remover(cargo.Id);
-					inputView.LerEntrada(
-						"Sair", "Exclusão realizada com sucesso");
-				}
+				await BaseDeDados.Cargos.Remover(cargo.Id);
+				inputView.LerEntrada(
+					"Sair", "Exclusão realizada com sucesso");
 			}
 		}
 	}
@@ -189,10 +190,6 @@ public class ContextoCargos : Contexto<Cargo>
 		                            "Selecione um dos campos:",
 		                            ["Nome do Cargo", "Id"]);
 
-		Cargo        cargo        = null!;
-		DetalhesView detalhesView = null!;
-
-
 		menuPesquisa.ConstruirLayout();
 		menuPesquisa.LerEntrada();
 
@@ -211,38 +208,36 @@ public class ContextoCargos : Contexto<Cargo>
 
 		if (campoPesquisa is null)
 		{
-			Console.Clear();
+			View.Aviso("Campo Inválido. Tente novamente.");
+
 			return null;
 		}
 
 		inputPesquisa.LerEntrada(campoPesquisa?.Key,
 		                         campoPesquisa?.Value);
 
-		switch (menuPesquisa.OpcaoEscolhida)
+		_ = Enum.TryParse<CriterioBusca>(
+			inputPesquisa.EntradasUsuario[campoPesquisa?.Key!], out var chave);
+
+		var valorBusca = inputPesquisa.EntradasUsuario[campoPesquisa?.Key!];
+		
+		var obterCargo = _servicoCargos.Buscar(chave, valorBusca);
+
+		if (obterCargo.Status is StatusResposta.ErroNaoEncontrado)
 		{
-			case 1:
-			{
-				var nomeDoCargo = inputPesquisa.ObterEntrada("Nome");
-				cargo = BaseDeDados.Cargos.ObterPorNome(nomeDoCargo).Modelo!;
+			View.Aviso("Cargo não encontrado na base de dados.");
 
-				break;
-			}
-			case 2:
-			{
-				var conversao = Guid.TryParse(inputPesquisa.ObterEntrada("Id"),
-				                             out var id);
-				
-				if (!conversao) return null;
-				
-				cargo = BaseDeDados.Cargos.ObterPorId(id).Modelo!;
-
-				break;
-			}
+			return null;
 		}
 
-		Console.Clear();
+		if (obterCargo.Status is StatusResposta.ErroInvalido)
+		{
+			View.Aviso("O valor da chave de busca é inválido.");
 
-		return cargo;
+			return null;
+		}
+
+		return obterCargo.Modelo;
 	}
 
 
@@ -296,7 +291,7 @@ public class ContextoCargos : Contexto<Cargo>
 		Console.Clear();
 		return permissoes;
 	}
-	
+
 
 	string SelecionaCargoParaEdicao(InputView inputView)
 	{
@@ -335,7 +330,7 @@ public class ContextoCargos : Contexto<Cargo>
 			return false;
 		}
 
-		else return true;
+		return true;
 	}
 
 	void TelaErro(string menssagem)
@@ -350,7 +345,7 @@ public class ContextoCargos : Contexto<Cargo>
 
 	void ExibirDetalhesCargo(Cargo cargo, DetalhesView detalhesView)
 	{
-		var    dicionario = new Dictionary<string, string>();
+		var dicionario = new Dictionary<string, string>();
 		var permissoes = ListaParaString(cargo.Permissoes);
 
 		dicionario.Add("Id", cargo.Id.ToString());

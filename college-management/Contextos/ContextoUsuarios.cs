@@ -2,6 +2,7 @@ using college_management.Constantes;
 using college_management.Contextos.Interfaces;
 using college_management.Dados;
 using college_management.Dados.Modelos;
+using college_management.Servicos;
 using college_management.Servicos.Interfaces;
 using college_management.Utilitarios;
 using college_management.Views;
@@ -15,7 +16,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 {
 	public ContextoUsuarios(BaseDeDados baseDeDados,
 	                        Usuario usuarioContexto,
-	                        IServicoCargos servicoCargos,
+	                        IServicoModelos<Cargo> servicoCargos,
 	                        IServicoUsuarios servicoUsuarios)
 		: base(baseDeDados, usuarioContexto)
 	{
@@ -23,8 +24,8 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		_servicoUsuarios = servicoUsuarios;
 	}
 
-	private readonly IServicoCargos   _servicoCargos;
-	private readonly IServicoUsuarios _servicoUsuarios;
+	private readonly IServicoModelos<Cargo> _servicoCargos;
+	private readonly IServicoUsuarios       _servicoUsuarios;
 
 	public void VerMatricula()
 	{
@@ -114,13 +115,14 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		if (confirmaCadastro is not 's') return;
 
-		var cargo = _servicoCargos.BuscarPorNome(dadosUsuario["Cargo"]);
+		var buscarCargo
+			= _servicoCargos.Buscar(CriterioBusca.Nome, dadosUsuario["Cargo"]);
 
-		if (cargo is null) return;
+		if (buscarCargo.Status is not StatusResposta.Sucesso) return;
 
-		var novoUsuario = Usuario.CriarUsuario(cargo, dadosUsuario);
+		var novoUsuario = Usuario.CriarUsuario(buscarCargo.Modelo!, dadosUsuario);
 
-		if (cargo.Nome is not CargosPadrao.CargoAlunos)
+		if (buscarCargo.Modelo!.Nome is not CargosPadrao.CargoAlunos)
 		{
 			var cadastroUsuario = await BaseDeDados
 			                            .Usuarios

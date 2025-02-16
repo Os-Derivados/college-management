@@ -27,7 +27,8 @@ public static class MiddlewareContexto
 
 		ContextoUsuarios contextoUsuarios
 			= new(baseDeDados, usuario, servicoCargos, servicoUsuarios);
-		ContextoCargos   contextoCargos   = new(baseDeDados, usuario);
+		ContextoCargos contextoCargos
+			= new(baseDeDados, usuario, servicoCargos);
 		ContextoMaterias contextoMaterias = new(baseDeDados, usuario);
 		ContextoCursos   contextoCursos   = new(baseDeDados, usuario);
 
