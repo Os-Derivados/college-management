@@ -1,6 +1,8 @@
 using System.Text;
 using college_management.Dados;
 using college_management.Dados.Modelos;
+using college_management.Servicos;
+using college_management.Servicos.Interfaces;
 using college_management.Utilitarios;
 using college_management.Views;
 
@@ -10,10 +12,15 @@ namespace college_management.Contextos;
 
 public class ContextoMaterias : Contexto<Materia>
 {
-	public ContextoMaterias(BaseDeDados baseDeDados, Usuario usuarioContexto) :
+	public ContextoMaterias(BaseDeDados baseDeDados,
+	                        Usuario usuarioContexto,
+	                        IServicoModelos<Materia> servicoMaterias) :
 		base(baseDeDados, usuarioContexto)
 	{
+		_servicoMaterias = servicoMaterias;
 	}
+
+	private readonly IServicoModelos<Materia> _servicoMaterias;
 
 	private Dictionary<string, string> ObterEntradasUsuario(string titulo)
 	{
@@ -130,33 +137,25 @@ public class ContextoMaterias : Contexto<Materia>
 
 	public override async Task Editar()
 	{
-		BuscaMateriaView buscaMateria = new("Buscar Matéria");
-		var              chaveBusca   = buscaMateria.Buscar();
+		BuscaMateriaView buscaMateria   = new("Buscar Matéria");
+		var              resultadoBusca = buscaMateria.Buscar();
 
+		_ = Enum.TryParse<CriterioBusca>(resultadoBusca.Key,
+		                                 out var criterioBusca);
 
-		RespostaRecurso<Materia> obterMateria;
-		
-		if (chaveBusca.Key is 1)
-		{
-			obterMateria = BaseDeDados.Materias.ObterPorNome(chaveBusca.Value);
-		}
-		else
-		{
-			var conversao = Guid.TryParse(chaveBusca.Value, out var materiaId);
-			
-			if (!conversao)
-			{
-				View.Aviso("O Id inserido não é válido.");
-				return;
-			}
-			
-			obterMateria = BaseDeDados.Materias.ObterPorId(materiaId);
-		}
-		
+		var obterMateria
+			= _servicoMaterias.Buscar(criterioBusca, resultadoBusca.Value);
 
 		if (obterMateria.Status is StatusResposta.ErroNaoEncontrado)
 		{
 			View.Aviso("Matéria não encontrada.");
+
+			return;
+		}
+
+		if (obterMateria.Status is StatusResposta.ErroInvalido)
+		{
+			View.Aviso("O critério de busca inserido não é válido.");
 
 			return;
 		}
@@ -186,31 +185,25 @@ public class ContextoMaterias : Contexto<Materia>
 
 	public override async Task Excluir()
 	{
-		BuscaMateriaView buscaMateria = new("Buscar Matéria");
-		var              chaveBusca   = buscaMateria.Buscar();
+		BuscaMateriaView buscaMateria   = new("Buscar Matéria");
+		var              resultadoBusca = buscaMateria.Buscar();
 
-		RespostaRecurso<Materia> obterMateria;
-		
-		if (chaveBusca.Key is 1)
-		{
-			obterMateria = BaseDeDados.Materias.ObterPorNome(chaveBusca.Value);
-		}
-		else
-		{
-			var conversao = Guid.TryParse(chaveBusca.Value, out var materiaId);
-			
-			if (!conversao)
-			{
-				View.Aviso("O Id inserido não é válido.");
-				return;
-			}
-			
-			obterMateria = BaseDeDados.Materias.ObterPorId(materiaId);
-		}
+		_ = Enum.TryParse<CriterioBusca>(resultadoBusca.Key,
+		                                 out var criterioBusca);
+
+		var obterMateria
+			= _servicoMaterias.Buscar(criterioBusca, resultadoBusca.Value);
 
 		if (obterMateria.Status is StatusResposta.ErroNaoEncontrado)
 		{
 			View.Aviso("Matéria não encontrada.");
+
+			return;
+		}
+
+		if (obterMateria.Status is StatusResposta.ErroInvalido)
+		{
+			View.Aviso("O critério de busca inserido não é válido.");
 
 			return;
 		}
@@ -261,31 +254,25 @@ public class ContextoMaterias : Contexto<Materia>
 
 	public override void VerDetalhes()
 	{
-		BuscaMateriaView buscaMateria = new("Buscar Matéria");
-		var              chaveBusca   = buscaMateria.Buscar();
+		BuscaMateriaView buscaMateria   = new("Buscar Matéria");
+		var              resultadoBusca = buscaMateria.Buscar();
 
-		RespostaRecurso<Materia> obterMateria;
-		
-		if (chaveBusca.Key is 1)
-		{
-			obterMateria = BaseDeDados.Materias.ObterPorNome(chaveBusca.Value);
-		}
-		else
-		{
-			var conversao = Guid.TryParse(chaveBusca.Value, out var materiaId);
-			
-			if (!conversao)
-			{
-				View.Aviso("O Id inserido não é válido.");
-				return;
-			}
-			
-			obterMateria = BaseDeDados.Materias.ObterPorId(materiaId);
-		}
+		_ = Enum.TryParse<CriterioBusca>(resultadoBusca.Key,
+		                                 out var criterioBusca);
+
+		var obterMateria
+			= _servicoMaterias.Buscar(criterioBusca, resultadoBusca.Value);
 
 		if (obterMateria.Status is StatusResposta.ErroNaoEncontrado)
 		{
 			View.Aviso("Matéria não encontrada.");
+
+			return;
+		}
+
+		if (obterMateria.Status is StatusResposta.ErroInvalido)
+		{
+			View.Aviso("O critério de busca inserido não é válido.");
 
 			return;
 		}
