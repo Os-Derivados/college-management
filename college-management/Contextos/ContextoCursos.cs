@@ -204,10 +204,24 @@ public class ContextoCursos : Contexto<Curso>,
 			return;
 		}
 
-		foreach (var (propriedade, valor) in mudancas)
+		var novoCurso = EditarPropriedade(curso, mudancas.Keys.First(),
+		                                  mudancas.Values.First());
+
+		if (novoCurso is null)
 		{
-			EditarPropriedade(curso, propriedade, valor);
+			View.Aviso("Não foi possível editar Curso: Propriedade inválida.");
+
+			return;
 		}
+		
+		var editarCurso = await BaseDeDados.Cursos.Atualizar(novoCurso);
+
+		if (_servicoCursos.ValidarResposta(editarCurso, ModoOperacao.Escrita))
+		{
+			return;
+		}
+		
+		View.Aviso("O Curso atualizado com sucesso.");
 	}
 
 	public override async Task Excluir()
@@ -338,21 +352,23 @@ public class ContextoCursos : Contexto<Curso>,
 		return detalhesCurso;
 	}
 
-	private void EditarPropriedade(Curso curso,
-	                               string propriedade,
-	                               string? valor)
+	private Curso? EditarPropriedade(Curso curso,
+	                                 string propriedade,
+	                                 string? valor)
 	{
+		var novoCurso = curso;
+
 		switch (propriedade)
 		{
 			case "Nome":
 			{
-				curso.Nome = valor ?? curso.Nome;
+				novoCurso.Nome = valor ?? curso.Nome;
 
-				return;
+				return novoCurso;
 			}
 
 			default:
-				return;
+				return null;
 		}
 	}
 }
