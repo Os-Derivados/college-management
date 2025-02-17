@@ -193,25 +193,12 @@ public class ContextoUsuarios : Contexto<Usuario>,
 	{
 		if (!ValidarPermissoes()) return;
 
-		BuscaUsuarioView buscaUsuario = new();
+		var usuario = _servicoUsuarios.Pesquisar();
 
-		var resultadoBusca = buscaUsuario.Buscar();
-		var chaveBusca     = resultadoBusca.Value;
+		if (usuario is null) return;
 
-		_ = Enum.TryParse<CriterioBusca>(resultadoBusca.Key,
-		                                 out var criterioBusca);
-
-		var obterUsuario = _servicoUsuarios.Buscar(criterioBusca, chaveBusca);
-
-		if (_servicoUsuarios.ValidarResposta(obterUsuario,
-		                                     ModoOperacao.Leitura))
-		{
-			return;
-		}
-
-		EditarUsuarioView editarUsuarioView
-			= new(obterUsuario.Modelo!, BaseDeDados.Cargos);
-		var usuarioEditado = editarUsuarioView.Editar();
+		EditarUsuarioView editarUsuarioView = new(usuario, BaseDeDados.Cargos);
+		var               usuarioEditado    = editarUsuarioView.Editar();
 
 		ConfirmaView confirmaEdicao = new("Editar Usuário");
 
@@ -239,25 +226,13 @@ public class ContextoUsuarios : Contexto<Usuario>,
 	{
 		if (!ValidarPermissoes()) return;
 
-		BuscaUsuarioView buscaUsuario = new();
+		var usuario = _servicoUsuarios.Pesquisar();
 
-		var resultadoBusca = buscaUsuario.Buscar();
-		var chaveBusca     = resultadoBusca.Value;
-
-		_ = Enum.TryParse<CriterioBusca>(resultadoBusca.Key,
-		                                 out var criterioBusca);
-
-		var obterUsuario = _servicoUsuarios.Buscar(criterioBusca, chaveBusca);
-
-		if (_servicoUsuarios.ValidarResposta(obterUsuario,
-		                                     ModoOperacao.Leitura))
-		{
-			return;
-		}
+		if (usuario is null) return;
 
 		DetalhesView detalhesUsuario = new("Excluir Usuário",
 		                                   UtilitarioTipos.ObterPropriedades(
-			                                   obterUsuario.Modelo,
+			                                   usuario,
 			                                   [
 				                                   "Nome", "Login", "Id",
 				                                   "CargoId"
@@ -270,7 +245,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 			return;
 
 		var foiExcluido
-			= await BaseDeDados.Usuarios.Remover(obterUsuario.Modelo!.Id);
+			= await BaseDeDados.Usuarios.Remover(usuario.Id);
 
 		var mensagemOperacao = foiExcluido.Status switch
 		{
@@ -325,23 +300,11 @@ public class ContextoUsuarios : Contexto<Usuario>,
 			return;
 		}
 
-		BuscaUsuarioView buscaUsuario = new();
+		var usuario = _servicoUsuarios.Pesquisar();
 
-		var resultadoBusca = buscaUsuario.Buscar();
-		var chaveBusca     = resultadoBusca.Value;
+		if (usuario is null) return;
 
-		_ = Enum.TryParse<CriterioBusca>(resultadoBusca.Key,
-		                                 out var criterioBusca);
-
-		var obterUsuario = _servicoUsuarios.Buscar(criterioBusca, chaveBusca);
-
-		if (_servicoUsuarios.ValidarResposta(obterUsuario,
-		                                     ModoOperacao.Leitura))
-		{
-			return;
-		}
-
-		var detalhes = UtilitarioTipos.ObterPropriedades(obterUsuario.Modelo,
+		var detalhes = UtilitarioTipos.ObterPropriedades(usuario,
 		[
 			"Login", "Nome", "Credenciais", "CargoId", "Id"
 		]);

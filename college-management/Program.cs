@@ -3,6 +3,8 @@ using college_management.Middlewares;
 using college_management.Utilitarios;
 using college_management.Views;
 
+Console.Clear();
+
 UtilitarioArquivos.Inicializar();
 
 BaseDeDados baseDeDados = new();

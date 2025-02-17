@@ -104,7 +104,7 @@ public class ContextoCursos : Contexto<Curso>,
 
 		if (TemAcessoRestrito)
 		{
-			var cursoBuscado = PesquisarCurso();
+			var cursoBuscado = _servicoCursos.Pesquisar();
 
 			if (cursoBuscado is null) return;
 
@@ -148,7 +148,7 @@ public class ContextoCursos : Contexto<Curso>,
 
 	public override async Task Editar()
 	{
-		var curso = PesquisarCurso();
+		var curso = _servicoCursos.Pesquisar();
 
 		if (curso is null)
 			return;
@@ -226,7 +226,7 @@ public class ContextoCursos : Contexto<Curso>,
 
 	public override async Task Excluir()
 	{
-		var curso = PesquisarCurso();
+		var curso = _servicoCursos.Pesquisar();
 
 		if (curso is null) return;
 
@@ -273,50 +273,15 @@ public class ContextoCursos : Contexto<Curso>,
 
 	public override void VerDetalhes()
 	{
-		var curso = PesquisarCurso();
+		var curso = _servicoCursos.Pesquisar();
 
 		if (curso is null) return;
 
 		DetalhesView detalhesCurso
 			= new("Curso Encontrado", ObterDetalhes(curso));
+		
 		detalhesCurso.ConstruirLayout();
 		detalhesCurso.Exibir();
-	}
-
-	private Curso? PesquisarCurso()
-	{
-		MenuView menuPesquisa = new("Pesquisar Curso",
-		                            "Escolha o método de pesquisa.",
-		                            ["Nome", "Id"]);
-
-		InputView inputPesquisa = new("Ver Grade Curricular: Pesquisar Curso");
-
-		menuPesquisa.ConstruirLayout();
-		menuPesquisa.LerEntrada();
-
-		(string Campo, string Mensagem)? campoPesquisa
-			= menuPesquisa.OpcaoEscolhida switch
-			{
-				1 => ("Nome", "Insira o Nome do curso: "),
-				2 => ("Id", "Insira o Id do curso: "),
-				_ => null
-			};
-
-		if (campoPesquisa is null) return null;
-
-		inputPesquisa.LerEntrada(campoPesquisa?.Campo!,
-		                         campoPesquisa?.Mensagem);
-
-		_ = Enum.TryParse<CriterioBusca>(campoPesquisa?.Campo!,
-		                                 out var criterioBusca);
-
-		var obterCurso = _servicoCursos.Buscar(criterioBusca,
-		                                       inputPesquisa.ObterEntrada(
-			                                       campoPesquisa?.Campo!));
-
-		return _servicoCursos.ValidarResposta(obterCurso, ModoOperacao.Leitura)
-			? null
-			: obterCurso.Modelo;
 	}
 
 	private Dictionary<string, string> ObterDetalhes(Curso curso)

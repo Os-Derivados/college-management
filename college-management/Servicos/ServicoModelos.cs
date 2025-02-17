@@ -12,10 +12,10 @@ public abstract class ServicoModelos<T> : IServicoModelos<T> where T : Modelo
 {
 	protected ServicoModelos(IRepositorio<T> repositorio)
 	{
-		Repositorio = repositorio;
+		_repositorio = repositorio;
 	}
 
-	protected readonly IRepositorio<T> Repositorio;
+	private readonly IRepositorio<T> _repositorio;
 
 	public RespostaRecurso<T> Buscar(CriterioBusca modoBusca, string chaveBusca)
 	{
@@ -23,20 +23,20 @@ public abstract class ServicoModelos<T> : IServicoModelos<T> where T : Modelo
 		{
 			case CriterioBusca.Nome:
 			{
-				return Repositorio.ObterPorNome(chaveBusca);
+				return _repositorio.ObterPorNome(chaveBusca);
 			}
 			case CriterioBusca.Id:
 			{
 				var tentativaCast = Guid.TryParse(chaveBusca, out var id);
 
-				if (tentativaCast) return Repositorio.ObterPorId(id);
+				if (tentativaCast) return _repositorio.ObterPorId(id);
 
 				return new RespostaRecurso<T>(
 					null, StatusResposta.ErroInvalido);
 			}
 			case CriterioBusca.Login:
 			{
-				var repositorioUsuarios = (IRepositorioUsuarios)Repositorio;
+				var repositorioUsuarios = (IRepositorioUsuarios)_repositorio;
 
 				var obterPorLogin
 					= repositorioUsuarios.ObterPorLogin(chaveBusca);
@@ -99,6 +99,8 @@ public abstract class ServicoModelos<T> : IServicoModelos<T> where T : Modelo
 
 		return false;
 	}
+
+	public abstract T? Pesquisar();
 }
 
 public enum CriterioBusca

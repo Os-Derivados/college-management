@@ -1,8 +1,6 @@
 using college_management.Constantes;
-using college_management.Contextos.Interfaces;
 using college_management.Dados;
 using college_management.Dados.Modelos;
-using college_management.Dados.Repositorios;
 using college_management.Servicos;
 using college_management.Servicos.Interfaces;
 using college_management.Views;
@@ -26,70 +24,58 @@ public class ContextoCargos : Contexto<Cargo>
 
 	public override async Task Cadastrar()
 	{
-		if (TemAcessoRestrito)
+		if (!ValidarPermissoes()) return;
+
+		var novoCargo = TelaDeCadastro();
+
+		if (novoCargo is null)
 		{
-			var novoCargo = TelaDeCadastro();
+			View.Aviso("O Cargo precisa de um nome e permissões válidas");
 
-			if (novoCargo is null)
-			{
-				TelaErro("O cargo precisa de um nome e permissões válidas");
+			return;
+		}
 
-				return;
-			}
+		if (ConfirmarEscolha("Deseja salvar o cargo: ", novoCargo))
+		{
+			var adicionarCargo
+				= await BaseDeDados.Cargos.Adicionar(novoCargo);
 
-			if (ConfirmarEscolha("Deseja salvar o cargo: ", novoCargo))
-			{
-				var adicionarCargo
-					= await BaseDeDados.Cargos.Adicionar(novoCargo);
-
-				if (adicionarCargo.Status is StatusResposta.Sucesso)
-				{
-					View.Aviso("Cargo salvo com sucesso!");
-
-					return;
-				}
-
-				View.Aviso(
-					"Cargo não salvo, pois outro com o mesmo nome já existe no banco de dados!");
-			}
+			_servicoCargos.ValidarResposta(adicionarCargo,
+			                               ModoOperacao.Escrita);
 		}
 	}
 
 	public override async Task Editar()
 	{
-		Cargo? cargo     = null;
-		string nomeCargo = "";
+		if (!ValidarPermissoes()) return;
 
+		InputView inputView = new("Editar Cargo");
 
-		InputView inputView = new InputView("Editar Cargo");
+		var nomeCargo = SelecionaCargoParaEdicao(inputView);
 
-		if (TemAcessoRestrito)
+		var obterPorNome = BaseDeDados.Cargos.ObterPorNome(nomeCargo);
+
+		if (obterPorNome.Status is StatusResposta.ErroNaoEncontrado)
 		{
-			nomeCargo = SelecionaCargoParaEdicao(inputView);
+			View.Aviso("Cargo não existe");
 
-			var obterPorNome = BaseDeDados.Cargos.ObterPorNome(nomeCargo);
+			return;
+		}
 
-			if (obterPorNome.Status is StatusResposta.ErroNaoEncontrado)
-			{
-				View.Aviso("Cargo não existe");
+		var cargo = TelaDeEdicao(obterPorNome.Modelo!, inputView);
 
-				return;
-			}
+		if (cargo is null)
+		{
+			View.Aviso("O Cargo precisa de um nome e permissões válidas");
 
-			cargo = TelaDeEdicao(obterPorNome.Modelo!, inputView);
-
-			if (cargo is null)
-			{
-				TelaErro("O cargo precisa de um nome e permissões válidas");
-				return;
-			}
+			return;
+		}
 
 
-			if (ConfirmarEscolha("", cargo))
-			{
-				await BaseDeDados.Cargos.Atualizar(cargo);
-				inputView.LerEntrada("Sair", "Cargo Editado com sucesso");
-			}
+		if (ConfirmarEscolha("", cargo))
+		{
+			await BaseDeDados.Cargos.Atualizar(cargo);
+			inputView.LerEntrada("Sair", "Cargo Editado com sucesso");
 		}
 	}
 
@@ -99,11 +85,11 @@ public class ContextoCargos : Contexto<Cargo>
 
 		InputView inputView = new("Exclusao de Cargo");
 
-		var cargo = PesquisaCargo();
+		var cargo = _servicoCargos.Pesquisar();
 
 		if (cargo is null)
 		{
-			TelaErro("Opção Inválida!");
+			View.Aviso("Opção Inválida!");
 		}
 
 		else
@@ -144,22 +130,17 @@ public class ContextoCargos : Contexto<Cargo>
 	{
 		if (!TemAcessoRestrito) return;
 
-		DetalhesView detalhesView = null;
-
-		var cargo = PesquisaCargo();
+		var cargo = _servicoCargos.Pesquisar();
 
 		if (cargo is null)
 		{
-			TelaErro("Opção Inválida!");
+			View.Aviso("Opção Inválida!");
 
 			return;
 		}
 
-		ExibirDetalhesCargo(cargo, detalhesView);
+		ExibirDetalhesCargo(cargo);
 	}
-
-
-	#region Metodos privados uteis
 
 	Cargo? TelaDeCadastro()
 	{
@@ -170,72 +151,23 @@ public class ContextoCargos : Contexto<Cargo>
 
 		if (!ValidarEntrada(inputUsuario, "Nome")) return null;
 
-		List<string> nivelDePermissao = SelecaoDePermissao();
-		var          nomeCargo        = inputUsuario.EntradasUsuario["Nome"];
+		var nivelDePermissao = SelecaoDePermissao();
+		var nomeCargo        = inputUsuario.EntradasUsuario["Nome"];
 
-		if (nomeCargo is not null && nivelDePermissao.Count is not 0)
-		{
-			return new Cargo(nomeCargo, nivelDePermissao);
-		}
-
-		return null;
+		return nivelDePermissao.Count is not 0
+			? new Cargo(nomeCargo, nivelDePermissao)
+			: null;
 	}
-
-
-	Cargo? PesquisaCargo()
-	{
-		MenuView menuPesquisa = new("Cargos",
-		                            "Selecione um dos campos:",
-		                            ["Nome do Cargo", "Id"]);
-
-		menuPesquisa.ConstruirLayout();
-		menuPesquisa.LerEntrada();
-
-		KeyValuePair<string, string>? campoPesquisa
-			= menuPesquisa.OpcaoEscolhida switch
-			{
-				1 => new KeyValuePair<string, string>("Nome",
-					"Insira o Nome do Cargo: "),
-				2 => new KeyValuePair<string, string>("Id",
-					"Insira o Id do Cargo: "),
-
-				_ => null
-			};
-
-		InputView inputPesquisa = new("Ver Detalhes: Pesquisar Cargo");
-
-		if (campoPesquisa is null)
-		{
-			View.Aviso("Campo Inválido. Tente novamente.");
-
-			return null;
-		}
-
-		inputPesquisa.LerEntrada(campoPesquisa?.Key,
-		                         campoPesquisa?.Value);
-
-		_ = Enum.TryParse<CriterioBusca>(
-			inputPesquisa.EntradasUsuario[campoPesquisa?.Key!], out var chave);
-
-		var valorBusca = inputPesquisa.EntradasUsuario[campoPesquisa?.Key!];
-
-		var obterCargo = _servicoCargos.Buscar(chave, valorBusca);
-
-		return _servicoCargos.ValidarResposta(obterCargo, ModoOperacao.Leitura)
-			? null
-			: obterCargo.Modelo;
-	}
-
 
 	List<string> SelecaoDePermissao()
 	{
-		List<string> permissoes = new List<string>();
+		List<string> permissoes = [];
 
-		var      propriedades     = typeof(PermissoesAcesso).GetFields();
-		string[] nomePropriedades = new string[propriedades.Length];
-		int      index            = 0;
+		var propriedades     = typeof(PermissoesAcesso).GetFields();
+		var nomePropriedades = new string[propriedades.Length];
+		var index            = 0;
 
-		for (int i = 0; i < propriedades.Length; i++)
+		for (var i = 0; i < propriedades.Length; i++)
 		{
 			nomePropriedades[i] = propriedades[i].Name;
 			index++;
@@ -243,19 +175,16 @@ public class ContextoCargos : Contexto<Cargo>
 
 		index = 0;
 
-
 		while (index < nomePropriedades.Length)
 		{
-			MenuView menuView = new
-				MenuView("Permissões",
-				         "\t\tPermissões\n\n\n",
-				         nomePropriedades);
+			MenuView menuView = new("Permissões",
+			                        "\t\tPermissões\n\n\n",
+			                        nomePropriedades);
 
 			menuView.ConstruirLayout();
-			menuView.Exibir();
 			menuView.LerEntrada();
 
-			int opcao = menuView.OpcaoEscolhida - 1;
+			var opcao = menuView.OpcaoEscolhida - 1;
 
 			if (opcao >= nomePropriedades.Length || opcao < 0) break;
 
@@ -268,13 +197,15 @@ public class ContextoCargos : Contexto<Cargo>
 
 			if (ConfirmarEscolha($"Adicionou {permissoes.Last()}" +
 			                     $", deseja adicionar mais permissões?\n"))
-
+			{
 				index = opcao;
+			}
 
 			else break;
 		}
 
 		Console.Clear();
+
 		return permissoes;
 	}
 
@@ -297,6 +228,7 @@ public class ContextoCargos : Contexto<Cargo>
 		if (!ValidarEntrada(inputView, "nome")) return null;
 
 		var permissoes = SelecaoDePermissao();
+
 		if (!permissoes.Any()) return null;
 
 		return new Cargo(inputView.ObterEntrada("nome"), permissoes)
@@ -319,17 +251,7 @@ public class ContextoCargos : Contexto<Cargo>
 		return true;
 	}
 
-	void TelaErro(string menssagem)
-	{
-		Console.Clear();
-
-		Console.WriteLine(menssagem);
-		Console.WriteLine(
-			"\t\t\n\n <--- Pressione alguma tecla para Sair --->");
-		Console.ReadKey();
-	}
-
-	void ExibirDetalhesCargo(Cargo cargo, DetalhesView detalhesView)
+	void ExibirDetalhesCargo(Cargo cargo)
 	{
 		var dicionario = new Dictionary<string, string>();
 		var permissoes = ListaParaString(cargo.Permissoes);
@@ -338,7 +260,7 @@ public class ContextoCargos : Contexto<Cargo>
 		dicionario.Add("Nome", cargo.Nome);
 		dicionario.Add("Permissões", permissoes);
 
-		detalhesView = new DetalhesView("Cargo", dicionario);
+		DetalhesView detalhesView = new("Cargo", dicionario);
 
 		detalhesView.ConstruirLayout();
 		detalhesView.Exibir();
@@ -346,9 +268,9 @@ public class ContextoCargos : Contexto<Cargo>
 
 	string ListaParaString(List<string> strings)
 	{
-		string output = "\n[\n";
+		var output = "\n[\n";
 
-		foreach (string str in strings)
+		foreach (var str in strings)
 		{
 			output += $"\t{str}\n";
 		}
@@ -366,8 +288,7 @@ public class ContextoCargos : Contexto<Cargo>
 
 		if (cargo is not null)
 		{
-			DetalhesView detalhesView = null;
-			ExibirDetalhesCargo(cargo, detalhesView);
+			ExibirDetalhesCargo(cargo);
 		}
 
 		Console.WriteLine("\n\nPara confirmar:\n\n[S]im ou [N]ão: ");
@@ -381,6 +302,4 @@ public class ContextoCargos : Contexto<Cargo>
 
 		return false;
 	}
-
-	#endregion
 }

@@ -1,4 +1,3 @@
-using System.Text;
 using college_management.Dados;
 using college_management.Dados.Modelos;
 using college_management.Servicos;
@@ -14,8 +13,8 @@ public class ContextoMaterias : Contexto<Materia>
 {
 	public ContextoMaterias(BaseDeDados baseDeDados,
 	                        Usuario usuarioContexto,
-	                        IServicoModelos<Materia> servicoMaterias) :
-		base(baseDeDados, usuarioContexto)
+	                        IServicoModelos<Materia> servicoMaterias)
+		: base(baseDeDados, usuarioContexto)
 	{
 		_servicoMaterias = servicoMaterias;
 	}
@@ -131,20 +130,9 @@ public class ContextoMaterias : Contexto<Materia>
 
 	public override async Task Editar()
 	{
-		BuscaMateriaView buscaMateria   = new("Buscar Matéria");
-		var              resultadoBusca = buscaMateria.Buscar();
+		var materia = _servicoMaterias.Pesquisar();
 
-		_ = Enum.TryParse<CriterioBusca>(resultadoBusca.Key,
-		                                 out var criterioBusca);
-
-		var obterMateria
-			= _servicoMaterias.Buscar(criterioBusca, resultadoBusca.Value);
-
-		if (_servicoMaterias.ValidarResposta(obterMateria,
-		                                     ModoOperacao.Leitura))
-		{
-			return;
-		}
+		if (materia is null) return;
 
 		var editarMateria = ObterEntradasUsuario("Editar Matéria");
 
@@ -159,8 +147,7 @@ public class ContextoMaterias : Contexto<Materia>
 		if (confirmacao.ToString().ToLower() is not "s") return;
 
 		var foiAtualizado
-			= await ValidarEAtualizarMateria(obterMateria.Modelo!,
-			                                 editarMateria);
+			= await ValidarEAtualizarMateria(materia, editarMateria);
 
 		var mensagemOperacao = foiAtualizado
 			? $"{nameof(Materia)} atualizada com sucesso."
@@ -171,24 +158,13 @@ public class ContextoMaterias : Contexto<Materia>
 
 	public override async Task Excluir()
 	{
-		BuscaMateriaView buscaMateria   = new("Buscar Matéria");
-		var              resultadoBusca = buscaMateria.Buscar();
+		var materia = _servicoMaterias.Pesquisar();
 
-		_ = Enum.TryParse<CriterioBusca>(resultadoBusca.Key,
-		                                 out var criterioBusca);
-
-		var obterMateria
-			= _servicoMaterias.Buscar(criterioBusca, resultadoBusca.Value);
-
-		if (_servicoMaterias.ValidarResposta(obterMateria,
-		                                     ModoOperacao.Leitura))
-		{
-			return;
-		}
+		if (materia is null) return;
 
 		DetalhesView detalhesMateria
 			= new("Detalhes da Matéria", UtilitarioTipos.ObterPropriedades(
-				      obterMateria.Modelo,
+				      materia,
 				      ["Nome", "Id", "CargaHoraria", "Turno"]));
 		detalhesMateria.ConstruirLayout();
 
@@ -198,13 +174,12 @@ public class ContextoMaterias : Contexto<Materia>
 
 		if (confirmacao.ToString().ToLower() is not "s") return;
 
-		var excluirMateria
-			= await BaseDeDados.Materias.Remover(obterMateria.Modelo!.Id);
+		var excluirMateria = await BaseDeDados.Materias.Remover(materia.Id);
 
 		var mensagemOperacao = excluirMateria.Status switch
 		{
 			StatusResposta.Sucesso =>
-				$"{nameof(Materia)} deletada com sucesso.",
+				$"{nameof(Materia)} excluída com sucesso.",
 			StatusResposta.ErroNaoEncontrado => "Matéria não encontrada.",
 			_ => "Não foi possível deletar a matéria."
 		};
@@ -232,23 +207,12 @@ public class ContextoMaterias : Contexto<Materia>
 
 	public override void VerDetalhes()
 	{
-		BuscaMateriaView buscaMateria   = new("Buscar Matéria");
-		var              resultadoBusca = buscaMateria.Buscar();
-
-		_ = Enum.TryParse<CriterioBusca>(resultadoBusca.Key,
-		                                 out var criterioBusca);
-
-		var obterMateria
-			= _servicoMaterias.Buscar(criterioBusca, resultadoBusca.Value);
-
-		if (_servicoMaterias.ValidarResposta(obterMateria,
-		                                     ModoOperacao.Leitura))
-		{
-			return;
-		}
+		var materia = _servicoMaterias.Pesquisar();
+		
+		if (materia is null) return;
 
 		var detalhes = UtilitarioTipos.ObterPropriedades(
-			obterMateria.Modelo, ["Nome", "Turno", "CargaHoraria", "Id"]);
+			materia, ["Nome", "Turno", "CargaHoraria", "Id"]);
 
 		DetalhesView detalhesMateria = new("Matéria Encontrada", detalhes);
 		detalhesMateria.ConstruirLayout();
