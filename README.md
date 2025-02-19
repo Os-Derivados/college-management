@@ -126,6 +126,15 @@ dotnet run           true                   true
 * Auditoria:
     - Todas as ações realizadas no sistema devem gerar um registro inalterável, para fins de auditoria.
 
+## Overview do sistema
+Segue logo abaixo, o fluxograma de navegação dentro do sistema, contendo as conexões e caminhos entre features de cada requisito: 
+
+![](/college-management/Public/Cargos.png)
+![](/college-management/Public/Contas.png)
+![](/college-management/Public/Cursos.png)
+![](/college-management/Public/Materias.png)
+
+
 ### Modelagem
 
 As entidades e relacionamentos presentes no sistema podem ser descritas através do Diagrama Entidade-Relacionamento abaixo, bem como nos esquemas descritos logo após a diagramação.
@@ -548,7 +557,7 @@ public static class MiddlewareContexto
 ### Serviços
 
 Serviços são responsáveis por prover um conjunto de funcionalidades pertinentes ao modelo de negócios de um sistema.
-Geralmente, englobam recursos que acessam a lógica e os dados internos, provendo asbtrações para necessidades comuns para diferentes camadas do sistema. 
+Geralmente, englobam recursos que acessam a lógica e os dados internos, provendo abstrações para necessidades comuns para diferentes camadas do sistema. 
 
 O College Management conta com os seguintes serviços:
 
@@ -662,7 +671,7 @@ public static class UtilitarioArquivos
 
 #### Utilitário de Tipos
 
-O `UtilitarioTipos` provê um conjunto global de abstrações para lidar com a chamada **reflexão de objetos**, que consite em manipular objetos em tempo de execução sem, necessariamente, utilizar-se explicitamente deles (como criar instâncias ou fazer referência direta a variáveis e tipos). Este recurso permite a flexibilização de diversos comportamentos que diminuem a redundância dos componentes do sistema, como obter propriedades específicas de objetos.
+O `UtilitarioTipos` provê um conjunto global de abstrações para lidar com a chamada **reflexão de objetos**, que consiste em manipular objetos em tempo de execução sem, necessariamente, utilizar-se explicitamente deles (como criar instâncias ou fazer referência direta a variáveis e tipos). Este recurso permite a flexibilização de diversos comportamentos que diminuem a redundância dos componentes do sistema, como obter propriedades específicas de objetos.
 
 A estrutura do `UtilitarioTipos` se encontra conforme o exemplo abaixo: 
 
