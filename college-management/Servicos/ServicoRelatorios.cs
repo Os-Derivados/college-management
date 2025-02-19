@@ -21,7 +21,6 @@ where T : Modelo
 	private readonly List<T> _modelos;
 
 	public ServicoRelatorios(Usuario usuario,
-                             Nota nota,
                              List<T> modelos)
 	{
 
@@ -37,24 +36,28 @@ where T : Modelo
 
 
 
-	public string GerarRelatorio(T modelo, Cargo? cargoUsuario)
+	public string GerarRelatorio(Cargo cargoUsuario)
 	{
         if (cargoUsuario == null) throw new NullReferenceException(
-                                                        $"ERROR: {typeof(Cargo).Name} é null. " +
+                                                        $"Error: {typeof(Cargo).Name} é null. " +
                                                         $"(ServicoRelatorios<{typeof(T).Name}>.GerarRelatorio)"
                                                     );
 
 
-        return cargoUsuario
-			       .TemPermissao(PermissoesAcesso.AcessoEscrita)
-			       ? GerarEntradasRelatorio()
-			       : modelo.ToString() ?? throw new NullReferenceException(
-                                                        $"ERROR: {typeof(T).Name}.ToString() retorna null. " +
-                                                        $"(ServicoRelatorios<{typeof(T).Name}>.GerarRelatorio)"
-                                                    );
+        // Gera relatorio caso o Cargo tenha permissão.
+        if ( cargoUsuario.TemPermissao(PermissoesAcesso.AcessoEscrita) || 
+             cargoUsuario.TemPermissao(PermissoesAcesso.AcessoAdministradores) ) 
+        {
+            return GerarEntradasRelatorio();
+        }
 
-                   
-	}
+
+        throw new ArgumentException($"Error: Usuario não tem permissão para gerar relatorio. " +
+                                                  $"OBS: Um usuario sem premissão não deveria ver a opção de " +
+                                                  $"gerar relatorios. " +
+                                                  $"(ServicoRelatorios<{typeof(T).Name}>.GerarRelatorio)"
+                                             );
+    }
 
 	public string  GerarEntradasRelatorio()
 	{
