@@ -11,7 +11,7 @@ public class BuscaModeloView<T> : View, IBuscaModeloView where T : Modelo
 	
 	public BuscaModeloView(string titulo, string[]? campos = null) : base(titulo)
 	{
-		_campos = [..(campos ?? []), "Id"];
+		_campos = [..campos ?? [], "Id"];
 	}
 
 	public KeyValuePair<int, string> Buscar()
@@ -23,7 +23,6 @@ public class BuscaModeloView<T> : View, IBuscaModeloView where T : Modelo
 		menuPesquisa.LerEntrada();
 
 		string? campoPesquisa = null;
-		
 		while (campoPesquisa is null)
 		{
 			menuPesquisa.LerEntrada();
