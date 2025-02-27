@@ -15,8 +15,6 @@ public class CadastroCursoView : ICadastroView
 	{
 		InputView inputNome = new("Cadastro de Curso: Nome");
 		inputNome.LerEntrada("Nome", "Insira o nome do curso: ");
-		Nome = inputNome.ObterEntrada("Nome");
-
 		Nome = inputNome.ObterEntrada("Nome").Trim();
 		
 		while (true)
@@ -24,9 +22,11 @@ public class CadastroCursoView : ICadastroView
 			InputView inputMateria = new($"Cadastro de Curso: Grade Curricular\n{string.Join("\n", GradeCurricular)}\n");
 			inputMateria.LerEntrada("Nome", "Deixe vazio para sair. Insira o Nome ou Id da matéria: ");
 			if (string.IsNullOrEmpty(inputMateria.ObterEntrada("Nome")))
+			inputMateria.LerEntrada("MateriaNome", "Deixe vazio para sair. Insira o Nome ou Id da matéria: ");
+			if (string.IsNullOrEmpty(inputMateria.ObterEntrada("MateriaNome").Trim()))
 				break;
 			
-			GradeCurricular.Add(inputMateria.ObterEntrada("Nome"));
+			GradeCurricular.Add(inputMateria.ObterEntrada("MateriaNome"));
 		}
 		
 		DetalhesView detalhesView = new("Confirmar Cadastro",
