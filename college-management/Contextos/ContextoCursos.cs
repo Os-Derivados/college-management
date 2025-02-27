@@ -132,6 +132,12 @@ public class ContextoCursos : Contexto<Curso>,
 		if (view.ObterDados().ToString().ToLower() != "s")
 			return;
 
+		if (string.IsNullOrEmpty(view.Nome))
+		{
+			View.Aviso("Nome vazio. Tente novamente.");
+			return;
+		}
+		
 		List<Materia> materias = new();
 		foreach (var moniker in view.GradeCurricular)
 		{
