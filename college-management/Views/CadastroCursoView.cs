@@ -20,8 +20,6 @@ public class CadastroCursoView : ICadastroView
 		while (true)
 		{
 			InputView inputMateria = new($"Cadastro de Curso: Grade Curricular\n{string.Join("\n", GradeCurricular)}\n");
-			inputMateria.LerEntrada("Nome", "Deixe vazio para sair. Insira o Nome ou Id da matéria: ");
-			if (string.IsNullOrEmpty(inputMateria.ObterEntrada("Nome")))
 			inputMateria.LerEntrada("MateriaNome", "Deixe vazio para sair. Insira o Nome ou Id da matéria: ");
 			if (string.IsNullOrEmpty(inputMateria.ObterEntrada("MateriaNome").Trim()))
 				break;
@@ -37,6 +35,8 @@ public class CadastroCursoView : ICadastroView
 		mensagemConfirmacao.Append(detalhesView.Layout);
 
 		mensagemConfirmacao.Append("Grade Curricular:");
+		GradeCurricular.ForEach(i => mensagemConfirmacao.AppendLine($"\t{i}"));
+		
 		ConfirmaView confirmarCadastro = new("Cadastrar Usuário");
 		return confirmarCadastro.Confirmar(mensagemConfirmacao.ToString());
 	}
