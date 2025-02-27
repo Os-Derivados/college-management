@@ -154,8 +154,8 @@ public class ContextoCursos : Contexto<Curso>,
 
 			if (materia is null)
 			{
-				View.Aviso($"Matéria com o identificador \"{materia}\" não encontrada.");
-				break;
+				View.Aviso($"Matéria com o identificador \"{moniker}\" não encontrada. Tente novamente.");
+				goto FimDeLogica;
 			}
 			else
 				materias.Add(respostaNome.Modelo!);
@@ -166,6 +166,7 @@ public class ContextoCursos : Contexto<Curso>,
 		View.Aviso(respostaAdicionar.Status is StatusResposta.Sucesso
 			? "Curso cadastrado com sucesso!"
 			: $"Não foi possível cadastrar curso. ({respostaAdicionar.Status.ToString()})");
+FimDeLogica:; // É feio, mas é prático.
 	}
 
 	public override async Task Editar()
