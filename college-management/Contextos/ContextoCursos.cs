@@ -128,7 +128,38 @@ public class ContextoCursos : Contexto<Curso>,
 
 	public override async Task Cadastrar()
 	{
-		throw new NotImplementedException();
+		var view = new CadastroCursoView();
+		if (view.ObterDados().ToString().ToLower() != "s")
+			return;
+
+		List<Materia> materias = new();
+		foreach (var moniker in view.GradeCurricular)
+		{
+			Materia? materia = null;
+			
+			var respostaNome = BaseDeDados.Materias.ObterPorNome(moniker);
+			var respostaId = BaseDeDados.Materias.ObterPorId(moniker);
+
+			materia = respostaNome.Status is StatusResposta.Sucesso
+					  ? respostaNome.Modelo
+					  : (respostaId.Status is StatusResposta.Sucesso
+						 ? respostaId.Modelo
+						 : null);
+
+			if (materia is null)
+			{
+				View.Aviso($"Matéria com o identificador \"{materia}\" não encontrada.");
+				break;
+			}
+			else
+				materias.Add(respostaNome.Modelo!);
+		}
+		
+		var curso = new Curso(view.Nome, materias.ToArray());
+		var respostaAdicionar = await BaseDeDados.Cursos.Adicionar(curso);
+		View.Aviso(respostaAdicionar.Status is StatusResposta.Sucesso
+			? "Curso cadastrado com sucesso!"
+			: $"Não foi possível cadastrar curso. ({respostaAdicionar.Status.ToString()})");
 	}
 
 	public override async Task Editar()
@@ -219,12 +250,6 @@ public class ContextoCursos : Contexto<Curso>,
 			2 => BaseDeDados.Cursos.ObterPorId(busca.Value),
 			_ => null
 		};
-
-		if (curso is not null) return curso;
-
-		View.Aviso("Curso não encontrado.");
-		
-		return PesquisarCurso();
 		
 		return resposta.Status is StatusResposta.Sucesso ? resposta.Modelo : MostrarAviso();
 	}
