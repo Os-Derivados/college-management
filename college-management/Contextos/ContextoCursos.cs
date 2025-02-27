@@ -138,61 +138,7 @@ public class ContextoCursos : Contexto<Curso>,
 		if (curso is null)
 			return;
 
-		var propriedades = curso.GetType().GetProperties().ToList();
-		// Essas propriedades devem ser editadas por outros meios.
-		propriedades.RemoveAll(i => i.Name == "GradeCurricular");
-		propriedades.RemoveAll(i => i.Name == "MatriculasIds");
-		// Essa aqui nem se fala. Deveríamos adicionar um método de filtrar essas propriedades.
-		propriedades.RemoveAll(i => i.Name == "Id");
-
-		InputView inputView = new("Editar Curso");
-
-		StringBuilder detalhes
-			= new("As seguintes mudanças serão aplicadas:\n\n");
-
-		Dictionary<string, string> mudancas = new();
-
-		foreach (var propriedade in propriedades)
-		{
-			var valor = propriedade.GetValue(curso)?.ToString() ?? string.Empty;
-			inputView.LerEntrada(propriedade.Name,
-			                     $"Insira um novo valor para {propriedade.Name} [Vazio para \"{valor}\"]:");
-
-			var entrada = inputView.ObterEntrada(propriedade.Name).Trim();
-			var mudanca = string.IsNullOrEmpty(entrada)
-				? valor
-				: entrada;
-
-			if (mudanca == valor) continue;
-
-			detalhes.AppendLine(
-				$"{propriedade.Name}: {valor} => {mudanca}");
-
-			mudancas.Add(propriedade.Name, mudanca.Trim());
-		}
-
-		if (mudancas.Count <= 0)
-		{
-			View.Aviso("Nenhuma edição foi feita.");
-
-			return;
-		}
-
-		ConfirmaView confirmacao = new("Editar Curso");
-
-		if (confirmacao.Confirmar(detalhes.ToString())
-		               .ToString()
-		               .ToLower() is not "s")
-		{
-			View.Aviso($"Editar {nameof(Curso)}: Operação cancelada.");
-
-			return;
-		}
-
-		foreach (var (propriedade, valor) in mudancas)
-		{
-			EditarPropriedade(curso, propriedade, valor);
-		}
+		curso = new EditarCursoView(curso).Editar();
 	}
 
 	public override async Task Excluir()
@@ -211,7 +157,6 @@ public class ContextoCursos : Contexto<Curso>,
 		               .ToLower() is not "s")
 		{
 			View.Aviso($"Excluir {nameof(Curso)}: Operação cancelada.");
-
 			return;
 		}
 
@@ -295,23 +240,5 @@ public class ContextoCursos : Contexto<Curso>,
 		detalhes.Add("CargaHoraria", $"{curso.ObterCargaHoraria()}h");
 
 		return detalhes;
-	}
-
-	private void EditarPropriedade(Curso curso,
-	                               string propriedade,
-	                               string? valor)
-	{
-		switch (propriedade)
-		{
-			case "Nome":
-			{
-				curso.Nome = valor ?? curso.Nome;
-
-				return;
-			}
-
-			default:
-				return;
-		}
 	}
 }
