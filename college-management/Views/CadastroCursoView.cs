@@ -17,6 +17,8 @@ public class CadastroCursoView : ICadastroView
 		inputNome.LerEntrada("Nome", "Insira o nome do curso: ");
 		Nome = inputNome.ObterEntrada("Nome");
 
+		Nome = inputNome.ObterEntrada("Nome").Trim();
+		
 		while (true)
 		{
 			InputView inputMateria = new($"Cadastro de Curso: Grade Curricular\n{string.Join("\n", GradeCurricular)}\n");
