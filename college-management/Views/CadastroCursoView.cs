@@ -34,8 +34,8 @@ public class CadastroCursoView : ICadastroView
 		StringBuilder mensagemConfirmacao = new();
 		mensagemConfirmacao.Append(detalhesView.Layout);
 
+		mensagemConfirmacao.Append("Grade Curricular:");
 		ConfirmaView confirmarCadastro = new("Cadastrar Usuário");
-
 		return confirmarCadastro.Confirmar(mensagemConfirmacao.ToString());
 	}
 }
