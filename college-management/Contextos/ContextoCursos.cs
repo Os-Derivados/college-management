@@ -158,7 +158,7 @@ public class ContextoCursos : Contexto<Curso>,
 				goto FimDeLogica;
 			}
 			else
-				materias.Add(respostaNome.Modelo!);
+				materias.Add(materia);
 		}
 		
 		var curso = new Curso(view.Nome, materias.ToArray());
@@ -176,7 +176,7 @@ FimDeLogica:; // É feio, mas é prático.
 		if (curso is null)
 			return;
 
-		curso = new EditarCursoView(curso).Editar();
+		curso = new EditarCursoView(curso, BaseDeDados.Materias).Editar();
 	}
 
 	public override async Task Excluir()
