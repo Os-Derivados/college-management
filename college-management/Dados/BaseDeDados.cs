@@ -11,4 +11,5 @@ public sealed class BaseDeDados
 	public readonly RepositorioMaterias   Materias   = new();
 	public readonly RepositorioMatriculas Matriculas = new();
 	public readonly RepositorioUsuarios   Usuarios   = new();
+	public readonly RepositorioCursoMateria CursosMaterias = new();
 }

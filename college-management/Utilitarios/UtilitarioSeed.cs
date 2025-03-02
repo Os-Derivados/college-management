@@ -40,7 +40,7 @@ public static class UtilitarioSeed
 		      .Adicionar(new Funcionario(loginMestre,
 		                                 nomeMestre,
 		                                 senhaMestre,
-		                                 obterCargoAdmin.Modelo!.Id!));
+		                                 obterCargoAdmin.Modelo!.Id));
 
 		var (loginTeste, nomeTeste, senhaTeste)
 			= ObterCredenciais(VariaveisAmbiente.UsuarioTesteLogin,
@@ -48,13 +48,14 @@ public static class UtilitarioSeed
 			                   VariaveisAmbiente.UsuarioTesteSenha);
 
 		Materia materiaTeste = new("Matéria Teste", Turno.Integral, 60);
+		Curso   cursoTeste   = new("Curso Teste");
+		CursoMateria cursoMateriaTeste = new(cursoTeste.Id, materiaTeste.Id);
+		
 		await baseDeDados.Materias.Adicionar(materiaTeste);
-
-		Matricula matriculaTeste = new(1, Modalidade.Presencial);
-
-		Curso cursoTeste = new("Curso Teste", [materiaTeste]);
-		(cursoTeste.MatriculasIds = []).Add(matriculaTeste.Id!);
 		await baseDeDados.Cursos.Adicionar(cursoTeste);
+		await baseDeDados.CursosMaterias.Adicionar(cursoMateriaTeste);
+		
+		Matricula matriculaTeste = new(1, Modalidade.Presencial);
 
 
 		var obterCargoAluno = baseDeDados
@@ -66,8 +67,7 @@ public static class UtilitarioSeed
 		var alunoTeste = new Aluno(loginTeste,
 		                           nomeTeste,
 		                           senhaTeste,
-		                           obterCargoAluno.Modelo!.Id!,
-		                           matriculaTeste.Id!);
+		                           obterCargoAluno.Modelo!.Id);
 
 		var alunoCriado = await baseDeDados.Usuarios.Adicionar(alunoTeste);
 
@@ -102,40 +102,44 @@ public static class UtilitarioSeed
 
 	public static bool ValidarDadosIniciais(BaseDeDados baseDeDados)
 	{
-		var cargoAdms = baseDeDados
+		var cargoAdmExiste = baseDeDados
 			.Cargos
-			.ObterPorNome(CargosPadrao.CargoAdministradores) is not
-			null;
+			.ObterPorNome(CargosPadrao.CargoAdministradores) is
+			not null;
 
-		var cargoAlunos = baseDeDados
-		                  .Cargos
-		                  .ObterPorNome(CargosPadrao.CargoAlunos) is not null;
+		var cargoAlunosExiste = baseDeDados
+			.Cargos
+			.ObterPorNome(CargosPadrao.CargoAlunos) is not
+			null;
 
 		_ = UtilitarioAmbiente
 		    .Variaveis
 		    .TryGetValue(VariaveisAmbiente.MasterAdminNome,
 		                 out var nomeDefault);
-		var usuarioMestre = baseDeDados
-		                    .Usuarios
-		                    .ObterPorNome(nomeDefault) is not null;
 
-		var materiaTeste = baseDeDados
-		                   .Materias
-		                   .ObterPorNome("Matéria Teste") is not null;
+		var usuarioMestreExiste = baseDeDados
+		                          .Usuarios
+		                          .ObterPorNome(nomeDefault) is not null;
 
-		var cursoTeste = baseDeDados
-		                 .Cursos
-		                 .ObterPorNome("Curso Teste") is not null;
+		var materiaTesteExiste = baseDeDados
+		                         .Materias
+		                         .ObterPorNome("Matéria Teste") is not null;
+
+		var cursoTesteExiste = baseDeDados
+		                       .Cursos
+		                       .ObterPorNome("Curso Teste") is not null;
 
 		_ = UtilitarioAmbiente
 		    .Variaveis
 		    .TryGetValue(VariaveisAmbiente.UsuarioTesteLogin,
 		                 out var loginAluno);
-		var usuarioTeste = baseDeDados
-		                   .Usuarios
-		                   .ObterPorLogin(loginAluno) is not null;
 
-		return usuarioMestre & cargoAdms & cargoAlunos & cursoTeste &
-		       usuarioTeste & materiaTeste;
+		var usuarioTesteExiste = baseDeDados
+		                         .Usuarios
+		                         .ObterPorLogin(loginAluno) is not null;
+
+		return usuarioMestreExiste & cargoAdmExiste & cargoAlunosExiste &
+		       cursoTesteExiste &
+		       usuarioTesteExiste & materiaTesteExiste;
 	}
 }

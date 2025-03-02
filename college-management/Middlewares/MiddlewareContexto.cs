@@ -2,6 +2,7 @@ using college_management.Constantes;
 using college_management.Contextos;
 using college_management.Dados;
 using college_management.Dados.Modelos;
+using college_management.Servicos;
 using college_management.Views;
 
 
@@ -13,18 +14,28 @@ public static class MiddlewareContexto
 	public static void Inicializar(BaseDeDados baseDeDados,
 	                               Usuario usuario)
 	{
-		var obterCargo  = baseDeDados.Cargos.ObterPorId(usuario.CargoId);
+		var obterCargo = baseDeDados.Cargos.ObterPorId(usuario.CargoId);
 
 		if (obterCargo.Status is StatusResposta.ErroNaoEncontrado) return;
-		
+
 		var opcaoContexto = EscolherContexto(obterCargo.Modelo!);
 
 		if (opcaoContexto is "") return;
 
-		ContextoUsuarios contextoUsuarios = new(baseDeDados, usuario);
-		ContextoCargos   contextoCargos   = new(baseDeDados, usuario);
-		ContextoMaterias contextoMaterias = new(baseDeDados, usuario);
-		ContextoCursos   contextoCursos   = new(baseDeDados, usuario);
+		ServicoCargos   servicoCargos   = new(baseDeDados.Cargos);
+		ServicoUsuarios servicoUsuarios = new(baseDeDados.Usuarios);
+		ServicoCursos   servicoCursos   = new(baseDeDados.Cursos);
+		ServicoMaterias servicoMaterias = new(baseDeDados.Materias);
+
+		ContextoUsuarios contextoUsuarios
+			= new(baseDeDados, usuario, servicoCargos, servicoUsuarios,
+			      servicoCursos);
+		ContextoCargos contextoCargos
+			= new(baseDeDados, usuario, servicoCargos);
+		ContextoMaterias contextoMaterias
+			= new(baseDeDados, usuario, servicoMaterias);
+		ContextoCursos contextoCursos
+			= new(baseDeDados, usuario, servicoCursos);
 
 		switch (opcaoContexto)
 		{

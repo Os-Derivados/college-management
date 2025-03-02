@@ -1,6 +1,7 @@
-using System.Text;
 using college_management.Dados;
 using college_management.Dados.Modelos;
+using college_management.Servicos;
+using college_management.Servicos.Interfaces;
 using college_management.Utilitarios;
 using college_management.Views;
 
@@ -10,11 +11,17 @@ namespace college_management.Contextos;
 
 public class ContextoMaterias : Contexto<Materia>
 {
-	public ContextoMaterias(BaseDeDados baseDeDados, Usuario usuarioContexto) :
-		base(baseDeDados, usuarioContexto)
+	public ContextoMaterias(BaseDeDados baseDeDados,
+	                        Usuario usuarioContexto,
+	                        IServicoModelos<Materia> servicoMaterias)
+		: base(baseDeDados, usuarioContexto)
 	{
+		_servicoMaterias = servicoMaterias;
 	}
 
+	private readonly IServicoModelos<Materia> _servicoMaterias;
+
+	// trsaints: Isso aqui é uma View
 	private Dictionary<string, string> ObterEntradasUsuario(string titulo)
 	{
 		InputView inputUsuario = new(titulo);
@@ -33,6 +40,8 @@ public class ContextoMaterias : Contexto<Materia>
 		return inputUsuario.EntradasUsuario;
 	}
 
+	// trsaints: Validações devem acontecer dentro do
+	// Serviço; sem contar que o método faz duas coisas ao mesmo tempo.
 	private async Task<bool> ValidarECadastrarMateria(
 		Dictionary<string, string> dadosMateria)
 	{
@@ -58,6 +67,7 @@ public class ContextoMaterias : Contexto<Materia>
 		return cadastroMateria.Status is StatusResposta.Sucesso;
 	}
 
+	// trsaints: O mesmo problema do método anterior.
 	private async Task<bool> ValidarEAtualizarMateria(Materia materia,
 		Dictionary<string, string> editarMateria)
 	{
@@ -98,13 +108,7 @@ public class ContextoMaterias : Contexto<Materia>
 
 	public override async Task Cadastrar()
 	{
-		if (!TemAcessoRestrito)
-		{
-			View.Aviso(
-				"Você não tem permissão para acessar esse recurso.");
-
-			return;
-		}
+		if (!ValidarPermissoes()) return;
 
 		var cadastroMateria
 			= ObterEntradasUsuario("Cadastrar Matéria");
@@ -130,19 +134,9 @@ public class ContextoMaterias : Contexto<Materia>
 
 	public override async Task Editar()
 	{
-		BuscaMateriaView buscaMateria = new("Buscar Matéria");
-		var              chaveBusca   = buscaMateria.Buscar();
+		var materia = _servicoMaterias.Pesquisar();
 
-		var obterMateria = chaveBusca.Key is 1
-			? BaseDeDados.Materias.ObterPorNome(chaveBusca.Value)
-			: BaseDeDados.Materias.ObterPorId(chaveBusca.Value);
-
-		if (obterMateria.Status is StatusResposta.ErroNaoEncontrado)
-		{
-			View.Aviso("Matéria não encontrada.");
-
-			return;
-		}
+		if (materia is null) return;
 
 		var editarMateria = ObterEntradasUsuario("Editar Matéria");
 
@@ -157,8 +151,7 @@ public class ContextoMaterias : Contexto<Materia>
 		if (confirmacao.ToString().ToLower() is not "s") return;
 
 		var foiAtualizado
-			= await ValidarEAtualizarMateria(obterMateria.Modelo!,
-			                                 editarMateria);
+			= await ValidarEAtualizarMateria(materia, editarMateria);
 
 		var mensagemOperacao = foiAtualizado
 			? $"{nameof(Materia)} atualizada com sucesso."
@@ -169,23 +162,13 @@ public class ContextoMaterias : Contexto<Materia>
 
 	public override async Task Excluir()
 	{
-		BuscaMateriaView buscaMateria = new("Buscar Matéria");
-		var              chaveBusca   = buscaMateria.Buscar();
+		var materia = _servicoMaterias.Pesquisar();
 
-		var obterMateria = chaveBusca.Key is 1
-			? BaseDeDados.Materias.ObterPorNome(chaveBusca.Value)
-			: BaseDeDados.Materias.ObterPorId(chaveBusca.Value);
-
-		if (obterMateria.Status is StatusResposta.ErroNaoEncontrado)
-		{
-			View.Aviso("Matéria não encontrada.");
-
-			return;
-		}
+		if (materia is null) return;
 
 		DetalhesView detalhesMateria
 			= new("Detalhes da Matéria", UtilitarioTipos.ObterPropriedades(
-				      obterMateria.Modelo,
+				      materia,
 				      ["Nome", "Id", "CargaHoraria", "Turno"]));
 		detalhesMateria.ConstruirLayout();
 
@@ -195,13 +178,12 @@ public class ContextoMaterias : Contexto<Materia>
 
 		if (confirmacao.ToString().ToLower() is not "s") return;
 
-		var excluirMateria
-			= await BaseDeDados.Materias.Remover(obterMateria.Modelo!.Id);
+		var excluirMateria = await BaseDeDados.Materias.Remover(materia.Id);
 
 		var mensagemOperacao = excluirMateria.Status switch
 		{
 			StatusResposta.Sucesso =>
-				$"{nameof(Materia)} deletada com sucesso.",
+				$"{nameof(Materia)} excluída com sucesso.",
 			StatusResposta.ErroNaoEncontrado => "Matéria não encontrada.",
 			_ => "Não foi possível deletar a matéria."
 		};
@@ -229,22 +211,12 @@ public class ContextoMaterias : Contexto<Materia>
 
 	public override void VerDetalhes()
 	{
-		BuscaMateriaView buscaMateria = new("Buscar Matéria");
-		var              chaveBusca   = buscaMateria.Buscar();
-
-		var obterMateria = chaveBusca.Key is 1
-			? BaseDeDados.Materias.ObterPorNome(chaveBusca.Value)
-			: BaseDeDados.Materias.ObterPorId(chaveBusca.Value);
-
-		if (obterMateria.Status is StatusResposta.ErroNaoEncontrado)
-		{
-			View.Aviso("Matéria não encontrada.");
-
-			return;
-		}
+		var materia = _servicoMaterias.Pesquisar();
+		
+		if (materia is null) return;
 
 		var detalhes = UtilitarioTipos.ObterPropriedades(
-			obterMateria.Modelo, ["Nome", "Turno", "CargaHoraria", "Id"]);
+			materia, ["Nome", "Turno", "CargaHoraria", "Id"]);
 
 		DetalhesView detalhesMateria = new("Matéria Encontrada", detalhes);
 		detalhesMateria.ConstruirLayout();

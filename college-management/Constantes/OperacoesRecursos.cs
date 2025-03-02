@@ -21,8 +21,7 @@ public static class OperacoesRecursos
 	[
 		..RecursosLeitura,
 		"Ver Matricula",
-		"Ver Notas",
-		"Ver Financeiro"
+		"Ver Notas"
 	];
 
 	public static readonly string[] RecursosEscritaUsuarios =

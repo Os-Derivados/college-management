@@ -2,6 +2,8 @@ using college_management.Constantes;
 using college_management.Contextos.Interfaces;
 using college_management.Dados;
 using college_management.Dados.Modelos;
+using college_management.Servicos;
+using college_management.Servicos.Interfaces;
 using college_management.Utilitarios;
 using college_management.Views;
 
@@ -13,11 +15,20 @@ public class ContextoUsuarios : Contexto<Usuario>,
                                 IContextoUsuarios
 {
 	public ContextoUsuarios(BaseDeDados baseDeDados,
-	                        Usuario usuarioContexto) :
-		base(baseDeDados,
-		     usuarioContexto)
+	                        Usuario usuarioContexto,
+	                        IServicoModelos<Cargo> servicoCargos,
+	                        IServicoModelos<Usuario> servicoUsuarios,
+	                        IServicoModelos<Curso> servicoCursos)
+		: base(baseDeDados, usuarioContexto)
 	{
+		_servicoCargos   = servicoCargos;
+		_servicoUsuarios = servicoUsuarios;
+		_servicoCursos   = servicoCursos;
 	}
+
+	private readonly IServicoModelos<Cargo>   _servicoCargos;
+	private readonly IServicoModelos<Usuario> _servicoUsuarios;
+	private readonly IServicoModelos<Curso>   _servicoCursos;
 
 	public void VerMatricula()
 	{
@@ -96,13 +107,8 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		throw new NotImplementedException();
 	}
 
-	public void VerFinanceiro() { throw new NotImplementedException(); }
-
 	public override async Task Cadastrar()
 	{
-		InputView inputUsuario = new("Cadastrar Usuário");
-		inputUsuario.ConstruirLayout();
-
 		if (!ValidarPermissoes()) return;
 
 		CadastroUsuarioView cadastroUsuarioView = new();
@@ -112,55 +118,73 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		if (confirmaCadastro is not 's') return;
 
-		var obterCargoPorNome = BaseDeDados
-		                        .Cargos
-		                        .ObterPorNome(dadosUsuario["Cargo"]);
+		var buscarCargo
+			= _servicoCargos.Buscar(CriterioBusca.Nome, dadosUsuario["Cargo"]);
 
-		if (obterCargoPorNome.Status is StatusResposta.ErroNaoEncontrado)
+		if (buscarCargo.Status is not StatusResposta.Sucesso) return;
+
+		var novoUsuario
+			= Usuario.CriarUsuario(buscarCargo.Modelo!, dadosUsuario);
+
+		if (buscarCargo.Modelo!.Nome is not CargosPadrao.CargoAlunos)
 		{
-			View.Aviso("O Cargo inserido não foi encontrado na base de dados.");
+			var cadastroUsuario = await BaseDeDados
+			                            .Usuarios
+			                            .Adicionar(novoUsuario);
+
+			View.Aviso(cadastroUsuario.Status is StatusResposta.Sucesso
+				           ? "Usuário cadastrado com sucesso."
+				           : "Não foi possível cadastrar novo usuário.");
 
 			return;
 		}
 
-		var novaMatricula = obterCargoPorNome.Modelo!.Nome
-			is CargosPadrao.CargoAlunos
-			? Matricula.CriarMatricula(dadosUsuario)
-			: null;
+		var novaMatricula = Matricula.CriarMatricula(dadosUsuario);
 
-		var cursoEscolhido = novaMatricula is not null
-			? BaseDeDados
-			  .Cursos
-			  .ObterPorNome(dadosUsuario["Curso"])
-			: null;
-
-		var novoUsuario = Usuario.CriarUsuario(obterCargoPorNome.Modelo,
-		                                       dadosUsuario,
-		                                       novaMatricula!);
-
-		var cadastroUsuario = await BaseDeDados
-		                            .Usuarios
-		                            .Adicionar(novoUsuario);
-
-		var foiAdicionado = cadastroUsuario.Status is StatusResposta.Sucesso;
-
-		if (foiAdicionado
-		    && novaMatricula is not null
-		    && cursoEscolhido is not null)
+		if (novaMatricula is null)
 		{
-			novaMatricula.AlunoId = novoUsuario.Id;
-			novaMatricula.CursoId = cursoEscolhido.Modelo!.Id;
+			View.Aviso($"Não foi possível gerar {nameof(Matricula)}.");
 
-			var cadastroMatricula
-				= await BaseDeDados.Matriculas.Adicionar(novaMatricula);
-
-			foiAdicionado = foiAdicionado &&
-			                cadastroMatricula.Status is StatusResposta.Sucesso;
+			return;
 		}
 
-		var mensagemOperacao = foiAdicionado
-			? $"{nameof(Usuario)} cadastrado com sucesso."
-			: $"Não foi possível cadastrar novo {nameof(Usuario)}.";
+		var cursoEscolhido
+			= BaseDeDados.Cursos.ObterPorNome(dadosUsuario["Curso"]);
+
+		if (_servicoCursos.ValidarResposta(cursoEscolhido,
+		                                   ModoOperacao.Leitura))
+		{
+			return;
+		}
+
+		novaMatricula.AlunoId = novoUsuario.Id;
+		novaMatricula.CursoId = cursoEscolhido.Modelo!.Id;
+
+		var cadastroMatricula
+			= await BaseDeDados.Matriculas.Adicionar(novaMatricula);
+
+		if (cadastroMatricula.Status is not StatusResposta.Sucesso)
+		{
+			View.Aviso("Não foi possível cadastrar nova Matricula.");
+
+			return;
+		}
+
+		var cadastrarAluno = await BaseDeDados.Usuarios.Adicionar(novoUsuario);
+
+		if (cadastrarAluno.Status is not StatusResposta.Sucesso)
+		{
+			View.Aviso("Não foi possível cadastrar novo Aluno.");
+
+			await BaseDeDados.Matriculas.Remover(novaMatricula.Id);
+
+			return;
+		}
+
+		var mensagemOperacao
+			= cadastroMatricula.Status is StatusResposta.Sucesso
+				? $"{nameof(Aluno)} cadastrado com sucesso."
+				: $"Não foi possível cadastrar novo {nameof(Aluno)}.";
 
 		View.Aviso(mensagemOperacao);
 	}
@@ -169,25 +193,12 @@ public class ContextoUsuarios : Contexto<Usuario>,
 	{
 		if (!ValidarPermissoes()) return;
 
-		BuscaUsuarioView buscaUsuario = new();
+		var usuario = _servicoUsuarios.Pesquisar();
 
-		var resultadoBusca = buscaUsuario.Buscar();
-		var chaveBusca     = resultadoBusca.Value;
+		if (usuario is null) return;
 
-		var obterUsuario = resultadoBusca.Key is 1
-			? BaseDeDados.Usuarios.ObterPorLogin(chaveBusca)
-			: BaseDeDados.Usuarios.ObterPorId(chaveBusca);
-
-		if (obterUsuario.Status is StatusResposta.ErroNaoEncontrado)
-		{
-			View.Aviso("Usuário não encontrado na base de dados.");
-
-			return;
-		}
-
-		EditarUsuarioView editarUsuarioView
-			= new(obterUsuario.Modelo!, BaseDeDados.Cargos);
-		var usuarioEditado = editarUsuarioView.Editar();
+		EditarUsuarioView editarUsuarioView = new(usuario, BaseDeDados.Cargos);
+		var               usuarioEditado    = editarUsuarioView.Editar();
 
 		ConfirmaView confirmaEdicao = new("Editar Usuário");
 
@@ -215,26 +226,13 @@ public class ContextoUsuarios : Contexto<Usuario>,
 	{
 		if (!ValidarPermissoes()) return;
 
-		BuscaUsuarioView buscaUsuario = new();
+		var usuario = _servicoUsuarios.Pesquisar();
 
-		var resultadoBusca = buscaUsuario.Buscar();
-		var chaveBusca     = resultadoBusca.Value;
-
-		var obterUsuario = resultadoBusca.Key is 1
-			? BaseDeDados.Usuarios.ObterPorLogin(chaveBusca)
-			: BaseDeDados.Usuarios.ObterPorId(chaveBusca);
-
-		if (obterUsuario.Status is StatusResposta.ErroNaoEncontrado)
-		{
-			View.Aviso("Usuário não encontrado.");
-
-			return;
-		}
-
+		if (usuario is null) return;
 
 		DetalhesView detalhesUsuario = new("Excluir Usuário",
 		                                   UtilitarioTipos.ObterPropriedades(
-			                                   obterUsuario,
+			                                   usuario,
 			                                   [
 				                                   "Nome", "Login", "Id",
 				                                   "CargoId"
@@ -247,7 +245,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 			return;
 
 		var foiExcluido
-			= await BaseDeDados.Usuarios.Remover(obterUsuario.Modelo!.Id);
+			= await BaseDeDados.Usuarios.Remover(usuario.Id);
 
 		var mensagemOperacao = foiExcluido.Status switch
 		{
@@ -302,23 +300,11 @@ public class ContextoUsuarios : Contexto<Usuario>,
 			return;
 		}
 
-		BuscaUsuarioView buscaUsuario = new();
+		var usuario = _servicoUsuarios.Pesquisar();
 
-		var resultadoBusca = buscaUsuario.Buscar();
-		var chaveBusca     = resultadoBusca.Value;
+		if (usuario is null) return;
 
-		var obterUsuario = resultadoBusca.Key is 1
-			? BaseDeDados.Usuarios.ObterPorLogin(chaveBusca)
-			: BaseDeDados.Usuarios.ObterPorId(chaveBusca);
-
-		if (obterUsuario.Status is StatusResposta.ErroNaoEncontrado)
-		{
-			View.Aviso("Usuário não encontrado.");
-
-			return;
-		}
-
-		var detalhes = UtilitarioTipos.ObterPropriedades(obterUsuario.Modelo,
+		var detalhes = UtilitarioTipos.ObterPropriedades(usuario,
 		[
 			"Login", "Nome", "Credenciais", "CargoId", "Id"
 		]);

@@ -3,6 +3,8 @@ using college_management.Constantes;
 using college_management.Contextos.Interfaces;
 using college_management.Dados;
 using college_management.Dados.Modelos;
+using college_management.Servicos;
+using college_management.Servicos.Interfaces;
 using college_management.Utilitarios;
 using college_management.Views;
 
@@ -14,11 +16,14 @@ public class ContextoCursos : Contexto<Curso>,
                               IContextoCursos
 {
 	public ContextoCursos(BaseDeDados baseDeDados,
-	                      Usuario usuarioContexto) :
-		base(baseDeDados,
-		     usuarioContexto)
+	                      Usuario usuarioContexto,
+	                      IServicoModelos<Curso> servicoCursos)
+		: base(baseDeDados, usuarioContexto)
 	{
+		_servicoCursos = servicoCursos;
 	}
+
+	private readonly IServicoModelos<Curso> _servicoCursos;
 
 	public void VerGradeHoraria()
 	{
@@ -75,55 +80,70 @@ public class ContextoCursos : Contexto<Curso>,
 
 	public void VerGradeCurricular()
 	{
+		#region GradeCurricularView
+
 		string ObterLayout(Curso curso)
 		{
+			var obterMateriasPorCurso
+				= BaseDeDados.CursosMaterias.ObterPorCurso(curso.Id);
+
+			if (obterMateriasPorCurso.Status is not StatusResposta.Sucesso)
+				return "";
+
+			var materias = obterMateriasPorCurso.Modelo!.Select(mc =>
+			{
+				return BaseDeDados.Materias
+				                  .ObterPorId(mc.MateriaId!.Value)
+				                  .Modelo!;
+			});
+
 			return $"Curso: {curso.Nome}\n" +
 			       $"Ano: {DateTime.Today.Year}\n\n" +
-			       $"{string.Join('\n', curso.GradeCurricular.Select(i => i.Nome))}";
+			       $"{string.Join('\n', materias.Select(i => i.Nome))}";
 		}
 
-		InputView inputRelatorio = new("Ver Grade Curricular");
-
-		Curso? curso;
+		#endregion
 
 		if (TemAcessoRestrito)
 		{
-			curso = PesquisarCurso();
+			var cursoBuscado = _servicoCursos.Pesquisar();
 
-			if (curso is null) return;
+			if (cursoBuscado is null) return;
 
-			inputRelatorio.LerEntrada("Sair", ObterLayout(curso));
+			InputView gradeCurricularView = new("Ver Grade Curricular");
+
+			gradeCurricularView.LerEntrada("Sucesso",
+			                               ObterLayout(cursoBuscado));
 
 			return;
 		}
 
 		if (UsuarioContexto is not Aluno aluno)
 		{
-			inputRelatorio.LerEntrada(
-				"Erro", "O usuário atual não é um aluno.");
+			View.Aviso(
+				$"O usuário atual não é um {nameof(Aluno)} ou não possui permissões suficientes.");
 
 			return;
 		}
 
-		var verCursos = BaseDeDados.Cursos.ObterTodos();
+		var obterMatriculaAluno
+			= BaseDeDados.Matriculas.ObterPorAluno(aluno.Id);
+		var cursoId = obterMatriculaAluno.Modelo?.ToArray()[0].CursoId;
 
-		curso = verCursos
-		        .Modelo!
-		        .FirstOrDefault(
-			        i => i.MatriculasIds?.Contains(aluno.MatriculaId)
-			             ?? false);
+		var obterCursoAluno = BaseDeDados.Cursos.ObterPorId(cursoId!.Value);
 
-		if (verCursos.Modelo!.Count is 0 || curso is null)
+
+		if (obterCursoAluno.Status is StatusResposta.ErroNaoEncontrado)
 		{
-			inputRelatorio.LerEntrada(
-				"Erro", "O aluno não está matriculado em nenhum curso.");
+			View.Aviso(
+				$"O {nameof(Aluno)} não está matriculado em nenhum ${nameof(Curso)}");
 
 			return;
 		}
 
-		var layout = ObterLayout(curso);
+		var layout = ObterLayout(obterCursoAluno.Modelo!);
 
-		inputRelatorio.LerEntrada("Sair", layout);
+		View.Aviso(layout);
 	}
 
 	public override async Task Cadastrar()
@@ -133,17 +153,20 @@ public class ContextoCursos : Contexto<Curso>,
 
 	public override async Task Editar()
 	{
-		var curso = PesquisarCurso();
+		var curso = _servicoCursos.Pesquisar();
 
 		if (curso is null)
 			return;
 
+		// trsaints: basta delimitar os campos editáveis com
+		// um MenuView. Consultar EditarUsuarioView.cs
 		var propriedades = curso.GetType().GetProperties().ToList();
-		// Essas propriedades devem ser editadas por outros meios.
 		propriedades.RemoveAll(i => i.Name == "GradeCurricular");
 		propriedades.RemoveAll(i => i.Name == "MatriculasIds");
-		// Essa aqui nem se fala. Deveríamos adicionar um método de filtrar essas propriedades.
 		propriedades.RemoveAll(i => i.Name == "Id");
+
+
+		#region EditaCursoView
 
 		InputView inputView = new("Editar Curso");
 
@@ -189,15 +212,31 @@ public class ContextoCursos : Contexto<Curso>,
 			return;
 		}
 
-		foreach (var (propriedade, valor) in mudancas)
+		var novoCurso = EditarPropriedade(curso, mudancas.Keys.First(),
+		                                  mudancas.Values.First());
+
+		#endregion
+
+		if (novoCurso is null)
 		{
-			EditarPropriedade(curso, propriedade, valor);
+			View.Aviso("Não foi possível editar Curso: Propriedade inválida.");
+
+			return;
 		}
+
+		var editarCurso = await BaseDeDados.Cursos.Atualizar(novoCurso);
+
+		if (_servicoCursos.ValidarResposta(editarCurso, ModoOperacao.Escrita))
+		{
+			return;
+		}
+
+		View.Aviso("O Curso atualizado com sucesso.");
 	}
 
 	public override async Task Excluir()
 	{
-		var curso = PesquisarCurso();
+		var curso = _servicoCursos.Pesquisar();
 
 		if (curso is null) return;
 
@@ -244,90 +283,67 @@ public class ContextoCursos : Contexto<Curso>,
 
 	public override void VerDetalhes()
 	{
-		var curso = PesquisarCurso();
-		
-		if (curso is null)
-		{
-			View.Aviso("Curso não encontrado.");
-			
-			return;
-		}
+		var curso = _servicoCursos.Pesquisar();
+
+		if (curso is null) return;
 
 		DetalhesView detalhesCurso
 			= new("Curso Encontrado", ObterDetalhes(curso));
+
 		detalhesCurso.ConstruirLayout();
 		detalhesCurso.Exibir();
 	}
 
-	private Curso? PesquisarCurso()
-	{
-		MenuView menuPesquisa = new("Pesquisar Curso",
-		                            "Escolha o método de pesquisa.",
-		                            ["Nome", "Id"]);
-
-		InputView inputPesquisa = new("Ver Grade Curricular: Pesquisar Curso");
-
-		menuPesquisa.ConstruirLayout();
-		menuPesquisa.LerEntrada();
-
-		(string Campo, string Mensagem)? campoPesquisa
-			= menuPesquisa.OpcaoEscolhida switch
-			{
-				1 => ("Nome", "Insira o Nome do curso: "),
-				2 => ("Id", "Insira o Id do curso: "),
-				_ => null
-			};
-
-		if (campoPesquisa is null) return null;
-
-		inputPesquisa.LerEntrada(campoPesquisa?.Campo!,
-		                         campoPesquisa?.Mensagem);
-
-		var curso = menuPesquisa.OpcaoEscolhida switch
-		{
-			1 => BaseDeDados.Cursos
-			                .ObterPorNome(inputPesquisa.ObterEntrada("Nome"))
-			                .Modelo,
-			2 => BaseDeDados.Cursos.ObterPorId(inputPesquisa.ObterEntrada("Id"))
-			                .Modelo,
-			_ => null
-		};
-
-		if (curso is not null) return curso;
-
-		View.Aviso("Curso não encontrado.");
-		
-		return PesquisarCurso();
-	}
-
+	// trsaints: necessário devido a natureza (N:N) do relacionamento
+	// entre Curso e Materia, mas não deixa de ser uma View
 	private Dictionary<string, string> ObterDetalhes(Curso curso)
 	{
-		var detalhes = UtilitarioTipos.ObterPropriedades(curso, ["Nome"]);
+		var detalhesCurso = UtilitarioTipos.ObterPropriedades(curso, ["Nome"]);
+		var obterMateriasPorCurso
+			= BaseDeDados.CursosMaterias.ObterPorCurso(curso.Id);
 
-		detalhes.Add("MateriasId",
-		             $"{string.Join(", ", curso.MatriculasIds ?? [])}");
-		detalhes.Add("GradeCurricular",
-		             $"{string.Join(", ", curso.GradeCurricular.Select(i => i.Nome))}");
-		detalhes.Add("CargaHoraria", $"{curso.ObterCargaHoraria()}h");
+		if (obterMateriasPorCurso.Status is not StatusResposta.Sucesso)
+			return detalhesCurso;
 
-		return detalhes;
+		var materias = obterMateriasPorCurso.Modelo!.Select(mc =>
+		{
+			return BaseDeDados.Materias
+			                  .ObterPorId(mc.MateriaId!.Value)
+			                  .Modelo!;
+		});
+
+		var materiasArray   = materias as Materia[] ?? materias.ToArray();
+		var materiasId   = materiasArray.Select(i => i.Id.ToString());
+		var materiasNome = materiasArray.Select(i => i.Nome);
+		var cargaHoraria = materiasArray.Sum(m => m.CargaHoraria);
+
+		detalhesCurso.Add("MateriasId", $"{string.Join(", ", materiasId)}");
+		detalhesCurso.Add("GradeCurricular",
+		                  $"{string.Join(", ", materiasNome)}");
+		detalhesCurso.Add("CargaHoraria", $"{cargaHoraria}h");
+
+		return detalhesCurso;
 	}
 
-	private void EditarPropriedade(Curso curso,
-	                               string propriedade,
-	                               string? valor)
+	// trsaints: também é uma View, e precisaria ser capaz de editar as
+	// Materias associadas ao Curso
+	private Curso? EditarPropriedade(Curso curso,
+	                                 string propriedade,
+	                                 string? valor)
 	{
+		var novoCurso = curso;
+
 		switch (propriedade)
 		{
 			case "Nome":
 			{
-				curso.Nome = valor ?? curso.Nome;
+				novoCurso.Nome = valor ?? curso.Nome;
 
-				return;
+				return novoCurso;
 			}
 
 			default:
-				return;
+				return null;
 		}
 	}
 }

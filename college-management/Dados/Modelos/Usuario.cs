@@ -12,25 +12,22 @@ namespace college_management.Dados.Modelos;
 [JsonDerivedType(typeof(Funcionario), "funcionario")]
 public class Usuario : Modelo
 {
-	private static long _contagemId = 10000000000;
+	private static ulong _contagemId = 10000000000;
 
 	public Usuario(string login,
 	               string nome,
 	               CredenciaisUsuario credenciais,
-	               string cargoId)
+	               Guid cargoId)
 	{
 		Login       = login;
 		Nome        = nome;
 		CargoId     = cargoId;
 		Credenciais = credenciais;
-
-		Id = _contagemId.ToString(CultureInfo.InvariantCulture);
-		_contagemId++;
 	}
 
 	public string?             Login       { get; set; }
 	public string?             Nome        { get; set; }
-	public string              CargoId     { get; set; }
+	public Guid              CargoId     { get; set; }
 	public CredenciaisUsuario? Credenciais { get; set; }
 
 	public static Usuario? Autenticar(RepositorioUsuarios repositorio,
@@ -47,8 +44,7 @@ public class Usuario : Modelo
 	}
 
 	public static Usuario CriarUsuario(Cargo cargoEscolhido,
-	                                   Dictionary<string, string> cadastro,
-	                                   Matricula novaMatricula)
+	                                   Dictionary<string, string> cadastro)
 	{
 		Usuario novoUsuario = cargoEscolhido.Nome switch
 		{
@@ -56,12 +52,10 @@ public class Usuario : Modelo
 			                                      cadastro["Nome"],
 			                                      new CredenciaisUsuario(
 				                                      cadastro["Senha"]),
-			                                      cargoEscolhido.Id!,
-			                                      novaMatricula.Id!),
+			                                      cargoEscolhido.Id),
 			_ => new Funcionario(cadastro["Login"],
 			                     cadastro["Nome"],
-			                     new CredenciaisUsuario(
-				                     cadastro["Senha"]),
+			                     new CredenciaisUsuario(cadastro["Senha"]),
 			                     cargoEscolhido.Id!)
 		};
 

@@ -6,11 +6,9 @@ namespace college_management.Views;
 
 public class BuscaMateriaView : View, IBuscaMateriaView
 {
-	public BuscaMateriaView(string titulo) : base(titulo)
-	{
-	}
+	public BuscaMateriaView(string titulo) : base(titulo) { }
 
-	public KeyValuePair<int, string> Buscar()
+	public KeyValuePair<string, string> Buscar()
 	{
 		MenuView menuPesquisa = new("Pesquisar Matéria",
 		                            "Selecione um dos campos para pesquisar.",
@@ -28,9 +26,9 @@ public class BuscaMateriaView : View, IBuscaMateriaView
 		while (campoPesquisa is null)
 		{
 			Aviso("Campo inválido. Tente novamente.");
-			
+
 			menuPesquisa.LerEntrada();
-			
+
 			campoPesquisa = menuPesquisa.OpcaoEscolhida switch
 			{
 				1 => "Nome",
@@ -43,6 +41,7 @@ public class BuscaMateriaView : View, IBuscaMateriaView
 		inputPesquisa.LerEntrada(campoPesquisa,
 		                         $"Insira o {campoPesquisa} da Matéria: ");
 
-		return new KeyValuePair<int, string>(menuPesquisa.OpcaoEscolhida, inputPesquisa.ObterEntrada(campoPesquisa));
+		return new KeyValuePair<string, string>(
+			campoPesquisa, inputPesquisa.ObterEntrada(campoPesquisa));
 	}
 }

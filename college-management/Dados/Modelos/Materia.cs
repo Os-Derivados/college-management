@@ -6,16 +6,11 @@ namespace college_management.Dados.Modelos;
 
 public sealed class Materia : Modelo
 {
-	private static double _contagemId = 10000000000;
-
 	public Materia(string nome, Turno turno, int cargaHoraria)
 	{
 		Nome         = nome;
-		Id           = _contagemId.ToString(CultureInfo.InvariantCulture);
 		Turno        = turno;
 		CargaHoraria = cargaHoraria;
-
-		_contagemId++;
 	}
 
 	public string? Nome         { get; set; }
