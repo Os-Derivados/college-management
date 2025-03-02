@@ -79,13 +79,13 @@ public class EditarCursoView : View, IEditarModeloView<Curso>
 		{
 			detalhesCurso.Layout.AppendLine($"\t{materia.Nome}");
 		}
-		
+
 		detalhesCurso.Layout.AppendLine("MatriculaIds:");
 		foreach (var matricula in _curso.MatriculasIds)
 		{
 			detalhesCurso.Layout.AppendLine($"\t{matricula}");
 		}
-		
+
 		return detalhesCurso.Layout.ToString();
 	}
 
@@ -104,12 +104,13 @@ public class EditarCursoView : View, IEditarModeloView<Curso>
 
 		_curso.Nome = inputEdicao.ObterEntrada("Nome").Trim();
 	}
-	
+
 	private void EditarGradeCurricular()
 	{
 		MenuView acaoView = new("Selecione a ação desejada.",
-			string.Empty, 
+			string.Empty,
 			["Adicionar", "Remover"]);
+		acaoView.ConstruirLayout();
 		acaoView.LerEntrada();
 
 		switch (acaoView.OpcaoEscolhida)
@@ -117,21 +118,21 @@ public class EditarCursoView : View, IEditarModeloView<Curso>
 			case 0:
 				return;
 
-			case 1:
+			default:
 			{
 				List<Materia> antigoGradeCurricular = _curso.GradeCurricular.ToList();
-				
+
 				while (true)
 				{
-					InputView inputMateria = new($"Adicionar matéria para a grade curricular\n{string.Join("\n", _curso.GradeCurricular.Select(i => i.Nome).ToList())}\n");
+					InputView inputMateria = new($"{(acaoView.OpcaoEscolhida is 1 ? "Adicionar" : "Remover")} matéria para a grade curricular\n{string.Join("\n", antigoGradeCurricular.Select(i => i.Nome).ToList())}\n");
 					inputMateria.LerEntrada("MateriaNome", "Deixe vazio para sair. Insira o Nome ou Id da matéria: ");
 					if (string.IsNullOrEmpty(inputMateria.ObterEntrada("MateriaNome").Trim()))
 						break;
 
 					string moniker = inputMateria.ObterEntrada("MateriaNome");
-					
+
 					Materia? materia = null;
-			
+
 					var respostaNome = _repositorioMaterias.ObterPorNome(moniker);
 					var respostaId = _repositorioMaterias.ObterPorId(moniker);
 
@@ -147,7 +148,12 @@ public class EditarCursoView : View, IEditarModeloView<Curso>
 						continue;
 					}
 					else
-						antigoGradeCurricular.Add(materia);
+					{
+						if (acaoView.OpcaoEscolhida is 1)
+							antigoGradeCurricular.Add(materia);
+						else
+							antigoGradeCurricular.Remove(materia);
+					}
 				}
 
 				_curso.GradeCurricular = antigoGradeCurricular.ToArray();
