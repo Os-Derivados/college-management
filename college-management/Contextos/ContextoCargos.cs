@@ -210,6 +210,7 @@ public class ContextoCargos : Contexto<Cargo>
 	}
 
 
+	// trsaints: Isso daqui é uma View
 	string SelecionaCargoParaEdicao(InputView inputView)
 	{
 		inputView.LerEntrada("name", "Insira o nome do cargo a ser editado: ");
@@ -220,6 +221,8 @@ public class ContextoCargos : Contexto<Cargo>
 	}
 
 
+	// trsaints: Isso daqui também é uma View, altamente acoplada com
+	// gerar um novo objeto Cargo
 	Cargo? TelaDeEdicao(Cargo cargoAtual, InputView inputView)
 	{
 		inputView.LerEntrada("nome",
@@ -238,6 +241,7 @@ public class ContextoCargos : Contexto<Cargo>
 	}
 
 
+	// trsaints: Redundante, deve ser validado no Serviço
 	bool ValidarEntrada(InputView inputView, string chave)
 	{
 		string item = inputView.ObterEntrada(chave);
@@ -251,6 +255,7 @@ public class ContextoCargos : Contexto<Cargo>
 		return true;
 	}
 
+	// trsaints: isso aqui também é uma View
 	void ExibirDetalhesCargo(Cargo cargo)
 	{
 		var dicionario = new Dictionary<string, string>();
@@ -266,6 +271,7 @@ public class ContextoCargos : Contexto<Cargo>
 		detalhesView.Exibir();
 	}
 
+	// trsaints: Também é uma View
 	string ListaParaString(List<string> strings)
 	{
 		var output = "\n[\n";
@@ -281,6 +287,7 @@ public class ContextoCargos : Contexto<Cargo>
 	}
 
 
+	// trsaints: Já existe um ConfirmaView, isso aqui é redundante
 	bool ConfirmarEscolha(string menssagem, Cargo? cargo = null)
 	{
 		Console.Clear();

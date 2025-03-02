@@ -80,6 +80,8 @@ public class ContextoCursos : Contexto<Curso>,
 
 	public void VerGradeCurricular()
 	{
+		#region GradeCurricularView
+
 		string ObterLayout(Curso curso)
 		{
 			var obterMateriasPorCurso
@@ -100,7 +102,7 @@ public class ContextoCursos : Contexto<Curso>,
 			       $"{string.Join('\n', materias.Select(i => i.Nome))}";
 		}
 
-		InputView inputRelatorio = new("Ver Grade Curricular");
+		#endregion
 
 		if (TemAcessoRestrito)
 		{
@@ -108,15 +110,18 @@ public class ContextoCursos : Contexto<Curso>,
 
 			if (cursoBuscado is null) return;
 
-			inputRelatorio.LerEntrada("Sair", ObterLayout(cursoBuscado));
+			InputView gradeCurricularView = new("Ver Grade Curricular");
+
+			gradeCurricularView.LerEntrada("Sucesso",
+			                               ObterLayout(cursoBuscado));
 
 			return;
 		}
 
 		if (UsuarioContexto is not Aluno aluno)
 		{
-			inputRelatorio.LerEntrada(
-				"Erro", "O usuário atual não é um aluno.");
+			View.Aviso(
+				$"O usuário atual não é um {nameof(Aluno)} ou não possui permissões suficientes.");
 
 			return;
 		}
@@ -130,15 +135,15 @@ public class ContextoCursos : Contexto<Curso>,
 
 		if (obterCursoAluno.Status is StatusResposta.ErroNaoEncontrado)
 		{
-			inputRelatorio.LerEntrada(
-				"Erro", "O aluno não está matriculado em nenhum curso.");
+			View.Aviso(
+				$"O {nameof(Aluno)} não está matriculado em nenhum ${nameof(Curso)}");
 
 			return;
 		}
 
 		var layout = ObterLayout(obterCursoAluno.Modelo!);
 
-		inputRelatorio.LerEntrada("Sair", layout);
+		View.Aviso(layout);
 	}
 
 	public override async Task Cadastrar()
@@ -153,12 +158,15 @@ public class ContextoCursos : Contexto<Curso>,
 		if (curso is null)
 			return;
 
+		// trsaints: basta delimitar os campos editáveis com
+		// um MenuView. Consultar EditarUsuarioView.cs
 		var propriedades = curso.GetType().GetProperties().ToList();
-		// Essas propriedades devem ser editadas por outros meios.
 		propriedades.RemoveAll(i => i.Name == "GradeCurricular");
 		propriedades.RemoveAll(i => i.Name == "MatriculasIds");
-		// Essa aqui nem se fala. Deveríamos adicionar um método de filtrar essas propriedades.
 		propriedades.RemoveAll(i => i.Name == "Id");
+
+
+		#region EditaCursoView
 
 		InputView inputView = new("Editar Curso");
 
@@ -207,20 +215,22 @@ public class ContextoCursos : Contexto<Curso>,
 		var novoCurso = EditarPropriedade(curso, mudancas.Keys.First(),
 		                                  mudancas.Values.First());
 
+		#endregion
+
 		if (novoCurso is null)
 		{
 			View.Aviso("Não foi possível editar Curso: Propriedade inválida.");
 
 			return;
 		}
-		
+
 		var editarCurso = await BaseDeDados.Cursos.Atualizar(novoCurso);
 
 		if (_servicoCursos.ValidarResposta(editarCurso, ModoOperacao.Escrita))
 		{
 			return;
 		}
-		
+
 		View.Aviso("O Curso atualizado com sucesso.");
 	}
 
@@ -279,11 +289,13 @@ public class ContextoCursos : Contexto<Curso>,
 
 		DetalhesView detalhesCurso
 			= new("Curso Encontrado", ObterDetalhes(curso));
-		
+
 		detalhesCurso.ConstruirLayout();
 		detalhesCurso.Exibir();
 	}
 
+	// trsaints: necessário devido a natureza (N:N) do relacionamento
+	// entre Curso e Materia, mas não deixa de ser uma View
 	private Dictionary<string, string> ObterDetalhes(Curso curso)
 	{
 		var detalhesCurso = UtilitarioTipos.ObterPropriedades(curso, ["Nome"]);
@@ -293,21 +305,17 @@ public class ContextoCursos : Contexto<Curso>,
 		if (obterMateriasPorCurso.Status is not StatusResposta.Sucesso)
 			return detalhesCurso;
 
-		var materiasCurso = obterMateriasPorCurso.Modelo!
-		                                         .Select(mc =>
-		                                         {
-			                                         return BaseDeDados
-				                                         .Materias
-				                                         .ObterPorId(
-					                                         mc.MateriaId!
-						                                         .Value)
-				                                         .Modelo!;
-		                                         })
-		                                         .ToArray();
+		var materias = obterMateriasPorCurso.Modelo!.Select(mc =>
+		{
+			return BaseDeDados.Materias
+			                  .ObterPorId(mc.MateriaId!.Value)
+			                  .Modelo!;
+		});
 
-		var materiasId   = materiasCurso.Select(i => i.Id.ToString());
-		var materiasNome = materiasCurso.Select(i => i.Nome);
-		var cargaHoraria = materiasCurso.Sum(m => m.CargaHoraria);
+		var materiasArray   = materias as Materia[] ?? materias.ToArray();
+		var materiasId   = materiasArray.Select(i => i.Id.ToString());
+		var materiasNome = materiasArray.Select(i => i.Nome);
+		var cargaHoraria = materiasArray.Sum(m => m.CargaHoraria);
 
 		detalhesCurso.Add("MateriasId", $"{string.Join(", ", materiasId)}");
 		detalhesCurso.Add("GradeCurricular",
@@ -317,6 +325,8 @@ public class ContextoCursos : Contexto<Curso>,
 		return detalhesCurso;
 	}
 
+	// trsaints: também é uma View, e precisaria ser capaz de editar as
+	// Materias associadas ao Curso
 	private Curso? EditarPropriedade(Curso curso,
 	                                 string propriedade,
 	                                 string? valor)

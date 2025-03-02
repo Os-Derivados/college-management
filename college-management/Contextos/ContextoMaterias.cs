@@ -21,6 +21,7 @@ public class ContextoMaterias : Contexto<Materia>
 
 	private readonly IServicoModelos<Materia> _servicoMaterias;
 
+	// trsaints: Isso aqui é uma View
 	private Dictionary<string, string> ObterEntradasUsuario(string titulo)
 	{
 		InputView inputUsuario = new(titulo);
@@ -39,6 +40,8 @@ public class ContextoMaterias : Contexto<Materia>
 		return inputUsuario.EntradasUsuario;
 	}
 
+	// trsaints: Validações devem acontecer dentro do
+	// Serviço; sem contar que o método faz duas coisas ao mesmo tempo.
 	private async Task<bool> ValidarECadastrarMateria(
 		Dictionary<string, string> dadosMateria)
 	{
@@ -64,6 +67,7 @@ public class ContextoMaterias : Contexto<Materia>
 		return cadastroMateria.Status is StatusResposta.Sucesso;
 	}
 
+	// trsaints: O mesmo problema do método anterior.
 	private async Task<bool> ValidarEAtualizarMateria(Materia materia,
 		Dictionary<string, string> editarMateria)
 	{
