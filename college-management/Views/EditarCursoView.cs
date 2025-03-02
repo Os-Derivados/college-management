@@ -19,7 +19,12 @@ public class EditarCursoView : View, IEditarModeloView<Curso>
 	{
 		_curso = curso;
 		_repositorioMaterias = repositorioMaterias;
+		_nome = curso.Nome;
+		_gradeCurricular = curso.GradeCurricular.ToList();
 	}
+
+	string _nome;
+	List<Materia> _gradeCurricular;
 
 	private Curso _curso { get; }
 	
@@ -48,7 +53,7 @@ public class EditarCursoView : View, IEditarModeloView<Curso>
 			{
 				EditarGradeCurricular();
 			}
-			
+
 			camposEditaveis = new MenuView("Editar Curso",
 				$"""
 				 {ObterDetalhes()}
@@ -66,16 +71,12 @@ public class EditarCursoView : View, IEditarModeloView<Curso>
 
 	private string ObterDetalhes()
 	{
-		DetalhesView detalhesCurso = new("Editar Curso",
-			UtilitarioTipos
-				.ObterPropriedades(_curso,
-				[
-					"Nome",
-				]));
+		DetalhesView detalhesCurso = new("Editar Curso", []);
 
 		detalhesCurso.ConstruirLayout();
+		detalhesCurso.Layout.AppendLine($"Nome: {_nome}");
 		detalhesCurso.Layout.AppendLine("GradeCurricular:");
-		foreach (var materia in _curso.GradeCurricular)
+		foreach (var materia in _gradeCurricular)
 		{
 			detalhesCurso.Layout.AppendLine($"\t{materia.Nome}");
 		}
@@ -102,7 +103,7 @@ public class EditarCursoView : View, IEditarModeloView<Curso>
 			return;
 		}
 
-		_curso.Nome = inputEdicao.ObterEntrada("Nome").Trim();
+		_nome = inputEdicao.ObterEntrada("Nome").Trim();
 	}
 
 	private void EditarGradeCurricular()
@@ -120,11 +121,9 @@ public class EditarCursoView : View, IEditarModeloView<Curso>
 
 			default:
 			{
-				List<Materia> antigoGradeCurricular = _curso.GradeCurricular.ToList();
-
 				while (true)
 				{
-					InputView inputMateria = new($"{(acaoView.OpcaoEscolhida is 1 ? "Adicionar" : "Remover")} matéria para a grade curricular\n{string.Join("\n", antigoGradeCurricular.Select(i => i.Nome).ToList())}\n");
+					InputView inputMateria = new($"{(acaoView.OpcaoEscolhida is 1 ? "Adicionar" : "Remover")} matéria para a grade curricular\n{string.Join("\n", _gradeCurricular.Select(i => i.Nome).ToList())}\n");
 					inputMateria.LerEntrada("MateriaNome", "Deixe vazio para sair. Insira o Nome ou Id da matéria: ");
 					if (string.IsNullOrEmpty(inputMateria.ObterEntrada("MateriaNome").Trim()))
 						break;
@@ -150,13 +149,11 @@ public class EditarCursoView : View, IEditarModeloView<Curso>
 					else
 					{
 						if (acaoView.OpcaoEscolhida is 1)
-							antigoGradeCurricular.Add(materia);
+							_gradeCurricular.Add(materia);
 						else
-							antigoGradeCurricular.Remove(materia);
+							_gradeCurricular.Remove(materia);
 					}
 				}
-
-				_curso.GradeCurricular = antigoGradeCurricular.ToArray();
 			} break;
 		}
 	}
