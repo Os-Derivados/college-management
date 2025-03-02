@@ -20,15 +20,14 @@ public class BuscaModeloView<T> : View, IBuscaModeloView where T : Modelo
 		                            "Selecione um dos campos para pesquisar.",
 		                            _campos);
 		menuPesquisa.ConstruirLayout();
-		menuPesquisa.LerEntrada();
 
 		string? campoPesquisa = null;
 		while (campoPesquisa is null)
 		{
 			menuPesquisa.LerEntrada();
-			
+
 			campoPesquisa = _campos.ElementAtOrDefault(menuPesquisa.OpcaoEscolhida - 1);
-			
+
 			if (campoPesquisa is null)
 				Aviso("Campo inválido. Tente novamente.");
 		}
