@@ -36,6 +36,6 @@ public class BuscaModeloView<T> : View, IBuscaModeloView where T : Modelo
 		inputPesquisa.LerEntrada(campoPesquisa,
 		                         $"Insira o {campoPesquisa} d{typeof(T).Name.Last()} {typeof(T).Name}: ");
 
-		return new KeyValuePair<int, string>(menuPesquisa.OpcaoEscolhida, inputPesquisa.ObterEntrada(campoPesquisa));
+		return new KeyValuePair<int, string>(menuPesquisa.OpcaoEscolhida, inputPesquisa.ObterEntrada(campoPesquisa).Trim());
 	}
 }
