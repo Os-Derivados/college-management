@@ -66,6 +66,15 @@ public class EditarCursoView : View, IEditarModeloView<Curso>
 			camposEditaveis.LerEntrada();
 		}
 
+		ConfirmaView confirmaView = new("Editar Curso");
+		confirmaView.ConstruirLayout();
+		confirmaView.Layout.AppendLine(ObterDetalhes());
+		if (confirmaView.Confirmar("Deseja aplicar as alterações?").ToString().ToLower() is "s")
+		{
+			_curso.Nome = _nome;
+			_curso.GradeCurricular = _gradeCurricular.ToArray();
+		}
+
 		return _curso;
 	}
 
