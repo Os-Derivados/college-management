@@ -81,7 +81,7 @@ public class EditarCursoView : View, IEditarModeloView<Curso>
 		}
 
 		detalhesCurso.Layout.AppendLine("MatriculaIds:");
-		foreach (var matricula in _curso.MatriculasIds)
+		foreach (var matricula in _curso.MatriculasIds ?? [])
 		{
 			detalhesCurso.Layout.AppendLine($"\t{matricula}");
 		}
