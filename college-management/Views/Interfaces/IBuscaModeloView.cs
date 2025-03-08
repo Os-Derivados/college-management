@@ -1,7 +1,7 @@
 namespace college_management.Views.Interfaces;
 
 
-public interface IBuscaMateriaView
+public interface IBuscaModeloView
 {
 	public KeyValuePair<int, string> Buscar();
 }
