@@ -169,7 +169,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 	{
 		if (!ValidarPermissoes()) return;
 
-		BuscaModeloView<Usuario> buscaUsuario = new("Buscar Usuário", ["Login"]);
+		BuscaUsuarioView buscaUsuario = new();
 
 		var resultadoBusca = buscaUsuario.Buscar();
 		var chaveBusca     = resultadoBusca.Value;
@@ -215,7 +215,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 	{
 		if (!ValidarPermissoes()) return;
 
-		BuscaModeloView<Usuario> buscaUsuario = new("Buscar Usuário", ["Login", "Id"]);
+		BuscaUsuarioView buscaUsuario = new();
 
 		var resultadoBusca = buscaUsuario.Buscar();
 		var chaveBusca     = resultadoBusca.Value;
@@ -302,7 +302,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 			return;
 		}
 
-		BuscaModeloView<Usuario> buscaUsuario = new("Buscar Usuário", ["Login"]);
+		BuscaUsuarioView buscaUsuario = new();
 
 		var resultadoBusca = buscaUsuario.Buscar();
 		var chaveBusca     = resultadoBusca.Value;

@@ -8,7 +8,7 @@ using college_management.Views.Interfaces;
 namespace college_management.Views;
 
 
-public class EditarUsuarioView : View, IEditarModeloView<Usuario>
+public class EditarUsuarioView : View, IEditarUsuarioView
 {
 	public EditarUsuarioView(Usuario usuario,
 	                         IRepositorio<Cargo> repositorioCargos)

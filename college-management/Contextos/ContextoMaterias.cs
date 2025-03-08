@@ -130,8 +130,8 @@ public class ContextoMaterias : Contexto<Materia>
 
 	public override async Task Editar()
 	{
-		BuscaModeloView<Materia> buscaModelo = new("Buscar Matéria", ["Nome"]);
-		var              chaveBusca   = buscaModelo.Buscar();
+		BuscaMateriaView buscaMateria = new("Buscar Matéria");
+		var              chaveBusca   = buscaMateria.Buscar();
 
 		var obterMateria = chaveBusca.Key is 1
 			? BaseDeDados.Materias.ObterPorNome(chaveBusca.Value)
@@ -169,8 +169,8 @@ public class ContextoMaterias : Contexto<Materia>
 
 	public override async Task Excluir()
 	{
-		BuscaModeloView<Materia> buscaModelo = new("Buscar Matéria", ["Nome"]);
-		var              chaveBusca   = buscaModelo.Buscar();
+		BuscaMateriaView buscaMateria = new("Buscar Matéria");
+		var              chaveBusca   = buscaMateria.Buscar();
 
 		var obterMateria = chaveBusca.Key is 1
 			? BaseDeDados.Materias.ObterPorNome(chaveBusca.Value)
@@ -229,10 +229,10 @@ public class ContextoMaterias : Contexto<Materia>
 
 	public override void VerDetalhes()
 	{
-		BuscaModeloView<Materia> buscaModelo = new("Buscar Matéria", ["Nome"]);
-		var              chaveBusca   = buscaModelo.Buscar();
+		BuscaMateriaView buscaMateria = new("Buscar Matéria");
+		var              chaveBusca   = buscaMateria.Buscar();
 
-		var obterMateria = chaveBusca.Key is 1	
+		var obterMateria = chaveBusca.Key is 1
 			? BaseDeDados.Materias.ObterPorNome(chaveBusca.Value)
 			: BaseDeDados.Materias.ObterPorId(chaveBusca.Value);
 

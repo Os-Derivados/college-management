@@ -128,45 +128,7 @@ public class ContextoCursos : Contexto<Curso>,
 
 	public override async Task Cadastrar()
 	{
-		var view = new CadastroCursoView();
-		if (view.ObterDados().ToString().ToLower() != "s")
-			return;
-
-		if (string.IsNullOrEmpty(view.Nome))
-		{
-			View.Aviso("Nome vazio. Tente novamente.");
-			return;
-		}
-		
-		List<Materia> materias = new();
-		foreach (var moniker in view.GradeCurricular)
-		{
-			Materia? materia = null;
-			
-			var respostaNome = BaseDeDados.Materias.ObterPorNome(moniker);
-			var respostaId = BaseDeDados.Materias.ObterPorId(moniker);
-
-			materia = respostaNome.Status is StatusResposta.Sucesso
-					  ? respostaNome.Modelo
-					  : (respostaId.Status is StatusResposta.Sucesso
-						 ? respostaId.Modelo
-						 : null);
-
-			if (materia is null)
-			{
-				View.Aviso($"Matéria com o identificador \"{moniker}\" não encontrada. Tente novamente.");
-				goto FimDeLogica;
-			}
-			else
-				materias.Add(materia);
-		}
-		
-		var curso = new Curso(view.Nome, materias.ToArray());
-		var respostaAdicionar = await BaseDeDados.Cursos.Adicionar(curso);
-		View.Aviso(respostaAdicionar.Status is StatusResposta.Sucesso
-			? "Curso cadastrado com sucesso!"
-			: $"Não foi possível cadastrar curso. ({respostaAdicionar.Status.ToString()})");
-FimDeLogica:; // É feio, mas é prático.
+		throw new NotImplementedException();
 	}
 
 	public override async Task Editar()
@@ -176,7 +138,61 @@ FimDeLogica:; // É feio, mas é prático.
 		if (curso is null)
 			return;
 
-		curso = new EditarCursoView(curso, BaseDeDados.Materias).Editar();
+		var propriedades = curso.GetType().GetProperties().ToList();
+		// Essas propriedades devem ser editadas por outros meios.
+		propriedades.RemoveAll(i => i.Name == "GradeCurricular");
+		propriedades.RemoveAll(i => i.Name == "MatriculasIds");
+		// Essa aqui nem se fala. Deveríamos adicionar um método de filtrar essas propriedades.
+		propriedades.RemoveAll(i => i.Name == "Id");
+
+		InputView inputView = new("Editar Curso");
+
+		StringBuilder detalhes
+			= new("As seguintes mudanças serão aplicadas:\n\n");
+
+		Dictionary<string, string> mudancas = new();
+
+		foreach (var propriedade in propriedades)
+		{
+			var valor = propriedade.GetValue(curso)?.ToString() ?? string.Empty;
+			inputView.LerEntrada(propriedade.Name,
+			                     $"Insira um novo valor para {propriedade.Name} [Vazio para \"{valor}\"]:");
+
+			var entrada = inputView.ObterEntrada(propriedade.Name).Trim();
+			var mudanca = string.IsNullOrEmpty(entrada)
+				? valor
+				: entrada;
+
+			if (mudanca == valor) continue;
+
+			detalhes.AppendLine(
+				$"{propriedade.Name}: {valor} => {mudanca}");
+
+			mudancas.Add(propriedade.Name, mudanca.Trim());
+		}
+
+		if (mudancas.Count <= 0)
+		{
+			View.Aviso("Nenhuma edição foi feita.");
+
+			return;
+		}
+
+		ConfirmaView confirmacao = new("Editar Curso");
+
+		if (confirmacao.Confirmar(detalhes.ToString())
+		               .ToString()
+		               .ToLower() is not "s")
+		{
+			View.Aviso($"Editar {nameof(Curso)}: Operação cancelada.");
+
+			return;
+		}
+
+		foreach (var (propriedade, valor) in mudancas)
+		{
+			EditarPropriedade(curso, propriedade, valor);
+		}
 	}
 
 	public override async Task Excluir()
@@ -195,6 +211,7 @@ FimDeLogica:; // É feio, mas é prático.
 		               .ToLower() is not "s")
 		{
 			View.Aviso($"Excluir {nameof(Curso)}: Operação cancelada.");
+
 			return;
 		}
 
@@ -244,21 +261,43 @@ FimDeLogica:; // É feio, mas é prático.
 
 	private Curso? PesquisarCurso()
 	{
-		Curso? MostrarAviso()
+		MenuView menuPesquisa = new("Pesquisar Curso",
+		                            "Escolha o método de pesquisa.",
+		                            ["Nome", "Id"]);
+
+		InputView inputPesquisa = new("Ver Grade Curricular: Pesquisar Curso");
+
+		menuPesquisa.ConstruirLayout();
+		menuPesquisa.LerEntrada();
+
+		(string Campo, string Mensagem)? campoPesquisa
+			= menuPesquisa.OpcaoEscolhida switch
+			{
+				1 => ("Nome", "Insira o Nome do curso: "),
+				2 => ("Id", "Insira o Id do curso: "),
+				_ => null
+			};
+
+		if (campoPesquisa is null) return null;
+
+		inputPesquisa.LerEntrada(campoPesquisa?.Campo!,
+		                         campoPesquisa?.Mensagem);
+
+		var curso = menuPesquisa.OpcaoEscolhida switch
 		{
-			View.Aviso("Curso não encontrado.");
-			return null;
-		}
-		
-		var busca = new BuscaModeloView<Curso>("Buscar Curso", ["Nome"]).Buscar();
-		var resposta = busca.Key switch
-		{
-			1 => BaseDeDados.Cursos.ObterPorNome(busca.Value),
-			2 => BaseDeDados.Cursos.ObterPorId(busca.Value),
+			1 => BaseDeDados.Cursos
+			                .ObterPorNome(inputPesquisa.ObterEntrada("Nome"))
+			                .Modelo,
+			2 => BaseDeDados.Cursos.ObterPorId(inputPesquisa.ObterEntrada("Id"))
+			                .Modelo,
 			_ => null
 		};
+
+		if (curso is not null) return curso;
+
+		View.Aviso("Curso não encontrado.");
 		
-		return resposta.Status is StatusResposta.Sucesso ? resposta.Modelo : MostrarAviso();
+		return PesquisarCurso();
 	}
 
 	private Dictionary<string, string> ObterDetalhes(Curso curso)
@@ -272,5 +311,23 @@ FimDeLogica:; // É feio, mas é prático.
 		detalhes.Add("CargaHoraria", $"{curso.ObterCargaHoraria()}h");
 
 		return detalhes;
+	}
+
+	private void EditarPropriedade(Curso curso,
+	                               string propriedade,
+	                               string? valor)
+	{
+		switch (propriedade)
+		{
+			case "Nome":
+			{
+				curso.Nome = valor ?? curso.Nome;
+
+				return;
+			}
+
+			default:
+				return;
+		}
 	}
 }

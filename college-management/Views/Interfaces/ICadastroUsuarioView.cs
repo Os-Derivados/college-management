@@ -1,7 +1,7 @@
 namespace college_management.Views.Interfaces;
 
 
-public interface ICadastroView
+public interface ICadastroUsuarioView
 {
 	public char ObterDados();
 }
