@@ -2,7 +2,10 @@ using college_management.Constantes;
 using college_management.Contextos.Interfaces;
 using college_management.Dados;
 using college_management.Dados.Modelos;
+using college_management.Dados.Repositorios;
+using college_management.Servicos;
 using college_management.Views;
+using System.Reflection;
 
 
 namespace college_management.Contextos;
@@ -68,7 +71,19 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 
 	public abstract void VerDetalhes();
 
-	public void ListarOpcoes()
+    public async void GerarRelatorio()
+	{
+		List<T> DataBase = (List<T>)BaseDeDados.EscolherBaseDeDados<T>();
+
+        ServicoRelatorios<T> servicoRelatorios = new(UsuarioContexto, DataBase);
+
+		string relatorio = servicoRelatorios.GerarRelatorio(CargoContexto);
+
+		await servicoRelatorios.ExportarRelatorio(relatorio);
+
+	}
+
+    public void ListarOpcoes()
 	{
 		var opcoes = ObterOpcoes();
 
@@ -109,4 +124,5 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 
 		return recursosDisponiveis;
 	}
+
 }
