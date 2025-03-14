@@ -48,6 +48,27 @@ public class MenuView : View, IMenuView
 			LerEntrada();
 			return;
 		}
+		if (_quantidadePaginas > 1)
+		{
+			if (entrada.Key == ConsoleKey.LeftArrow)
+			{
+				_pagina = Math.Clamp(_pagina - 1, 1, _quantidadePaginas);
+				Layout.Clear();
+				ConstruirLayout();
+				LerEntrada();
+				return;
+			}
+
+			if (entrada.Key == ConsoleKey.RightArrow)
+			{
+				_pagina = Math.Clamp(_pagina + 1, 1, _quantidadePaginas);
+				Layout.Clear();
+				ConstruirLayout();
+				LerEntrada();
+				return;
+			}
+		}
+
 		var entradaValida = int.TryParse(entrada
 		                                 .KeyChar
 		                                 .ToString(),
