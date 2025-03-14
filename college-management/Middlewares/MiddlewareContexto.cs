@@ -59,11 +59,12 @@ public static class MiddlewareContexto
 		{
 			Console.Clear();
 
-			contexto.ListarOpcoes();
+			var menuView = contexto.ObterMenuView();
+			menuView.LerEntrada();
 
-			var opcaoEscolhida = Console.ReadKey();
+			var opcaoEscolhida = menuView.OpcaoEscolhida;
 
-			if (opcaoEscolhida.Key is not ConsoleKey.D0)
+			if (opcaoEscolhida is not 0)
 			{
 				var recursoEscolhido =
 					ConverterParaMetodo(contexto,
@@ -111,19 +112,11 @@ public static class MiddlewareContexto
 			                             opcoesContextos);
 
 			menuContextos.ConstruirLayout();
-			menuContextos.Exibir();
+			menuContextos.LerEntrada();
 
-			var opcaoEscolhida = Console.ReadKey();
-			var opcaoValida = int.TryParse(opcaoEscolhida
-			                               .KeyChar
-			                               .ToString(),
-			                               out var opcaoUsuario);
+			if (menuContextos.OpcaoEscolhida is 0) break;
 
-			if (!opcaoValida) continue;
-
-			if (opcaoUsuario is 0) break;
-
-			contextoEscolhido = opcoesContextos[opcaoUsuario - 1];
+			contextoEscolhido = opcoesContextos[menuContextos.OpcaoEscolhida - 1];
 			estadoAtual       = EstadoDoApp.Recurso;
 		} while (estadoAtual is EstadoDoApp.Contexto);
 
