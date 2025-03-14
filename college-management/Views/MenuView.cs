@@ -75,8 +75,7 @@ public class MenuView : View, IMenuView
 		Layout.AppendLine(" Selecione uma das opções abaixo.");
 		Layout.AppendLine();
 
-		int inicio = (Pagina - 1) * 9;
-		for (var i = inicio; i < Math.Min(Opcoes.Length, Pagina * 9); i++)
+		for (var i = (Pagina - 1) * 9; i < Math.Min(Opcoes.Length, Pagina * 9); i++)
 			Layout.AppendLine($"[{i % 9 + 1}] {Opcoes[i]}");
 		
 		if (_quantidadePaginas > 1)
