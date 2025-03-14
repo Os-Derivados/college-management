@@ -6,8 +6,14 @@ namespace college_management.Views;
 
 public class MenuView : View, IMenuView
 {
+	private int _pagina;
+	private readonly int _quantidadePaginas;
 	private readonly string   _cabecalho;
-	public readonly  string[] Opcoes;
+	public readonly string[] Opcoes;
+	public int Pagina
+	{
+		get => _pagina;
+	}
 
 	public MenuView(string titulo,
 	                string cabecalho,
@@ -15,6 +21,8 @@ public class MenuView : View, IMenuView
 	{
 		_cabecalho = cabecalho;
 		Opcoes     = opcoes;
+		_pagina	   = 1;
+		_quantidadePaginas = (int) Math.Ceiling(Opcoes.Length / 9.0f);
 	}
 
 	public int OpcaoEscolhida { get; private set; }
@@ -40,10 +48,13 @@ public class MenuView : View, IMenuView
 		Layout.AppendLine(" Selecione uma das opções abaixo.");
 		Layout.AppendLine();
 
-		for (var i = 0; i < Opcoes.Length; i++)
-			Layout.AppendLine($"[{i + 1}] {Opcoes[i]}");
-
+		int inicio = (Pagina - 1) * 9;
+		for (var i = inicio; i < Math.Min(Opcoes.Length, Pagina * 9); i++)
+			Layout.AppendLine($"[{i % 9 + 1}] {Opcoes[i]}");
+		
+		if (_quantidadePaginas > 1)
+			Layout.AppendLine($"(Página {_pagina}/{_quantidadePaginas})");
 		Layout.AppendLine();
-		Layout.Append("Digite 0 para sair. Sua opção (somente números): ");
+		Layout.Append("Digite 0 para sair, use as setas para mudar a página. Sua opção (somente números): ");
 	}
 }
