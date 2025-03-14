@@ -32,22 +32,6 @@ public class MenuView : View, IMenuView
 		Exibir();
 
 		var entrada = Console.ReadKey();
-		if (entrada.Key == ConsoleKey.LeftArrow)
-		{
-			_pagina = Math.Clamp(_pagina - 1, 1, _quantidadePaginas);
-			Layout.Clear();
-			ConstruirLayout();
-			LerEntrada();
-			return;
-		}
-		if (entrada.Key == ConsoleKey.RightArrow)
-		{
-			_pagina = Math.Clamp(_pagina + 1, 1, _quantidadePaginas);
-			Layout.Clear();
-			ConstruirLayout();
-			LerEntrada();
-			return;
-		}
 		if (_quantidadePaginas > 1)
 		{
 			if (entrada.Key == ConsoleKey.LeftArrow)
@@ -75,8 +59,14 @@ public class MenuView : View, IMenuView
 		                                 out var opcaoEscolhida);
 
 		if (!entradaValida) return;
+		opcaoEscolhida = (opcaoEscolhida - 1) + (_pagina - 1) * 9;
+		if (opcaoEscolhida > Opcoes.Length)
+		{
+			LerEntrada();
+			return;
+		}
 
-		OpcaoEscolhida = (opcaoEscolhida - 1) + (_pagina - 1) * 9;
+		OpcaoEscolhida = opcaoEscolhida;
 	}
 
 	public override void ConstruirLayout()
