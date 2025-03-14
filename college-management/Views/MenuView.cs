@@ -82,6 +82,6 @@ public class MenuView : View, IMenuView
 		if (_quantidadePaginas > 1)
 			Layout.AppendLine($"(Página {_pagina}/{_quantidadePaginas})");
 		Layout.AppendLine();
-		Layout.Append("Digite 0 para sair, use as setas para mudar a página. Sua opção (somente números): ");
+		Layout.Append($"Digite 0 para sair{(_quantidadePaginas > 1 ? ", use as setas para mudar de página" : string.Empty)}. Sua opção (somente números): ");
 	}
 }
