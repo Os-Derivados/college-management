@@ -82,18 +82,16 @@ public static class MiddlewareContexto
 	}
 
 	private static string ConverterParaMetodo<T>(Contexto<T> contexto,
-	                                             ConsoleKeyInfo indice)
+	                                             int indice)
 		where T : Modelo
 	{
 		var recursosDisponiveis = contexto.ObterOpcoes();
-
-		_ = int.TryParse(indice.KeyChar.ToString(), out var i);
 
 		var recursoEscolhido = recursosDisponiveis
 		                       .Select(r => r
 		                                    .Trim()
 		                                    .Replace(" ", ""))
-		                       .ElementAt(i - 1);
+		                       .ElementAt(indice - 1);
 
 		return recursoEscolhido;
 	}
