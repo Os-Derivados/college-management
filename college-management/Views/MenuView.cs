@@ -58,9 +58,7 @@ public class MenuView : View, IMenuView
 		                                 .ToString(),
 		                                 out var opcaoEscolhida);
 
-		if (!entradaValida) return;
-		opcaoEscolhida = (opcaoEscolhida - 1) + (_pagina - 1) * 9;
-		if (opcaoEscolhida > Opcoes.Length)
+		if (!entradaValida || (opcaoEscolhida += (_pagina - 1) * 9) > Opcoes.Length)
 		{
 			LerEntrada();
 			return;
