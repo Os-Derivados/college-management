@@ -49,7 +49,6 @@ public static class MiddlewareAutenticacao
 		}
 
 		View.Aviso("Login ou senha incorretos!");
-		
-		return null;
+		return Login(repositorioUsuarios);
 	}
 }
