@@ -6,16 +6,16 @@ public static class OperacoesRecursos
 	public static readonly string[] RecursosLeitura =
 	[
 		"Visualizar",
-		"Ver Detalhes",
-		"Gerar Relatorio"
+		"Ver Detalhes"
 	];
 
 	public static readonly string[] RecursosEscrita =
 	[
 		"Cadastrar",
 		"Editar",
-		"Excluir"
-	];
+		"Excluir",
+        "Gerar Relatorio"
+    ];
 
 	public static readonly string[] RecursosLeituraUsuarios =
 	[
