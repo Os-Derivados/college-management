@@ -23,10 +23,10 @@ where T : Modelo
 	public ServicoRelatorios(Usuario usuario,
                              List<T> modelos)
 	{
+        DateTime TimeNow = DateTime.UtcNow;
 
-                           
                 _arquivoRelatorios =Path.Combine(UtilitarioArquivos.DiretorioBase,
-                                $"{typeof(T).Name}.csv");
+                                $@"Relatorios\{typeof(T).Name}_{TimeNow.ToString("dd-MM-yy_H-mm-ss")}.csv");
 
 
 		_usuario = usuario;
