@@ -61,7 +61,7 @@ public static class MiddlewareContexto
 
 			contexto.ListarOpcoes();
 
-			var opcaoEscolhida = Console.ReadKey();
+			ConsoleKeyInfo opcaoEscolhida = Console.ReadKey();
 
 			if (opcaoEscolhida.Key > ConsoleKey.D0 && opcaoEscolhida.Key <= ConsoleKey.D9)
 			{
