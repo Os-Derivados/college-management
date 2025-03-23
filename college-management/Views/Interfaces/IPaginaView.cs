@@ -1,7 +1,8 @@
 namespace college_management.Views.Interfaces;
 
-public interface IPaginaView : IMenuView
+public interface IPaginaView
 {
+    public ConsoleKeyInfo LerEntrada(bool ignorarEntrada);
     public void AdicionarPagina(string conteudo);
     public void AdicionarPaginas(string[] paginas);
     

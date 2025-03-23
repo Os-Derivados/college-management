@@ -44,7 +44,7 @@ public class PaginaView : View, IPaginaView
 	
 	public string ObterPagina(int indice) => _conteudoPaginas[indice - 1];
 	
-	public ConsoleKey LerEntrada(bool ignorarEntrada = true)
+	public ConsoleKeyInfo LerEntrada(bool ignorarEntrada = true)
 	{
 		Exibir();
 		var input = Console.ReadKey();
