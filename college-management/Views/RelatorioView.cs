@@ -72,6 +72,7 @@ public class RelatorioView<T> : View, IPaginavel where T : Modelo
 				conteudo.Add(new());
 				layout = conteudo[indice];
 				layout.AppendLine(nomesPropriedades);
+				
 				foreach (var p in propriedades)
 					layout.Append($"| {new string('-', 16)} ");
 				layout.AppendLine("|");
