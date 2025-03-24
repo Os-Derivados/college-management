@@ -62,7 +62,7 @@ public class PaginaView : View, IPaginaView
 				return ignorarEntrada & input.Key is not ConsoleKey.Enter ? LerEntrada(ignorarEntrada) : input;
 		}
 		
-		return LerEntrada();
+		return LerEntrada(ignorarEntrada);
 	}
 	
 	public override void ConstruirLayout()
