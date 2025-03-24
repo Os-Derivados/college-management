@@ -221,8 +221,9 @@ FimDeLogica:; // É feio, mas é prático.
 
 		RelatorioView<Curso> relatorioView
 			= new(inputRelatorio.Titulo, verCursos.Modelo);
-		relatorioView.ConstruirLayout();
-		relatorioView.Exibir();
+		PaginaView paginaView = new(relatorioView);
+		paginaView.ConstruirLayout();
+		paginaView.LerEntrada();
 	}
 
 	public override void VerDetalhes()
