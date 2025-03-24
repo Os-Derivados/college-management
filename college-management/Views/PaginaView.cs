@@ -63,7 +63,7 @@ public class PaginaView : View, IPaginaView
 				PularParaPagina();
 				break;
 			default:
-				return ignorarEntrada & input.Key is not ConsoleKey.Enter ? LerEntrada(ignorarEntrada) : input;
+				return ignorarEntrada && input.Key is not ConsoleKey.Enter ? LerEntrada(ignorarEntrada) : input;
 		}
 		
 		return LerEntrada(ignorarEntrada);
