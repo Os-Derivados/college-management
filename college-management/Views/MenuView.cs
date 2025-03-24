@@ -24,6 +24,12 @@ public class MenuView : View, IMenuView
 	public void LerEntrada()
 	{
 		var entrada = _paginaView.LerEntrada(false);
+
+		if (entrada.Key is ConsoleKey.Enter)
+		{
+			OpcaoEscolhida = 0;
+			return;
+		}
 		
 		var entradaValida = int.TryParse(entrada
 		                                 .KeyChar
