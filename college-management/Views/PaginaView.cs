@@ -59,7 +59,7 @@ public class PaginaView : View, IPaginaView
 				_paginaAtual = Math.Clamp(_paginaAtual + 1, 1, QuantidadePaginas);
 				break;
 			default:
-				return input;
+				return ignorarEntrada & input.Key is not ConsoleKey.Enter ? LerEntrada(ignorarEntrada) : input;
 		}
 		
 		return LerEntrada();
