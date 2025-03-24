@@ -72,16 +72,41 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 	public abstract void VerDetalhes();
 
     public async void GerarRelatorio()
-	{
-		List<T> DataBase = (List<T>)BaseDeDados.EscolherBaseDeDados<T>();
+	{ 
+		var Modelos = (List<T>)GetModelos();
 
-        ServicoRelatorios<T> servicoRelatorios = new(UsuarioContexto, DataBase);
+        ServicoRelatorios<T> servicoRelatorios = new(UsuarioContexto, Modelos);
 
 		string relatorio = servicoRelatorios.GerarRelatorio(CargoContexto);
 
+		Console.WriteLine("Relatorio Gerado com sucesso.");
+
 		await servicoRelatorios.ExportarRelatorio(relatorio);
 
-	}
+        Console.WriteLine("Relatorio Exportado com sucesso.");
+
+
+		object GetModelos()
+		{
+            switch(typeof(T))
+			{
+				case Type tipo when tipo == typeof(Usuario):
+                    return BaseDeDados.Usuarios.ObterTodos().Modelo!;
+
+				case Type tipo when tipo == typeof(Curso):
+                    return BaseDeDados.Cursos.ObterTodos().Modelo!;
+
+				case Type tipo when tipo == typeof(Cargo):
+                    return BaseDeDados.Cargos.ObterTodos().Modelo!;
+
+				case Type tipe when tipe == typeof(Materia):
+					return BaseDeDados.Materias.ObterTodos().Modelo!;
+
+				default:
+                    throw new InvalidOperationException("Tipo de modelo não suportado.");
+            }
+        }
+    }
 
     public void ListarOpcoes()
 	{
