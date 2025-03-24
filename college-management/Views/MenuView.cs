@@ -23,7 +23,7 @@ public class MenuView : View, IMenuView
 
 	public void LerEntrada()
 	{
-		var entrada = _paginaView.LerEntrada(false);
+		var entrada = _paginaView.LerEntrada();
 
 		if (entrada.Key is ConsoleKey.Enter)
 		{
