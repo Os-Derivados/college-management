@@ -1,3 +1,4 @@
+using System.Globalization;
 using college_management.Dados.Modelos;
 using college_management.Views.Interfaces;
 
@@ -58,6 +59,9 @@ public class PaginaView : View, IPaginaView
 			case ConsoleKey.RightArrow:
 				_paginaAtual = Math.Clamp(_paginaAtual + 1, 1, QuantidadePaginas);
 				break;
+			case ConsoleKey.Divide:
+				PularParaPagina();
+				break;
 			default:
 				return ignorarEntrada & input.Key is not ConsoleKey.Enter ? LerEntrada(ignorarEntrada) : input;
 		}
@@ -76,6 +80,20 @@ public class PaginaView : View, IPaginaView
 			Layout.AppendLine($"(Página {IndicePagina}/{QuantidadePaginas})");
 		Layout.AppendLine();
 		Layout.Append($"Pressione ENTER para sair{(QuantidadePaginas > 1 ? ", use as setas (direita ou esquerda) para navegar entre páginas" : string.Empty)}.");
+	}
+
+	private void PularParaPagina()
+	{
+		var entrada = Console.ReadLine();
+		var resultado = UInt32.TryParse(entrada, out uint indice);
+
+		if (!resultado | indice > QuantidadePaginas | indice <= 0)
+		{
+			View.Aviso("Índice inválido.");
+			return;
+		}
+
+		_paginaAtual = (int) indice;
 	}
 
 	private void AtualizarLayout()
