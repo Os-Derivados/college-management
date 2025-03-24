@@ -1,3 +1,4 @@
+using System.Text;
 using college_management.Views.Interfaces;
 
 
@@ -6,14 +7,9 @@ namespace college_management.Views;
 
 public class MenuView : View, IMenuView
 {
-	private int _pagina;
-	private readonly int _quantidadePaginas;
+	private PaginaView _paginaView;
 	private readonly string   _cabecalho;
 	public readonly string[] Opcoes;
-	public int Pagina
-	{
-		get => _pagina;
-	}
 
 	public MenuView(string titulo,
 	                string cabecalho,
@@ -21,44 +17,20 @@ public class MenuView : View, IMenuView
 	{
 		_cabecalho = cabecalho;
 		Opcoes     = opcoes;
-		_pagina	   = 1;
-		_quantidadePaginas = (int) Math.Ceiling(Opcoes.Length / 9.0f);
 	}
 
 	public int OpcaoEscolhida { get; private set; }
 
 	public void LerEntrada()
 	{
-		Exibir();
-
-		var entrada = Console.ReadKey();
-		if (_quantidadePaginas > 1)
-		{
-			if (entrada.Key == ConsoleKey.LeftArrow)
-			{
-				_pagina = Math.Clamp(_pagina - 1, 1, _quantidadePaginas);
-				Layout.Clear();
-				ConstruirLayout();
-				LerEntrada();
-				return;
-			}
-
-			if (entrada.Key == ConsoleKey.RightArrow)
-			{
-				_pagina = Math.Clamp(_pagina + 1, 1, _quantidadePaginas);
-				Layout.Clear();
-				ConstruirLayout();
-				LerEntrada();
-				return;
-			}
-		}
-
+		var entrada = _paginaView.LerEntrada(false);
+		
 		var entradaValida = int.TryParse(entrada
 		                                 .KeyChar
 		                                 .ToString(),
 		                                 out var opcaoEscolhida);
 
-		if (!entradaValida || (opcaoEscolhida += (_pagina - 1) * 9) > Opcoes.Length)
+		if (!entradaValida || (opcaoEscolhida += (_paginaView.IndicePagina - 1) * 9) > Opcoes.Length)
 		{
 			LerEntrada();
 			return;
@@ -69,16 +41,17 @@ public class MenuView : View, IMenuView
 
 	public override void ConstruirLayout()
 	{
-		Layout.Append(_cabecalho);
-		Layout.AppendLine(" Selecione uma das opções abaixo.");
-		Layout.AppendLine();
+		List<StringBuilder> conteudo = new();
 
-		for (var i = (Pagina - 1) * 9; i < Math.Min(Opcoes.Length, Pagina * 9); i++)
-			Layout.AppendLine($"[{i % 9 + 1}] {Opcoes[i]}");
+		_paginaView = new(_cabecalho + " Selecione uma das opções abaixo.");
+
+		for (int i = 0; i < (int)Math.Ceiling(Opcoes.Length / 9.0f); i++)
+		{
+			conteudo.Add(new());
+			for (var j = i * 9; j < Math.Min(Opcoes.Length, (i + 1) * 9); j++)
+				conteudo[i].AppendLine($"[{j % 9 + 1}] {Opcoes[j]}");
+		}
 		
-		if (_quantidadePaginas > 1)
-			Layout.AppendLine($"(Página {_pagina}/{_quantidadePaginas})");
-		Layout.AppendLine();
-		Layout.Append($"Digite 0 para sair{(_quantidadePaginas > 1 ? ", use as setas para mudar de página" : string.Empty)}. Sua opção (somente números): ");
+		_paginaView.AdicionarPaginas(conteudo.Select(i => i.ToString()).ToArray());
 	}
 }
