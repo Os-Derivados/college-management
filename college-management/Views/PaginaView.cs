@@ -82,6 +82,5 @@ public class PaginaView : View, IPaginaView
 	{
 		Layout.Clear();
 		ConstruirLayout();
-		LerEntrada();
 	}
 }
