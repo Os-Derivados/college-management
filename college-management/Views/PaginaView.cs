@@ -46,26 +46,23 @@ public class PaginaView : View, IPaginaView
 	
 	public ConsoleKeyInfo LerEntrada(bool ignorarEntrada = true)
 	{
+		AtualizarLayout();
 		Exibir();
+		
 		var input = Console.ReadKey();
 		switch (input.Key)
 		{
 			case ConsoleKey.LeftArrow:
 				_paginaAtual = Math.Clamp(_paginaAtual - 1, 1, QuantidadePaginas);
-				AtualizarLayout();
 				break;
 			case ConsoleKey.RightArrow:
 				_paginaAtual = Math.Clamp(_paginaAtual + 1, 1, QuantidadePaginas);
-				AtualizarLayout();
-				break;
-			case ConsoleKey.Enter:
 				break;
 			default:
-				if (ignorarEntrada)
-					return LerEntrada();
-				else
-					return input.Key;
+				return input;
 		}
+		
+		return LerEntrada();
 	}
 	
 	public override void ConstruirLayout()
