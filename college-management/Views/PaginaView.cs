@@ -75,7 +75,7 @@ public class PaginaView : View, IPaginaView
 		if (QuantidadePaginas > 1)
 			Layout.AppendLine($"(Página {IndicePagina}/{QuantidadePaginas})");
 		Layout.AppendLine();
-		Layout.Append($"Pressione ENTER para sair{(QuantidadePaginas > 1 ? ", use as setas (direita ou esquerda) para navegar entre página" : string.Empty)}.");
+		Layout.Append($"Pressione ENTER para sair{(QuantidadePaginas > 1 ? ", use as setas (direita ou esquerda) para navegar entre páginas" : string.Empty)}.");
 	}
 
 	private void AtualizarLayout()
