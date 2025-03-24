@@ -68,6 +68,7 @@ public class PaginaView : View, IPaginaView
 	public override void ConstruirLayout()
 	{
 		Layout.AppendLine(Titulo);
+		Layout.AppendLine();
 
 		Layout.AppendLine(_conteudoPaginas[IndicePagina - 1]);
 		
