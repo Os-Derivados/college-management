@@ -47,42 +47,29 @@ public class RelatorioView<T> : View, IPaginavel where T : Modelo
 
 	public string[] ConstruirPaginas(int linhasMaximas)
 	{
-		int indice = 0;
-		int linhas = 0;
-		List<StringBuilder> conteudo = [new()];
-		StringBuilder layout = conteudo[indice];
+		List<StringBuilder> conteudo = [];
 		
 		var tipo         = typeof(T);
 		var propriedades = tipo.GetProperties();
 		var nomesPropriedades =
 			UtilitarioTipos.ObterNomesPropriedades(propriedades);
 
-		layout.AppendLine(nomesPropriedades);
-		foreach (var p in propriedades)
-			layout.Append($"| {new string('-', 16)} ");
-		layout.AppendLine("|");
-		linhas += 2;
-		
-		foreach (var modelo in _modelos)
+		for (int i = 0; i < _modelos.Count / linhasMaximas; ++i)
 		{
-			if (linhas > linhasMaximas)
-			{
-				linhas = 0;
-				indice++;
-				conteudo.Add(new());
-				layout = conteudo[indice];
-				layout.AppendLine(nomesPropriedades);
+			conteudo.Add(new());
+			StringBuilder layout = conteudo[i];
+			
+			layout.AppendLine(nomesPropriedades);
 				
-				foreach (var p in propriedades)
-					layout.Append($"| {new string('-', 16)} ");
-				layout.AppendLine("|");
-				linhas += 2;
-				
-				continue;
-			}
+			foreach (var p in propriedades)
+				layout.Append($"| {new string('-', 16)} ");
+			layout.AppendLine("|");
 
-			layout.AppendLine(modelo.ToString());
-			linhas++;
+			for (int j = i * linhasMaximas; j < i * linhasMaximas + linhasMaximas; ++j)
+			{
+				var modelo = _modelos[j];
+				layout.AppendLine(modelo.ToString());
+			}
 		}
 
 		return conteudo.Select(i => i.ToString()).ToArray();
