@@ -45,7 +45,7 @@ public class PaginaView : View, IPaginaView
 	
 	public string ObterPagina(int indice) => _conteudoPaginas[indice - 1];
 	
-	public ConsoleKeyInfo LerEntrada(bool ignorarEntrada = true)
+	public ConsoleKeyInfo LerEntrada(bool ignorarEntrada = false)
 	{
 		AtualizarLayout();
 		Exibir();
