@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Reflection;
 using System.Runtime.Serialization.Json;
 using System.Text;
@@ -24,7 +25,7 @@ where T : Modelo
                              List<T> modelos)
 	{
         DateTime TimeNow = DateTime.UtcNow;
-
+                           
                 _arquivoRelatorios =Path.Combine(UtilitarioArquivos.DiretorioBase,
                                 $@"Relatorios\{typeof(T).Name}_{TimeNow.ToString("dd-MM-yy_H-mm-ss")}.csv");
 
@@ -48,6 +49,7 @@ where T : Modelo
         if ( cargoUsuario.TemPermissao(PermissoesAcesso.AcessoEscrita) || 
              cargoUsuario.TemPermissao(PermissoesAcesso.AcessoAdministradores) ) 
         {
+            Console.WriteLine("Gerando relatorio...");
             return GerarEntradasRelatorio();
         }
 
@@ -85,22 +87,57 @@ where T : Modelo
             foreach (var modelo in _modelos)
             {
                 if (modelo == null)
-                    relatorio.Append("Registro nulo\n");
+                    continue;
 
                 else // Adiciona os valores do registro à string CSV relatorio
                 {
                     foreach (var propriedade in propriedades)
                     {
+                        var _ = propriedade.GetValue(modelo);
+
+                        if (_ is Array a)
+                        {
+                            relatorio.Append(FormatarEnumerables(a));
+                        }
+
+                        else if (_ is IList l)
+                        {
+                            relatorio.Append(FormatarEnumerables(l));
+                        }
+
+                        else
+                            relatorio.Append(_);
+
+
                         if (propriedades.Last() == propriedade)
-                            relatorio.Append($"{propriedade.GetValue(modelo)}\n");
+                            relatorio.Append("\n");
                         
                         else
-                            relatorio.Append($"{propriedade.GetValue(modelo)},");
+                            relatorio.Append(",");
                     }
                 }
             }
 
             return relatorio.ToString();
+
+
+
+            static string FormatarEnumerables(IEnumerable enumerable)
+            {
+                StringBuilder Str = new();
+                foreach (var v in enumerable)
+                {
+                    if (v is Materia m)
+                        Str.Append(m.Nome);
+                    else
+                        Str.Append(v);
+                    
+                    Str.Append(",");
+                }
+                Str.Remove(Str.Length - 1, 1);
+
+                return Str.ToString();
+            }
         }
     }
 
