@@ -54,7 +54,7 @@ public class RelatorioView<T> : View, IPaginavel where T : Modelo
 		var nomesPropriedades =
 			UtilitarioTipos.ObterNomesPropriedades(propriedades);
 
-		for (int i = 0; i < _modelos.Count / linhasMaximas; ++i)
+		for (int i = 0; i < Math.Ceiling((float) _modelos.Count / linhasMaximas); ++i)
 		{
 			conteudo.Add(new());
 			StringBuilder layout = conteudo[i];
