@@ -136,7 +136,7 @@ public class ContextoCargos : Contexto<Cargo>
 		
 		PaginaView paginaView = new(relatorioView);
 		paginaView.ConstruirLayout();
-		paginaView.LerEntrada();
+		paginaView.LerEntrada(true);
 	}
 
 

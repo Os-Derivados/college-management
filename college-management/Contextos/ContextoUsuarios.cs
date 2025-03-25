@@ -281,7 +281,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		PaginaView paginaView = new(relatorioView);
 		paginaView.ConstruirLayout();
-		paginaView.LerEntrada();
+		paginaView.LerEntrada(true);
 	}
 
 	public override void VerDetalhes()

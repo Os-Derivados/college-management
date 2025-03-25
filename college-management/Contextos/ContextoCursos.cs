@@ -223,7 +223,7 @@ FimDeLogica:; // É feio, mas é prático.
 			= new(inputRelatorio.Titulo, verCursos.Modelo);
 		PaginaView paginaView = new(relatorioView);
 		paginaView.ConstruirLayout();
-		paginaView.LerEntrada();
+		paginaView.LerEntrada(true);
 	}
 
 	public override void VerDetalhes()
