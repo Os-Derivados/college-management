@@ -73,6 +73,9 @@ public class PaginaView : View, IPaginaView
 	{
 		Layout.AppendLine(Titulo);
 		Layout.AppendLine();
+		
+		if (_conteudoPaginas.Count <= 0)
+			_conteudoPaginas.Add(string.Empty);
 
 		Layout.AppendLine(_conteudoPaginas[IndicePagina - 1]);
 		
