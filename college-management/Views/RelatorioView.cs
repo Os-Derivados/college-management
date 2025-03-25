@@ -65,7 +65,7 @@ public class RelatorioView<T> : View, IPaginavel where T : Modelo
 				layout.Append($"| {new string('-', 16)} ");
 			layout.AppendLine("|");
 
-			for (int j = i * linhasMaximas; j < i * linhasMaximas + linhasMaximas; ++j)
+			for (int j = i * linhasMaximas; j < (i * linhasMaximas + linhasMaximas) & (j < _modelos.Count); ++j)
 			{
 				var modelo = _modelos[j];
 				layout.AppendLine(modelo.ToString());
