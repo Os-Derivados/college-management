@@ -2,7 +2,10 @@ using college_management.Constantes;
 using college_management.Contextos.Interfaces;
 using college_management.Dados;
 using college_management.Dados.Modelos;
+using college_management.Dados.Repositorios;
+using college_management.Servicos;
 using college_management.Views;
+using System.Reflection;
 
 
 namespace college_management.Contextos;
@@ -68,7 +71,41 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 
 	public abstract void VerDetalhes();
 
-	public void ListarOpcoes()
+    public void GerarRelatorio()
+	{ 
+		var Modelos = (List<T>)GetModelos();
+
+        ServicoRelatorios<T> servicoRelatorios = new(UsuarioContexto, Modelos);
+
+		string relatorio = servicoRelatorios.GerarRelatorio(CargoContexto);
+
+		servicoRelatorios.ExportarRelatorio(relatorio).Wait();
+
+        View.Aviso("Relatório gerado com sucesso.");
+
+		object GetModelos()
+		{
+            switch(typeof(T))
+			{
+				case Type tipo when tipo == typeof(Usuario):
+                    return BaseDeDados.Usuarios.ObterTodos().Modelo!;
+
+				case Type tipo when tipo == typeof(Curso):
+                    return BaseDeDados.Cursos.ObterTodos().Modelo!;
+
+				case Type tipo when tipo == typeof(Cargo):
+                    return BaseDeDados.Cargos.ObterTodos().Modelo!;
+
+				case Type tipe when tipe == typeof(Materia):
+					return BaseDeDados.Materias.ObterTodos().Modelo!;
+
+				default:
+                    throw new InvalidOperationException("Tipo de modelo não suportado.");
+            }
+        }
+    }
+
+    public void ListarOpcoes()
 	{
 		var opcoes = ObterOpcoes();
 
@@ -109,4 +146,5 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 
 		return recursosDisponiveis;
 	}
+
 }
