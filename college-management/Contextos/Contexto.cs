@@ -71,7 +71,7 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 
 	public abstract void VerDetalhes();
 
-    public async void GerarRelatorio()
+    public void GerarRelatorio()
 	{ 
 		var Modelos = (List<T>)GetModelos();
 
@@ -79,12 +79,9 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 
 		string relatorio = servicoRelatorios.GerarRelatorio(CargoContexto);
 
-		Console.WriteLine("Relatorio Gerado com sucesso.");
+		servicoRelatorios.ExportarRelatorio(relatorio).Wait();
 
-		await servicoRelatorios.ExportarRelatorio(relatorio);
-
-        Console.WriteLine("Relatorio Exportado com sucesso.");
-
+        View.Aviso("Relatório gerado com sucesso.");
 
 		object GetModelos()
 		{
