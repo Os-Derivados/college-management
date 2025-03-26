@@ -1,7 +1,7 @@
 namespace college_management.Views.Interfaces;
 
 /// <summary>
-/// Usado em Views que possuem a possibildade de serem paginadas por <see cref="PaginaView"/>.
+/// Usado em Views que possuem a possibilidade de serem paginadas por <see cref="PaginaView"/>.
 /// </summary>
 public interface IPaginavel
 {
