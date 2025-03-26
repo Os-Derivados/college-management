@@ -10,7 +10,8 @@ public interface IPaginavel
     /// </summary>
     /// <param name="linhasMaximas">
     ///     Parâmetro arbitrário utilizado para determinar o tamanho máximo de cada página,
-    ///     especificado em linhas no console. Geralmente corresponde à metade da altura do console. 
+    ///     especificado em linhas no console. Geralmente corresponde à metade da altura do console,
+    ///     definido por <see cref="Console.BufferHeight"/>.
     /// </param>
     public string[] ConstruirPaginas(int linhasMaximas);
 }
