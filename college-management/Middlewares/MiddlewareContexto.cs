@@ -10,6 +10,8 @@ namespace college_management.Middlewares;
 
 public static class MiddlewareContexto
 {
+	public static EstadoDoApp EstadoAtual = EstadoDoApp.Login;
+	
 	public static void Inicializar(BaseDeDados baseDeDados,
 	                               Usuario usuario)
 	{
@@ -53,18 +55,17 @@ public static class MiddlewareContexto
 	private static void AcessarContexto<T>(Contexto<T> contexto)
 		where T : Modelo
 	{
-		var estadoAtual = EstadoDoApp.Recurso;
+		EstadoAtual = EstadoDoApp.Recurso;
 
 		do
 		{
 			Console.Clear();
 
-			var menuView = contexto.ObterMenuView();
-			menuView.LerEntrada();
+			contexto.ListarOpcoes();
 
-			var opcaoEscolhida = menuView.OpcaoEscolhida;
+			var opcaoEscolhida = Console.ReadKey();
 
-			if (opcaoEscolhida is not 0)
+			if (opcaoEscolhida.Key is not ConsoleKey.D0)
 			{
 				var recursoEscolhido =
 					ConverterParaMetodo(contexto,
@@ -76,29 +77,30 @@ public static class MiddlewareContexto
 			}
 			else
 			{
-				estadoAtual = EstadoDoApp.Sair;
+				EstadoAtual = EstadoDoApp.Contexto;
 			}
-		} while (estadoAtual is EstadoDoApp.Recurso);
+		} while (EstadoAtual is EstadoDoApp.Recurso);
 	}
 
 	private static string ConverterParaMetodo<T>(Contexto<T> contexto,
-	                                             int indice)
+	                                             ConsoleKeyInfo indice)
 		where T : Modelo
 	{
 		var recursosDisponiveis = contexto.ObterOpcoes();
+
+		_ = int.TryParse(indice.KeyChar.ToString(), out var i);
 
 		var recursoEscolhido = recursosDisponiveis
 		                       .Select(r => r
 		                                    .Trim()
 		                                    .Replace(" ", ""))
-		                       .ElementAt(indice - 1);
+		                       .ElementAt(i - 1);
 
 		return recursoEscolhido;
 	}
 
 	private static string EscolherContexto(Cargo cargoUsuario)
 	{
-		var estadoAtual       = EstadoDoApp.Contexto;
 		var contextoEscolhido = "";
 
 		do
@@ -110,13 +112,21 @@ public static class MiddlewareContexto
 			                             opcoesContextos);
 
 			menuContextos.ConstruirLayout();
-			menuContextos.LerEntrada();
+			menuContextos.Exibir();
 
-			if (menuContextos.OpcaoEscolhida is 0) break;
+			var opcaoEscolhida = Console.ReadKey();
+			var opcaoValida = int.TryParse(opcaoEscolhida
+			                               .KeyChar
+			                               .ToString(),
+			                               out var opcaoUsuario);
 
-			contextoEscolhido = opcoesContextos[menuContextos.OpcaoEscolhida - 1];
-			estadoAtual       = EstadoDoApp.Recurso;
-		} while (estadoAtual is EstadoDoApp.Contexto);
+			if (!opcaoValida) continue;
+
+			if (opcaoUsuario is 0) break;
+
+			contextoEscolhido = opcoesContextos[opcaoUsuario - 1];
+			EstadoAtual       = EstadoDoApp.Recurso;
+		} while (EstadoAtual is EstadoDoApp.Contexto);
 
 		return contextoEscolhido;
 	}
