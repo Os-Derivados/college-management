@@ -19,36 +19,41 @@ public static class MiddlewareContexto
 
 		if (obterCargo.Status is StatusResposta.ErroNaoEncontrado) return;
 		
-		var opcaoContexto = EscolherContexto(obterCargo.Modelo!);
-
-		if (opcaoContexto is "") return;
-
 		ContextoUsuarios contextoUsuarios = new(baseDeDados, usuario);
 		ContextoCargos   contextoCargos   = new(baseDeDados, usuario);
 		ContextoMaterias contextoMaterias = new(baseDeDados, usuario);
 		ContextoCursos   contextoCursos   = new(baseDeDados, usuario);
 
-		switch (opcaoContexto)
+		EstadoAtual = EstadoDoApp.Contexto;
+		
+		while (EstadoAtual is EstadoDoApp.Contexto)
 		{
-			case AcessosContexto.ContextoUsuarios:
-				AcessarContexto(contextoUsuarios);
+			var opcaoContexto = EscolherContexto(obterCargo.Modelo!);
 
-				break;
+			if (opcaoContexto is "") return;
 
-			case AcessosContexto.ContextoCargos:
-				AcessarContexto(contextoCargos);
+			switch (opcaoContexto)
+			{
+				case AcessosContexto.ContextoUsuarios:
+					AcessarContexto(contextoUsuarios);
 
-				break;
+					break;
 
-			case AcessosContexto.ContextoCursos:
-				AcessarContexto(contextoCursos);
+				case AcessosContexto.ContextoCargos:
+					AcessarContexto(contextoCargos);
 
-				break;
+					break;
 
-			case AcessosContexto.ContextoMaterias:
-				AcessarContexto(contextoMaterias);
+				case AcessosContexto.ContextoCursos:
+					AcessarContexto(contextoCursos);
 
-				break;
+					break;
+
+				case AcessosContexto.ContextoMaterias:
+					AcessarContexto(contextoMaterias);
+
+					break;
+			}
 		}
 	}
 
