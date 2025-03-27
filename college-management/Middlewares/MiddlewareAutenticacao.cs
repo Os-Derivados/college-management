@@ -33,10 +33,12 @@ public static class MiddlewareAutenticacao
 	{
 		InputView inputView = new("Login: Preencha com as credenciais do usuário.");
 		inputView.LerEntrada("Login", "Insira o login: ");
-		inputView.LerEntrada("Senha", "Insira a senha: ");
+
+		SenhaView senhaView = new(inputView.Titulo);
+		senhaView.LerEntrada("Senha", "Insira a senha: ");
 
 		var loginUsuario = inputView.ObterEntrada("Login");
-		var senhaUsuario = inputView.ObterEntrada("Senha");
+		var senhaUsuario = senhaView.ObterEntrada("Senha");
 		
 		var autenticacao
 			= Usuario.Autenticar(repositorioUsuarios, loginUsuario,
