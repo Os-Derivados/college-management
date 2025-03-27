@@ -64,6 +64,12 @@ public class PaginaView : View, IPaginaView
 			case ConsoleKey.RightArrow:
 				_paginaAtual = Math.Clamp(_paginaAtual + 1, 1, QuantidadePaginas);
 				break;
+			case ConsoleKey.PageDown:
+				_paginaAtual = Math.Clamp(_paginaAtual - 5, 1, QuantidadePaginas);
+				break;
+			case ConsoleKey.PageUp:
+				_paginaAtual = Math.Clamp(_paginaAtual + 5, 1, QuantidadePaginas);
+				break;
 			case ConsoleKey.Divide:
 				PularParaPagina();
 				break;
