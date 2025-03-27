@@ -279,8 +279,9 @@ public class ContextoUsuarios : Contexto<Usuario>,
 				[UsuarioContexto]);
 		}
 
-		relatorioView.ConstruirLayout();
-		relatorioView.Exibir();
+		PaginaView paginaView = new(relatorioView);
+		paginaView.ConstruirLayout();
+		paginaView.LerEntrada(true);
 	}
 
 	public override void VerDetalhes()
