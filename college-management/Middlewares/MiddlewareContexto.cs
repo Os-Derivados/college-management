@@ -10,6 +10,8 @@ namespace college_management.Middlewares;
 
 public static class MiddlewareContexto
 {
+	public static EstadoDoApp EstadoAtual = EstadoDoApp.Login;
+	
 	public static void Inicializar(BaseDeDados baseDeDados,
 	                               Usuario usuario)
 	{
@@ -53,7 +55,7 @@ public static class MiddlewareContexto
 	private static void AcessarContexto<T>(Contexto<T> contexto)
 		where T : Modelo
 	{
-		var estadoAtual = EstadoDoApp.Recurso;
+		EstadoAtual = EstadoDoApp.Recurso;
 
 		do
 		{
@@ -75,9 +77,9 @@ public static class MiddlewareContexto
 			}
 			else
 			{
-				estadoAtual = EstadoDoApp.Sair;
+				EstadoAtual = EstadoDoApp.Contexto;
 			}
-		} while (estadoAtual is EstadoDoApp.Recurso);
+		} while (EstadoAtual is EstadoDoApp.Recurso);
 	}
 
 	private static string ConverterParaMetodo<T>(Contexto<T> contexto,
@@ -99,7 +101,6 @@ public static class MiddlewareContexto
 
 	private static string EscolherContexto(Cargo cargoUsuario)
 	{
-		var estadoAtual       = EstadoDoApp.Contexto;
 		var contextoEscolhido = "";
 
 		do
@@ -124,8 +125,8 @@ public static class MiddlewareContexto
 			if (opcaoUsuario is 0) break;
 
 			contextoEscolhido = opcoesContextos[opcaoUsuario - 1];
-			estadoAtual       = EstadoDoApp.Recurso;
-		} while (estadoAtual is EstadoDoApp.Contexto);
+			EstadoAtual       = EstadoDoApp.Recurso;
+		} while (EstadoAtual is EstadoDoApp.Contexto);
 
 		return contextoEscolhido;
 	}
