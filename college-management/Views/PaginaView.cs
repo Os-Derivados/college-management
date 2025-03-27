@@ -36,14 +36,19 @@ public class PaginaView : View, IPaginaView
 		_conteudoPaginas = new(conteudoPaginas);
 	}
 
-	public PaginaView(IPaginavel view) : this((view as View)!.Titulo, view.ConstruirPaginas(Console.BufferHeight / 2))
+	public PaginaView(IPaginavel view)
+		: this((view as View)!.Titulo, view.ConstruirPaginas(Console.BufferHeight / 2))
 	{}
 	
-	public void AdicionarPagina(string conteudo) => _conteudoPaginas.Add(conteudo);
-	public void AdicionarPagina(IPaginavel view) => AdicionarPaginas(view.ConstruirPaginas(Console.BufferHeight / 2));
-	public void AdicionarPaginas(string[] paginas) => _conteudoPaginas.AddRange(paginas);
+	public void AdicionarPagina(string conteudo) =>
+		_conteudoPaginas.Add(conteudo);
+	public void AdicionarPagina(IPaginavel view) =>
+		AdicionarPaginas(view.ConstruirPaginas(Console.BufferHeight / 2));
+	public void AdicionarPaginas(string[] paginas) =>
+		_conteudoPaginas.AddRange(paginas);
 	
-	public string ObterPagina(int indice) => _conteudoPaginas[indice - 1];
+	public string ObterPagina(int indice) =>
+		_conteudoPaginas[indice - 1];
 	
 	public ConsoleKeyInfo LerEntrada(bool ignorarEntrada = false)
 	{
