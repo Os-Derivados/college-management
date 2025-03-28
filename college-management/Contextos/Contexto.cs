@@ -73,7 +73,7 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 		var opcoes = ObterOpcoes();
 
 		MenuView menuRecursos = new("Menu Recursos",
-		                            $"Bem vindo ao recuso de {typeof(T).Name}.",
+		                            $"Bem-vindo(a) ao recuso de {typeof(T).Name}.",
 		                            opcoes);
 
 		menuRecursos.ConstruirLayout();
