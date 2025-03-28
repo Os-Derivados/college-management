@@ -10,6 +10,8 @@ namespace college_management.Middlewares;
 
 public static class MiddlewareContexto
 {
+	public static EstadoDoApp EstadoAtual = EstadoDoApp.Login;
+	
 	public static void Inicializar(BaseDeDados baseDeDados,
 	                               Usuario usuario)
 	{
@@ -17,43 +19,48 @@ public static class MiddlewareContexto
 
 		if (obterCargo.Status is StatusResposta.ErroNaoEncontrado) return;
 		
-		var opcaoContexto = EscolherContexto(obterCargo.Modelo!);
-
-		if (opcaoContexto is "") return;
-
 		ContextoUsuarios contextoUsuarios = new(baseDeDados, usuario);
 		ContextoCargos   contextoCargos   = new(baseDeDados, usuario);
 		ContextoMaterias contextoMaterias = new(baseDeDados, usuario);
 		ContextoCursos   contextoCursos   = new(baseDeDados, usuario);
 
-		switch (opcaoContexto)
+		EstadoAtual = EstadoDoApp.Contexto;
+		
+		while (EstadoAtual is EstadoDoApp.Contexto)
 		{
-			case AcessosContexto.ContextoUsuarios:
-				AcessarContexto(contextoUsuarios);
+			var opcaoContexto = EscolherContexto(obterCargo.Modelo!);
 
-				break;
+			if (opcaoContexto is "") return;
 
-			case AcessosContexto.ContextoCargos:
-				AcessarContexto(contextoCargos);
+			switch (opcaoContexto)
+			{
+				case AcessosContexto.ContextoUsuarios:
+					AcessarContexto(contextoUsuarios);
 
-				break;
+					break;
 
-			case AcessosContexto.ContextoCursos:
-				AcessarContexto(contextoCursos);
+				case AcessosContexto.ContextoCargos:
+					AcessarContexto(contextoCargos);
 
-				break;
+					break;
 
-			case AcessosContexto.ContextoMaterias:
-				AcessarContexto(contextoMaterias);
+				case AcessosContexto.ContextoCursos:
+					AcessarContexto(contextoCursos);
 
-				break;
+					break;
+
+				case AcessosContexto.ContextoMaterias:
+					AcessarContexto(contextoMaterias);
+
+					break;
+			}
 		}
 	}
 
 	private static void AcessarContexto<T>(Contexto<T> contexto)
 		where T : Modelo
 	{
-		var estadoAtual = EstadoDoApp.Recurso;
+		EstadoAtual = EstadoDoApp.Recurso;
 
 		do
 		{
@@ -75,9 +82,9 @@ public static class MiddlewareContexto
 			}
 			else
 			{
-				estadoAtual = EstadoDoApp.Sair;
+				EstadoAtual = EstadoDoApp.Contexto;
 			}
-		} while (estadoAtual is EstadoDoApp.Recurso);
+		} while (EstadoAtual is EstadoDoApp.Recurso);
 	}
 
 	private static string ConverterParaMetodo<T>(Contexto<T> contexto,
@@ -99,7 +106,6 @@ public static class MiddlewareContexto
 
 	private static string EscolherContexto(Cargo cargoUsuario)
 	{
-		var estadoAtual       = EstadoDoApp.Contexto;
 		var contextoEscolhido = "";
 
 		do
@@ -124,8 +130,8 @@ public static class MiddlewareContexto
 			if (opcaoUsuario is 0) break;
 
 			contextoEscolhido = opcoesContextos[opcaoUsuario - 1];
-			estadoAtual       = EstadoDoApp.Recurso;
-		} while (estadoAtual is EstadoDoApp.Contexto);
+			EstadoAtual       = EstadoDoApp.Recurso;
+		} while (EstadoAtual is EstadoDoApp.Contexto);
 
 		return contextoEscolhido;
 	}
