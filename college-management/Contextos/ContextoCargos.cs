@@ -133,9 +133,10 @@ public class ContextoCargos : Contexto<Cargo>
 				BaseDeDados.Cargos.ObterPorId(UsuarioContexto.CargoId).Modelo!
 			]);
 		}
-
-		relatorioView.ConstruirLayout();
-		relatorioView.Exibir();
+		
+		PaginaView paginaView = new(relatorioView);
+		paginaView.ConstruirLayout();
+		paginaView.LerEntrada(true);
 	}
 
 

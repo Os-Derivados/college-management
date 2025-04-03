@@ -169,7 +169,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 	{
 		if (!ValidarPermissoes()) return;
 
-		BuscaUsuarioView buscaUsuario = new();
+		BuscaModeloView<Usuario> buscaUsuario = new("Buscar Usuário", ["Login"]);
 
 		var resultadoBusca = buscaUsuario.Buscar();
 		var chaveBusca     = resultadoBusca.Value;
@@ -215,7 +215,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 	{
 		if (!ValidarPermissoes()) return;
 
-		BuscaUsuarioView buscaUsuario = new();
+		BuscaModeloView<Usuario> buscaUsuario = new("Buscar Usuário", ["Login", "Id"]);
 
 		var resultadoBusca = buscaUsuario.Buscar();
 		var chaveBusca     = resultadoBusca.Value;
@@ -279,8 +279,9 @@ public class ContextoUsuarios : Contexto<Usuario>,
 				[UsuarioContexto]);
 		}
 
-		relatorioView.ConstruirLayout();
-		relatorioView.Exibir();
+		PaginaView paginaView = new(relatorioView);
+		paginaView.ConstruirLayout();
+		paginaView.LerEntrada(true);
 	}
 
 	public override void VerDetalhes()
@@ -302,7 +303,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 			return;
 		}
 
-		BuscaUsuarioView buscaUsuario = new();
+		BuscaModeloView<Usuario> buscaUsuario = new("Buscar Usuário", ["Login"]);
 
 		var resultadoBusca = buscaUsuario.Buscar();
 		var chaveBusca     = resultadoBusca.Value;

@@ -6,7 +6,7 @@ using college_management.Views.Interfaces;
 namespace college_management.Views;
 
 
-public class CadastroUsuarioView : ICadastroUsuarioView
+public class CadastroUsuarioView : ICadastroView
 {
 	public Dictionary<string, string> CadastroUsuario;
 
