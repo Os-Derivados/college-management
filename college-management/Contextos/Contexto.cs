@@ -68,7 +68,7 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 
 	public abstract void VerDetalhes();
 
-	public void ListarOpcoes()
+	public MenuView ObterMenuView()
 	{
 		var opcoes = ObterOpcoes();
 
@@ -77,7 +77,7 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 		                            opcoes);
 
 		menuRecursos.ConstruirLayout();
-		menuRecursos.Exibir();
+		return menuRecursos;
 	}
 
 	public string[] ObterOpcoes()

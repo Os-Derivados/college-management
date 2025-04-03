@@ -223,8 +223,9 @@ public class ContextoMaterias : Contexto<Materia>
 		RelatorioView<Materia> relatorioView
 			= new("Visualizar Matérias", verMaterias.Modelo);
 
-		relatorioView.ConstruirLayout();
-		relatorioView.Exibir();
+		var paginaView = new PaginaView(relatorioView);
+		paginaView.ConstruirLayout();
+		paginaView.LerEntrada(true);
 	}
 
 	public override void VerDetalhes()
