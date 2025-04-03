@@ -2,10 +2,8 @@ using college_management.Constantes;
 using college_management.Contextos.Interfaces;
 using college_management.Dados;
 using college_management.Dados.Modelos;
-using college_management.Dados.Repositorios;
 using college_management.Servicos;
 using college_management.Views;
-using System.Reflection;
 
 
 namespace college_management.Contextos;
@@ -20,8 +18,8 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 	protected Contexto(BaseDeDados baseDeDados,
 	                   Usuario usuarioContexto)
 	{
-		BaseDeDados     = baseDeDados;
-		
+		BaseDeDados = baseDeDados;
+
 		var obterCargo = BaseDeDados
 		                 .Cargos
 		                 .ObterPorId(usuarioContexto.CargoId);
@@ -71,39 +69,47 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 
 	public abstract void VerDetalhes();
 
-    public void GerarRelatorio()
-	{ 
-		var Modelos = (List<T>)GetModelos();
+	public async Task GerarRelatorio()
+	{
+		var modelos = (List<T>)GetModelos();
 
-        ServicoRelatorios<T> servicoRelatorios = new(UsuarioContexto, Modelos);
+		ServicoRelatorios<T> servicoRelatorios = new(UsuarioContexto, modelos);
 
-		string relatorio = servicoRelatorios.GerarRelatorio(CargoContexto);
+		var relatorio = servicoRelatorios.GerarRelatorio(CargoContexto);
 
-		servicoRelatorios.ExportarRelatorio(relatorio).Wait();
+		var caminhoRelatorio
+			= await servicoRelatorios.ExportarRelatorio(relatorio);
 
-        View.Aviso("Relatório gerado com sucesso.");
+		var resultado = caminhoRelatorio != string.Empty
+			? $"""
+			   Relatório gerado com sucesso.
+			   Caminho do relatório: {caminhoRelatorio}
+			   """
+			: "Não foi possível gerar o relatório";
+
+		View.Aviso(resultado);
+
+		return;
 
 		object GetModelos()
 		{
-            switch(typeof(T))
+			return typeof(T) switch
 			{
-				case Type tipo when tipo == typeof(Usuario):
-                    return BaseDeDados.Usuarios.ObterTodos().Modelo!;
-
-				case Type tipo when tipo == typeof(Curso):
-                    return BaseDeDados.Cursos.ObterTodos().Modelo!;
-
-				case Type tipo when tipo == typeof(Cargo):
-                    return BaseDeDados.Cargos.ObterTodos().Modelo!;
-
-				case Type tipe when tipe == typeof(Materia):
-					return BaseDeDados.Materias.ObterTodos().Modelo!;
-
-				default:
-                    throw new InvalidOperationException("Tipo de modelo não suportado.");
-            }
-        }
-    }
+				{ } tipoUsuario when tipoUsuario == typeof(Usuario) =>
+					BaseDeDados.Usuarios.ObterTodos().Modelo!,
+				{ } tipoCurso when tipoCurso == typeof(Curso) => BaseDeDados
+					.Cursos.ObterTodos()
+					.Modelo!,
+				{ } tipoCargo when tipoCargo == typeof(Cargo) => BaseDeDados
+					.Cargos.ObterTodos()
+					.Modelo!,
+				{ } tipoMateria when tipoMateria == typeof(Materia) =>
+					BaseDeDados.Materias.ObterTodos().Modelo!,
+				_ => throw new InvalidOperationException(
+					"Tipo de modelo não suportado.")
+			};
+		}
+	}
 
 
 	public MenuView ObterMenuView()
@@ -147,5 +153,4 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 
 		return recursosDisponiveis;
 	}
-
 }

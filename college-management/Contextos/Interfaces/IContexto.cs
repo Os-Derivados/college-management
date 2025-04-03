@@ -13,5 +13,5 @@ public interface IContexto<T> where T : Modelo
 	public void VerDetalhes();
 	public bool ValidarPermissoes();
 	public void AcessarRecurso(string nomeRecurso);
-	public void GerarRelatorio();
+	public Task GerarRelatorio();
 }
