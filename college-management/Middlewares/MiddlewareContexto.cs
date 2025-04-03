@@ -30,8 +30,6 @@ public static class MiddlewareContexto
 		{
 			var opcaoContexto = EscolherContexto(obterCargo.Modelo!);
 
-			if (opcaoContexto is "") return;
-
 			switch (opcaoContexto)
 			{
 				case AcessosContexto.ContextoUsuarios:
@@ -54,6 +52,9 @@ public static class MiddlewareContexto
 
 					break;
 			}
+
+			if (string.IsNullOrEmpty(opcaoContexto) && ConfirmarSaida())
+				break;
 		}
 	}
 
@@ -150,4 +151,9 @@ public static class MiddlewareContexto
 			? AcessosContexto.ContextoEscrita
 			: AcessosContexto.ContextoLeitura;
 	}
+
+	private static bool ConfirmarSaida() =>
+		new ConfirmaView("Confirmação de saída")
+			.Confirmar("Deseja sair da aplicação?")
+			.ToString().ToLower() is "s";
 }
