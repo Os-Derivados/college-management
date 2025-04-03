@@ -2,7 +2,10 @@
   "profiles": {
     "college-management": {
       "commandName": "Project",
-      "commandLineArgs": "false true"
+      "commandLineArgs": "false false"
     }
+  },
+  "sdk": {
+    "version": "8.0.407"
   }
 }
