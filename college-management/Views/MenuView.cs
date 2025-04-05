@@ -47,7 +47,7 @@ public class MenuView : View, IMenuView
 
 	public override void ConstruirLayout()
 	{
-		List<StringBuilder> conteudo = new();
+		List<StringBuilder> conteudo = [];
 
 		_paginaView = new(_cabecalho + " Selecione uma das opções abaixo.");
 
