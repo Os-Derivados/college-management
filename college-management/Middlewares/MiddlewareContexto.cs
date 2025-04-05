@@ -11,21 +11,21 @@ namespace college_management.Middlewares;
 public static class MiddlewareContexto
 {
 	public static EstadoDoApp EstadoAtual = EstadoDoApp.Login;
-	
+
 	public static void Inicializar(BaseDeDados baseDeDados,
-	                               Usuario usuario)
+								   Usuario usuario)
 	{
-		var obterCargo  = baseDeDados.Cargos.ObterPorId(usuario.CargoId);
+		var obterCargo = baseDeDados.Cargos.ObterPorId(usuario.CargoId);
 
 		if (obterCargo.Status is StatusResposta.ErroNaoEncontrado) return;
-		
+
 		ContextoUsuarios contextoUsuarios = new(baseDeDados, usuario);
-		ContextoCargos   contextoCargos   = new(baseDeDados, usuario);
+		ContextoCargos contextoCargos = new(baseDeDados, usuario);
 		ContextoMaterias contextoMaterias = new(baseDeDados, usuario);
-		ContextoCursos   contextoCursos   = new(baseDeDados, usuario);
+		ContextoCursos contextoCursos = new(baseDeDados, usuario);
 
 		EstadoAtual = EstadoDoApp.Contexto;
-		
+
 		while (EstadoAtual is EstadoDoApp.Contexto)
 		{
 			var opcaoContexto = EscolherContexto(obterCargo.Modelo!);
@@ -67,15 +67,15 @@ public static class MiddlewareContexto
 		{
 			Console.Clear();
 
-			contexto.ListarOpcoes();
+			var menuView = contexto.ObterMenuView();
+			menuView.LerEntrada();
 
-			var opcaoEscolhida = Console.ReadKey();
+			var opcaoEscolhida = menuView.OpcaoEscolhida;
 
-			if (opcaoEscolhida.Key is not ConsoleKey.D0)
+			if (opcaoEscolhida is not 0)
 			{
 				var recursoEscolhido =
-					ConverterParaMetodo(contexto,
-					                    opcaoEscolhida);
+					ConverterParaMetodo(contexto, opcaoEscolhida);
 
 				Console.Clear();
 
@@ -89,18 +89,17 @@ public static class MiddlewareContexto
 	}
 
 	private static string ConverterParaMetodo<T>(Contexto<T> contexto,
-	                                             ConsoleKeyInfo indice)
+															 int indice)
 		where T : Modelo
 	{
 		var recursosDisponiveis = contexto.ObterOpcoes();
 
-		_ = int.TryParse(indice.KeyChar.ToString(), out var i);
+		_ = int.TryParse(indice.ToString(), out var i);
 
 		var recursoEscolhido = recursosDisponiveis
-		                       .Select(r => r
-		                                    .Trim()
-		                                    .Replace(" ", ""))
-		                       .ElementAt(i - 1);
+							   .Select(r => r.Trim()
+											 .Replace(" ", ""))
+							   .ElementAt(i - 1);
 
 		return recursoEscolhido;
 	}
@@ -114,24 +113,22 @@ public static class MiddlewareContexto
 			var opcoesContextos = ObterOpcoesContextos(cargoUsuario);
 
 			MenuView menuContextos = new("Menu Contextos",
-			                             "Bem-vindo(a).",
-			                             opcoesContextos);
+										 "Bem-vindo(a).",
+										 opcoesContextos);
 
 			menuContextos.ConstruirLayout();
-			menuContextos.Exibir();
+			menuContextos.LerEntrada();
 
-			var opcaoEscolhida = Console.ReadKey();
-			var opcaoValida = int.TryParse(opcaoEscolhida
-			                               .KeyChar
-			                               .ToString(),
-			                               out var opcaoUsuario);
+			var opcaoEscolhida = menuContextos.OpcaoEscolhida;
+			var opcaoValida = int.TryParse(opcaoEscolhida.ToString(),
+										   out var opcaoUsuario);
 
 			if (!opcaoValida) continue;
 
 			if (opcaoUsuario is 0) break;
 
 			contextoEscolhido = opcoesContextos[menuContextos.OpcaoEscolhida - 1];
-			EstadoAtual       = EstadoDoApp.Recurso;
+			EstadoAtual = EstadoDoApp.Recurso;
 		} while (EstadoAtual is EstadoDoApp.Contexto);
 
 		return contextoEscolhido;
@@ -140,12 +137,12 @@ public static class MiddlewareContexto
 	private static string[] ObterOpcoesContextos(Cargo cargoUsuario)
 	{
 		var temPermissoesAdmin = cargoUsuario
-			                         .TemPermissao(
-				                         PermissoesAcesso.AcessoEscrita)
-		                         || cargoUsuario
-			                         .TemPermissao(
-				                         PermissoesAcesso
-					                         .AcessoAdministradores);
+									 .TemPermissao(
+										 PermissoesAcesso.AcessoEscrita)
+								 || cargoUsuario
+									 .TemPermissao(
+										 PermissoesAcesso
+											 .AcessoAdministradores);
 
 		return temPermissoesAdmin
 			? AcessosContexto.ContextoEscrita
