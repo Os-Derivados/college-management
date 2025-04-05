@@ -696,6 +696,117 @@ public static class UtilitarioTipos
 
 ### Contexto
 
+O contexto descreve as informações das classes dos nossos principais modelos no sistema:
+
 #### Contexto de Cursos
 
+A classe ContextoCursos gerencia as operações relacionadas aos cursos no sistema de gerenciamento universitário. Ela permite:
+Cadastrar novos cursos, listar, editar e excluir os já existentes, com a grade horária e curricular e com detalhes, sendo estas os principais métodos da classe. 
+
+Ela herda da interface IContextoCursos.
+
+public class ContextoCursos : Contexto<Curso>, IContextoCursos
+{
+    public ContextoCursos(BaseDeDados baseDeDados, Usuario usuarioContexto) 
+        : base(baseDeDados, usuarioContexto) {}
+}
+
+Para o uso: 
+```
+var contextoCursos = new ContextoCursos(baseDeDados, usuarioLogado);
+await contextoCursos.Cadastrar();
+```
+## Métodos principais:
+// Cadastrar um novo curso
+await contextoCursos.Cadastrar();
+
+// Editar um curso existente
+await contextoCursos.Editar();
+
+// Visualizar a lista de cursos
+contextoCursos.Visualizar();
+
+// Ver detalhes de um curso específico
+contextoCursos.VerDetalhes();
+
+
 #### Contexto de Usuários
+
+A classe ContextoUsuarios é responsável por gerenciar operações relacionadas a usuários no sistema. Essa classe implementa métodos como cadastro, edição, exclusão e visualização de usuários, além de permitir o acesso a informações acadêmicas e financeiras.
+
+## Estrutura da Classe
+A classe ContextoUsuarios herda de Contexto<Usuario> e implementa a interface IContextoUsuarios. 
+
+public class ContextoUsuarios : Contexto<Usuario>, IContextoUsuarios
+{
+	public ContextoUsuarios(BaseDeDados baseDeDados, Usuario usuarioContexto) :
+		base(baseDeDados, usuarioContexto) {}
+  }
+
+Para o uso:
+```
+var contextoUsuarios = new ContextoUsuarios(baseDeDados, usuario);
+await contextoUsuarios.Cadastrar();
+```
+
+## Métodos Principais
+VerMatricula()
+VerBoletim()
+VerFinanceiro()
+Cadastrar()
+Editar()
+Excluir()
+Visualizar()
+VerDetalhes()
+
+#### Contexto de Materias
+
+A classe ContextoMaterias gerencia as operações relacionadas às matérias no sistema de gerenciamento acadêmico.
+
+Estrutura:
+public class ContextoMaterias : Contexto<Materia>
+{
+    public ContextoMaterias(BaseDeDados baseDeDados, Usuario usuarioContexto) 
+        : base(baseDeDados, usuarioContexto) {}
+}
+
+Para de Uso:
+var contextoMaterias = new ContextoMaterias(baseDeDados, usuarioLogado);
+
+// Cadastrar uma nova matéria
+await contextoMaterias.Cadastrar();
+
+// Editar uma matéria existente
+await contextoMaterias.Editar();
+
+// Visualizar todas as matérias
+contextoMaterias.Visualizar();
+
+#### Contexto de Cargos
+
+A classe ContextoCargos é responsável pela gestão de cargos dentro do sistema de gerenciamento da faculdade. Ela permite realizar operações Criar, Ler, Atualizar e Deletar para cargos, garantindo que apenas usuários autorizados possam modificar essas informações.
+
+Estrutura da Classe
+A classe ContextoCargos herda de Contexto<Cargo>.
+public class ContextoCargos : Contexto<Cargo>
+{
+	public ContextoCargos(BaseDeDados baseDeDados, Usuario usuarioContexto) :
+		base(baseDeDados, usuarioContexto) {}
+}
+
+Para o uso:
+```
+var contextoCArgos = new ContextoCargos(baseDeDados, usuario);
+await contextoCargos.Cadastrar();
+```
+
+Cadastrar()
+Editar()
+Excluir()
+Visualizar()
+VerDetalhes()
+TelaDeCadastro()
+SelecaoDePermissao()
+ValidarEntrada(InputView inputView, string chave)
+ExibirDetalhesCargo(Cargo cargo, DetalhesView detalhesView)
+ConfirmarEscolha(string mensagem, Cargo? cargo = null)
