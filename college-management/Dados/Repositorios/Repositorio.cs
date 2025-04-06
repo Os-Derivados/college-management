@@ -1,39 +1,23 @@
+using System.Linq.Expressions;
 using System.Text.Json;
+using college_management.Dados.Contexto;
 using college_management.Dados.Modelos;
 using college_management.Dados.Repositorios.Interfaces;
-using college_management.Servicos;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace college_management.Dados.Repositorios;
 
 
-public abstract class Repositorio<T> : IRepositorio<T>
-	where T : Modelo
+public abstract class Repositorio<T> : IRepositorio<T> where T : Modelo
 {
-	private readonly ServicoDados<T> _servicoDados = new();
-	protected        List<T>?        BaseDeDados;
+	private readonly BancoDeDados _bancoDeDados;
+	private readonly DbSet<T>     _dados;
 
-	protected Repositorio()
+	protected Repositorio(BancoDeDados bancoDeDados)
 	{
-		if (BaseDeDados is not null)
-			return;
-
-		Task.Run(async () =>
-		    {
-			    try
-			    {
-				    using var dadosSalvos = _servicoDados.CarregarAssincrono();
-
-				    BaseDeDados = await dadosSalvos;
-			    }
-			    catch (Exception e) when (e is JsonException
-			                                   or AggregateException
-			                                   or IOException)
-			    {
-				    BaseDeDados = [];
-			    }
-		    })
-		    .Wait();
+		_bancoDeDados = bancoDeDados;
+		_dados        = _bancoDeDados.Set<T>();
 	}
 
 	public virtual async Task<RespostaRecurso<T>> Adicionar(T modelo)
@@ -41,22 +25,23 @@ public abstract class Repositorio<T> : IRepositorio<T>
 		if (Existe(modelo))
 			return new RespostaRecurso<T>(modelo, StatusResposta.ErroDuplicata);
 
-		BaseDeDados!.Add(modelo);
-
-		await _servicoDados.SalvarAssicrono(BaseDeDados);
+		_dados.Add(modelo);
+		await _bancoDeDados.SaveChangesAsync();
 
 		return new RespostaRecurso<T>(modelo, StatusResposta.Sucesso);
 	}
 
-	public RespostaRecurso<List<T>> ObterTodos()
+	public RespostaRecurso<IEnumerable<T>> ObterTodos()
 	{
-		return new RespostaRecurso<List<T>>(BaseDeDados ?? [],
-		                                    StatusResposta.Sucesso);
+		var registros = _dados.ToList();
+
+		return new RespostaRecurso<IEnumerable<T>>(registros,
+		                                           StatusResposta.Sucesso);
 	}
 
-	public RespostaRecurso<T> ObterPorId(string? id)
+	public RespostaRecurso<T> ObterPorId(uint id)
 	{
-		var registro = BaseDeDados!.FirstOrDefault(t => t.Id == id);
+		var registro = _dados.Find(id);
 
 		return registro is null
 			? new RespostaRecurso<T>(null, StatusResposta.ErroNaoEncontrado)
@@ -65,15 +50,7 @@ public abstract class Repositorio<T> : IRepositorio<T>
 
 	public RespostaRecurso<T> ObterPorNome(string? nome)
 	{
-		var registro = BaseDeDados?.FirstOrDefault(t =>
-		{
-			var propriedadeNome
-				= t.GetType().GetProperty("Nome");
-
-			var valorNome = propriedadeNome?.GetValue(t)?.ToString();
-
-			return valorNome is not null && valorNome == nome;
-		});
+		var registro = _dados.FirstOrDefault(r => r.Nome == nome);
 
 		return registro is null
 			? new RespostaRecurso<T>(null, StatusResposta.ErroNaoEncontrado)
@@ -89,36 +66,37 @@ public abstract class Repositorio<T> : IRepositorio<T>
 			return await Adicionar(modelo);
 		}
 
-		var foiRemovido = await Remover(modelo.Id);
+		_dados.Update(modelo);
+		await _bancoDeDados.SaveChangesAsync();
 
-		if (foiRemovido.Status is not StatusResposta.Sucesso)
-			return foiRemovido with { Modelo = modelo };
-
-		var atualizar = await Adicionar(modelo);
-
-		if (atualizar.Status is StatusResposta.Sucesso)
-			await _servicoDados.SalvarAssicrono(BaseDeDados);
-
-		return atualizar;
+		return new RespostaRecurso<T>(modelo, StatusResposta.Sucesso);
 	}
 
-	public async Task<RespostaRecurso<T>> Remover(string? id)
+	public async Task<RespostaRecurso<T>> Remover(uint id)
 	{
-		var obterModelo = ObterPorId(id);
+		var (modelo, statusResposta) = ObterPorId(id);
 
-		if (obterModelo.Status is StatusResposta.ErroNaoEncontrado)
-			return obterModelo;
+		if (statusResposta is StatusResposta.ErroNaoEncontrado)
+			return new RespostaRecurso<T>(null,
+			                              StatusResposta.ErroNaoEncontrado);
 
-		BaseDeDados!.Remove(obterModelo.Modelo!);
+		_dados.Remove(modelo!);
+		await _bancoDeDados.SaveChangesAsync();
 
-		await _servicoDados.SalvarAssicrono(BaseDeDados);
-
-		return new RespostaRecurso<T>(null, StatusResposta.Sucesso);
+		return new RespostaRecurso<T>(modelo, StatusResposta.Sucesso);
 	}
 
-	public List<T> ObterBaseDeDados()
+	public async Task<RespostaRecurso<IEnumerable<T>>> Buscar(
+		Expression<Func<T, bool>> callback)
 	{
-		return new List<T>(BaseDeDados!);
+		var registros = await _dados.Where(callback).ToListAsync();
+
+		if (registros.Count == 0)
+			return new RespostaRecurso<IEnumerable<T>>(null,
+				StatusResposta.ErroNaoEncontrado);
+
+		return new RespostaRecurso<IEnumerable<T>>(registros,
+		                                           StatusResposta.Sucesso);
 	}
 
 	public abstract bool Existe(T modelo);
