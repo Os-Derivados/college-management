@@ -1,3 +1,4 @@
+using college_management.Dados.Contexto;
 using college_management.Dados.Modelos;
 using college_management.Dados.Repositorios.Interfaces;
 
@@ -5,16 +6,19 @@ using college_management.Dados.Repositorios.Interfaces;
 namespace college_management.Dados.Repositorios;
 
 
-public class RepositorioUsuarios : Repositorio<Usuario>,
-                                   IRepositorioUsuarios
+public class RepositorioUsuarios : Repositorio<Usuario>, IRepositorioUsuarios
 {
+	public RepositorioUsuarios(BancoDeDados bancoDeDados) : base(bancoDeDados)
+	{
+	}
+
 	public RespostaRecurso<Usuario> ObterPorLogin(string login)
 	{
-		var usuario = BaseDeDados.FirstOrDefault(u => u.Login == login);
+		var usuario = Dados.FirstOrDefault(u => u.Login == login);
 
 		return usuario is null
-			? new RespostaRecurso<Usuario>(
-				null, StatusResposta.ErroNaoEncontrado)
+			? new RespostaRecurso<Usuario>(null,
+			                               StatusResposta.ErroNaoEncontrado)
 			: new RespostaRecurso<Usuario>(usuario, StatusResposta.Sucesso);
 	}
 
@@ -23,7 +27,7 @@ public class RepositorioUsuarios : Repositorio<Usuario>,
 		var obterPorLogin = ObterPorLogin(modelo.Login!);
 		var obterPorId    = ObterPorId(modelo.Id);
 
-		return obterPorLogin.Status is StatusResposta.Sucesso
-		       || obterPorId.Status is StatusResposta.Sucesso;
+		return obterPorLogin.Status is StatusResposta.Sucesso ||
+		       obterPorId.Status is StatusResposta.Sucesso;
 	}
 }

@@ -11,13 +11,13 @@ namespace college_management.Dados.Repositorios;
 
 public abstract class Repositorio<T> : IRepositorio<T> where T : Modelo
 {
-	private readonly BancoDeDados _bancoDeDados;
-	private readonly DbSet<T>     _dados;
+	private protected readonly BancoDeDados BancoDeDados;
+	private protected readonly DbSet<T>     Dados;
 
 	protected Repositorio(BancoDeDados bancoDeDados)
 	{
-		_bancoDeDados = bancoDeDados;
-		_dados        = _bancoDeDados.Set<T>();
+		BancoDeDados = bancoDeDados;
+		Dados        = BancoDeDados.Set<T>();
 	}
 
 	public virtual async Task<RespostaRecurso<T>> Adicionar(T modelo)
@@ -25,15 +25,15 @@ public abstract class Repositorio<T> : IRepositorio<T> where T : Modelo
 		if (Existe(modelo))
 			return new RespostaRecurso<T>(modelo, StatusResposta.ErroDuplicata);
 
-		_dados.Add(modelo);
-		await _bancoDeDados.SaveChangesAsync();
+		Dados.Add(modelo);
+		await BancoDeDados.SaveChangesAsync();
 
 		return new RespostaRecurso<T>(modelo, StatusResposta.Sucesso);
 	}
 
 	public RespostaRecurso<IEnumerable<T>> ObterTodos()
 	{
-		var registros = _dados.ToList();
+		var registros = Dados.ToList();
 
 		return new RespostaRecurso<IEnumerable<T>>(registros,
 		                                           StatusResposta.Sucesso);
@@ -41,7 +41,7 @@ public abstract class Repositorio<T> : IRepositorio<T> where T : Modelo
 
 	public RespostaRecurso<T> ObterPorId(uint id)
 	{
-		var registro = _dados.Find(id);
+		var registro = Dados.Find(id);
 
 		return registro is null
 			? new RespostaRecurso<T>(null, StatusResposta.ErroNaoEncontrado)
@@ -50,7 +50,7 @@ public abstract class Repositorio<T> : IRepositorio<T> where T : Modelo
 
 	public RespostaRecurso<T> ObterPorNome(string? nome)
 	{
-		var registro = _dados.FirstOrDefault(r => r.Nome == nome);
+		var registro = Dados.FirstOrDefault(r => r.Nome == nome);
 
 		return registro is null
 			? new RespostaRecurso<T>(null, StatusResposta.ErroNaoEncontrado)
@@ -66,8 +66,8 @@ public abstract class Repositorio<T> : IRepositorio<T> where T : Modelo
 			return await Adicionar(modelo);
 		}
 
-		_dados.Update(modelo);
-		await _bancoDeDados.SaveChangesAsync();
+		Dados.Update(modelo);
+		await BancoDeDados.SaveChangesAsync();
 
 		return new RespostaRecurso<T>(modelo, StatusResposta.Sucesso);
 	}
@@ -80,8 +80,8 @@ public abstract class Repositorio<T> : IRepositorio<T> where T : Modelo
 			return new RespostaRecurso<T>(null,
 			                              StatusResposta.ErroNaoEncontrado);
 
-		_dados.Remove(modelo!);
-		await _bancoDeDados.SaveChangesAsync();
+		Dados.Remove(modelo!);
+		await BancoDeDados.SaveChangesAsync();
 
 		return new RespostaRecurso<T>(modelo, StatusResposta.Sucesso);
 	}
@@ -89,7 +89,7 @@ public abstract class Repositorio<T> : IRepositorio<T> where T : Modelo
 	public async Task<RespostaRecurso<IEnumerable<T>>> Buscar(
 		Expression<Func<T, bool>> callback)
 	{
-		var registros = await _dados.Where(callback).ToListAsync();
+		var registros = await Dados.Where(callback).ToListAsync();
 
 		if (registros.Count == 0)
 			return new RespostaRecurso<IEnumerable<T>>(null,
