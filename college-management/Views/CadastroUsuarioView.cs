@@ -35,7 +35,7 @@ public class CadastroUsuarioView : ICadastroView
 		];
 
 		if (inputCadastro.ObterEntrada("Cargo")
-		    is CargosPadrao.CargoAlunos)
+		    is TipoUsuario.CargoAlunos)
 			foreach (var mensagem in mensagensAluno)
 				inputCadastro.LerEntrada(mensagem.Key, mensagem.Value);
 

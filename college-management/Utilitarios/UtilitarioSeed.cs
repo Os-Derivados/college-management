@@ -12,16 +12,16 @@ public static class UtilitarioSeed
 	{
 		await baseDeDados
 		      .Cargos
-		      .Adicionar(new Cargo(CargosPadrao.CargoAdministradores,
+		      .Adicionar(new Cargo(TipoUsuario.CargoAdministradores,
 		                           [PermissoesAcesso.AcessoAdministradores]));
 
 		await baseDeDados.Cargos.Adicionar(
-			new Cargo(CargosPadrao.CargoGestores,
+			new Cargo(TipoUsuario.CargoGestores,
 			          [PermissoesAcesso.AcessoEscrita]));
 
 		await baseDeDados
 		      .Cargos
-		      .Adicionar(new Cargo(CargosPadrao.CargoAlunos,
+		      .Adicionar(new Cargo(TipoUsuario.CargoAlunos,
 		                           [PermissoesAcesso.AcessoLeitura]));
 
 		var (loginMestre, nomeMestre, senhaMestre)
@@ -31,7 +31,7 @@ public static class UtilitarioSeed
 
 		var obterCargoAdmin = baseDeDados
 		                      .Cargos
-		                      .ObterPorNome(CargosPadrao.CargoAdministradores);
+		                      .ObterPorNome(TipoUsuario.CargoAdministradores);
 
 		if (obterCargoAdmin.Status is StatusResposta.ErroNaoEncontrado) return;
 
@@ -59,7 +59,7 @@ public static class UtilitarioSeed
 
 		var obterCargoAluno = baseDeDados
 		                      .Cargos
-		                      .ObterPorNome(CargosPadrao.CargoAlunos);
+		                      .ObterPorNome(TipoUsuario.CargoAlunos);
 
 		if (obterCargoAluno.Status is StatusResposta.ErroNaoEncontrado) return;
 
@@ -104,12 +104,12 @@ public static class UtilitarioSeed
 	{
 		var cargoAdms = baseDeDados
 			.Cargos
-			.ObterPorNome(CargosPadrao.CargoAdministradores) is not
+			.ObterPorNome(TipoUsuario.CargoAdministradores) is not
 			null;
 
 		var cargoAlunos = baseDeDados
 		                  .Cargos
-		                  .ObterPorNome(CargosPadrao.CargoAlunos) is not null;
+		                  .ObterPorNome(TipoUsuario.CargoAlunos) is not null;
 
 		_ = UtilitarioAmbiente
 		    .Variaveis

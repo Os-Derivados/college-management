@@ -124,7 +124,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		}
 
 		var novaMatricula = obterCargoPorNome.Modelo!.Nome
-			is CargosPadrao.CargoAlunos
+			is TipoUsuario.CargoAlunos
 			? Matricula.CriarMatricula(dadosUsuario)
 			: null;
 

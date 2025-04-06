@@ -3,52 +3,35 @@ namespace college_management.Dados.Modelos;
 
 public sealed class Matricula : Modelo
 {
-	private static long _contagemId = 10000000000;
-
-	public Matricula(int periodo,
-	                 Modalidade modalidade)
+	public Matricula(string nome, uint periodo, Modalidade modalidade) :
+		base(nome)
 	{
 		Periodo    = periodo;
 		Modalidade = modalidade;
-		Id         = _contagemId.ToString();
-
-		_contagemId++;
 	}
 
-	public string?    CursoId    { get; set; }
-	public string?    AlunoId    { get; set; }
-	public int        Periodo    { get; set; }
+	public uint       CursoId    { get; set; }
+	public uint       AlunoId    { get; set; }
+	public string     Codigo     => $"{CursoId}{AlunoId}";
+	public uint       Periodo    { get; set; }
 	public Modalidade Modalidade { get; set; }
-	public List<Nota> Notas      { get; set; } = [];
 
-	public void InicializarNotas(Curso curso)
+	public static Matricula CriarMatricula(Dictionary<string, string> cadastro)
 	{
-		if (curso.Id != CursoId) return;
+		var periodoValido = uint.TryParse(cadastro["Periodo"],
+		                                  out var periodoCurso);
 
-		foreach (var materia in curso.GradeCurricular)
-			Notas.Add(new Nota(materia.Nome, materia.Id));
-	}
+		if (!periodoValido) return null;
 
-	public static Matricula CriarMatricula(
-		Dictionary<string, string> cadastroUsuario)
-	{
-		var conversaoValida = int.TryParse(cadastroUsuario["Periodo"],
-		                                   out var periodoCurso);
+		var modalidadeValida = Enum.TryParse<Modalidade>(
+			cadastro["Modalidade"],
+			out var modalidadeCurso);
 
-		if (!conversaoValida) return null;
+		if (!modalidadeValida) return null;
 
-		var modalidadeCurso =
-			cadastroUsuario["Modalidade"] switch
-			{
-				"Ead"        => Modalidade.Ead,
-				"Presencial" => Modalidade.Presencial,
-				"Hibrido"    => Modalidade.Hibrido,
-				_            => Modalidade.Invalido
-			};
-
-		if (modalidadeCurso is Modalidade.Invalido) return null;
-
-		Matricula novaMatricula = new(periodoCurso, modalidadeCurso);
+		Matricula novaMatricula = new(cadastro["Nome"],
+		                              periodoCurso,
+		                              modalidadeCurso);
 
 		return novaMatricula;
 	}
@@ -58,6 +41,5 @@ public enum Modalidade
 {
 	Presencial,
 	Ead,
-	Hibrido,
-	Invalido
+	Hibrido
 }
