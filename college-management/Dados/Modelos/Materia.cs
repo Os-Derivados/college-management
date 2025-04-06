@@ -5,7 +5,10 @@ public sealed class Materia : Modelo
 {
 	public Materia(string nome) : base(nome) { }
 
-	public uint CargaHoraria { get; set; }
+	public uint               CargaHoraria { get; set; }
+	public IEnumerable<Aluno> Alunos       { get; } = [];
+	public IEnumerable<Curso> Cursos       { get; } = [];
+	public IEnumerable<Docente> Docentes       { get; } = [];
 
 	public override string ToString()
 	{

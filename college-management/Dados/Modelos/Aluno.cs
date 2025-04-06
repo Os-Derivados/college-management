@@ -7,4 +7,7 @@ public sealed class Aluno : Usuario
 		base(login, nome, credenciais)
 	{
 	}
+
+	public IEnumerable<Materia> Materias { get; } = [];
+	public IEnumerable<Curso>   Cursos   { get; } = [];
 }

@@ -8,4 +8,5 @@ public abstract class Modelo
 	public string Nome     { get; set; }
 	public uint   Id       { get; set; }
 	public uint   GestorId { get; set; }
+	public Gestor Gestor   { get; set; } = null!;
 }

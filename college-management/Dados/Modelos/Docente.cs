@@ -7,4 +7,7 @@ public class Docente : Usuario
 		base(login, nome, credenciais)
 	{
 	}
+
+	public IEnumerable<Turma>   Turmas   { get; } = [];
+	public IEnumerable<Materia> Materias { get; } = [];
 }
