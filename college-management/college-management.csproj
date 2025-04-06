@@ -13,9 +13,4 @@
       <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.14" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Compile Remove="Dados\Modelos\Gestor.cs" />
-      <Compile Remove="Dados\Modelos\Docente.cs" />
-    </ItemGroup>
-
 </Project>
