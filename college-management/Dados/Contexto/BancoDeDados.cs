@@ -2,7 +2,7 @@ using college_management.Dados.Modelos;
 using Microsoft.EntityFrameworkCore;
 
 
-namespace college_management.Dados.BancoDeDados;
+namespace college_management.Dados.Contexto;
 
 
 public class BancoDeDados : DbContext
