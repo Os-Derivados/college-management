@@ -27,7 +27,7 @@ public sealed class ServicoRelatorios<T> : IServicoRelatorios<T>
 		_modelos = modelos;
 	}
 
-	public string GerarEntradasRelatorio()
+	public string GerarRelatorio()
 	{
 		if (_modelos.Count == 0)
 			return "Nenhum registro encontrado.";

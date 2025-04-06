@@ -7,6 +7,6 @@ namespace college_management.Servicos.Interfaces;
 public interface IServicoRelatorios<T>
 {
 
-	public string       GerarEntradasRelatorio();
+	public string       GerarRelatorio();
 	public Task<string> ExportarRelatorio(string relatorio);
 }
