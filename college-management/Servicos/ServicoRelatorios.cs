@@ -27,33 +27,6 @@ public sealed class ServicoRelatorios<T> : IServicoRelatorios<T>
 		_modelos = modelos;
 	}
 
-
-	public string GerarRelatorio(Cargo cargoUsuario)
-	{
-		if (cargoUsuario == null)
-			throw new NullReferenceException(
-				$"Error: {typeof(Cargo).Name} é null. " +
-				$"(ServicoRelatorios<{typeof(T).Name}>.GerarRelatorio)"
-			);
-
-
-		// Gera relatorio caso o Cargo tenha permissão.
-		if (cargoUsuario.TemPermissao(PermissoesAcesso.AcessoEscrita) ||
-		    cargoUsuario.TemPermissao(PermissoesAcesso.AcessoAdministradores))
-		{
-			Console.WriteLine("Gerando relatorio...");
-			return GerarEntradasRelatorio();
-		}
-
-
-		throw new ArgumentException(
-			$"Error: Usuario não tem permissão para gerar relatorio. " +
-			$"OBS: Um usuario sem premissão não deveria ver a opção de " +
-			$"gerar relatorios. " +
-			$"(ServicoRelatorios<{typeof(T).Name}>.GerarRelatorio)"
-		);
-	}
-
 	public string GerarEntradasRelatorio()
 	{
 		if (_modelos.Count == 0)
