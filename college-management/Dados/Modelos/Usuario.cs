@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using college_management.Constantes;
 using college_management.Dados.Repositorios;
 
@@ -6,15 +5,11 @@ using college_management.Dados.Repositorios;
 namespace college_management.Dados.Modelos;
 
 
-[JsonDerivedType(typeof(Usuario), "Base")]
-[JsonDerivedType(typeof(Aluno), "Aluno")]
-[JsonDerivedType(typeof(Docente), "Docente")]
-[JsonDerivedType(typeof(Gestor), "Gestor")]
-public class Usuario : Modelo
+public abstract class Usuario : Modelo
 {
-	public Usuario(string login,
-	               string nome,
-	               CredenciaisUsuario credenciais) : base(nome)
+	protected Usuario(string login,
+	                  string nome,
+	                  CredenciaisUsuario credenciais) : base(nome)
 	{
 		Login       = login;
 		Nome        = nome;
@@ -55,6 +50,7 @@ public class Usuario : Modelo
 			                                 cadastro["Nome"],
 			                                 new CredenciaisUsuario(
 				                                 cadastro["Senha"])),
+			_ => throw new ArgumentOutOfRangeException(nameof(tipo), tipo, null)
 		};
 
 		return novoUsuario;
