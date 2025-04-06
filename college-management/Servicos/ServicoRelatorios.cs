@@ -17,15 +17,9 @@ namespace college_management.Servicos;
 public sealed class ServicoRelatorios<T> : IServicoRelatorios<T>
 	where T : Modelo
 {
-	private readonly Usuario _usuario;
 	private readonly List<T> _modelos;
 
-	public ServicoRelatorios(Usuario usuario,
-	                         List<T> modelos)
-	{
-		_usuario = usuario;
-		_modelos = modelos;
-	}
+	public ServicoRelatorios(List<T> modelos) { _modelos = modelos; }
 
 	public string GerarRelatorio()
 	{
@@ -71,9 +65,8 @@ public sealed class ServicoRelatorios<T> : IServicoRelatorios<T>
 					relatorio.Append(_);
 
 
-				relatorio.Append(propriedades.Last() == propriedade
-					                 ? "\n"
-					                 : ",");
+				relatorio.Append(
+					propriedades.Last() == propriedade ? "\n" : ",");
 			}
 		}
 
@@ -106,9 +99,8 @@ public sealed class ServicoRelatorios<T> : IServicoRelatorios<T>
 
 		var diretorioExportacao = ObterDiretorioExportacao();
 
-		var caminhoRelatorio = Path.Combine(
-			diretorioExportacao,
-			$"{typeof(T).Name}_{timeNow:dd-MM-yy_H-mm-ss}.csv");
+		var caminhoRelatorio = Path.Combine(diretorioExportacao,
+		                                    $"{typeof(T).Name}_{timeNow:dd-MM-yy_H-mm-ss}.csv");
 
 		await File.WriteAllTextAsync(caminhoRelatorio, relatorio);
 
