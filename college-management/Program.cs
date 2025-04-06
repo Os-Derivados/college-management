@@ -1,9 +1,15 @@
 ﻿using college_management.Dados;
+using college_management.Dados.Contexto;
 using college_management.Middlewares;
 using college_management.Utilitarios;
 using college_management.Views;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 UtilitarioArquivos.Inicializar();
+
+ServiceCollection servicos = new();
+ConfigurarServicos(servicos);
 
 BaseDeDados baseDeDados = new();
 
@@ -36,10 +42,13 @@ MiddlewareContexto.Inicializar(baseDeDados, usuarioLogado);
 Console.Clear();
 Console.WriteLine("Saindo...");
 
-public enum EstadoDoApp
+return;
+
+static void ConfigurarServicos(IServiceCollection servicos)
 {
-	Sair,
-	Login,
-	Contexto,
-	Recurso
+	servicos.AddDbContext<BancoDeDados>(options =>
+	{
+		options.UseSqlite(
+			$"Data Source={Path.Combine(UtilitarioArquivos.DiretorioDados, "college_management.db")}");
+	});
 }
