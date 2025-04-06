@@ -11,28 +11,28 @@ public class BancoDeDados : DbContext
 	{
 	}
 
-	public DbSet<Gestor> Gestores { get; set; }
-
-	public DbSet<Docente> Docentes { get; set; }
-
-	public DbSet<Aluno> Alunos { get; set; }
-
-	public DbSet<Curso> Cursos { get; set; }
-
-	public DbSet<Materia> Materias { get; set; }
-
-	public DbSet<Matricula> Matriculas { get; set; }
-
-	public DbSet<CorpoDocente> CorpoDocente { get; set; }
-
-	public DbSet<Turma> Turmas { get; set; }
-
+	public DbSet<Aluno>           Alunos          { get; set; }
+	public DbSet<Avaliacao>       Avaliacoes      { get; set; }
+	public DbSet<CorpoDocente>    CorpoDocente    { get; set; }
+	public DbSet<Curso>           Cursos          { get; set; }
+	public DbSet<Docente>         Docentes        { get; set; }
+	public DbSet<Gestor>          Gestores        { get; set; }
 	public DbSet<GradeCurricular> GradeCurricular { get; set; }
+	public DbSet<Materia>         Materias        { get; set; }
+	public DbSet<Matricula>       Matriculas      { get; set; }
+	public DbSet<Turma>           Turmas          { get; set; }
+	public DbSet<Usuario>         Usuarios        { get; set; }
 
-	public DbSet<Avaliacao> Avaliacoes { get; set; }
 
 	protected override void OnModelCreating(ModelBuilder builder)
 	{
+		// Garantir hierarquia para a tabela de Usuarios
+		builder.Entity<Usuario>()
+		       .HasDiscriminator<string>("TipoUsuario")
+		       .HasValue<Docente>("Docente")
+		       .HasValue<Gestor>("Gestor")
+		       .HasValue<Aluno>("Aluno");
+
 		builder.Entity<Modelo>().HasKey(m => m.Id);
 		builder.Entity<Modelo>()
 		       .Property(m => m.Nome)
@@ -99,5 +99,7 @@ public class BancoDeDados : DbContext
 		       .HasMany<Materia>()
 		       .WithMany(m => m.Cursos)
 		       .UsingEntity<GradeCurricular>();
+
+		base.OnModelCreating(builder);
 	}
 }
