@@ -33,25 +33,19 @@ public class ContextoMaterias : Contexto<Materia>
 		return inputUsuario.EntradasUsuario;
 	}
 
-	private async Task<bool> ValidarECadastrarMateria(
-		Dictionary<string, string> dadosMateria)
+	private async Task<bool> ValidarECadastrarMateria(Dictionary<string, string> dadosMateria)
 	{
-		if (!Enum.TryParse(dadosMateria["Turno"], out Turno turnoEscolhido))
-		{
-			View.Aviso("O Turno inserido não foi encontrado.");
-
-			return false;
-		}
-
-		if (!int.TryParse(dadosMateria["CargaHoraria"], out var cargaHoraria))
+		if (!uint.TryParse(dadosMateria["CargaHoraria"], out var cargaHoraria))
 		{
 			View.Aviso("A carga horária inserida não é válida.");
 
 			return false;
 		}
 
-		Materia novaMateria
-			= new(dadosMateria["Nome"], turnoEscolhido, cargaHoraria);
+		Materia novaMateria = new(dadosMateria["Nome"])
+		{
+			CargaHoraria = cargaHoraria
+		};
 
 		var cadastroMateria = await BaseDeDados.Materias.Adicionar(novaMateria);
 
@@ -100,14 +94,12 @@ public class ContextoMaterias : Contexto<Materia>
 	{
 		if (!TemAcessoRestrito)
 		{
-			View.Aviso(
-				"Você não tem permissão para acessar esse recurso.");
+			View.Aviso("Você não tem permissão para acessar esse recurso.");
 
 			return;
 		}
 
-		var cadastroMateria
-			= ObterEntradasUsuario("Cadastrar Matéria");
+		var cadastroMateria = ObterEntradasUsuario("Cadastrar Matéria");
 
 		DetalhesView detalhesMateria
 			= new("Detalhes da Matéria", cadastroMateria);
@@ -131,7 +123,7 @@ public class ContextoMaterias : Contexto<Materia>
 	public override async Task Editar()
 	{
 		BuscaModeloView<Materia> buscaModelo = new("Buscar Matéria", ["Nome"]);
-		var              chaveBusca   = buscaModelo.Buscar();
+		var                      chaveBusca  = buscaModelo.Buscar();
 
 		var obterMateria = chaveBusca.Key is 1
 			? BaseDeDados.Materias.ObterPorNome(chaveBusca.Value)
@@ -170,7 +162,7 @@ public class ContextoMaterias : Contexto<Materia>
 	public override async Task Excluir()
 	{
 		BuscaModeloView<Materia> buscaModelo = new("Buscar Matéria", ["Nome"]);
-		var              chaveBusca   = buscaModelo.Buscar();
+		var                      chaveBusca  = buscaModelo.Buscar();
 
 		var obterMateria = chaveBusca.Key is 1
 			? BaseDeDados.Materias.ObterPorNome(chaveBusca.Value)
@@ -183,10 +175,13 @@ public class ContextoMaterias : Contexto<Materia>
 			return;
 		}
 
-		DetalhesView detalhesMateria
-			= new("Detalhes da Matéria", UtilitarioTipos.ObterPropriedades(
-				      obterMateria.Modelo,
-				      ["Nome", "Id", "CargaHoraria", "Turno"]));
+		DetalhesView detalhesMateria = new("Detalhes da Matéria",
+		                                   UtilitarioTipos.ObterPropriedades(
+			                                   obterMateria.Modelo,
+			                                   [
+				                                   "Nome", "Id", "CargaHoraria",
+				                                   "Turno"
+			                                   ]));
 		detalhesMateria.ConstruirLayout();
 
 		ConfirmaView confirmarCadastro = new("Excluir Materia");
@@ -231,9 +226,9 @@ public class ContextoMaterias : Contexto<Materia>
 	public override void VerDetalhes()
 	{
 		BuscaModeloView<Materia> buscaModelo = new("Buscar Matéria", ["Nome"]);
-		var              chaveBusca   = buscaModelo.Buscar();
+		var                      chaveBusca  = buscaModelo.Buscar();
 
-		var obterMateria = chaveBusca.Key is 1	
+		var obterMateria = chaveBusca.Key is 1
 			? BaseDeDados.Materias.ObterPorNome(chaveBusca.Value)
 			: BaseDeDados.Materias.ObterPorId(chaveBusca.Value);
 
@@ -245,7 +240,8 @@ public class ContextoMaterias : Contexto<Materia>
 		}
 
 		var detalhes = UtilitarioTipos.ObterPropriedades(
-			obterMateria.Modelo, ["Nome", "Turno", "CargaHoraria", "Id"]);
+			obterMateria.Modelo,
+			["Nome", "Turno", "CargaHoraria", "Id"]);
 
 		DetalhesView detalhesMateria = new("Matéria Encontrada", detalhes);
 		detalhesMateria.ConstruirLayout();
