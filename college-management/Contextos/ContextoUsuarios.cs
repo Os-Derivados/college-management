@@ -152,7 +152,7 @@ public class ContextoUsuarios : Contexto<Usuario>, IContextoUsuarios
 
 			relatorioView
 				= new RelatorioView<Usuario>("Visualizar Usuários",
-				                             verUsuarios.Modelo!);
+				                             verUsuarios.Modelo!.ToList());
 		}
 		else
 		{
