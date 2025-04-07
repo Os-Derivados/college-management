@@ -68,47 +68,53 @@ public class ContextoCursos : Contexto<Curso>, IContextoCursos
 
 	public override async Task Cadastrar()
 	{
-		var view = new CadastroCursoView();
-		if (view.ObterDados().ToString().ToLower() != "s")
-			return;
+		var cadastroCursoView = new CadastroCursoView();
 
-		if (string.IsNullOrEmpty(view.Nome))
+		if (!cadastroCursoView.ObterDados()
+		                      .ToString()
+		                      .Equals("s",
+		                              StringComparison
+			                              .CurrentCultureIgnoreCase))
 		{
-			View.Aviso("Nome vazio. Tente novamente.");
 			return;
 		}
 
-		List<Materia> materias = new();
-
-		foreach (var moniker in view.GradeCurricular)
+		if (string.IsNullOrEmpty(cadastroCursoView.Nome))
 		{
-			Materia? materia = null;
+			View.Aviso("Nome vazio. Tente novamente.");
 
-			var respostaNome = BaseDeDados.Materias.ObterPorNome(moniker);
-			var respostaId   = BaseDeDados.Materias.ObterPorId(moniker);
+			return;
+		}
 
-			materia = respostaNome.Status is StatusResposta.Sucesso
+		List<Materia> materias = [];
+
+		foreach (var nomeMateria in cadastroCursoView.GradeCurricular)
+		{
+			var respostaNome = BaseDeDados.Materias.ObterPorNome(nomeMateria);
+
+			var materia = respostaNome.Status is StatusResposta.Sucesso
 				? respostaNome.Modelo
-				: (respostaId.Status is StatusResposta.Sucesso
-					? respostaId.Modelo
-					: null);
+				: null;
 
 			if (materia is null)
 			{
 				View.Aviso(
-					$"Matéria com o identificador \"{moniker}\" não encontrada. Tente novamente.");
-				goto FimDeLogica;
+					$"Matéria com o identificador \"{nomeMateria}\" não encontrada. Tente novamente.");
+				return;
 			}
-			else
-				materias.Add(materia);
+
+			materias.Add(materia);
 		}
 
-		var curso             = new Curso(view.Nome, materias.ToArray());
+		var curso = new Curso(cadastroCursoView.Nome)
+		{
+			Materias = materias.ToList()
+		};
+
 		var respostaAdicionar = await BaseDeDados.Cursos.Adicionar(curso);
 		View.Aviso(respostaAdicionar.Status is StatusResposta.Sucesso
 			           ? "Curso cadastrado com sucesso!"
 			           : $"Não foi possível cadastrar curso. ({respostaAdicionar.Status.ToString()})");
-		FimDeLogica: ; // É feio, mas é prático.
 	}
 
 	public override async Task Editar()

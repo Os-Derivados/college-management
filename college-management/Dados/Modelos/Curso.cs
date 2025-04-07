@@ -8,8 +8,8 @@ public class Curso : Modelo
 {
 	public Curso(string nome) : base(nome) { }
 
-	public ICollection<Aluno>   Alunos   { get; } = [];
-	public ICollection<Materia> Materias { get; } = [];
+	public ICollection<Aluno>   Alunos   { get; }      = [];
+	public ICollection<Materia> Materias { get; set; } = [];
 
 	public override string ToString()
 	{
