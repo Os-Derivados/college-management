@@ -20,8 +20,6 @@ public class ContextoUsuarios : Contexto<Usuario>, IContextoUsuarios
 
 	public void VerBoletim() { throw new NotImplementedException(); }
 
-	public void VerFinanceiro() { throw new NotImplementedException(); }
-
 	public override async Task Cadastrar()
 	{
 		InputView inputUsuario = new("Cadastrar Usuário");
