@@ -150,11 +150,11 @@ public class ContextoMaterias : Contexto<Materia>
 	public override async Task Excluir()
 	{
 		BuscaModeloView<Materia> buscaModelo = new("Buscar Matéria", ["Nome"]);
-		var                      chaveBusca  = buscaModelo.Buscar();
+		var (opcao, chave) = buscaModelo.Buscar();
 
-		var obterMateria = chaveBusca.Key is 1
-			? BaseDeDados.Materias.ObterPorNome(chaveBusca.Value)
-			: BaseDeDados.Materias.ObterPorId(chaveBusca.Value);
+		var obterMateria = opcao is 1
+			? BaseDeDados.Materias.ObterPorNome(chave)
+			: BaseDeDados.Materias.ObterPorId(uint.Parse(chave));
 
 		if (obterMateria.Status is StatusResposta.ErroNaoEncontrado)
 		{
