@@ -10,35 +10,24 @@ namespace college_management.Middlewares;
 
 public static class MiddlewareContexto
 {
-	public static EstadoDoApp EstadoAtual = EstadoDoApp.Login;
+	private static EstadoDoApp _estadoAtual = EstadoDoApp.Login;
 
-	public static void Inicializar(BaseDeDados baseDeDados,
-								   Usuario usuario)
+	public static void Inicializar(BaseDeDados baseDeDados, Usuario usuario)
 	{
-		var obterCargo = baseDeDados.Cargos.ObterPorId(usuario.CargoId);
-
-		if (obterCargo.Status is StatusResposta.ErroNaoEncontrado) return;
-
 		ContextoUsuarios contextoUsuarios = new(baseDeDados, usuario);
-		ContextoCargos contextoCargos = new(baseDeDados, usuario);
 		ContextoMaterias contextoMaterias = new(baseDeDados, usuario);
-		ContextoCursos contextoCursos = new(baseDeDados, usuario);
+		ContextoCursos   contextoCursos   = new(baseDeDados, usuario);
 
-		EstadoAtual = EstadoDoApp.Contexto;
+		_estadoAtual = EstadoDoApp.Contexto;
 
-		while (EstadoAtual is EstadoDoApp.Contexto)
+		while (_estadoAtual is EstadoDoApp.Contexto)
 		{
-			var opcaoContexto = EscolherContexto(obterCargo.Modelo!);
+			var opcaoContexto = EscolherContexto(usuario);
 
 			switch (opcaoContexto)
 			{
 				case AcessosContexto.ContextoUsuarios:
 					AcessarContexto(contextoUsuarios);
-
-					break;
-
-				case AcessosContexto.ContextoCargos:
-					AcessarContexto(contextoCargos);
 
 					break;
 
@@ -61,7 +50,7 @@ public static class MiddlewareContexto
 	private static void AcessarContexto<T>(Contexto<T> contexto)
 		where T : Modelo
 	{
-		EstadoAtual = EstadoDoApp.Recurso;
+		_estadoAtual = EstadoDoApp.Recurso;
 
 		do
 		{
@@ -74,8 +63,8 @@ public static class MiddlewareContexto
 
 			if (opcaoEscolhida is not 0)
 			{
-				var recursoEscolhido =
-					ConverterParaMetodo(contexto, opcaoEscolhida);
+				var recursoEscolhido
+					= ConverterParaMetodo(contexto, opcaoEscolhida);
 
 				Console.Clear();
 
@@ -83,68 +72,59 @@ public static class MiddlewareContexto
 			}
 			else
 			{
-				EstadoAtual = EstadoDoApp.Contexto;
+				_estadoAtual = EstadoDoApp.Contexto;
 			}
-		} while (EstadoAtual is EstadoDoApp.Recurso);
+		} while (_estadoAtual is EstadoDoApp.Recurso);
 	}
 
 	private static string ConverterParaMetodo<T>(Contexto<T> contexto,
-															 int indice)
-		where T : Modelo
+	                                             int indice) where T : Modelo
 	{
 		var recursosDisponiveis = contexto.ObterOpcoes();
 
 		_ = int.TryParse(indice.ToString(), out var i);
 
 		var recursoEscolhido = recursosDisponiveis
-							   .Select(r => r.Trim()
-											 .Replace(" ", ""))
-							   .ElementAt(i - 1);
+		                       .Select(r => r.Trim().Replace(" ", ""))
+		                       .ElementAt(i - 1);
 
 		return recursoEscolhido;
 	}
 
-	private static string EscolherContexto(Cargo cargoUsuario)
+	private static string EscolherContexto(Usuario usuario)
 	{
 		var contextoEscolhido = "";
 
 		do
 		{
-			var opcoesContextos = ObterOpcoesContextos(cargoUsuario);
+			var opcoesContextos = ObterOpcoesContextos(usuario);
 
 			MenuView menuContextos = new("Menu Contextos",
-										 "Bem-vindo(a).",
-										 opcoesContextos);
+			                             "Bem-vindo(a).",
+			                             opcoesContextos);
 
 			menuContextos.ConstruirLayout();
 			menuContextos.LerEntrada();
 
 			var opcaoEscolhida = menuContextos.OpcaoEscolhida;
 			var opcaoValida = int.TryParse(opcaoEscolhida.ToString(),
-										   out var opcaoUsuario);
+			                               out var opcaoUsuario);
 
 			if (!opcaoValida) continue;
 
 			if (opcaoUsuario is 0) break;
 
-			contextoEscolhido = opcoesContextos[menuContextos.OpcaoEscolhida - 1];
-			EstadoAtual = EstadoDoApp.Recurso;
-		} while (EstadoAtual is EstadoDoApp.Contexto);
+			contextoEscolhido
+				= opcoesContextos[menuContextos.OpcaoEscolhida - 1];
+			_estadoAtual = EstadoDoApp.Recurso;
+		} while (_estadoAtual is EstadoDoApp.Contexto);
 
 		return contextoEscolhido;
 	}
 
-	private static string[] ObterOpcoesContextos(Cargo cargoUsuario)
+	private static string[] ObterOpcoesContextos(Usuario usuario)
 	{
-		var temPermissoesAdmin = cargoUsuario
-									 .TemPermissao(
-										 PermissoesAcesso.AcessoEscrita)
-								 || cargoUsuario
-									 .TemPermissao(
-										 PermissoesAcesso
-											 .AcessoAdministradores);
-
-		return temPermissoesAdmin
+		return usuario is Gestor
 			? AcessosContexto.ContextoEscrita
 			: AcessosContexto.ContextoLeitura;
 	}
@@ -152,5 +132,6 @@ public static class MiddlewareContexto
 	private static bool ConfirmarSaida() =>
 		new ConfirmaView("Confirmação de saída")
 			.Confirmar("Deseja sair da aplicação?")
-			.ToString().ToLower() is "s";
+			.ToString()
+			.ToLower() is "s";
 }
