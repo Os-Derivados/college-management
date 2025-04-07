@@ -223,11 +223,9 @@ public class ContextoCursos : Contexto<Curso>, IContextoCursos
 	{
 		var detalhes = UtilitarioTipos.ObterPropriedades(curso, ["Nome"]);
 
-		detalhes.Add("MateriasId",
-		             $"{string.Join(", ", curso.MatriculasIds ?? [])}");
 		detalhes.Add("GradeCurricular",
-		             $"{string.Join(", ", curso.GradeCurricular.Select(i => i.Nome))}");
-		detalhes.Add("CargaHoraria", $"{curso.ObterCargaHoraria()}h");
+		             $"{string.Join(", ", curso.Materias.Select(i => i.Nome))}");
+		detalhes.Add("CargaHoraria", $"{curso.CargaHoraria}h");
 
 		return detalhes;
 	}
