@@ -7,9 +7,8 @@ namespace college_management.Dados.Modelos;
 
 public abstract class Usuario : Modelo
 {
-	protected Usuario(string login,
-	                  string nome,
-	                  CredenciaisUsuario credenciais) : base(nome)
+	protected Usuario(string login, string nome, CredenciaisUsuario credenciais)
+		: base(nome)
 	{
 		Login       = login;
 		Nome        = nome;
@@ -33,9 +32,10 @@ public abstract class Usuario : Modelo
 			: null;
 	}
 
-	public static Usuario CriarUsuario(TipoUsuario tipo,
-	                                   Dictionary<string, string> cadastro)
+	public static Usuario CriarUsuario(Dictionary<string, string> cadastro)
 	{
+		var tipo = Enum.Parse<TipoUsuario>(cadastro["TipoUsuario"]);
+
 		Usuario novoUsuario = tipo switch
 		{
 			TipoUsuario.Aluno => new Aluno(cadastro["Login"],
@@ -50,7 +50,10 @@ public abstract class Usuario : Modelo
 			                                 cadastro["Nome"],
 			                                 new CredenciaisUsuario(
 				                                 cadastro["Senha"])),
-			_ => throw new ArgumentOutOfRangeException(nameof(tipo), tipo, null)
+			_ => throw new ArgumentOutOfRangeException(
+				nameof(cadastro),
+				tipo,
+				null)
 		};
 
 		return novoUsuario;
