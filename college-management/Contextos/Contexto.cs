@@ -12,25 +12,16 @@ namespace college_management.Contextos;
 public abstract class Contexto<T> : IContexto<T> where T : Modelo
 {
 	protected readonly BaseDeDados BaseDeDados;
-	protected readonly Cargo       CargoContexto;
 	protected readonly Usuario     UsuarioContexto;
 
-	protected Contexto(BaseDeDados baseDeDados,
-	                   Usuario usuarioContexto)
+	protected Contexto(BaseDeDados baseDeDados, Usuario usuarioContexto)
 	{
 		BaseDeDados = baseDeDados;
 
-		var obterCargo = BaseDeDados
-		                 .Cargos
-		                 .ObterPorId(usuarioContexto.CargoId);
-
 		UsuarioContexto = usuarioContexto;
-		CargoContexto   = obterCargo.Modelo!;
 	}
 
-	protected bool TemAcessoRestrito =>
-		CargoContexto.TemPermissao(PermissoesAcesso.AcessoEscrita) ||
-		CargoContexto.TemPermissao(PermissoesAcesso.AcessoAdministradores);
+	protected bool TemAcessoRestrito => UsuarioContexto is Gestor;
 
 	public bool ValidarPermissoes()
 	{
@@ -45,14 +36,11 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 	{
 		var interfacesContexto = GetType().GetInterfaces();
 
-		var recurso =
-			interfacesContexto
-				.Select(t => t.GetMethod(nomeRecurso))
-				.FirstOrDefault(t => t is not null);
+		var recurso = interfacesContexto.Select(t => t.GetMethod(nomeRecurso))
+		                                .FirstOrDefault(t => t is not null);
 
 		if (recurso is null)
-			throw new
-				InvalidOperationException("Recurso inexistente");
+			throw new InvalidOperationException("Recurso inexistente");
 
 		var task = (Task)recurso.Invoke(this, []);
 
@@ -73,9 +61,9 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 	{
 		var modelos = (List<T>)GetModelos();
 
-		ServicoRelatorios<T> servicoRelatorios = new(UsuarioContexto, modelos);
+		ServicoRelatorios<T> servicoRelatorios = new(modelos);
 
-		var relatorio = servicoRelatorios.GerarRelatorio(CargoContexto);
+		var relatorio = servicoRelatorios.GerarRelatorio();
 
 		var caminhoRelatorio
 			= await servicoRelatorios.ExportarRelatorio(relatorio);
@@ -99,9 +87,6 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 					BaseDeDados.Usuarios.ObterTodos().Modelo!,
 				{ } tipoCurso when tipoCurso == typeof(Curso) => BaseDeDados
 					.Cursos.ObterTodos()
-					.Modelo!,
-				{ } tipoCargo when tipoCargo == typeof(Cargo) => BaseDeDados
-					.Cargos.ObterTodos()
 					.Modelo!,
 				{ } tipoMateria when tipoMateria == typeof(Materia) =>
 					BaseDeDados.Materias.ObterTodos().Modelo!,

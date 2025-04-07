@@ -1,5 +1,3 @@
-using System.Globalization;
-using System.Text.Json.Serialization;
 using college_management.Constantes;
 using college_management.Dados.Repositorios;
 
@@ -7,30 +5,17 @@ using college_management.Dados.Repositorios;
 namespace college_management.Dados.Modelos;
 
 
-[JsonDerivedType(typeof(Usuario), "base")]
-[JsonDerivedType(typeof(Aluno), "aluno")]
-[JsonDerivedType(typeof(Funcionario), "funcionario")]
-public class Usuario : Modelo
+public abstract class Usuario : Modelo
 {
-	private static long _contagemId = 10000000000;
-
-	public Usuario(string login,
-	               string nome,
-	               CredenciaisUsuario credenciais,
-	               string cargoId)
+	protected Usuario(string login, string nome, CredenciaisUsuario credenciais)
+		: base(nome)
 	{
 		Login       = login;
 		Nome        = nome;
-		CargoId     = cargoId;
 		Credenciais = credenciais;
-
-		Id = _contagemId.ToString(CultureInfo.InvariantCulture);
-		_contagemId++;
 	}
 
 	public string?             Login       { get; set; }
-	public string?             Nome        { get; set; }
-	public string              CargoId     { get; set; }
 	public CredenciaisUsuario? Credenciais { get; set; }
 
 	public static Usuario? Autenticar(RepositorioUsuarios repositorio,
@@ -39,30 +24,36 @@ public class Usuario : Modelo
 	{
 		var obterUsuario = repositorio.ObterPorLogin(loginUsuario);
 
-		if (obterUsuario.Status is StatusResposta.ErroNaoEncontrado) return null;
+		if (obterUsuario.Status is StatusResposta.ErroNaoEncontrado)
+			return null;
 
 		return obterUsuario.Modelo!.Credenciais!.Validar(senhaUsuario)
 			? obterUsuario.Modelo
 			: null;
 	}
 
-	public static Usuario CriarUsuario(Cargo cargoEscolhido,
-	                                   Dictionary<string, string> cadastro,
-	                                   Matricula novaMatricula)
+	public static Usuario CriarUsuario(Dictionary<string, string> cadastro)
 	{
-		Usuario novoUsuario = cargoEscolhido.Nome switch
+		var tipo = Enum.Parse<TipoUsuario>(cadastro["TipoUsuario"]);
+
+		Usuario novoUsuario = tipo switch
 		{
-			CargosPadrao.CargoAlunos => new Aluno(cadastro["Login"],
-			                                      cadastro["Nome"],
-			                                      new CredenciaisUsuario(
-				                                      cadastro["Senha"]),
-			                                      cargoEscolhido.Id!,
-			                                      novaMatricula.Id!),
-			_ => new Funcionario(cadastro["Login"],
-			                     cadastro["Nome"],
-			                     new CredenciaisUsuario(
-				                     cadastro["Senha"]),
-			                     cargoEscolhido.Id!)
+			TipoUsuario.Aluno => new Aluno(cadastro["Login"],
+			                               cadastro["Nome"],
+			                               new CredenciaisUsuario(
+				                               cadastro["Senha"])),
+			TipoUsuario.Docente => new Docente(cadastro["Login"],
+			                                   cadastro["Nome"],
+			                                   new CredenciaisUsuario(
+				                                   cadastro["Senha"])),
+			TipoUsuario.Gestor => new Gestor(cadastro["Login"],
+			                                 cadastro["Nome"],
+			                                 new CredenciaisUsuario(
+				                                 cadastro["Senha"])),
+			_ => throw new ArgumentOutOfRangeException(
+				nameof(cadastro),
+				tipo,
+				null)
 		};
 
 		return novoUsuario;
@@ -71,6 +62,6 @@ public class Usuario : Modelo
 	public override string ToString()
 	{
 		return
-			$"| {Login,-16} | {Nome,-16} | {CargoId,-16} | {Credenciais?.ToString().Remove(13) + "...",-16} | {Id,-16} |";
+			$"| {Login,-16} | {Nome,-16} | {Credenciais?.ToString().Remove(13) + "...",-16} | {Id,-16} |";
 	}
 }

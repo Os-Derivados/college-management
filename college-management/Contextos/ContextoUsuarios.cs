@@ -9,94 +9,16 @@ using college_management.Views;
 namespace college_management.Contextos;
 
 
-public class ContextoUsuarios : Contexto<Usuario>,
-                                IContextoUsuarios
+public class ContextoUsuarios : Contexto<Usuario>, IContextoUsuarios
 {
-	public ContextoUsuarios(BaseDeDados baseDeDados,
-	                        Usuario usuarioContexto) :
-		base(baseDeDados,
-		     usuarioContexto)
+	public ContextoUsuarios(BaseDeDados baseDeDados, Usuario usuarioContexto) :
+		base(baseDeDados, usuarioContexto)
 	{
 	}
 
-	public void VerMatricula()
-	{
-		// TODO: Desenvolver um algoritmo para visualizar Matricula de um Aluno
-		// [REQUISITO]: A visualização deve ser no formato descritivo
-		// 
-		// Ex.: Ver Matricula 2401123415
-		//
-		// Nome: Thiago
-		// Matricula: 2401123415
-		// Curso: Ciência da Computação
-		// Período: 2
+	public void VerMatricula() { throw new NotImplementedException(); }
 
-		if (ValidarPermissoes())
-			// [REQUISITO]: A visualização do Gestor deve permitir a busca
-			// de um Aluno em específico na base de dados
-			//
-			// Ex.: Ver Matricula do Aluno com Login == "thiago.santos" 
-			//
-			// [Ver Grade Horária]
-			// Selecione um campo abaixo campo para realizar a busca
-			//
-			// [1] Login
-			// [2] Id
-			// [3] Matricula
-			// 
-			// Sua opção: 1 <- Opção que o usuário escolheu 
-			// ...
-			//
-			// Digite o Login do Aluno: thiago.santos <- Nome
-			// digitado pelo Gestor
-			// ...
-			throw new NotImplementedException();
-
-		// [REQUISITO]: A visualização do Aluno deve ser somente
-		// da Matricula vinculada a ele
-
-		throw new NotImplementedException();
-	}
-
-	public void VerBoletim()
-	{
-		// TODO: Desenvolver um algoritmo para visualizar as Notas de um Aluno
-		// [REQUISITO]: A visualização deve ser no formato relatório
-		// 
-		// Ex.: Ver Boletim do Aluno com Matricula 2401123415
-		//
-		// | MATERIA        | NOTA FINAL | STATUS   |
-		// |----------------|------------|----------|
-		// | Calculo 1      |    9.0     | Aprovado |
-		// | Algebra Linear |    N/A     |   N/A    |
-
-		if (ValidarPermissoes())
-			// [REQUISITO]: A visualização do Gestor deve permitir a busca
-			// de uma Aluno em específico na base de dados
-			//
-			// Ex.: Ver Boletim do Aluno com Login == "thiago.santos" 
-			//
-			// Selecione um campo abaixo campo para realizar a busca
-			//
-			// [1] Login
-			// [2] Id
-			// [3] Matricula
-			// 
-			// Sua opção: 1 <- Opção que o usuário escolheu 
-			// ...
-			//
-			// Digite o Login do Aluno: thiago.santos <- Nome
-			// digitado pelo Gestor
-			// ...
-			throw new NotImplementedException();
-
-		// [REQUISITO]: A visualização do Aluno deve ser somente
-		// da Matricula vinculada a ele
-
-		throw new NotImplementedException();
-	}
-
-	public void VerFinanceiro() { throw new NotImplementedException(); }
+	public void VerBoletim() { throw new NotImplementedException(); }
 
 	public override async Task Cadastrar()
 	{
@@ -112,51 +34,11 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		if (confirmaCadastro is not 's') return;
 
-		var obterCargoPorNome = BaseDeDados
-		                        .Cargos
-		                        .ObterPorNome(dadosUsuario["Cargo"]);
+		var novoUsuario = Usuario.CriarUsuario(dadosUsuario!);
 
-		if (obterCargoPorNome.Status is StatusResposta.ErroNaoEncontrado)
-		{
-			View.Aviso("O Cargo inserido não foi encontrado na base de dados.");
-
-			return;
-		}
-
-		var novaMatricula = obterCargoPorNome.Modelo!.Nome
-			is CargosPadrao.CargoAlunos
-			? Matricula.CriarMatricula(dadosUsuario)
-			: null;
-
-		var cursoEscolhido = novaMatricula is not null
-			? BaseDeDados
-			  .Cursos
-			  .ObterPorNome(dadosUsuario["Curso"])
-			: null;
-
-		var novoUsuario = Usuario.CriarUsuario(obterCargoPorNome.Modelo,
-		                                       dadosUsuario,
-		                                       novaMatricula!);
-
-		var cadastroUsuario = await BaseDeDados
-		                            .Usuarios
-		                            .Adicionar(novoUsuario);
+		var cadastroUsuario = await BaseDeDados.Usuarios.Adicionar(novoUsuario);
 
 		var foiAdicionado = cadastroUsuario.Status is StatusResposta.Sucesso;
-
-		if (foiAdicionado
-		    && novaMatricula is not null
-		    && cursoEscolhido is not null)
-		{
-			novaMatricula.AlunoId = novoUsuario.Id;
-			novaMatricula.CursoId = cursoEscolhido.Modelo!.Id;
-
-			var cadastroMatricula
-				= await BaseDeDados.Matriculas.Adicionar(novaMatricula);
-
-			foiAdicionado = foiAdicionado &&
-			                cadastroMatricula.Status is StatusResposta.Sucesso;
-		}
 
 		var mensagemOperacao = foiAdicionado
 			? $"{nameof(Usuario)} cadastrado com sucesso."
@@ -169,14 +51,14 @@ public class ContextoUsuarios : Contexto<Usuario>,
 	{
 		if (!ValidarPermissoes()) return;
 
-		BuscaModeloView<Usuario> buscaUsuario = new("Buscar Usuário", ["Login"]);
+		BuscaModeloView<Usuario>
+			buscaUsuario = new("Buscar Usuário", ["Login"]);
 
-		var resultadoBusca = buscaUsuario.Buscar();
-		var chaveBusca     = resultadoBusca.Value;
+		var (opcao, chaveBusca) = buscaUsuario.Buscar();
 
-		var obterUsuario = resultadoBusca.Key is 1
+		var obterUsuario = opcao is 1
 			? BaseDeDados.Usuarios.ObterPorLogin(chaveBusca)
-			: BaseDeDados.Usuarios.ObterPorId(chaveBusca);
+			: BaseDeDados.Usuarios.ObterPorId(uint.Parse(chaveBusca));
 
 		if (obterUsuario.Status is StatusResposta.ErroNaoEncontrado)
 		{
@@ -185,9 +67,8 @@ public class ContextoUsuarios : Contexto<Usuario>,
 			return;
 		}
 
-		EditarUsuarioView editarUsuarioView
-			= new(obterUsuario.Modelo!, BaseDeDados.Cargos);
-		var usuarioEditado = editarUsuarioView.Editar();
+		EditarUsuarioView editarUsuarioView = new(obterUsuario.Modelo!);
+		var               usuarioEditado    = editarUsuarioView.Editar();
 
 		ConfirmaView confirmaEdicao = new("Editar Usuário");
 
@@ -215,14 +96,14 @@ public class ContextoUsuarios : Contexto<Usuario>,
 	{
 		if (!ValidarPermissoes()) return;
 
-		BuscaModeloView<Usuario> buscaUsuario = new("Buscar Usuário", ["Login", "Id"]);
+		BuscaModeloView<Usuario> buscaUsuario
+			= new("Buscar Usuário", ["Login", "Id"]);
 
-		var resultadoBusca = buscaUsuario.Buscar();
-		var chaveBusca     = resultadoBusca.Value;
+		var (opcao, chaveBusca) = buscaUsuario.Buscar();
 
-		var obterUsuario = resultadoBusca.Key is 1
+		var obterUsuario = opcao is 1
 			? BaseDeDados.Usuarios.ObterPorLogin(chaveBusca)
-			: BaseDeDados.Usuarios.ObterPorId(chaveBusca);
+			: BaseDeDados.Usuarios.ObterPorId(uint.Parse(chaveBusca));
 
 		if (obterUsuario.Status is StatusResposta.ErroNaoEncontrado)
 		{
@@ -271,7 +152,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 			relatorioView
 				= new RelatorioView<Usuario>("Visualizar Usuários",
-				                             verUsuarios.Modelo!);
+				                             verUsuarios.Modelo!.ToList());
 		}
 		else
 		{
@@ -303,14 +184,14 @@ public class ContextoUsuarios : Contexto<Usuario>,
 			return;
 		}
 
-		BuscaModeloView<Usuario> buscaUsuario = new("Buscar Usuário", ["Login"]);
+		BuscaModeloView<Usuario>
+			buscaUsuario = new("Buscar Usuário", ["Login"]);
 
-		var resultadoBusca = buscaUsuario.Buscar();
-		var chaveBusca     = resultadoBusca.Value;
+		var (opcao, chaveBusca) = buscaUsuario.Buscar();
 
-		var obterUsuario = resultadoBusca.Key is 1
+		var obterUsuario = opcao is 1
 			? BaseDeDados.Usuarios.ObterPorLogin(chaveBusca)
-			: BaseDeDados.Usuarios.ObterPorId(chaveBusca);
+			: BaseDeDados.Usuarios.ObterPorId(uint.Parse(chaveBusca));
 
 		if (obterUsuario.Status is StatusResposta.ErroNaoEncontrado)
 		{

@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text;
 using college_management.Constantes;
 using college_management.Contextos.Interfaces;
@@ -10,163 +11,111 @@ using college_management.Views;
 namespace college_management.Contextos;
 
 
-public class ContextoCursos : Contexto<Curso>,
-                              IContextoCursos
+public class ContextoCursos : Contexto<Curso>, IContextoCursos
 {
-	public ContextoCursos(BaseDeDados baseDeDados,
-	                      Usuario usuarioContexto) :
-		base(baseDeDados,
-		     usuarioContexto)
+	public ContextoCursos(BaseDeDados baseDeDados, Usuario usuarioContexto) :
+		base(baseDeDados, usuarioContexto)
 	{
 	}
 
-	public void VerGradeHoraria()
-	{
-		// TODO: Desenvolver um algoritmo para visualização de grade horária
-		// [REQUISITO]: A visualização deve ser em formato de relatório
-		// 
-		// Ex.: Ver Grade Horária do Curso "Ciência da Computação", 
-		// 2o semestre
-		//
-		// Curso: Ciência da Computação
-		// Semestre Atual: 2
-		//
-		// Grade Horária:
-		//
-		// | DIA           | MATÉRIA            | SALA | HORÁRIO |
-		// | Segunda-Feira | Álgebra Linear     | 03   | 19:15   | 
-		// | Terça-Feira   | Sistemas Digitais  | 03   | 19:15   |
-		// ...
-
-		if (CargoContexto.TemPermissao(PermissoesAcesso
-			                               .AcessoEscrita))
-			// [REQUISITO]: A visualização do gestor deve solicitar a busca
-			// de um Curso em específico na base de dados
-			//
-			// Ex.: Ver Grade Horária do Curso "Ciência da Computação" 
-			//
-			// [Ver Grade Horária]
-			// Selecione um abaixo campo para realizar a busca
-			//
-			// [1] Nome
-			// [2] Id
-			// 
-			// Sua opção: 1 <- Opção que o usuário escolheu 
-			// ...
-			//
-			// Digite o nome do Curso: "Ciência da Computação"
-			// ...
-			//
-			// [REQUISITO]: O gestor deve selecionar qual semestre do curso
-			// este deseja visualizar a grade horária
-			//
-			// Ex.: O curso "Ciência da Computação" tem 8 semestres
-			//
-			// Selecione um semestre a ser visualizado (somente números).
-			//
-			// [1, 2, 3, 4, 5, 6, 7, 8]: 
-			throw new NotImplementedException();
-
-		// [REQUISITO]: A visualização do Aluno deve permitir somente
-		// a visualização da grade horária do curso no qual ele
-		// atualmente esteja vinculado
-		throw new NotImplementedException();
-	}
-
-	public void VerGradeCurricular()
+	public async Task VerGradeCurricular()
 	{
 		string ObterLayout(Curso curso)
 		{
-			return $"Curso: {curso.Nome}\n" +
-			       $"Ano: {DateTime.Today.Year}\n\n" +
-			       $"{string.Join('\n', curso.GradeCurricular.Select(i => i.Nome))}";
+			return $"Curso: {curso.Nome}\n"
+			       + $"Ano: {DateTime.Today.Year}\n\n"
+			       + $"{string.Join('\n', curso.Materias.Select(i => i.Nome))}";
 		}
 
 		InputView inputRelatorio = new("Ver Grade Curricular");
 
-		Curso? curso;
-
 		if (TemAcessoRestrito)
 		{
-			curso = PesquisarCurso();
+			var pesquisarCurso = PesquisarCurso();
 
-			if (curso is null) return;
+			if (pesquisarCurso is null) return;
 
-			inputRelatorio.LerEntrada("Sair", ObterLayout(curso));
+			inputRelatorio.LerEntrada("Sair", ObterLayout(pesquisarCurso));
 
 			return;
 		}
 
 		if (UsuarioContexto is not Aluno aluno)
 		{
-			inputRelatorio.LerEntrada(
-				"Erro", "O usuário atual não é um aluno.");
+			inputRelatorio.LerEntrada("Erro",
+			                          "O usuário atual não é um aluno.");
 
 			return;
 		}
 
-		var verCursos = BaseDeDados.Cursos.ObterTodos();
+		var cursoAluno
+			= await BaseDeDados.Cursos.Buscar(c => c.Alunos.Contains(aluno));
 
-		curso = verCursos
-		        .Modelo!
-		        .FirstOrDefault(
-			        i => i.MatriculasIds?.Contains(aluno.MatriculaId)
-			             ?? false);
-
-		if (verCursos.Modelo!.Count is 0 || curso is null)
+		if (cursoAluno.Status is not StatusResposta.Sucesso)
 		{
-			inputRelatorio.LerEntrada(
-				"Erro", "O aluno não está matriculado em nenhum curso.");
+			inputRelatorio.LerEntrada("Erro",
+			                          "O aluno não está matriculado em nenhum curso.");
 
 			return;
 		}
 
-		var layout = ObterLayout(curso);
+		if (cursoAluno.Modelo != null)
+		{
+			var layout = ObterLayout(cursoAluno.Modelo.First());
 
-		inputRelatorio.LerEntrada("Sair", layout);
+			inputRelatorio.LerEntrada("Sair", layout);
+		}
 	}
 
 	public override async Task Cadastrar()
 	{
-		var view = new CadastroCursoView();
-		if (view.ObterDados().ToString().ToLower() != "s")
-			return;
+		var cadastroCursoView = new CadastroCursoView();
 
-		if (string.IsNullOrEmpty(view.Nome))
+		if (!cadastroCursoView.ObterDados()
+		                      .ToString()
+		                      .Equals("s",
+		                              StringComparison
+			                              .CurrentCultureIgnoreCase))
 		{
-			View.Aviso("Nome vazio. Tente novamente.");
 			return;
 		}
-		
-		List<Materia> materias = new();
-		foreach (var moniker in view.GradeCurricular)
-		{
-			Materia? materia = null;
-			
-			var respostaNome = BaseDeDados.Materias.ObterPorNome(moniker);
-			var respostaId = BaseDeDados.Materias.ObterPorId(moniker);
 
-			materia = respostaNome.Status is StatusResposta.Sucesso
-					  ? respostaNome.Modelo
-					  : (respostaId.Status is StatusResposta.Sucesso
-						 ? respostaId.Modelo
-						 : null);
+		if (string.IsNullOrEmpty(cadastroCursoView.Nome))
+		{
+			View.Aviso("Nome vazio. Tente novamente.");
+
+			return;
+		}
+
+		List<Materia> materias = [];
+
+		foreach (var nomeMateria in cadastroCursoView.GradeCurricular)
+		{
+			var respostaNome = BaseDeDados.Materias.ObterPorNome(nomeMateria);
+
+			var materia = respostaNome.Status is StatusResposta.Sucesso
+				? respostaNome.Modelo
+				: null;
 
 			if (materia is null)
 			{
-				View.Aviso($"Matéria com o identificador \"{moniker}\" não encontrada. Tente novamente.");
-				goto FimDeLogica;
+				View.Aviso(
+					$"Matéria com o identificador \"{nomeMateria}\" não encontrada. Tente novamente.");
+				return;
 			}
-			else
-				materias.Add(materia);
+
+			materias.Add(materia);
 		}
-		
-		var curso = new Curso(view.Nome, materias.ToArray());
+
+		var curso = new Curso(cadastroCursoView.Nome)
+		{
+			Materias = materias.ToList()
+		};
+
 		var respostaAdicionar = await BaseDeDados.Cursos.Adicionar(curso);
 		View.Aviso(respostaAdicionar.Status is StatusResposta.Sucesso
-			? "Curso cadastrado com sucesso!"
-			: $"Não foi possível cadastrar curso. ({respostaAdicionar.Status.ToString()})");
-FimDeLogica:; // É feio, mas é prático.
+			           ? "Curso cadastrado com sucesso!"
+			           : $"Não foi possível cadastrar curso. ({respostaAdicionar.Status.ToString()})");
 	}
 
 	public override async Task Editar()
@@ -177,6 +126,14 @@ FimDeLogica:; // É feio, mas é prático.
 			return;
 
 		curso = new EditarCursoView(curso, BaseDeDados.Materias).Editar();
+
+		var atualizar = await BaseDeDados.Cursos.Atualizar(curso);
+
+		var mensagemResultado = atualizar.Status is StatusResposta.Sucesso
+			? "Curso atualizado com sucesso."
+			: "Erro ao atualizar curso.";
+
+		View.Aviso(mensagemResultado);
 	}
 
 	public override async Task Excluir()
@@ -212,15 +169,17 @@ FimDeLogica:; // É feio, mas é prático.
 
 		InputView inputRelatorio = new("Visualizar Cursos");
 
-		if (verCursos.Modelo!.Count is 0)
+		if (verCursos.Modelo!.Count() is 0)
 		{
 			View.Aviso("Nenhum curso cadastrado.");
 
 			return;
 		}
 
+		if (verCursos.Modelo == null) return;
+
 		RelatorioView<Curso> relatorioView
-			= new(inputRelatorio.Titulo, verCursos.Modelo);
+			= new(inputRelatorio.Titulo, verCursos.Modelo.ToList());
 		PaginaView paginaView = new(relatorioView);
 		paginaView.ConstruirLayout();
 		paginaView.LerEntrada(true);
@@ -229,11 +188,11 @@ FimDeLogica:; // É feio, mas é prático.
 	public override void VerDetalhes()
 	{
 		var curso = PesquisarCurso();
-		
+
 		if (curso is null)
 		{
 			View.Aviso("Curso não encontrado.");
-			
+
 			return;
 		}
 
@@ -245,32 +204,28 @@ FimDeLogica:; // É feio, mas é prático.
 
 	private Curso? PesquisarCurso()
 	{
-		Curso? MostrarAviso()
+		var (opcao, chave)
+			= new BuscaModeloView<Curso>("Buscar Curso", ["Nome"]).Buscar();
+		var resposta = opcao switch
 		{
-			View.Aviso("Curso não encontrado.");
-			return null;
-		}
-		
-		var busca = new BuscaModeloView<Curso>("Buscar Curso", ["Nome"]).Buscar();
-		var resposta = busca.Key switch
-		{
-			1 => BaseDeDados.Cursos.ObterPorNome(busca.Value),
-			2 => BaseDeDados.Cursos.ObterPorId(busca.Value),
+			1 => BaseDeDados.Cursos.ObterPorNome(chave),
+			2 => BaseDeDados.Cursos.ObterPorId(uint.Parse(chave)),
 			_ => null
 		};
-		
-		return resposta.Status is StatusResposta.Sucesso ? resposta.Modelo : MostrarAviso();
+
+		if (resposta is not null) return resposta.Modelo;
+
+		View.Aviso("Curso não encontrado.");
+		return null;
 	}
 
 	private Dictionary<string, string> ObterDetalhes(Curso curso)
 	{
 		var detalhes = UtilitarioTipos.ObterPropriedades(curso, ["Nome"]);
 
-		detalhes.Add("MateriasId",
-		             $"{string.Join(", ", curso.MatriculasIds ?? [])}");
 		detalhes.Add("GradeCurricular",
-		             $"{string.Join(", ", curso.GradeCurricular.Select(i => i.Nome))}");
-		detalhes.Add("CargaHoraria", $"{curso.ObterCargaHoraria()}h");
+		             $"{string.Join(", ", curso.Materias.Select(i => i.Nome))}");
+		detalhes.Add("CargaHoraria", $"{curso.CargaHoraria}h");
 
 		return detalhes;
 	}
