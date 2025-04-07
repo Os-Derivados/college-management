@@ -17,8 +17,6 @@ public class ContextoCursos : Contexto<Curso>, IContextoCursos
 	{
 	}
 
-	public void VerGradeHoraria() { throw new NotImplementedException(); }
-
 	public void VerGradeCurricular()
 	{
 		string ObterLayout(Curso curso)
