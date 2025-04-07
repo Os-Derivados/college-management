@@ -125,6 +125,14 @@ public class ContextoCursos : Contexto<Curso>, IContextoCursos
 			return;
 
 		curso = new EditarCursoView(curso, BaseDeDados.Materias).Editar();
+
+		var atualizar = await BaseDeDados.Cursos.Atualizar(curso);
+
+		var mensagemResultado = atualizar.Status is StatusResposta.Sucesso
+			? "Curso atualizado com sucesso."
+			: "Erro ao atualizar curso.";
+
+		View.Aviso(mensagemResultado);
 	}
 
 	public override async Task Excluir()
