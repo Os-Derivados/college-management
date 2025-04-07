@@ -204,24 +204,19 @@ public class ContextoCursos : Contexto<Curso>, IContextoCursos
 
 	private Curso? PesquisarCurso()
 	{
-		Curso? MostrarAviso()
-		{
-			View.Aviso("Curso não encontrado.");
-			return null;
-		}
-
-		var busca
+		var (opcao, chave)
 			= new BuscaModeloView<Curso>("Buscar Curso", ["Nome"]).Buscar();
-		var resposta = busca.Key switch
+		var resposta = opcao switch
 		{
-			1 => BaseDeDados.Cursos.ObterPorNome(busca.Value),
-			2 => BaseDeDados.Cursos.ObterPorId(busca.Value),
+			1 => BaseDeDados.Cursos.ObterPorNome(chave),
+			2 => BaseDeDados.Cursos.ObterPorId(uint.Parse(chave)),
 			_ => null
 		};
 
-		return resposta.Status is StatusResposta.Sucesso
-			? resposta.Modelo
-			: MostrarAviso();
+		if (resposta is not null) return resposta.Modelo;
+
+		View.Aviso("Curso não encontrado.");
+		return null;
 	}
 
 	private Dictionary<string, string> ObterDetalhes(Curso curso)
