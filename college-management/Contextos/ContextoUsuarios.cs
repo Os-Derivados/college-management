@@ -34,47 +34,11 @@ public class ContextoUsuarios : Contexto<Usuario>, IContextoUsuarios
 
 		if (confirmaCadastro is not 's') return;
 
-		var obterCargoPorNome
-			= BaseDeDados.Cargos.ObterPorNome(dadosUsuario["Cargo"]);
-
-		if (obterCargoPorNome.Status is StatusResposta.ErroNaoEncontrado)
-		{
-			View.Aviso("O Cargo inserido não foi encontrado na base de dados.");
-
-			return;
-		}
-
-		var novaMatricula
-			= obterCargoPorNome.Modelo!.Nome is TipoUsuario.CargoAlunos
-				? Matricula.CriarMatricula(dadosUsuario)
-				: null;
-
-		var cursoEscolhido = novaMatricula is not null
-			? BaseDeDados.Cursos.ObterPorNome(dadosUsuario["Curso"])
-			: null;
-
-		var novoUsuario = Usuario.CriarUsuario(obterCargoPorNome.Modelo,
-		                                       dadosUsuario,
-		                                       novaMatricula!);
+		var novoUsuario = Usuario.CriarUsuario(dadosUsuario!);
 
 		var cadastroUsuario = await BaseDeDados.Usuarios.Adicionar(novoUsuario);
 
 		var foiAdicionado = cadastroUsuario.Status is StatusResposta.Sucesso;
-
-		if (foiAdicionado
-		    && novaMatricula is not null
-		    && cursoEscolhido is not null)
-		{
-			novaMatricula.AlunoId = novoUsuario.Id;
-			novaMatricula.CursoId = cursoEscolhido.Modelo!.Id;
-
-			var cadastroMatricula
-				= await BaseDeDados.Matriculas.Adicionar(novaMatricula);
-
-			foiAdicionado = foiAdicionado
-			                && cadastroMatricula.Status is StatusResposta
-				                .Sucesso;
-		}
 
 		var mensagemOperacao = foiAdicionado
 			? $"{nameof(Usuario)} cadastrado com sucesso."
@@ -90,12 +54,11 @@ public class ContextoUsuarios : Contexto<Usuario>, IContextoUsuarios
 		BuscaModeloView<Usuario>
 			buscaUsuario = new("Buscar Usuário", ["Login"]);
 
-		var resultadoBusca = buscaUsuario.Buscar();
-		var chaveBusca     = resultadoBusca.Value;
+		var (opcao, chaveBusca) = buscaUsuario.Buscar();
 
-		var obterUsuario = resultadoBusca.Key is 1
+		var obterUsuario = opcao is 1
 			? BaseDeDados.Usuarios.ObterPorLogin(chaveBusca)
-			: BaseDeDados.Usuarios.ObterPorId(chaveBusca);
+			: BaseDeDados.Usuarios.ObterPorId(uint.Parse(chaveBusca));
 
 		if (obterUsuario.Status is StatusResposta.ErroNaoEncontrado)
 		{
@@ -104,9 +67,8 @@ public class ContextoUsuarios : Contexto<Usuario>, IContextoUsuarios
 			return;
 		}
 
-		EditarUsuarioView editarUsuarioView
-			= new(obterUsuario.Modelo!, BaseDeDados.Cargos);
-		var usuarioEditado = editarUsuarioView.Editar();
+		EditarUsuarioView editarUsuarioView = new(obterUsuario.Modelo!);
+		var               usuarioEditado    = editarUsuarioView.Editar();
 
 		ConfirmaView confirmaEdicao = new("Editar Usuário");
 
