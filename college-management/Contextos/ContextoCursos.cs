@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text;
 using college_management.Constantes;
 using college_management.Contextos.Interfaces;
@@ -168,15 +169,17 @@ public class ContextoCursos : Contexto<Curso>, IContextoCursos
 
 		InputView inputRelatorio = new("Visualizar Cursos");
 
-		if (verCursos.Modelo!.Count is 0)
+		if (verCursos.Modelo!.Count() is 0)
 		{
 			View.Aviso("Nenhum curso cadastrado.");
 
 			return;
 		}
 
+		if (verCursos.Modelo == null) return;
+
 		RelatorioView<Curso> relatorioView
-			= new(inputRelatorio.Titulo, verCursos.Modelo);
+			= new(inputRelatorio.Titulo, verCursos.Modelo.ToList());
 		PaginaView paginaView = new(relatorioView);
 		paginaView.ConstruirLayout();
 		paginaView.LerEntrada(true);
