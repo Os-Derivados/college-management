@@ -33,7 +33,8 @@ public class ContextoMaterias : Contexto<Materia>
 		return inputUsuario.EntradasUsuario;
 	}
 
-	private async Task<bool> ValidarECadastrarMateria(Dictionary<string, string> dadosMateria)
+	private async Task<bool> ValidarECadastrarMateria(
+		Dictionary<string, string> dadosMateria)
 	{
 		if (!uint.TryParse(dadosMateria["CargaHoraria"], out var cargaHoraria))
 		{
@@ -63,7 +64,7 @@ public class ContextoMaterias : Contexto<Materia>
 		if (!string.IsNullOrEmpty(editarMateria["CargaHoraria"]))
 		{
 			if (!uint.TryParse(editarMateria["CargaHoraria"],
-			                  out var cargaHoraria))
+			                   out var cargaHoraria))
 			{
 				View.Aviso("A carga horária inserida não é válida.");
 				return false;
@@ -110,11 +111,11 @@ public class ContextoMaterias : Contexto<Materia>
 	public override async Task Editar()
 	{
 		BuscaModeloView<Materia> buscaModelo = new("Buscar Matéria", ["Nome"]);
-		var                      chaveBusca  = buscaModelo.Buscar();
+		var (opcao, chave) = buscaModelo.Buscar();
 
-		var obterMateria = chaveBusca.Key is 1
-			? BaseDeDados.Materias.ObterPorNome(chaveBusca.Value)
-			: BaseDeDados.Materias.ObterPorId(chaveBusca.Value);
+		var obterMateria = opcao is 1
+			? BaseDeDados.Materias.ObterPorNome(chave)
+			: BaseDeDados.Materias.ObterPorId(uint.Parse(chave));
 
 		if (obterMateria.Status is StatusResposta.ErroNaoEncontrado)
 		{
