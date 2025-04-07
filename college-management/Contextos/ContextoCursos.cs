@@ -17,26 +17,24 @@ public class ContextoCursos : Contexto<Curso>, IContextoCursos
 	{
 	}
 
-	public void VerGradeCurricular()
+	public async Task VerGradeCurricular()
 	{
 		string ObterLayout(Curso curso)
 		{
 			return $"Curso: {curso.Nome}\n"
 			       + $"Ano: {DateTime.Today.Year}\n\n"
-			       + $"{string.Join('\n', curso.GradeCurricular.Select(i => i.Nome))}";
+			       + $"{string.Join('\n', curso.Materias.Select(i => i.Nome))}";
 		}
 
 		InputView inputRelatorio = new("Ver Grade Curricular");
 
-		Curso? curso;
-
 		if (TemAcessoRestrito)
 		{
-			curso = PesquisarCurso();
+			var pesquisarCurso = PesquisarCurso();
 
-			if (curso is null) return;
+			if (pesquisarCurso is null) return;
 
-			inputRelatorio.LerEntrada("Sair", ObterLayout(curso));
+			inputRelatorio.LerEntrada("Sair", ObterLayout(pesquisarCurso));
 
 			return;
 		}
@@ -49,12 +47,10 @@ public class ContextoCursos : Contexto<Curso>, IContextoCursos
 			return;
 		}
 
-		var verCursos = BaseDeDados.Cursos.ObterTodos();
+		var cursoAluno
+			= await BaseDeDados.Cursos.Buscar(c => c.Alunos.Contains(aluno));
 
-		curso = verCursos.Modelo!.FirstOrDefault(
-			i => i.MatriculasIds?.Contains(aluno.MatriculaId) ?? false);
-
-		if (verCursos.Modelo!.Count is 0 || curso is null)
+		if (cursoAluno.Status is not StatusResposta.Sucesso)
 		{
 			inputRelatorio.LerEntrada("Erro",
 			                          "O aluno não está matriculado em nenhum curso.");
@@ -62,9 +58,12 @@ public class ContextoCursos : Contexto<Curso>, IContextoCursos
 			return;
 		}
 
-		var layout = ObterLayout(curso);
+		if (cursoAluno.Modelo != null)
+		{
+			var layout = ObterLayout(cursoAluno.Modelo.First());
 
-		inputRelatorio.LerEntrada("Sair", layout);
+			inputRelatorio.LerEntrada("Sair", layout);
+		}
 	}
 
 	public override async Task Cadastrar()
