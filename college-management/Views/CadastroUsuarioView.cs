@@ -8,7 +8,7 @@ namespace college_management.Views;
 
 public class CadastroUsuarioView : ICadastroView
 {
-	public Dictionary<string, string> CadastroUsuario;
+	public Dictionary<string, string>? CadastroUsuario;
 
 	public char ObterDados()
 	{
@@ -19,29 +19,14 @@ public class CadastroUsuarioView : ICadastroView
 			new("Nome", "Insira o Nome: "),
 			new("Login", "Insira o Login: "),
 			new("Senha", "Insira a Senha: "),
-			new("Cargo", "Insira o Cargo: ")
+			new("Tipo", "Insira o Tipo: ")
 		];
 
-		foreach (var mensagem
-		         in mensagensUsuario)
-			inputCadastro.LerEntrada(mensagem.Key,
-			                         mensagem.Value);
-
-		KeyValuePair<string, string?>[] mensagensAluno =
-		[
-			new("Periodo", "Insira o Período: "),
-			new("Curso", "Insira o nome do Curso: "),
-			new("Modalidade", "Insira a Modalidade: ")
-		];
-
-		if (inputCadastro.ObterEntrada("Cargo")
-		    is TipoUsuario.CargoAlunos)
-			foreach (var mensagem in mensagensAluno)
-				inputCadastro.LerEntrada(mensagem.Key, mensagem.Value);
+		foreach (var mensagem in mensagensUsuario)
+			inputCadastro.LerEntrada(mensagem.Key, mensagem.Value);
 
 		CadastroUsuario = inputCadastro.EntradasUsuario;
-
-
+		
 		DetalhesView detalhesView = new("Confirmar Cadastro",
 		                                inputCadastro.EntradasUsuario);
 		detalhesView.ConstruirLayout();
