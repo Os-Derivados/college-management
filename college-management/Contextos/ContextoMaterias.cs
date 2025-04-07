@@ -60,22 +60,9 @@ public class ContextoMaterias : Contexto<Materia>
 			materia.Nome = editarMateria["Nome"];
 		}
 
-		if (!string.IsNullOrEmpty(editarMateria["Turno"]))
-		{
-			if (!Enum.TryParse(editarMateria["Turno"],
-			                   out Turno turnoEscolhido))
-			{
-				View.Aviso("O Turno inserido não foi encontrado.");
-
-				return false;
-			}
-
-			materia.Turno = turnoEscolhido;
-		}
-
 		if (!string.IsNullOrEmpty(editarMateria["CargaHoraria"]))
 		{
-			if (!int.TryParse(editarMateria["CargaHoraria"],
+			if (!uint.TryParse(editarMateria["CargaHoraria"],
 			                  out var cargaHoraria))
 			{
 				View.Aviso("A carga horária inserida não é válida.");
