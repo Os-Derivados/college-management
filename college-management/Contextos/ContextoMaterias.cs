@@ -196,7 +196,7 @@ public class ContextoMaterias : Contexto<Materia>
 	{
 		var verMaterias = BaseDeDados.Materias.ObterTodos();
 
-		if (verMaterias.Modelo!.Count is 0)
+		if (verMaterias.Modelo!.Count() is 0)
 		{
 			View.Aviso("Nenhuma matéria cadastrada.");
 
@@ -204,7 +204,7 @@ public class ContextoMaterias : Contexto<Materia>
 		}
 
 		RelatorioView<Materia> relatorioView
-			= new("Visualizar Matérias", verMaterias.Modelo);
+			= new("Visualizar Matérias", verMaterias.Modelo!.ToList());
 
 		var paginaView = new PaginaView(relatorioView);
 		paginaView.ConstruirLayout();
