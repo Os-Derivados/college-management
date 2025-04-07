@@ -187,12 +187,11 @@ public class ContextoUsuarios : Contexto<Usuario>, IContextoUsuarios
 		BuscaModeloView<Usuario>
 			buscaUsuario = new("Buscar Usuário", ["Login"]);
 
-		var resultadoBusca = buscaUsuario.Buscar();
-		var chaveBusca     = resultadoBusca.Value;
+		var (opcao, chaveBusca) = buscaUsuario.Buscar();
 
-		var obterUsuario = resultadoBusca.Key is 1
+		var obterUsuario = opcao is 1
 			? BaseDeDados.Usuarios.ObterPorLogin(chaveBusca)
-			: BaseDeDados.Usuarios.ObterPorId(chaveBusca);
+			: BaseDeDados.Usuarios.ObterPorId(uint.Parse(chaveBusca));
 
 		if (obterUsuario.Status is StatusResposta.ErroNaoEncontrado)
 		{
