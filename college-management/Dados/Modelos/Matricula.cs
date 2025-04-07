@@ -3,8 +3,7 @@ namespace college_management.Dados.Modelos;
 
 public sealed class Matricula : Modelo
 {
-	public Matricula(string nome, uint periodo, Modalidade modalidade) :
-		base(nome)
+	public Matricula(uint periodo, Modalidade modalidade)
 	{
 		Periodo    = periodo;
 		Modalidade = modalidade;
@@ -29,9 +28,7 @@ public sealed class Matricula : Modelo
 
 		if (!modalidadeValida) return null;
 
-		Matricula novaMatricula = new(cadastro["Nome"],
-		                              periodoCurso,
-		                              modalidadeCurso);
+		Matricula novaMatricula = new(periodoCurso, modalidadeCurso);
 
 		return novaMatricula;
 	}

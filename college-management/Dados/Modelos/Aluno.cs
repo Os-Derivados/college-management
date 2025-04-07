@@ -8,6 +8,6 @@ public sealed class Aluno : Usuario
 	{
 	}
 
-	public IEnumerable<Materia> Materias { get; } = [];
-	public IEnumerable<Curso>   Cursos   { get; } = [];
+	public ICollection<Materia> Materias { get; } = [];
+	public ICollection<Curso>   Cursos   { get; } = [];
 }

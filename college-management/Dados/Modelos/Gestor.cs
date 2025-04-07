@@ -9,7 +9,7 @@ public class Gestor : Usuario
 	}
 
 	public Cargo               Cargo   { get; set; }
-	public IEnumerable<Modelo> Modelos { get; } = [];
+	public ICollection<Modelo> Modelos { get; } = [];
 }
 
 public enum Cargo

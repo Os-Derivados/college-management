@@ -8,6 +8,6 @@ public class Docente : Usuario
 	{
 	}
 
-	public IEnumerable<Turma>   Turmas   { get; } = [];
-	public IEnumerable<Materia> Materias { get; } = [];
+	public ICollection<Turma>   Turmas   { get; } = [];
+	public ICollection<Materia> Materias { get; } = [];
 }
