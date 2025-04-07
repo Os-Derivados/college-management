@@ -27,9 +27,9 @@ if (!bool.TryParse(args[1], out var seed))
 
 if (seed)
 {
-	await UtilitarioSeed.IniciarBaseDeDados(baseDeDados);
+	await UtilitarioSeed.IniciarBaseDeDados(bancoDeDados);
 }
-else if (!UtilitarioSeed.ValidarDadosIniciais(baseDeDados))
+else if (!await UtilitarioSeed.ValidarDadosIniciais(bancoDeDados))
 {
 	View.Aviso(
 		"Base de Dados não inicializada com valores padrão. Execute o programa novamente com o argumento seed definido como true");
