@@ -1,6 +1,8 @@
 using college_management.Constantes;
 using college_management.Dados;
+using college_management.Dados.Contexto;
 using college_management.Dados.Modelos;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace college_management.Utilitarios;
@@ -8,75 +10,206 @@ namespace college_management.Utilitarios;
 
 public static class UtilitarioSeed
 {
-	public static async Task IniciarBaseDeDados(BaseDeDados baseDeDados)
+	public static async Task IniciarBaseDeDados(BancoDeDados context)
 	{
-		await baseDeDados
-		      .Cargos
-		      .Adicionar(new Cargo(TipoUsuario.CargoAdministradores,
-		                           [PermissoesAcesso.AcessoAdministradores]));
+		var (loginMestre, nomeMestre, senhaMestre) = ObterCredenciais(
+			VariaveisAmbiente.MasterAdminLogin,
+			VariaveisAmbiente.MasterAdminNome,
+			VariaveisAmbiente.MasterAdminSenha);
 
-		await baseDeDados.Cargos.Adicionar(
-			new Cargo(TipoUsuario.CargoGestores,
-			          [PermissoesAcesso.AcessoEscrita]));
+		var (loginTeste, nomeTeste, senhaTeste) = ObterCredenciais(
+			VariaveisAmbiente.UsuarioTesteLogin,
+			VariaveisAmbiente.UsuarioTesteNome,
+			VariaveisAmbiente.UsuarioTesteSenha);
 
-		await baseDeDados
-		      .Cargos
-		      .Adicionar(new Cargo(TipoUsuario.CargoAlunos,
-		                           [PermissoesAcesso.AcessoLeitura]));
+		if (!await context.Usuarios.AnyAsync(u => u.Login == loginMestre))
+		{
+			var gestorMestre = new Gestor(loginMestre, nomeMestre, senhaMestre)
+			{
+				Cargo = Cargo.Administrador
+			};
 
-		var (loginMestre, nomeMestre, senhaMestre)
-			= ObterCredenciais(VariaveisAmbiente.MasterAdminLogin,
-			                   VariaveisAmbiente.MasterAdminNome,
-			                   VariaveisAmbiente.MasterAdminSenha);
+			context.Usuarios.Add(gestorMestre);
+		}
 
-		var obterCargoAdmin = baseDeDados
-		                      .Cargos
-		                      .ObterPorNome(TipoUsuario.CargoAdministradores);
+		if (!await context.Usuarios.AnyAsync(u => u.Login == "docente.teste"))
+		{
+			var docenteTeste = new Docente("docente.teste",
+			                               "Docente Teste",
+			                               new CredenciaisUsuario(
+				                               "docente12345"));
 
-		if (obterCargoAdmin.Status is StatusResposta.ErroNaoEncontrado) return;
+			context.Usuarios.Add(docenteTeste);
+		}
 
-		await baseDeDados
-		      .Usuarios
-		      .Adicionar(new Funcionario(loginMestre,
-		                                 nomeMestre,
-		                                 senhaMestre,
-		                                 obterCargoAdmin.Modelo!.Id!));
+		if (!await context.Usuarios.AnyAsync(u => u.Login == loginTeste))
+		{
+			var alunoTeste = new Aluno(loginTeste, nomeTeste, senhaTeste);
+			context.Usuarios.Add(alunoTeste);
+		}
 
-		var (loginTeste, nomeTeste, senhaTeste)
-			= ObterCredenciais(VariaveisAmbiente.UsuarioTesteLogin,
-			                   VariaveisAmbiente.UsuarioTesteNome,
-			                   VariaveisAmbiente.UsuarioTesteSenha);
+		if (!await context.Cursos.AnyAsync(c => c.Nome == "Curso Teste"))
+		{
+			var cursoTeste = new Curso("Curso Teste");
+			context.Cursos.Add(cursoTeste);
+		}
 
-		Materia materiaTeste = new("Matéria Teste", Turno.Integral, 60);
-		await baseDeDados.Materias.Adicionar(materiaTeste);
+		if (!await context.Materias.AnyAsync(m => m.Nome == "Matéria Teste"))
+		{
+			var materiaTeste = new Materia("Matéria Teste")
+				{ CargaHoraria = 40 };
+			context.Materias.Add(materiaTeste);
+		}
 
-		Matricula matriculaTeste = new(1, Modalidade.Presencial);
+		await context.SaveChangesAsync();
 
-		Curso cursoTeste = new("Curso Teste", [materiaTeste]);
-		(cursoTeste.MatriculasIds = []).Add(matriculaTeste.Id!);
-		await baseDeDados.Cursos.Adicionar(cursoTeste);
+		// RELACIONAMENTOS N:N
+		var curso
+			= await context.Cursos.FirstOrDefaultAsync(
+				c => c.Nome == "Curso Teste");
+		var materia
+			= await context.Materias.FirstOrDefaultAsync(
+				m => m.Nome == "Matéria Teste");
+		var aluno = await context.Usuarios.OfType<Aluno>()
+		                         .FirstOrDefaultAsync(
+			                         a => a.Login == loginTeste);
+		var docente = await context.Usuarios.OfType<Docente>()
+		                           .FirstOrDefaultAsync(
+			                           d => d.Login == "docente.teste");
+
+		// Adicionar Materia Teste ao Curso Teste
+		if (curso != null && materia != null)
+		{
+			if (!curso.Materias.Contains(materia))
+			{
+				curso.Materias.Add(materia);
+			}
+
+			if (!materia.Cursos.Contains(curso))
+			{
+				materia.Cursos.Add(curso);
+			}
+
+			await context.SaveChangesAsync();
+		}
+
+		// Adicionar Aluno Teste ao Curso Teste
+		if (curso != null && aluno != null)
+		{
+			if (!curso.Alunos.Contains(aluno))
+			{
+				curso.Alunos.Add(aluno);
+			}
+
+			if (!aluno.Cursos.Contains(curso))
+			{
+				aluno.Cursos.Add(curso);
+			}
+
+			await context.SaveChangesAsync();
+		}
+
+		// Adicionar Aluno Teste à Matéria Teste
+		if (materia != null && aluno != null)
+		{
+			if (!materia.Alunos.Contains(aluno))
+			{
+				materia.Alunos.Add(aluno);
+			}
+
+			if (!aluno.Materias.Contains(materia))
+			{
+				aluno.Materias.Add(materia);
+			}
+
+			await context.SaveChangesAsync();
+		}
+
+		// Adicionar Docente Teste na Materia Teste
+		if (materia != null && docente != null)
+		{
+			if (!materia.Docentes.Contains(docente))
+			{
+				materia.Docentes.Add(docente);
+			}
+
+			if (!docente.Materias.Contains(materia))
+			{
+				docente.Materias.Add(materia);
+			}
+
+			await context.SaveChangesAsync();
+		}
+
+		// Adicionar Aluno Teste à Matricula do Curso Teste
+		if (curso != null && aluno != null)
+		{
+			var matricula = new Matricula(1, Modalidade.Presencial)
+			{
+				CursoId = curso.Id,
+				AlunoId = aluno.Id
+			};
+
+			context.Matriculas.Add(matricula);
+			await context.SaveChangesAsync();
+		}
+
+		// Adicionar Docente Teste como professor da Materia Teste
+		if (materia != null && docente != null)
+		{
+			var corpoDocente = new CorpoDocente("Corpo Docente")
+			{
+				MateriaId = materia.Id,
+				DocenteId = docente.Id
+			};
 
 
-		var obterCargoAluno = baseDeDados
-		                      .Cargos
-		                      .ObterPorNome(TipoUsuario.CargoAlunos);
+			context.CorpoDocente.Add(corpoDocente);
+			await context.SaveChangesAsync();
+		}
 
-		if (obterCargoAluno.Status is StatusResposta.ErroNaoEncontrado) return;
+		// Adicionar Avaliacao Teste a Materia Teste
+		if (materia != null && aluno != null)
+		{
+			var avaliacao = new Avaliacao("Avaliacao Teste")
+			{
+				AlunoId   = aluno.Id,
+				MateriaId = materia.Id
+			};
 
-		var alunoTeste = new Aluno(loginTeste,
-		                           nomeTeste,
-		                           senhaTeste,
-		                           obterCargoAluno.Modelo!.Id!,
-		                           matriculaTeste.Id!);
+			context.Avaliacoes.Add(avaliacao);
+			await context.SaveChangesAsync();
+		}
 
-		var alunoCriado = await baseDeDados.Usuarios.Adicionar(alunoTeste);
+		// Adicionar Materia Teste à grade curricular do Curso Teste
+		if (curso != null && materia != null)
+		{
+			var gradeCurricular = new GradeCurricular("Grade Curricular")
+			{
+				CursoId   = curso.Id,
+				MateriaId = materia.Id
+			};
 
-		if (alunoCriado.Status is not StatusResposta.Sucesso) return;
+			context.GradeCurricular.Add(gradeCurricular);
+			await context.SaveChangesAsync();
+		}
 
-		matriculaTeste.AlunoId = alunoTeste.Id;
-		matriculaTeste.CursoId = cursoTeste.Id;
+		// Registar o Aluno Teste numa Turma de teste
+		if (materia != null && aluno != null && docente != null)
+		{
+			var turma = new Turma("Turma Teste")
+			{
+				MateriaId = materia.Id,
+				AlunoId   = aluno.Id,
+				DocenteId = docente.Id,
+				Turno     = Turno.Matutino
+			};
 
-		await baseDeDados.Matriculas.Adicionar(matriculaTeste);
+			context.Turmas.Add(turma);
+			docente.Turmas.Add(turma);
+
+			await context.SaveChangesAsync();
+		}
 	}
 
 	private static (string, string, CredenciaisUsuario) ObterCredenciais(
@@ -84,58 +217,40 @@ public static class UtilitarioSeed
 		string nome,
 		string senha)
 	{
-		_ = UtilitarioAmbiente
-		    .Variaveis
-		    .TryGetValue(login, out var loginDefault);
-
-		_ = UtilitarioAmbiente
-		    .Variaveis
-		    .TryGetValue(nome, out var nomeDefault);
-
-		_ = UtilitarioAmbiente
-		    .Variaveis
-		    .TryGetValue(senha, out var senhaDefault);
+		_ = UtilitarioAmbiente.Variaveis.TryGetValue(
+			login,
+			out var loginDefault);
+		_ = UtilitarioAmbiente.Variaveis.TryGetValue(nome, out var nomeDefault);
+		_ = UtilitarioAmbiente.Variaveis.TryGetValue(
+			senha,
+			out var senhaDefault);
 
 		return (loginDefault, nomeDefault,
 			new CredenciaisUsuario(senhaDefault));
 	}
 
-	public static bool ValidarDadosIniciais(BaseDeDados baseDeDados)
+	public static async Task<bool> ValidarDadosIniciais(BancoDeDados context)
 	{
-		var cargoAdms = baseDeDados
-			.Cargos
-			.ObterPorNome(TipoUsuario.CargoAdministradores) is not
-			null;
+		var cargoAdms = await context.Usuarios.OfType<Gestor>()
+		                             .AnyAsync(
+			                             g => g.Cargo == Cargo.Administrador);
+		var cargoAlunos = await context.Usuarios.OfType<Aluno>().AnyAsync();
+		var usuarioMestre
+			= await context.Usuarios.AnyAsync(
+				u => u.Nome == VariaveisAmbiente.MasterAdminNome);
+		var materiaTeste
+			= await context.Materias.AnyAsync(m => m.Nome == "Matéria Teste");
+		var cursoTeste
+			= await context.Cursos.AnyAsync(c => c.Nome == "Curso Teste");
+		var usuarioTeste
+			= await context.Usuarios.AnyAsync(
+				u => u.Login == VariaveisAmbiente.UsuarioTesteLogin);
 
-		var cargoAlunos = baseDeDados
-		                  .Cargos
-		                  .ObterPorNome(TipoUsuario.CargoAlunos) is not null;
-
-		_ = UtilitarioAmbiente
-		    .Variaveis
-		    .TryGetValue(VariaveisAmbiente.MasterAdminNome,
-		                 out var nomeDefault);
-		var usuarioMestre = baseDeDados
-		                    .Usuarios
-		                    .ObterPorNome(nomeDefault) is not null;
-
-		var materiaTeste = baseDeDados
-		                   .Materias
-		                   .ObterPorNome("Matéria Teste") is not null;
-
-		var cursoTeste = baseDeDados
-		                 .Cursos
-		                 .ObterPorNome("Curso Teste") is not null;
-
-		_ = UtilitarioAmbiente
-		    .Variaveis
-		    .TryGetValue(VariaveisAmbiente.UsuarioTesteLogin,
-		                 out var loginAluno);
-		var usuarioTeste = baseDeDados
-		                   .Usuarios
-		                   .ObterPorLogin(loginAluno) is not null;
-
-		return usuarioMestre & cargoAdms & cargoAlunos & cursoTeste &
-		       usuarioTeste & materiaTeste;
+		return cargoAdms
+		       && cargoAlunos
+		       && usuarioMestre
+		       && cursoTeste
+		       && usuarioTeste
+		       && materiaTeste;
 	}
 }
