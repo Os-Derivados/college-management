@@ -24,21 +24,13 @@ public class RelatorioView<T> : View, IPaginavel where T : Modelo
 	{
 		var tipo         = typeof(T);
 		var propriedades = tipo.GetProperties();
-		var nomesPropriedades =
-			UtilitarioTipos.ObterNomesPropriedades(propriedades);
 
 		Layout.AppendLine($"Relatório de {typeof(T).Name}");
 		Layout.AppendLine();
-
-		Layout.AppendLine(nomesPropriedades);
-
-		foreach (var p in propriedades)
-			Layout.Append($"| {new string('-', 16)} ");
-
-		Layout.AppendLine("|");
-
-		foreach (var modelo in _modelos)
-			Layout.AppendLine(modelo.ToString());
+		
+		Layout.AppendLine(ConstruirCabecalho(propriedades));
+		ConstruirTabela(propriedades);
+		
 	}
 	
 	public override void Exibir()
@@ -61,20 +53,73 @@ public class RelatorioView<T> : View, IPaginavel where T : Modelo
 		{
 			conteudo.Add(new());
 			StringBuilder layout = conteudo[i];
-			
-			layout.AppendLine(nomesPropriedades);
-				
-			foreach (var p in propriedades)
-				layout.Append($"| {new string('-', 16)} ");
-			layout.AppendLine("|");
 
+			layout.AppendLine(ConstruirCabecalho(propriedades));
+			
 			for (int j = i * linhasMaximas; j < (i * linhasMaximas + linhasMaximas) & (j < _modelos.Count); ++j)
 			{
-				var modelo = _modelos[j];
-				layout.AppendLine(modelo.ToString());
+				layout.AppendLine(ConstruirLinha(_modelos[j], propriedades));
 			}
 		}
 
 		return conteudo.Select(i => i.ToString()).ToArray();
+	}
+
+	private string ConstruirCabecalho(PropertyInfo[] propriedades)
+	{
+		string cabecalho = string.Empty;
+		foreach (var propriedade in propriedades)
+		{
+			// Encurta o valor, omitindo partes da string a favor de estrutura no relatório, caso necessário.
+			string nomeCurto = EncurtarValor(propriedade.Name, propriedades.Length);
+			cabecalho += $"| {nomeCurto}" +
+			             $"{new string(' ', Math.Clamp(_larguraBuffer / propriedades.Length - nomeCurto.Length - 3, 0, int.MaxValue))}";
+			
+		}
+		
+		cabecalho += $"{new string(' ', Math.Abs(cabecalho.Length - _larguraBuffer))}";
+		cabecalho = cabecalho.Remove(cabecalho.Length - 1) + '|';
+		cabecalho += $"\n| {new string('-', _larguraBuffer - 4)} |";
+		return cabecalho;
+	}
+
+	private void ConstruirTabela(PropertyInfo[] propriedades)
+	{
+		foreach (var modelo in _modelos)
+		{
+			Layout.AppendLine(ConstruirLinha(modelo, propriedades));
+		}
+	}
+
+	private string ConstruirLinha(T modelo, PropertyInfo[] propriedades)
+	{
+		var valoresPropriedades =
+			UtilitarioTipos.ObterPropriedades(modelo, propriedades.Select(i => i.Name).ToArray());
+
+		string line = string.Empty;
+		foreach (var (nome, valor) in valoresPropriedades)
+		{
+			// Encurta o valor, omitindo partes da string a favor de estrutura no relatório.
+			string valorCurto = EncurtarValor(valor, propriedades.Length);
+
+			line += $"| {valorCurto}" +
+			        $"{new string(' ', Math.Clamp(_larguraBuffer / propriedades.Length - valorCurto.Length - 3, 0, int.MaxValue))}";
+		}
+
+		line += $"{new string(' ', Math.Abs(line.Length - _larguraBuffer))}";
+		line = line.Remove(line.Length - 1) + '|';
+		return line;
+	}
+
+	private string EncurtarValor(string valor, int limite)
+	{
+		string valorCurto = valor.Substring(0,
+			valor.Length > (_larguraBuffer / limite / 2)
+				? (_larguraBuffer / limite / 2)
+				: valor.Length);
+				
+		valorCurto += valorCurto.Length < valor.Length ? "..." : string.Empty;
+
+		return valorCurto;
 	}
 }
