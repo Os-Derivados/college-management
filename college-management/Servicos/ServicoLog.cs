@@ -6,6 +6,7 @@ namespace college_management.Utilitarios
     public class ServicoLog
     {
         private readonly string _logDiretorio;
+        private readonly string _logArquivo;
 
         public ServicoLog(string logDiretorio = "logs")
         {
@@ -15,14 +16,15 @@ namespace college_management.Utilitarios
             {
                 Directory.CreateDirectory(_logDiretorio);
             }
+            
+            _logArquivo = Path.Combine(_logDiretorio, "logfile.txt");
         }
 
         public void Log(string message, Severidade severidade = Severidade.Info)
         {
             string logMensagem = $"{DateTime.Now:dd-MM-yyyy HH:mm:ss} [{severidade}] - {message}";
-            string logLocalArquivo = Path.Combine(_logDiretorio, "logfile.txt");
 
-            File.AppendAllText(logLocalArquivo, logMensagem + Environment.NewLine);
+            File.AppendAllText(_logArquivo, logMensagem + Environment.NewLine);
         }
 
         public enum Severidade
