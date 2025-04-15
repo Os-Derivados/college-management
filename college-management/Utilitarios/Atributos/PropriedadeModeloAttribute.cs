@@ -3,6 +3,7 @@ namespace college_management.Utilitarios.Atributos;
 public enum TipoPropriedade
 {
     Valor,
+    Colecao,
     Privada,
     Quantidade
 }
