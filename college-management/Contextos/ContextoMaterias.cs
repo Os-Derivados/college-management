@@ -185,8 +185,7 @@ public class ContextoMaterias : Contexto<Materia>
 
 		DetalhesView detalhesMateria
 			= new("Detalhes da Matéria", UtilitarioTipos.ObterPropriedades(
-				      obterMateria.Modelo,
-				      ["Nome", "Id", "CargaHoraria", "Turno"]));
+				      obterMateria.Modelo));
 		detalhesMateria.ConstruirLayout();
 
 		ConfirmaView confirmarCadastro = new("Excluir Materia");
@@ -245,7 +244,7 @@ public class ContextoMaterias : Contexto<Materia>
 		}
 
 		var detalhes = UtilitarioTipos.ObterPropriedades(
-			obterMateria.Modelo, ["Nome", "Turno", "CargaHoraria", "Id"]);
+			obterMateria.Modelo);
 
 		DetalhesView detalhesMateria = new("Matéria Encontrada", detalhes);
 		detalhesMateria.ConstruirLayout();
