@@ -14,15 +14,14 @@ public static class UtilitarioTipos
 		Dictionary<string, string> resultado  = new();
 		var                        tipoModelo = typeof(T);
 
-		foreach (var nome in nomesPropriedades)
+		foreach (var propriedade in tipoModelo.GetProperties())
 		{
-			var propriedade = tipoModelo.GetProperty(nome);
-			if (propriedade is null || propriedade.GetCustomAttribute<PropriedadeModeloAttribute>()
+			if (propriedade.GetCustomAttribute<PropriedadeModeloAttribute>()
 			    is { Tipo: TipoPropriedade.Privada })
 				continue;
 			var valor = ObterValor(modelo, propriedade);
 
-			resultado.Add(nome, valor);
+			resultado.Add(propriedade.Name, valor);
 		}
 
 		return resultado;
