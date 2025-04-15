@@ -1,5 +1,6 @@
 ﻿using college_management.Dados;
 using college_management.Middlewares;
+using college_management.Servicos;
 using college_management.Utilitarios;
 using college_management.Views;
 
@@ -30,6 +31,7 @@ if (!bool.TryParse(args[0], out var modoDesenvolvimento))
 var usuarioLogado =
 	MiddlewareAutenticacao.Autenticar(modoDesenvolvimento,
 	                                  baseDeDados.Usuarios);
+new ServicoLog().Log($"{usuarioLogado.Login} realizou login.");
 
 MiddlewareContexto.Inicializar(baseDeDados, usuarioLogado);
 
