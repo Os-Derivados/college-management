@@ -42,9 +42,8 @@ public class RelatorioView<T> : View, IPaginavel where T : Modelo
 	public string[] ConstruirPaginas(int linhasMaximas)
 	{
 		List<StringBuilder> conteudo = [];
-		
-		var tipo         = typeof(T);
-		var propriedades = tipo.GetProperties();
+
+		var propriedades = UtilitarioTipos.ObterPropriedades<T>();
 
 		for (int i = 0; i < Math.Ceiling((float) _modelos.Count / linhasMaximas); ++i)
 		{
