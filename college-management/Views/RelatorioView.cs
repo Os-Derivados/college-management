@@ -45,8 +45,6 @@ public class RelatorioView<T> : View, IPaginavel where T : Modelo
 		
 		var tipo         = typeof(T);
 		var propriedades = tipo.GetProperties();
-		var nomesPropriedades =
-			UtilitarioTipos.ObterNomesPropriedades(propriedades);
 
 		for (int i = 0; i < Math.Ceiling((float) _modelos.Count / linhasMaximas); ++i)
 		{
@@ -92,7 +90,7 @@ public class RelatorioView<T> : View, IPaginavel where T : Modelo
 	private string ConstruirLinha(T modelo, PropertyInfo[] propriedades)
 	{
 		var valoresPropriedades =
-			UtilitarioTipos.ObterPropriedades(modelo, propriedades.Select(i => i.Name).ToArray());
+			UtilitarioTipos.ObterPropriedades(modelo);
 
 		string linha = string.Empty;
 		foreach (var (nome, valor) in valoresPropriedades)
