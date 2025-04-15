@@ -9,6 +9,11 @@ namespace college_management.Utilitarios;
 
 public static class UtilitarioTipos
 {
+	public static PropertyInfo[] ObterPropriedades<T>() =>
+		typeof(T).GetProperties()
+			.Where(i => i.GetCustomAttribute<PropriedadeModeloAttribute>()
+				is not { Tipo: TipoPropriedade.Privada }).ToArray();
+	
 	public static Dictionary<string, string> ObterPropriedades<T>(T modelo)
 	{
 		Dictionary<string, string> resultado  = new();
