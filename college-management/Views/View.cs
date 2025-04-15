@@ -23,7 +23,7 @@ public abstract class View : IView
 	public static void Aviso(string mensagem)
 	{
 
-		servicoLog.Log($"{mensagem}", ServicoLog.LogLevel.Aviso);
+		servicoLog.Log($"{mensagem}", ServicoLog.Severidade.Aviso);
 
 
 		InputView inputAviso = new("Aviso");

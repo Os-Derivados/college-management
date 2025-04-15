@@ -17,15 +17,15 @@ namespace college_management.Utilitarios
             }
         }
 
-        public void Log(string message, LogLevel level = LogLevel.Info)
+        public void Log(string message, Severidade severidade = Severidade.Info)
         {
-            string logMensagem = $"{DateTime.Now:dd-MM-yyyy HH:mm:ss} [{level}] - {message}";
+            string logMensagem = $"{DateTime.Now:dd-MM-yyyy HH:mm:ss} [{severidade}] - {message}";
             string logLocalArquivo = Path.Combine(_logDiretorio, "logfile.txt");
 
             File.AppendAllText(logLocalArquivo, logMensagem + Environment.NewLine);
         }
 
-        public enum LogLevel
+        public enum Severidade
         {
             Info,
             Aviso,
