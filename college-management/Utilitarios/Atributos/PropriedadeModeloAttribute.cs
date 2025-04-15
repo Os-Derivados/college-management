@@ -10,6 +10,6 @@ public enum TipoPropriedade
 
 public class PropriedadeModeloAttribute(TipoPropriedade tipo, string? identificador = null) : Attribute
 {
-    public TipoPropriedade Tipo = tipo;
-    public string Identificador = identificador ?? string.Empty;
+    public readonly TipoPropriedade Tipo = tipo;
+    public readonly string Identificador = identificador ?? string.Empty;
 }
