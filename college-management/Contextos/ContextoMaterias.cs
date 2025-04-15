@@ -251,4 +251,6 @@ public class ContextoMaterias : Contexto<Materia>
 		detalhesMateria.ConstruirLayout();
 		detalhesMateria.Exibir();
 	}
+	
+	public override string ToString() => "ContextoMaterias";
 }
