@@ -76,6 +76,10 @@ public class RelatorioView<T> : View, IPaginavel where T : Modelo
 			cabecalho += $"| {nomeCurto}" +
 			             $"{new string(' ', Math.Clamp(_larguraBuffer / propriedades.Length - nomeCurto.Length - 3, 0, int.MaxValue))}";
 			
+			cabecalho += $"| {propriedade.Name}" +
+			        $"{new string(' ', Math.Clamp(_larguraBuffer / propriedades.Length - propriedade.Name.Length - 2, 0, int.MaxValue))}";
+
+			cabecalho = FormatarLinha(cabecalho, propriedade.Name, propriedades.Length);
 		}
 		
 		cabecalho += $"{new string(' ', Math.Abs(cabecalho.Length - _larguraBuffer))}";
@@ -100,11 +104,10 @@ public class RelatorioView<T> : View, IPaginavel where T : Modelo
 		string line = string.Empty;
 		foreach (var (nome, valor) in valoresPropriedades)
 		{
-			// Encurta o valor, omitindo partes da string a favor de estrutura no relatório.
-			string valorCurto = EncurtarValor(valor, propriedades.Length);
+			line += $"| {valor}" +
+			        $"{new string(' ', Math.Clamp(_larguraBuffer / propriedades.Length - valor.Length - 2, 0, int.MaxValue))}";
 
-			line += $"| {valorCurto}" +
-			        $"{new string(' ', Math.Clamp(_larguraBuffer / propriedades.Length - valorCurto.Length - 3, 0, int.MaxValue))}";
+			line = FormatarLinha(line, valor, propriedades.Length);
 		}
 
 		line += $"{new string(' ', Math.Abs(line.Length - _larguraBuffer))}";
@@ -112,15 +115,13 @@ public class RelatorioView<T> : View, IPaginavel where T : Modelo
 		return line;
 	}
 
-	private string EncurtarValor(string valor, int limite)
+	private string FormatarLinha(string linha, string valor, int limite)
 	{
-		string valorCurto = valor.Substring(0,
-			valor.Length > (_larguraBuffer / limite / 2)
-				? (_larguraBuffer / limite / 2)
-				: valor.Length);
-				
-		valorCurto += valorCurto.Length < valor.Length ? "..." : string.Empty;
+		if (valor.Length > _larguraBuffer / limite - 2)
+		{
+			linha = linha.Remove(linha.Length - (Math.Abs(valor.Length - _larguraBuffer / limite)) - 6) + "... ";
+		}
 
-		return valorCurto;
+		return linha;
 	}
 }
