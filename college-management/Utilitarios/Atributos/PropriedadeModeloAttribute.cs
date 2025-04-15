@@ -3,8 +3,14 @@ namespace college_management.Utilitarios.Atributos;
 public enum TipoPropriedade
 {
     Valor,
+    /// <summary>
+    /// Deve ser utilizada apenas em propriedades que tem como base <see cref="IEnumerable{T}"/>.
+    /// </summary>
     Colecao,
     Privada,
+    /// <summary>
+    /// Deve ser utilizada apenas em propriedades que tem como base <see cref="IEnumerable{T}"/>.
+    /// </summary>
     Quantidade
 }
 
