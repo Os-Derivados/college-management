@@ -8,7 +8,6 @@ public abstract class View : IView
 {
 	public readonly StringBuilder Layout = new();
 	public readonly string Titulo;
-	private static readonly ServicoLog servicoLog = new ServicoLog();
 
 	protected View(string titulo) { Titulo = titulo; }
 
@@ -22,9 +21,7 @@ public abstract class View : IView
 
 	public static void Aviso(string mensagem)
 	{
-
-		servicoLog.Log($"{mensagem}", ServicoLog.Severidade.Aviso);
-
+		new ServicoLog().Log($"{mensagem}", ServicoLog.Severidade.Aviso);
 
 		InputView inputAviso = new("Aviso");
 		inputAviso.ConstruirLayout();
