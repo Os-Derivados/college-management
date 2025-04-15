@@ -2,6 +2,7 @@ using college_management.Constantes;
 using college_management.Contextos;
 using college_management.Dados;
 using college_management.Dados.Modelos;
+using college_management.Servicos;
 using college_management.Views;
 
 
@@ -64,6 +65,7 @@ public static class MiddlewareContexto
 		where T : Modelo
 	{
 		EstadoAtual = EstadoDoApp.Recurso;
+		new ServicoLog().Log($"{usuarioAtual} acessou {contexto}.");
 
 		do
 		{
