@@ -1,7 +1,4 @@
-using System;
-using System.IO;
-
-namespace college_management.Utilitarios
+namespace college_management.Servicos
 {
     public class ServicoLog
     {
