@@ -1,3 +1,4 @@
+using System.Text;
 using college_management.Views.Interfaces;
 
 
@@ -6,8 +7,9 @@ namespace college_management.Views;
 
 public class MenuView : View, IMenuView
 {
+	private PaginaView _paginaView;
 	private readonly string   _cabecalho;
-	public readonly  string[] Opcoes;
+	public readonly string[] Opcoes;
 
 	public MenuView(string titulo,
 	                string cabecalho,
@@ -21,29 +23,41 @@ public class MenuView : View, IMenuView
 
 	public void LerEntrada()
 	{
-		Exibir();
+		var entrada = _paginaView.LerEntrada();
 
-		var entrada = Console.ReadKey();
+		if (entrada.Key is ConsoleKey.Enter)
+		{
+			OpcaoEscolhida = 0;
+			return;
+		}
+		
 		var entradaValida = int.TryParse(entrada
 		                                 .KeyChar
 		                                 .ToString(),
 		                                 out var opcaoEscolhida);
 
-		if (!entradaValida) return;
+		if (!entradaValida || (opcaoEscolhida += (_paginaView.IndicePagina - 1) * 9) > Opcoes.Length)
+		{
+			LerEntrada();
+			return;
+		}
 
 		OpcaoEscolhida = opcaoEscolhida;
 	}
 
 	public override void ConstruirLayout()
 	{
-		Layout.Append(_cabecalho);
-		Layout.AppendLine(" Selecione uma das opções abaixo.");
-		Layout.AppendLine();
+		List<StringBuilder> conteudo = [];
 
-		for (var i = 0; i < Opcoes.Length; i++)
-			Layout.AppendLine($"[{i + 1}] {Opcoes[i]}");
+		_paginaView = new(_cabecalho + " Selecione uma das opções abaixo.");
 
-		Layout.AppendLine();
-		Layout.Append("Digite 0 para sair. Sua opção (somente números): ");
+		for (int i = 0; i < (int)Math.Ceiling(Opcoes.Length / 9.0f); i++)
+		{
+			conteudo.Add(new());
+			for (var j = i * 9; j < Math.Min(Opcoes.Length, (i + 1) * 9); j++)
+				conteudo[i].AppendLine($"[{j % 9 + 1}] {Opcoes[j]}");
+		}
+		
+		_paginaView.AdicionarPaginas(conteudo.Select(i => i.ToString()).ToArray());
 	}
 }

@@ -116,5 +116,10 @@ public abstract class Repositorio<T> : IRepositorio<T>
 		return new RespostaRecurso<T>(null, StatusResposta.Sucesso);
 	}
 
+	public List<T> ObterBaseDeDados()
+	{
+		return new List<T>(BaseDeDados!);
+	}
+
 	public abstract bool Existe(T modelo);
 }

@@ -1,3 +1,4 @@
+using college_management.Dados.Modelos;
 using college_management.Dados.Repositorios;
 
 

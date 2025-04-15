@@ -2,6 +2,7 @@ using college_management.Constantes;
 using college_management.Contextos.Interfaces;
 using college_management.Dados;
 using college_management.Dados.Modelos;
+using college_management.Servicos;
 using college_management.Views;
 
 
@@ -17,8 +18,8 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 	protected Contexto(BaseDeDados baseDeDados,
 	                   Usuario usuarioContexto)
 	{
-		BaseDeDados     = baseDeDados;
-		
+		BaseDeDados = baseDeDados;
+
 		var obterCargo = BaseDeDados
 		                 .Cargos
 		                 .ObterPorId(usuarioContexto.CargoId);
@@ -68,16 +69,59 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 
 	public abstract void VerDetalhes();
 
-	public void ListarOpcoes()
+	public async Task GerarRelatorio()
+	{
+		var modelos = (List<T>)GetModelos();
+
+		ServicoRelatorios<T> servicoRelatorios = new(UsuarioContexto, modelos);
+
+		var relatorio = servicoRelatorios.GerarRelatorio(CargoContexto);
+
+		var caminhoRelatorio
+			= await servicoRelatorios.ExportarRelatorio(relatorio);
+
+		var resultado = caminhoRelatorio != string.Empty
+			? $"""
+			   Relatório gerado com sucesso.
+			   Caminho do relatório: {caminhoRelatorio}
+			   """
+			: "Não foi possível gerar o relatório";
+
+		View.Aviso(resultado);
+
+		return;
+
+		object GetModelos()
+		{
+			return typeof(T) switch
+			{
+				{ } tipoUsuario when tipoUsuario == typeof(Usuario) =>
+					BaseDeDados.Usuarios.ObterTodos().Modelo!,
+				{ } tipoCurso when tipoCurso == typeof(Curso) => BaseDeDados
+					.Cursos.ObterTodos()
+					.Modelo!,
+				{ } tipoCargo when tipoCargo == typeof(Cargo) => BaseDeDados
+					.Cargos.ObterTodos()
+					.Modelo!,
+				{ } tipoMateria when tipoMateria == typeof(Materia) =>
+					BaseDeDados.Materias.ObterTodos().Modelo!,
+				_ => throw new InvalidOperationException(
+					"Tipo de modelo não suportado.")
+			};
+		}
+	}
+
+
+	public MenuView ObterMenuView()
 	{
 		var opcoes = ObterOpcoes();
 
 		MenuView menuRecursos = new("Menu Recursos",
-		                            $"Bem vindo ao recuso de {typeof(T).Name}.",
+		                            $"Bem-vindo(a) ao recurso de {typeof(T).Name}.",
 		                            opcoes);
 
 		menuRecursos.ConstruirLayout();
-		menuRecursos.Exibir();
+		return menuRecursos;
 	}
 
 	public string[] ObterOpcoes()

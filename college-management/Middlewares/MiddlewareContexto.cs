@@ -10,42 +10,50 @@ namespace college_management.Middlewares;
 
 public static class MiddlewareContexto
 {
+	public static EstadoDoApp EstadoAtual = EstadoDoApp.Login;
+
 	public static void Inicializar(BaseDeDados baseDeDados,
-	                               Usuario usuario)
+								   Usuario usuario)
 	{
-		var obterCargo  = baseDeDados.Cargos.ObterPorId(usuario.CargoId);
+		var obterCargo = baseDeDados.Cargos.ObterPorId(usuario.CargoId);
 
 		if (obterCargo.Status is StatusResposta.ErroNaoEncontrado) return;
-		
-		var opcaoContexto = EscolherContexto(obterCargo.Modelo!);
-
-		if (opcaoContexto is "") return;
 
 		ContextoUsuarios contextoUsuarios = new(baseDeDados, usuario);
-		ContextoCargos   contextoCargos   = new(baseDeDados, usuario);
+		ContextoCargos contextoCargos = new(baseDeDados, usuario);
 		ContextoMaterias contextoMaterias = new(baseDeDados, usuario);
-		ContextoCursos   contextoCursos   = new(baseDeDados, usuario);
+		ContextoCursos contextoCursos = new(baseDeDados, usuario);
 
-		switch (opcaoContexto)
+		EstadoAtual = EstadoDoApp.Contexto;
+
+		while (EstadoAtual is EstadoDoApp.Contexto)
 		{
-			case AcessosContexto.ContextoUsuarios:
-				AcessarContexto(contextoUsuarios);
+			var opcaoContexto = EscolherContexto(obterCargo.Modelo!);
 
-				break;
+			switch (opcaoContexto)
+			{
+				case AcessosContexto.ContextoUsuarios:
+					AcessarContexto(contextoUsuarios);
 
-			case AcessosContexto.ContextoCargos:
-				AcessarContexto(contextoCargos);
+					break;
 
-				break;
+				case AcessosContexto.ContextoCargos:
+					AcessarContexto(contextoCargos);
 
-			case AcessosContexto.ContextoCursos:
-				AcessarContexto(contextoCursos);
+					break;
 
-				break;
+				case AcessosContexto.ContextoCursos:
+					AcessarContexto(contextoCursos);
 
-			case AcessosContexto.ContextoMaterias:
-				AcessarContexto(contextoMaterias);
+					break;
 
+				case AcessosContexto.ContextoMaterias:
+					AcessarContexto(contextoMaterias);
+
+					break;
+			}
+
+			if (string.IsNullOrEmpty(opcaoContexto) && ConfirmarSaida())
 				break;
 		}
 	}
@@ -53,21 +61,21 @@ public static class MiddlewareContexto
 	private static void AcessarContexto<T>(Contexto<T> contexto)
 		where T : Modelo
 	{
-		var estadoAtual = EstadoDoApp.Recurso;
+		EstadoAtual = EstadoDoApp.Recurso;
 
 		do
 		{
 			Console.Clear();
 
-			contexto.ListarOpcoes();
+			var menuView = contexto.ObterMenuView();
+			menuView.LerEntrada();
 
-			var opcaoEscolhida = Console.ReadKey();
+			var opcaoEscolhida = menuView.OpcaoEscolhida;
 
-			if (opcaoEscolhida.Key is not ConsoleKey.D0)
+			if (opcaoEscolhida is not 0)
 			{
 				var recursoEscolhido =
-					ConverterParaMetodo(contexto,
-					                    opcaoEscolhida);
+					ConverterParaMetodo(contexto, opcaoEscolhida);
 
 				Console.Clear();
 
@@ -75,31 +83,29 @@ public static class MiddlewareContexto
 			}
 			else
 			{
-				estadoAtual = EstadoDoApp.Sair;
+				EstadoAtual = EstadoDoApp.Contexto;
 			}
-		} while (estadoAtual is EstadoDoApp.Recurso);
+		} while (EstadoAtual is EstadoDoApp.Recurso);
 	}
 
 	private static string ConverterParaMetodo<T>(Contexto<T> contexto,
-	                                             ConsoleKeyInfo indice)
+															 int indice)
 		where T : Modelo
 	{
 		var recursosDisponiveis = contexto.ObterOpcoes();
 
-		_ = int.TryParse(indice.KeyChar.ToString(), out var i);
+		_ = int.TryParse(indice.ToString(), out var i);
 
 		var recursoEscolhido = recursosDisponiveis
-		                       .Select(r => r
-		                                    .Trim()
-		                                    .Replace(" ", ""))
-		                       .ElementAt(i - 1);
+							   .Select(r => r.Trim()
+											 .Replace(" ", ""))
+							   .ElementAt(i - 1);
 
 		return recursoEscolhido;
 	}
 
 	private static string EscolherContexto(Cargo cargoUsuario)
 	{
-		var estadoAtual       = EstadoDoApp.Contexto;
 		var contextoEscolhido = "";
 
 		do
@@ -107,25 +113,23 @@ public static class MiddlewareContexto
 			var opcoesContextos = ObterOpcoesContextos(cargoUsuario);
 
 			MenuView menuContextos = new("Menu Contextos",
-			                             "Bem-vindo(a).",
-			                             opcoesContextos);
+										 "Bem-vindo(a).",
+										 opcoesContextos);
 
 			menuContextos.ConstruirLayout();
-			menuContextos.Exibir();
+			menuContextos.LerEntrada();
 
-			var opcaoEscolhida = Console.ReadKey();
-			var opcaoValida = int.TryParse(opcaoEscolhida
-			                               .KeyChar
-			                               .ToString(),
-			                               out var opcaoUsuario);
+			var opcaoEscolhida = menuContextos.OpcaoEscolhida;
+			var opcaoValida = int.TryParse(opcaoEscolhida.ToString(),
+										   out var opcaoUsuario);
 
 			if (!opcaoValida) continue;
 
 			if (opcaoUsuario is 0) break;
 
-			contextoEscolhido = opcoesContextos[opcaoUsuario - 1];
-			estadoAtual       = EstadoDoApp.Recurso;
-		} while (estadoAtual is EstadoDoApp.Contexto);
+			contextoEscolhido = opcoesContextos[menuContextos.OpcaoEscolhida - 1];
+			EstadoAtual = EstadoDoApp.Recurso;
+		} while (EstadoAtual is EstadoDoApp.Contexto);
 
 		return contextoEscolhido;
 	}
@@ -133,15 +137,20 @@ public static class MiddlewareContexto
 	private static string[] ObterOpcoesContextos(Cargo cargoUsuario)
 	{
 		var temPermissoesAdmin = cargoUsuario
-			                         .TemPermissao(
-				                         PermissoesAcesso.AcessoEscrita)
-		                         || cargoUsuario
-			                         .TemPermissao(
-				                         PermissoesAcesso
-					                         .AcessoAdministradores);
+									 .TemPermissao(
+										 PermissoesAcesso.AcessoEscrita)
+								 || cargoUsuario
+									 .TemPermissao(
+										 PermissoesAcesso
+											 .AcessoAdministradores);
 
 		return temPermissoesAdmin
 			? AcessosContexto.ContextoEscrita
 			: AcessosContexto.ContextoLeitura;
 	}
+
+	private static bool ConfirmarSaida() =>
+		new ConfirmaView("Confirmação de saída")
+			.Confirmar("Deseja sair da aplicação?")
+			.ToString().ToLower() is "s";
 }

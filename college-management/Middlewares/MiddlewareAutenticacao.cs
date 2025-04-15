@@ -31,27 +31,26 @@ public static class MiddlewareAutenticacao
 
 	private static Usuario Login(RepositorioUsuarios repositorioUsuarios)
 	{
-		Console.Write("Login: ");
-		var loginUsuario = Console.ReadLine() ?? "";
+		InputView inputView = new("Login: Preencha com as credenciais do usuário.");
+		inputView.LerEntrada("Login", "Insira o login: ");
 
-		Console.Clear();
+		SenhaView senhaView = new(inputView.Titulo);
+		senhaView.LerEntrada("Senha", "Insira a senha: ");
 
-		Console.Write("Senha: ");
-		var senhaUsuario = Console.ReadLine() ?? "";
-
+		var loginUsuario = inputView.ObterEntrada("Login");
+		var senhaUsuario = senhaView.ObterEntrada("Senha");
+		
 		var autenticacao
 			= Usuario.Autenticar(repositorioUsuarios, loginUsuario,
-			                     senhaUsuario);
+				senhaUsuario);
 
-		if (autenticacao != null)
+		if (autenticacao is not null)
 		{
 			View.Aviso("Login efetuado com sucesso!");
-			
 			return autenticacao;
 		}
 
 		View.Aviso("Login ou senha incorretos!");
-		
-		return null;
+		return Login(repositorioUsuarios);
 	}
 }
