@@ -71,11 +71,6 @@ public class RelatorioView<T> : View, IPaginavel where T : Modelo
 		string cabecalho = string.Empty;
 		foreach (var propriedade in propriedades)
 		{
-			// Encurta o valor, omitindo partes da string a favor de estrutura no relatório, caso necessário.
-			string nomeCurto = EncurtarValor(propriedade.Name, propriedades.Length);
-			cabecalho += $"| {nomeCurto}" +
-			             $"{new string(' ', Math.Clamp(_larguraBuffer / propriedades.Length - nomeCurto.Length - 3, 0, int.MaxValue))}";
-			
 			cabecalho += $"| {propriedade.Name}" +
 			        $"{new string(' ', Math.Clamp(_larguraBuffer / propriedades.Length - propriedade.Name.Length - 2, 0, int.MaxValue))}";
 
@@ -119,7 +114,7 @@ public class RelatorioView<T> : View, IPaginavel where T : Modelo
 	{
 		if (valor.Length > _larguraBuffer / limite - 2)
 		{
-			linha = linha.Remove(linha.Length - (Math.Abs(valor.Length - _larguraBuffer / limite)) - 6) + "... ";
+			linha = linha.Remove(linha.Length - Math.Abs(valor.Length - _larguraBuffer / limite) - 6) + "... ";
 		}
 
 		return linha;
