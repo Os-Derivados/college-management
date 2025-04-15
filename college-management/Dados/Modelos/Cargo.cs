@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text;
+using college_management.Utilitarios.Atributos;
 
 
 namespace college_management.Dados.Modelos;
@@ -19,6 +20,7 @@ public sealed class Cargo : Modelo
 	}
 
 	public string?       Nome        { get; set; }
+	[PropriedadeModelo(TipoPropriedade.Colecao)]
 	public List<string>  Permissoes  { get; set; }
 
 	public bool TemPermissao(string permissao)
