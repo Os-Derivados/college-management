@@ -11,10 +11,12 @@ namespace college_management.Middlewares;
 public static class MiddlewareContexto
 {
 	public static EstadoDoApp EstadoAtual = EstadoDoApp.Login;
+	private static Usuario? usuarioAtual;
 
 	public static void Inicializar(BaseDeDados baseDeDados,
 								   Usuario usuario)
 	{
+		usuarioAtual = usuario;
 		var obterCargo = baseDeDados.Cargos.ObterPorId(usuario.CargoId);
 
 		if (obterCargo.Status is StatusResposta.ErroNaoEncontrado) return;
