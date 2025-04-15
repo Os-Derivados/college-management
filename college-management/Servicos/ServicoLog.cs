@@ -20,9 +20,9 @@ namespace college_management.Utilitarios
             _logArquivo = Path.Combine(_logDiretorio, "logfile.txt");
         }
 
-        public void Log(string message, Severidade severidade = Severidade.Info)
+        public void Log(string mensagem, Severidade severidade = Severidade.Info)
         {
-            string logMensagem = $"{DateTime.Now:dd-MM-yyyy HH:mm:ss} [{severidade}] - {message}";
+            string logMensagem = $"{DateTime.Now:dd-MM-yyyy HH:mm:ss} [{severidade}] - {mensagem}";
 
             File.AppendAllText(_logArquivo, logMensagem + Environment.NewLine);
         }
