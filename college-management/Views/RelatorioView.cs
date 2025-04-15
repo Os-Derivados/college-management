@@ -110,7 +110,7 @@ public class RelatorioView<T> : View, IPaginavel where T : Modelo
 
 	private string FormatarLinha(string linha, string valor, int limite)
 	{
-		if (valor.Length > _larguraBuffer / limite - 2)
+		if (valor.Length > Math.Clamp(_larguraBuffer / limite - 2, valor.Length - 1, int.MaxValue))
 		{
 			linha = linha.Remove(linha.Length - Math.Abs(valor.Length - _larguraBuffer / limite) - 6) + "... ";
 		}
