@@ -40,7 +40,7 @@ public static class UtilitarioTipos
 			null or { Tipo: TipoPropriedade.Valor } =>
 				propriedade.GetValue(modelo)?.ToString() ?? string.Empty,
 			{ Tipo: TipoPropriedade.Colecao } =>
-				string.Join(", ", propriedade.GetValue(modelo) as IEnumerable),
+				string.Join(", ", propriedade.GetValue(modelo) as IEnumerable<string> ?? []),
 			{ Tipo: TipoPropriedade.Quantidade } =>
 				$"{(propriedade.GetValue(modelo) as ICollection)?.Count ?? 0} {atributo.Identificador}",
 			_ => string.Empty // Deve ser impossível
