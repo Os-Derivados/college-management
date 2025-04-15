@@ -65,7 +65,7 @@ public static class MiddlewareContexto
 		where T : Modelo
 	{
 		EstadoAtual = EstadoDoApp.Recurso;
-		new ServicoLog().Log($"{usuarioAtual} acessou {contexto}.");
+		new ServicoLog().Log($"{usuarioAtual.Login} acessou o contexto {contexto}.");
 
 		do
 		{
