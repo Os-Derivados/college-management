@@ -9,20 +9,7 @@ namespace college_management.Utilitarios;
 
 public static class UtilitarioTipos
 {
-	public static string ObterNomesPropriedades(PropertyInfo[] infos)
-	{
-		StringBuilder propriedades = new();
-
-		foreach (var p in infos)
-			propriedades.Append($"| {p.Name.PadRight(16)} ");
-
-		propriedades.Append('|');
-
-		return propriedades.ToString();
-	}
-
-	public static Dictionary<string, string> ObterPropriedades<T>(T modelo,
-		string[] nomesPropriedades)
+	public static Dictionary<string, string> ObterPropriedades<T>(T modelo)
 	{
 		Dictionary<string, string> resultado  = new();
 		var                        tipoModelo = typeof(T);
