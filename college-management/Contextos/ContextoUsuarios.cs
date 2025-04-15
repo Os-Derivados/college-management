@@ -215,7 +215,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 	{
 		if (!ValidarPermissoes()) return;
 
-		BuscaModeloView<Usuario> buscaUsuario = new("Buscar Usuário", ["Login", "Id"]);
+		BuscaModeloView<Usuario> buscaUsuario = new("Buscar Usuário", ["Login"]);
 
 		var resultadoBusca = buscaUsuario.Buscar();
 		var chaveBusca     = resultadoBusca.Value;
