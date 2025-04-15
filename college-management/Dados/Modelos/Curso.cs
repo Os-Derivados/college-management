@@ -1,4 +1,5 @@
 using System.Globalization;
+using college_management.Utilitarios.Atributos;
 
 
 namespace college_management.Dados.Modelos;
@@ -18,17 +19,10 @@ public class Curso : Modelo
 	}
 
 	public string?       Nome            { get; set; }
+	[PropriedadeModelo(TipoPropriedade.Quantidade, "Matéria(s)")]
 	public Materia[]     GradeCurricular { get; set; }
+	[PropriedadeModelo(TipoPropriedade.Quantidade, "Matrícula(s)")]
 	public List<string>? MatriculasIds   { get; set; }
-
-	public override string ToString()
-	{
-		return
-			$"| {Nome,-16} "
-			+ $"| {(GradeCurricular ?? []).Length + " Matéria(s)",-16} "
-			+ $"| {(MatriculasIds?.Count ?? 0) + " Matrícula(s)",-16} "
-			+ $"| {Id,-16} |";
-	}
 
 	public double ObterCargaHoraria()
 	{

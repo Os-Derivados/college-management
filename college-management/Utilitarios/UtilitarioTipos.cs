@@ -1,5 +1,6 @@
+using System.Collections;
 using System.Reflection;
-using System.Text;
+using college_management.Utilitarios.Atributos;
 
 
 namespace college_management.Utilitarios;
@@ -7,33 +8,42 @@ namespace college_management.Utilitarios;
 
 public static class UtilitarioTipos
 {
-	public static string ObterNomesPropriedades(PropertyInfo[] infos)
-	{
-		StringBuilder propriedades = new();
-
-		foreach (var p in infos)
-			propriedades.Append($"| {p.Name.PadRight(16)} ");
-
-		propriedades.Append('|');
-
-		return propriedades.ToString();
-	}
-
-	public static Dictionary<string, string> ObterPropriedades<T>(T modelo,
-		string[] nomesPropriedades)
+	public static PropertyInfo[] ObterPropriedades<T>() =>
+		typeof(T).GetProperties()
+			.Where(i => i.GetCustomAttribute<PropriedadeModeloAttribute>()
+				is not { Tipo: TipoPropriedade.Privada }).ToArray();
+	
+	public static Dictionary<string, string> ObterPropriedades<T>(T modelo)
 	{
 		Dictionary<string, string> resultado  = new();
 		var                        tipoModelo = typeof(T);
 
-		foreach (var nome in nomesPropriedades)
+		foreach (var propriedade in tipoModelo.GetProperties())
 		{
-			var propriedade = tipoModelo.GetProperty(nome);
-			var valor = propriedade?.GetValue(modelo)?.ToString() ??
-			            string.Empty;
+			if (propriedade.GetCustomAttribute<PropriedadeModeloAttribute>()
+			    is { Tipo: TipoPropriedade.Privada })
+				continue;
+			var valor = ObterValor(modelo, propriedade);
 
-			resultado.Add(nome, valor);
+			resultado.Add(propriedade.Name, valor);
 		}
 
 		return resultado;
+	}
+
+	private static string ObterValor<T>(T modelo, PropertyInfo propriedade)
+	{
+		var atributo = propriedade.GetCustomAttribute<PropriedadeModeloAttribute>();
+
+		return atributo switch
+		{
+			null or { Tipo: TipoPropriedade.Valor } =>
+				propriedade.GetValue(modelo)?.ToString() ?? string.Empty,
+			{ Tipo: TipoPropriedade.Colecao } =>
+				string.Join(", ", propriedade.GetValue(modelo) as IEnumerable<string> ?? []),
+			{ Tipo: TipoPropriedade.Quantidade } =>
+				$"{(propriedade.GetValue(modelo) as ICollection)?.Count ?? 0} {atributo.Identificador}",
+			_ => string.Empty // Deve ser impossível
+		};
 	}
 }

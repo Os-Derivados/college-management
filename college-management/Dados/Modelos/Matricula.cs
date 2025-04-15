@@ -1,3 +1,5 @@
+using college_management.Utilitarios.Atributos;
+
 namespace college_management.Dados.Modelos;
 
 
@@ -19,6 +21,7 @@ public sealed class Matricula : Modelo
 	public string?    AlunoId    { get; set; }
 	public int        Periodo    { get; set; }
 	public Modalidade Modalidade { get; set; }
+	[PropriedadeModelo(TipoPropriedade.Quantidade, "Nota(s)")]
 	public List<Nota> Notas      { get; set; } = [];
 
 	public void InicializarNotas(Curso curso)

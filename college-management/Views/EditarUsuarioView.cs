@@ -80,11 +80,7 @@ public class EditarUsuarioView : View, IEditarModeloView<Usuario>
 
 			DetalhesView detalhesUsuario = new("Editar Usuário",
 			                                   UtilitarioTipos
-				                                   .ObterPropriedades(Usuario,
-				                                   [
-					                                   "Nome", "Senha",
-					                                   "CargoId"
-				                                   ]));
+				                                   .ObterPropriedades(Usuario));
 
 			detalhesUsuario.ConstruirLayout();
 

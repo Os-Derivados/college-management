@@ -234,11 +234,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 
 		DetalhesView detalhesUsuario = new("Excluir Usuário",
 		                                   UtilitarioTipos.ObterPropriedades(
-			                                   obterUsuario,
-			                                   [
-				                                   "Nome", "Login", "Id",
-				                                   "CargoId"
-			                                   ]));
+			                                   obterUsuario));
 		detalhesUsuario.ConstruirLayout();
 
 		ConfirmaView confirmaExclusao = new("Excluir Usuário");
@@ -291,11 +287,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 			DetalhesView detalhesContexto = new("Detalhes da Conta",
 			                                    UtilitarioTipos
 				                                    .ObterPropriedades(
-					                                    UsuarioContexto,
-					                                    [
-						                                    "Login", "Nome",
-						                                    "CargoId", "Id"
-					                                    ]));
+					                                    UsuarioContexto));
 			detalhesContexto.ConstruirLayout();
 			detalhesContexto.Exibir();
 
@@ -319,10 +311,7 @@ public class ContextoUsuarios : Contexto<Usuario>,
 			return;
 		}
 
-		var detalhes = UtilitarioTipos.ObterPropriedades(obterUsuario.Modelo,
-		[
-			"Login", "Nome", "Credenciais", "CargoId", "Id"
-		]);
+		var detalhes = UtilitarioTipos.ObterPropriedades(obterUsuario.Modelo);
 
 		DetalhesView detalhesUsuario = new("Usuário Encontrado", detalhes);
 		detalhesUsuario.ConstruirLayout();

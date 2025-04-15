@@ -22,11 +22,6 @@ public sealed class Materia : Modelo
 	public Turno   Turno        { get; set; }
 	public int     CargaHoraria { get; set; }
 
-	public override string ToString()
-	{
-		return
-			$"| {Nome,-16} | {Turno,-16} | {CargaHoraria.ToString() + 'h',-16} | {Id,-16} |";
-	}
 }
 
 public enum Turno

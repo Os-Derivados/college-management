@@ -264,14 +264,7 @@ FimDeLogica:; // É feio, mas é prático.
 
 	private Dictionary<string, string> ObterDetalhes(Curso curso)
 	{
-		var detalhes = UtilitarioTipos.ObterPropriedades(curso, ["Nome"]);
-
-		detalhes.Add("MateriasId",
-		             $"{string.Join(", ", curso.MatriculasIds ?? [])}");
-		detalhes.Add("GradeCurricular",
-		             $"{string.Join(", ", curso.GradeCurricular.Select(i => i.Nome))}");
-		detalhes.Add("CargaHoraria", $"{curso.ObterCargaHoraria()}h");
-
+		var detalhes = UtilitarioTipos.ObterPropriedades(curso);
 		return detalhes;
 	}
 }
