@@ -11,8 +11,6 @@ namespace college_management.Views;
 public class RelatorioView<T> : View, IPaginavel where T : Modelo
 {
 	private readonly List<T> _modelos;
-	// Se o buffer do console for pequeno demais, ignoraremos a escala proporcional
-	// e nos acomodaremos num valor mínimo.
 	private readonly int _larguraBuffer = Console.BufferWidth;
 
 	public RelatorioView(string titulo, List<T> modelos) :
