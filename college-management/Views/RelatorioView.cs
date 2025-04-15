@@ -96,18 +96,18 @@ public class RelatorioView<T> : View, IPaginavel where T : Modelo
 		var valoresPropriedades =
 			UtilitarioTipos.ObterPropriedades(modelo, propriedades.Select(i => i.Name).ToArray());
 
-		string line = string.Empty;
+		string linha = string.Empty;
 		foreach (var (nome, valor) in valoresPropriedades)
 		{
-			line += $"| {valor}" +
+			linha += $"| {valor}" +
 			        $"{new string(' ', Math.Clamp(_larguraBuffer / propriedades.Length - valor.Length - 2, 0, int.MaxValue))}";
 
-			line = FormatarLinha(line, valor, propriedades.Length);
+			linha = FormatarLinha(linha, valor, propriedades.Length);
 		}
 
-		line += $"{new string(' ', Math.Abs(line.Length - _larguraBuffer))}";
-		line = line.Remove(line.Length - 1) + '|';
-		return line;
+		linha += $"{new string(' ', Math.Abs(linha.Length - _larguraBuffer))}";
+		linha = linha.Remove(linha.Length - 1) + '|';
+		return linha;
 	}
 
 	private string FormatarLinha(string linha, string valor, int limite)
