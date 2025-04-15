@@ -39,9 +39,4 @@ public sealed class Cargo : Modelo
 		return permissoes.ToString();
 	}
 
-	public override string ToString()
-	{
-		return
-			$"| {Nome,-16} | {VerPermissoes(),-16} | {Id,-16} |";
-	}
 }

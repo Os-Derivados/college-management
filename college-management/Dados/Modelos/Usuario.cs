@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text.Json.Serialization;
 using college_management.Constantes;
 using college_management.Dados.Repositorios;
+using college_management.Utilitarios.Atributos;
 
 
 namespace college_management.Dados.Modelos;
@@ -31,6 +32,7 @@ public class Usuario : Modelo
 	public string?             Login       { get; set; }
 	public string?             Nome        { get; set; }
 	public string              CargoId     { get; set; }
+	[PropriedadeModelo(TipoPropriedade.Privada)]
 	public CredenciaisUsuario? Credenciais { get; set; }
 
 	public static Usuario? Autenticar(RepositorioUsuarios repositorio,
@@ -68,9 +70,4 @@ public class Usuario : Modelo
 		return novoUsuario;
 	}
 
-	public override string ToString()
-	{
-		return
-			$"| {Login,-16} | {Nome,-16} | {CargoId,-16} | {Credenciais?.ToString().Remove(13) + "...",-16} | {Id,-16} |";
-	}
 }
