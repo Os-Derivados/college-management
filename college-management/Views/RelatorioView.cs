@@ -92,7 +92,7 @@ public class RelatorioView<T> : View, IPaginavel where T : Modelo
 			UtilitarioTipos.ObterPropriedades(modelo);
 
 		string linha = string.Empty;
-		foreach (var (nome, valor) in valoresPropriedades)
+		foreach (var (_, valor) in valoresPropriedades)
 		{
 			linha += $"| {valor}" +
 			        $"{new string(' ', Math.Clamp(_larguraBuffer / propriedades.Length - valor.Length - 2, 0, int.MaxValue))}";
