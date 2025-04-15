@@ -274,4 +274,6 @@ FimDeLogica:; // É feio, mas é prático.
 
 		return detalhes;
 	}
+	
+	public override string ToString() => "ContextoCursos";
 }

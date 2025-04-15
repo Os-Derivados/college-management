@@ -43,6 +43,7 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 
 	public void AcessarRecurso(string nomeRecurso)
 	{
+		new ServicoLog().Log($"{UsuarioContexto.Login} acessou o recurso {nomeRecurso} do contexto {this}.");
 		var interfacesContexto = GetType().GetInterfaces();
 
 		var recurso =

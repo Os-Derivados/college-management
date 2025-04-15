@@ -2,6 +2,7 @@ using college_management.Constantes;
 using college_management.Contextos;
 using college_management.Dados;
 using college_management.Dados.Modelos;
+using college_management.Servicos;
 using college_management.Views;
 
 
@@ -11,10 +12,12 @@ namespace college_management.Middlewares;
 public static class MiddlewareContexto
 {
 	public static EstadoDoApp EstadoAtual = EstadoDoApp.Login;
+	private static Usuario? usuarioAtual;
 
 	public static void Inicializar(BaseDeDados baseDeDados,
 								   Usuario usuario)
 	{
+		usuarioAtual = usuario;
 		var obterCargo = baseDeDados.Cargos.ObterPorId(usuario.CargoId);
 
 		if (obterCargo.Status is StatusResposta.ErroNaoEncontrado) return;
@@ -62,6 +65,7 @@ public static class MiddlewareContexto
 		where T : Modelo
 	{
 		EstadoAtual = EstadoDoApp.Recurso;
+		new ServicoLog().Log($"{usuarioAtual.Login} acessou o contexto {contexto}.");
 
 		do
 		{

@@ -399,4 +399,6 @@ public class ContextoCargos : Contexto<Cargo>
 	}
 
 	#endregion
+
+	public override string ToString() => "ContextoCargos";
 }

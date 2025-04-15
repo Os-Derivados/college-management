@@ -328,4 +328,6 @@ public class ContextoUsuarios : Contexto<Usuario>,
 		detalhesUsuario.ConstruirLayout();
 		detalhesUsuario.Exibir();
 	}
+	
+	public override string ToString() => "ContextoUsuarios";
 }
