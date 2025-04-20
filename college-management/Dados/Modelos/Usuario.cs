@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations.Schema;
 using college_management.Constantes;
 using college_management.Dados.Repositorios;
 using college_management.Utilitarios;
@@ -19,6 +20,8 @@ public abstract class Usuario : Modelo
 
 	public string?             Senha       { get; set; }
 	public string?             Sal         { get; set; }
+	
+	[NotMapped]
 	public CredenciaisUsuario? Credenciais { get; set; }
 
 	public static Usuario? Autenticar(

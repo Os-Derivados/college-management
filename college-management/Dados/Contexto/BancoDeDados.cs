@@ -7,9 +7,8 @@ namespace college_management.Dados.Contexto;
 
 public class BancoDeDados : DbContext
 {
-	public BancoDeDados(DbContextOptions<BancoDeDados> options) : base(options)
-	{
-	}
+	public BancoDeDados(DbContextOptions<BancoDeDados> options) :
+			base(options) { }
 
 	public DbSet<Aluno>           Alunos          { get; set; }
 	public DbSet<Avaliacao>       Avaliacoes      { get; set; }
@@ -54,7 +53,8 @@ public class BancoDeDados : DbContext
 		       .HasMaxLength(64)
 		       .IsRequired();
 
-		builder.Entity<Usuario>().Property(u => u.Credenciais).IsRequired();
+		builder.Entity<Usuario>().Property(u => u.Senha).IsRequired();
+		builder.Entity<Usuario>().Property(u => u.Sal).IsRequired();
 
 		builder.Entity<Materia>().Property(m => m.CargaHoraria).IsRequired();
 
@@ -99,7 +99,7 @@ public class BancoDeDados : DbContext
 		       .HasMany<Materia>()
 		       .WithMany(m => m.Cursos)
 		       .UsingEntity<GradeCurricular>();
-
+		
 		base.OnModelCreating(builder);
 	}
 }
