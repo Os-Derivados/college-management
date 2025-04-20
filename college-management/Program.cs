@@ -5,21 +5,28 @@ using college_management.Middlewares;
 using college_management.Utilitarios;
 using college_management.Views;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 UtilitarioArquivos.Inicializar();
 
-var options = new DbContextOptionsBuilder<BancoDeDados>()
-              .UseSqlite(
-	              $"Data Source={Path.Combine(UtilitarioArquivos.DiretorioDados, "college_management.db")}")
-              .Options;
+var serviceCollection = new ServiceCollection();
 
-await using var bancoDeDados = new BancoDeDados(options);
+serviceCollection.AddDbContext<BancoDeDados>(options =>
+	                                             options.UseSqlite(
+		                                             $"Data Source={Path.Combine(UtilitarioArquivos.DiretorioDados, "college_management.db")}"));
 
-var baseDeDados = new BaseDeDados(new RepositorioAvaliacoes(bancoDeDados),
-                                  new RepositorioCursos(bancoDeDados),
-                                  new RepositorioMaterias(bancoDeDados),
-                                  new RepositorioMatriculas(bancoDeDados),
-                                  new RepositorioUsuarios(bancoDeDados));
+serviceCollection.AddScoped<RepositorioAvaliacoes>();
+serviceCollection.AddScoped<RepositorioCursos>();
+serviceCollection.AddScoped<RepositorioMaterias>();
+serviceCollection.AddScoped<RepositorioMatriculas>();
+serviceCollection.AddScoped<RepositorioUsuarios>();
+serviceCollection.AddScoped<BaseDeDados>();
+
+var serviceProvider = serviceCollection.BuildServiceProvider();
+await using var bancoDeDados
+	= serviceProvider.GetRequiredService<BancoDeDados>();
+
+var baseDeDados = serviceProvider.GetRequiredService<BaseDeDados>();
 
 if (!bool.TryParse(args[1], out var seed))
 	View.Aviso(
