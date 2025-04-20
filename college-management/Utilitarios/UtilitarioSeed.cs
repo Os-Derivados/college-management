@@ -157,7 +157,7 @@ public static class UtilitarioSeed
 		// Adicionar Docente Teste como professor da Materia Teste
 		if (materia != null && docente != null)
 		{
-			var corpoDocente = new CorpoDocente("Corpo Docente")
+			var corpoDocente = new CorpoDocente
 			{
 				MateriaId = materia.Id,
 				DocenteId = docente.Id
@@ -171,7 +171,7 @@ public static class UtilitarioSeed
 		// Adicionar Avaliacao Teste a Materia Teste
 		if (materia != null && aluno != null)
 		{
-			var avaliacao = new Avaliacao("Avaliacao Teste")
+			var avaliacao = new Avaliacao
 			{
 				AlunoId   = aluno.Id,
 				MateriaId = materia.Id
@@ -184,7 +184,7 @@ public static class UtilitarioSeed
 		// Adicionar Materia Teste à grade curricular do Curso Teste
 		if (curso != null && materia != null)
 		{
-			var gradeCurricular = new GradeCurricular("Grade Curricular")
+			var gradeCurricular = new GradeCurricular
 			{
 				CursoId   = curso.Id,
 				MateriaId = materia.Id
@@ -197,7 +197,7 @@ public static class UtilitarioSeed
 		// Registar o Aluno Teste numa Turma de teste
 		if (materia != null && aluno != null && docente != null)
 		{
-			var turma = new Turma("Turma Teste")
+			var turma = new Turma
 			{
 				MateriaId = materia.Id,
 				AlunoId   = aluno.Id,
