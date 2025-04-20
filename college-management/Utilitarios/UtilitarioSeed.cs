@@ -12,209 +12,151 @@ public static class UtilitarioSeed
 {
 	public static async Task IniciarBaseDeDados(BancoDeDados context)
 	{
+		// Certifique-se de que o banco de dados está criado
+		await context.Database.EnsureCreatedAsync();
+
+		// 1. Obter credenciais do gestor mestre
 		var (loginMestre, nomeMestre, senhaMestre) = ObterCredenciais(
 			VariaveisAmbiente.MasterAdminLogin,
 			VariaveisAmbiente.MasterAdminNome,
 			VariaveisAmbiente.MasterAdminSenha
 		);
 
-		var (loginTeste, nomeTeste, senhaTeste) = ObterCredenciais(
-			VariaveisAmbiente.UsuarioTesteLogin,
-			VariaveisAmbiente.UsuarioTesteNome,
-			VariaveisAmbiente.UsuarioTesteSenha
-		);
+		// 2. Verificar se o gestor mestre já existe
+		var gestorExistente = await context.Usuarios.OfType<Gestor>()
+		                                   .FirstOrDefaultAsync(
+			                                   u => u.Login == loginMestre
+		                                   );
 
-		if (!await context.Usuarios.AnyAsync(u => u.Login == loginMestre))
+		Gestor? gestorMestre;
+
+		if (gestorExistente == null)
 		{
-			var gestorMestre = new Gestor(loginMestre, nomeMestre)
+			// Desativar temporariamente o rastreamento de chaves estrangeiras para o SQLite
+			await context.Database.ExecuteSqlRawAsync(
+				"PRAGMA foreign_keys = OFF;"
+			);
+
+			// Criar o gestor mestre
+			gestorMestre = new Gestor(loginMestre, nomeMestre)
 			{
 				Cargo = Cargo.Administrador
 			};
 
 			gestorMestre.GerarCredenciais(senhaMestre);
 			context.Usuarios.Add(gestorMestre);
+
+			try
+			{
+				await context.SaveChangesAsync();
+
+				// Após salvar, atualizamos o GestorId com o próprio Id
+				gestorMestre.GestorId = gestorMestre.Id;
+				await context.SaveChangesAsync();
+
+				// Reativar chaves estrangeiras
+				await context.Database.ExecuteSqlRawAsync(
+					"PRAGMA foreign_keys = ON;"
+				);
+			}
+			catch (DbUpdateException ex)
+			{
+				Console.WriteLine(
+					$"Erro ao salvar o gestor mestre: {ex.InnerException?.Message}"
+				);
+
+				throw;
+			}
+		}
+		else
+		{
+			// Se o gestor já existe, usar o existente
+			gestorExistente.GestorId = gestorExistente.Id;
+			await context.SaveChangesAsync();
 		}
 
-		if (!await context.Usuarios.AnyAsync(u => u.Login == "docente.teste"))
+		// 3. Recarregar o gestor mestre para usar como referência
+		gestorMestre = await context.Usuarios.OfType<Gestor>()
+		                            .FirstAsync(u => u.Login == loginMestre);
+
+		// 4. Adicionar as demais entidades em transações separadas
+		try
 		{
-			var docenteTeste = new Docente(
-				"docente.teste",
-				"Docente Teste"
+			// Adicionar o docente teste
+			if (!await context.Usuarios.AnyAsync(
+				    u => u.Login == "docente.teste"
+			    ))
+			{
+				var docenteTeste = new Docente("docente.teste", "Docente Teste")
+				{
+					GestorId = gestorMestre.Id
+				};
+
+				docenteTeste.GerarCredenciais("senhaTeste");
+				context.Usuarios.Add(docenteTeste);
+				await context.SaveChangesAsync();
+			}
+
+			// Adicionar o aluno teste
+			var (loginTeste, nomeTeste, senhaTeste) = ObterCredenciais(
+				VariaveisAmbiente.UsuarioTesteLogin,
+				VariaveisAmbiente.UsuarioTesteNome,
+				VariaveisAmbiente.UsuarioTesteSenha
 			);
-			
-			docenteTeste.GerarCredenciais("senhaTeste");
-			context.Usuarios.Add(docenteTeste);
-		}
 
-		if (!await context.Usuarios.AnyAsync(u => u.Login == loginTeste))
-		{
-			var alunoTeste = new Aluno(loginTeste, nomeTeste);
-			
-			alunoTeste.GerarCredenciais(senhaTeste);
-			context.Usuarios.Add(alunoTeste);
-		}
-
-		if (!await context.Cursos.AnyAsync(c => c.Nome == "Curso Teste"))
-		{
-			var cursoTeste = new Curso("Curso Teste");
-			context.Cursos.Add(cursoTeste);
-		}
-
-		if (!await context.Materias.AnyAsync(m => m.Nome == "Matéria Teste"))
-		{
-			var materiaTeste = new Materia("Matéria Teste")
-					{ CargaHoraria = 40 };
-			context.Materias.Add(materiaTeste);
-		}
-
-		await context.SaveChangesAsync();
-
-		// RELACIONAMENTOS N:N
-		var curso
-				= await context.Cursos.FirstOrDefaultAsync(
-					c => c.Nome == "Curso Teste"
-				);
-		var materia
-				= await context.Materias.FirstOrDefaultAsync(
-					m => m.Nome == "Matéria Teste"
-				);
-		var aluno = await context.Usuarios.OfType<Aluno>()
-		                         .FirstOrDefaultAsync(
-			                         a => a.Login == loginTeste
-		                         );
-		var docente = await context.Usuarios.OfType<Docente>()
-		                           .FirstOrDefaultAsync(
-			                           d => d.Login == "docente.teste"
-		                           );
-
-		// Adicionar Materia Teste ao Curso Teste
-		if (curso != null && materia != null)
-		{
-			if (!curso.Materias.Contains(materia))
+			if (!await context.Usuarios.AnyAsync(u => u.Login == loginTeste))
 			{
-				curso.Materias.Add(materia);
+				var alunoTeste = new Aluno(loginTeste, nomeTeste)
+				{
+					GestorId = gestorMestre.Id
+				};
+
+				alunoTeste.GerarCredenciais(senhaTeste);
+				context.Usuarios.Add(alunoTeste);
+				await context.SaveChangesAsync();
 			}
 
-			if (!materia.Cursos.Contains(curso)) { materia.Cursos.Add(curso); }
-
-			await context.SaveChangesAsync();
-		}
-
-		// Adicionar Aluno Teste ao Curso Teste
-		if (curso != null && aluno != null)
-		{
-			if (!curso.Alunos.Contains(aluno)) { curso.Alunos.Add(aluno); }
-
-			if (!aluno.Cursos.Contains(curso)) { aluno.Cursos.Add(curso); }
-
-			await context.SaveChangesAsync();
-		}
-
-		// Adicionar Aluno Teste à Matéria Teste
-		if (materia != null && aluno != null)
-		{
-			if (!materia.Alunos.Contains(aluno)) { materia.Alunos.Add(aluno); }
-
-			if (!aluno.Materias.Contains(materia))
+			// Adicionar curso teste
+			if (!await context.Cursos.AnyAsync(c => c.Nome == "Curso Teste"))
 			{
-				aluno.Materias.Add(materia);
+				var cursoTeste = new Curso("Curso Teste")
+				{
+					GestorId = gestorMestre.Id
+				};
+				context.Cursos.Add(cursoTeste);
+				await context.SaveChangesAsync();
 			}
 
-			await context.SaveChangesAsync();
-		}
-
-		// Adicionar Docente Teste na Materia Teste
-		if (materia != null && docente != null)
-		{
-			if (!materia.Docentes.Contains(docente))
+			// Adicionar matéria teste
+			if (!await context.Materias.AnyAsync(
+				    m => m.Nome == "Matéria Teste"
+			    ))
 			{
-				materia.Docentes.Add(docente);
+				var materiaTeste = new Materia("Matéria Teste")
+				{
+					CargaHoraria = 40,
+					GestorId     = gestorMestre.Id
+				};
+				context.Materias.Add(materiaTeste);
+				await context.SaveChangesAsync();
 			}
-
-			if (!docente.Materias.Contains(materia))
-			{
-				docente.Materias.Add(materia);
-			}
-
-			await context.SaveChangesAsync();
 		}
-
-		// Adicionar Aluno Teste à Matricula do Curso Teste
-		if (curso != null && aluno != null)
+		catch (DbUpdateException ex)
 		{
-			var matricula = new Matricula(1, Modalidade.Presencial)
-			{
-				CursoId = curso.Id,
-				AlunoId = aluno.Id
-			};
+			Console.WriteLine(
+				$"Erro ao salvar entidades: {ex.InnerException?.Message}"
+			);
 
-			context.Matriculas.Add(matricula);
-			await context.SaveChangesAsync();
-		}
-
-		// Adicionar Docente Teste como professor da Materia Teste
-		if (materia != null && docente != null)
-		{
-			var corpoDocente = new CorpoDocente
-			{
-				MateriaId = materia.Id,
-				DocenteId = docente.Id
-			};
-
-
-			context.CorpoDocente.Add(corpoDocente);
-			await context.SaveChangesAsync();
-		}
-
-		// Adicionar Avaliacao Teste a Materia Teste
-		if (materia != null && aluno != null)
-		{
-			var avaliacao = new Avaliacao
-			{
-				AlunoId   = aluno.Id,
-				MateriaId = materia.Id
-			};
-
-			context.Avaliacoes.Add(avaliacao);
-			await context.SaveChangesAsync();
-		}
-
-		// Adicionar Materia Teste à grade curricular do Curso Teste
-		if (curso != null && materia != null)
-		{
-			var gradeCurricular = new GradeCurricular
-			{
-				CursoId   = curso.Id,
-				MateriaId = materia.Id
-			};
-
-			context.GradeCurricular.Add(gradeCurricular);
-			await context.SaveChangesAsync();
-		}
-
-		// Registar o Aluno Teste numa Turma de teste
-		if (materia != null && aluno != null && docente != null)
-		{
-			var turma = new Turma
-			{
-				MateriaId = materia.Id,
-				AlunoId   = aluno.Id,
-				DocenteId = docente.Id,
-				Turno     = Turno.Matutino
-			};
-
-			context.Turmas.Add(turma);
-			docente.Turmas.Add(turma);
-
-			await context.SaveChangesAsync();
+			throw;
 		}
 	}
 
-	private static (string? loginDefault, string? nomeDefault, string? senhaDefault) ObterCredenciais(
-		string login,
-		string nome,
-		string senha
-	)
+	private static (string? loginDefault, string? nomeDefault, string?
+			senhaDefault) ObterCredenciais(
+				string login,
+				string nome,
+				string senha
+			)
 	{
 		_ = UtilitarioAmbiente.Variaveis.TryGetValue(
 			login,

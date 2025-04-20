@@ -21,8 +21,8 @@ serviceCollection.AddScoped<RepositorioUsuarios>();
 serviceCollection.AddScoped<BaseDeDados>();
 
 var serviceProvider = serviceCollection.BuildServiceProvider();
-await using var bancoDeDados
-	= serviceProvider.GetRequiredService<BancoDeDados>();
+await using var bancoDeDados = serviceProvider.GetRequiredService<BancoDeDados>();
+await bancoDeDados.Database.EnsureCreatedAsync(); // Adicione esta linha
 
 var baseDeDados = serviceProvider.GetRequiredService<BaseDeDados>();
 
