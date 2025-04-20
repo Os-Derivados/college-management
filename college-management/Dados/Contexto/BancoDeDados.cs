@@ -64,42 +64,77 @@ public class BancoDeDados : DbContext
 		       .WithOne(t => t.Docente)
 		       .HasForeignKey(t => t.DocenteId);
 
-		// DOCENTE <-> MATERIA: N:N
-		builder.Entity<Docente>()
-		       .HasMany<Materia>()
-		       .WithMany(m => m.Docentes)
-		       .UsingEntity<CorpoDocente>();
-
 		builder.Entity<Turma>().Property(t => t.Turno).IsRequired();
-
-		// ALUNO <-> MATERIA: N:N
-		builder.Entity<Aluno>()
-		       .HasMany<Materia>()
-		       .WithMany(m => m.Alunos)
-		       .UsingEntity<Turma>();
-
-		// ALUNO <-> CURSO: N:N
-		builder.Entity<Aluno>()
-		       .HasMany<Curso>()
-		       .WithMany(c => c.Alunos)
-		       .UsingEntity<Matricula>();
-
-		// ALUNO <-> MATERIA: N:N
-		builder.Entity<Aluno>()
-		       .HasMany<Materia>()
-		       .WithMany(m => m.Alunos)
-		       .UsingEntity<Avaliacao>();
 
 		builder.Entity<Avaliacao>()
 		       .Property(a => a.Status)
 		       .HasDefaultValue(StatusAvaliacao.EmAndamento);
 
+		// ALUNO <-> CURSO: N:N
+		builder.Entity<Aluno>()
+		       .HasMany(a => a.Cursos)
+		       .WithMany(c => c.Alunos)
+		       .UsingEntity<Matricula>(
+			       l => l.HasOne<Curso>()
+			             .WithMany()
+			             .HasForeignKey(m => m.CursoId),
+			       r => r.HasOne<Aluno>()
+			             .WithMany()
+			             .HasForeignKey(m => m.AlunoId)
+		       );
+
+		// ALUNO <-> MATERIA: N:N com avaliações
+		builder.Entity<Aluno>()
+		       .HasMany(a => a.Materias)
+		       .WithMany(m => m.Alunos)
+		       .UsingEntity<Avaliacao>(
+			       l => l.HasOne<Materia>()
+			             .WithMany()
+			             .HasForeignKey(a => a.MateriaId),
+			       r => r.HasOne<Aluno>()
+			             .WithMany()
+			             .HasForeignKey(a => a.AlunoId)
+		       );
+
+		// ALUNO <-> MATERIA: N:N com turmas
+		builder.Entity<Aluno>()
+		       .HasMany<Materia>()
+		       .WithMany(m => m.Alunos)
+		       .UsingEntity<Turma>(
+			       l => l.HasOne<Materia>()
+			             .WithMany()
+			             .HasForeignKey(t => t.MateriaId),
+			       r => r.HasOne<Aluno>()
+			             .WithMany()
+			             .HasForeignKey(t => t.AlunoId)
+		       );
+
+		// DOCENTE <-> MATERIA: N:N
+		builder.Entity<Docente>()
+		       .HasMany(d => d.Materias)
+		       .WithMany(m => m.Docentes)
+		       .UsingEntity<CorpoDocente>(
+			       l => l.HasOne<Materia>()
+			             .WithMany()
+			             .HasForeignKey(cd => cd.MateriaId),
+			       r => r.HasOne<Docente>()
+			             .WithMany()
+			             .HasForeignKey(cd => cd.DocenteId)
+		       );
+
 		// CURSO <-> MATERIA: N:N
 		builder.Entity<Curso>()
-		       .HasMany<Materia>()
+		       .HasMany(c => c.Materias)
 		       .WithMany(m => m.Cursos)
-		       .UsingEntity<GradeCurricular>();
-		
+		       .UsingEntity<GradeCurricular>(
+			       l => l.HasOne<Materia>()
+			             .WithMany()
+			             .HasForeignKey(gc => gc.MateriaId),
+			       r => r.HasOne<Curso>()
+			             .WithMany()
+			             .HasForeignKey(gc => gc.CursoId)
+		       );
+
 		base.OnModelCreating(builder);
 	}
 }
