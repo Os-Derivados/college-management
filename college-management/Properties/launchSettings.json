@@ -4,8 +4,5 @@
       "commandName": "Project",
       "commandLineArgs": "false false"
     }
-  },
-  "sdk": {
-    "version": "8.0.407"
   }
 }

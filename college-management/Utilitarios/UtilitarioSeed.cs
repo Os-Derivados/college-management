@@ -19,14 +19,12 @@ public static class UtilitarioSeed
 		var (loginMestre, nomeMestre, senhaMestre) = ObterCredenciais(
 			VariaveisAmbiente.MasterAdminLogin,
 			VariaveisAmbiente.MasterAdminNome,
-			VariaveisAmbiente.MasterAdminSenha
-		);
+			VariaveisAmbiente.MasterAdminSenha);
 
 		// 2. Verificar se o gestor mestre já existe
 		var gestorExistente = await context.Usuarios.OfType<Gestor>()
 		                                   .FirstOrDefaultAsync(
-			                                   u => u.Login == loginMestre
-		                                   );
+			                                   u => u.Login == loginMestre);
 
 		Gestor? gestorMestre;
 
@@ -34,8 +32,7 @@ public static class UtilitarioSeed
 		{
 			// Desativar temporariamente o rastreamento de chaves estrangeiras para o SQLite
 			await context.Database.ExecuteSqlRawAsync(
-				"PRAGMA foreign_keys = OFF;"
-			);
+				"PRAGMA foreign_keys = OFF;");
 
 			// Criar o gestor mestre
 			gestorMestre = new Gestor(loginMestre, nomeMestre)
@@ -56,14 +53,12 @@ public static class UtilitarioSeed
 
 				// Reativar chaves estrangeiras
 				await context.Database.ExecuteSqlRawAsync(
-					"PRAGMA foreign_keys = ON;"
-				);
+					"PRAGMA foreign_keys = ON;");
 			}
 			catch (DbUpdateException ex)
 			{
 				Console.WriteLine(
-					$"Erro ao salvar o gestor mestre: {ex.InnerException?.Message}"
-				);
+					$"Erro ao salvar o gestor mestre: {ex.InnerException?.Message}");
 
 				throw;
 			}
@@ -84,8 +79,7 @@ public static class UtilitarioSeed
 		{
 			// Adicionar o docente teste
 			if (!await context.Usuarios.AnyAsync(
-				    u => u.Login == "docente.teste"
-			    ))
+				    u => u.Login == "docente.teste"))
 			{
 				var docenteTeste = new Docente("docente.teste", "Docente Teste")
 				{
@@ -101,8 +95,7 @@ public static class UtilitarioSeed
 			var (loginTeste, nomeTeste, senhaTeste) = ObterCredenciais(
 				VariaveisAmbiente.UsuarioTesteLogin,
 				VariaveisAmbiente.UsuarioTesteNome,
-				VariaveisAmbiente.UsuarioTesteSenha
-			);
+				VariaveisAmbiente.UsuarioTesteSenha);
 
 			if (!await context.Usuarios.AnyAsync(u => u.Login == loginTeste))
 			{
@@ -129,8 +122,7 @@ public static class UtilitarioSeed
 
 			// Adicionar matéria teste
 			if (!await context.Materias.AnyAsync(
-				    m => m.Nome == "Matéria Teste"
-			    ))
+				    m => m.Nome == "Matéria Teste"))
 			{
 				var materiaTeste = new Materia("Matéria Teste")
 				{
@@ -144,60 +136,54 @@ public static class UtilitarioSeed
 		catch (DbUpdateException ex)
 		{
 			Console.WriteLine(
-				$"Erro ao salvar entidades: {ex.InnerException?.Message}"
-			);
+				$"Erro ao salvar entidades: {ex.InnerException?.Message}");
 
 			throw;
 		}
 	}
 
 	private static (string? loginDefault, string? nomeDefault, string?
-			senhaDefault) ObterCredenciais(
-				string login,
-				string nome,
-				string senha
-			)
+		senhaDefault) ObterCredenciais(string login, string nome, string senha)
 	{
 		_ = UtilitarioAmbiente.Variaveis.TryGetValue(
 			login,
-			out var loginDefault
-		);
+			out var loginDefault);
 		_ = UtilitarioAmbiente.Variaveis.TryGetValue(nome, out var nomeDefault);
 		_ = UtilitarioAmbiente.Variaveis.TryGetValue(
 			senha,
-			out var senhaDefault
-		);
+			out var senhaDefault);
 
 		return (loginDefault, nomeDefault, senhaDefault);
 	}
 
 	public static async Task<bool> ValidarDadosIniciais(BancoDeDados context)
 	{
-		var cargoAdms = await context.Usuarios.OfType<Gestor>()
-		                             .AnyAsync(
-			                             g => g.Cargo == Cargo.Administrador
-		                             );
-		var cargoAlunos = await context.Usuarios.OfType<Aluno>().AnyAsync();
-		var usuarioMestre
-				= await context.Usuarios.AnyAsync(
-					u => u.Nome == VariaveisAmbiente.MasterAdminNome
-				);
-		var materiaTeste
-				= await context.Materias.AnyAsync(
-					m => m.Nome == "Matéria Teste"
-				);
-		var cursoTeste
-				= await context.Cursos.AnyAsync(c => c.Nome == "Curso Teste");
-		var usuarioTeste
-				= await context.Usuarios.AnyAsync(
-					u => u.Login == VariaveisAmbiente.UsuarioTesteLogin
-				);
+		var existeAdmin = await context.Usuarios.OfType<Gestor>()
+		                               .AnyAsync(
+			                               g => g.Cargo == Cargo.Administrador);
+		var existeAluno = await context.Usuarios.OfType<Aluno>().AnyAsync();
 
-		return cargoAdms
-		       && cargoAlunos
-		       && usuarioMestre
-		       && cursoTeste
-		       && usuarioTeste
-		       && materiaTeste;
+		var loginMestre
+			= UtilitarioAmbiente.Variaveis[VariaveisAmbiente.MasterAdminLogin];
+		var existeMestre
+			= await context.Usuarios.AnyAsync(u => u.Login == loginMestre);
+
+		var existeMateria
+			= await context.Materias.AnyAsync(m => m.Nome == "Matéria Teste");
+		var existeCurso
+			= await context.Cursos.AnyAsync(c => c.Nome == "Curso Teste");
+
+		var loginTeste
+			= UtilitarioAmbiente.Variaveis[VariaveisAmbiente.UsuarioTesteLogin];
+		var existeUsuario
+			= await context.Usuarios.AnyAsync(
+				u => u.Login == loginTeste);
+
+		return existeAdmin
+		       && existeAluno
+		       && existeMestre
+		       && existeMateria
+		       && existeCurso
+		       && existeUsuario;
 	}
 }
