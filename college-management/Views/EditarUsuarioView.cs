@@ -48,9 +48,7 @@ public class EditarUsuarioView : View, IEditarModeloView<Usuario>
 				}
 				case 2:
 				{
-					Usuario.Credenciais
-						= new CredenciaisUsuario(
-							inputEdicao.ObterEntrada("Senha"));
+					Usuario.GerarCredenciais(inputEdicao.ObterEntrada("Senha"));
 
 					break;
 				}
