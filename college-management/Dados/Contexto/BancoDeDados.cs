@@ -7,8 +7,9 @@ namespace college_management.Dados.Contexto;
 
 public class BancoDeDados : DbContext
 {
-	public BancoDeDados(DbContextOptions<BancoDeDados> options) :
-			base(options) { }
+	public BancoDeDados(DbContextOptions<BancoDeDados> options) : base(options)
+	{
+	}
 
 	public DbSet<Aluno>           Alunos          { get; set; }
 	public DbSet<Avaliacao>       Avaliacoes      { get; set; }
@@ -25,115 +26,12 @@ public class BancoDeDados : DbContext
 
 	protected override void OnModelCreating(ModelBuilder builder)
 	{
-		// Garantir hierarquia para a tabela de Usuarios
-		builder.Entity<Usuario>()
-		       .HasDiscriminator<string>("TipoUsuario")
-		       .HasValue<Docente>("Docente")
-		       .HasValue<Gestor>("Gestor")
-		       .HasValue<Aluno>("Aluno");
-
-		builder.Entity<Modelo>().HasKey(m => m.Id);
+		// Cada modelo terá a sua própria tabela
+		builder.Entity<Modelo>().UseTpcMappingStrategy();
 		builder.Entity<Modelo>()
-		       .Property(m => m.Nome)
-		       .HasMaxLength(128)
-		       .IsRequired();
-
-		// GESTOR <-> MODELO: 1:N
-		builder.Entity<Gestor>()
-		       .HasMany<Modelo>()
-		       .WithOne(m => m.Gestor)
-		       .HasForeignKey(m => m.GestorId);
-
-		builder.Entity<Gestor>()
-		       .Property(g => g.Cargo)
-		       .HasDefaultValue(Cargo.Operador);
-
-		builder.Entity<Usuario>()
-		       .Property(u => u.Login)
-		       .HasMaxLength(64)
-		       .IsRequired();
-
-		builder.Entity<Usuario>().Property(u => u.Senha).IsRequired();
-		builder.Entity<Usuario>().Property(u => u.Sal).IsRequired();
-
-		builder.Entity<Materia>().Property(m => m.CargaHoraria).IsRequired();
-
-		// DOCENTE <-> TURMA: 1:N
-		builder.Entity<Docente>()
-		       .HasMany<Turma>()
-		       .WithOne(t => t.Docente)
-		       .HasForeignKey(t => t.DocenteId);
-
-		builder.Entity<Turma>().Property(t => t.Turno).IsRequired();
-
-		builder.Entity<Avaliacao>()
-		       .Property(a => a.Status)
-		       .HasDefaultValue(StatusAvaliacao.EmAndamento);
-
-		// ALUNO <-> CURSO: N:N
-		builder.Entity<Aluno>()
-		       .HasMany(a => a.Cursos)
-		       .WithMany(c => c.Alunos)
-		       .UsingEntity<Matricula>(
-			       l => l.HasOne<Curso>()
-			             .WithMany()
-			             .HasForeignKey(m => m.CursoId),
-			       r => r.HasOne<Aluno>()
-			             .WithMany()
-			             .HasForeignKey(m => m.AlunoId)
-		       );
-
-		// ALUNO <-> MATERIA: N:N com avaliações
-		builder.Entity<Aluno>()
-		       .HasMany(a => a.Materias)
-		       .WithMany(m => m.Alunos)
-		       .UsingEntity<Avaliacao>(
-			       l => l.HasOne<Materia>()
-			             .WithMany()
-			             .HasForeignKey(a => a.MateriaId),
-			       r => r.HasOne<Aluno>()
-			             .WithMany()
-			             .HasForeignKey(a => a.AlunoId)
-		       );
-
-		// ALUNO <-> MATERIA: N:N com turmas
-		builder.Entity<Aluno>()
-		       .HasMany<Materia>()
-		       .WithMany(m => m.Alunos)
-		       .UsingEntity<Turma>(
-			       l => l.HasOne<Materia>()
-			             .WithMany()
-			             .HasForeignKey(t => t.MateriaId),
-			       r => r.HasOne<Aluno>()
-			             .WithMany()
-			             .HasForeignKey(t => t.AlunoId)
-		       );
-
-		// DOCENTE <-> MATERIA: N:N
-		builder.Entity<Docente>()
-		       .HasMany(d => d.Materias)
-		       .WithMany(m => m.Docentes)
-		       .UsingEntity<CorpoDocente>(
-			       l => l.HasOne<Materia>()
-			             .WithMany()
-			             .HasForeignKey(cd => cd.MateriaId),
-			       r => r.HasOne<Docente>()
-			             .WithMany()
-			             .HasForeignKey(cd => cd.DocenteId)
-		       );
-
-		// CURSO <-> MATERIA: N:N
-		builder.Entity<Curso>()
-		       .HasMany(c => c.Materias)
-		       .WithMany(m => m.Cursos)
-		       .UsingEntity<GradeCurricular>(
-			       l => l.HasOne<Materia>()
-			             .WithMany()
-			             .HasForeignKey(gc => gc.MateriaId),
-			       r => r.HasOne<Curso>()
-			             .WithMany()
-			             .HasForeignKey(gc => gc.CursoId)
-		       );
+		       .HasOne<Gestor>()
+		       .WithMany(gestor => gestor.Modelos)
+		       .HasForeignKey(modelo => modelo.GestorId);
 
 		base.OnModelCreating(builder);
 	}
