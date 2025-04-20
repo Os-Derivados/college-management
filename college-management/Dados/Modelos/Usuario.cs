@@ -12,17 +12,14 @@ public abstract class Usuario : Modelo
 	protected Usuario(string login, string nome)
 			: base(nome)
 	{
-		Login       = login;
-		Nome        = nome;
+		Login = login;
+		Nome  = nome;
 	}
 
 	public string? Login { get; set; }
 
-	public string?             Senha       { get; set; }
-	public string?             Sal         { get; set; }
-	
-	[NotMapped]
-	public CredenciaisUsuario? Credenciais { get; set; }
+	public string? Senha { get; set; }
+	public string? Sal   { get; set; }
 
 	public static Usuario? Autenticar(
 		RepositorioUsuarios repositorio,
@@ -48,24 +45,15 @@ public abstract class Usuario : Modelo
 		{
 			TipoUsuario.Aluno => new Aluno(
 				cadastro["Login"],
-				cadastro["Nome"],
-				new CredenciaisUsuario(
-					cadastro["Senha"]
-				)
+				cadastro["Nome"]
 			),
 			TipoUsuario.Docente => new Docente(
 				cadastro["Login"],
-				cadastro["Nome"],
-				new CredenciaisUsuario(
-					cadastro["Senha"]
-				)
+				cadastro["Nome"]
 			),
 			TipoUsuario.Gestor => new Gestor(
 				cadastro["Login"],
-				cadastro["Nome"],
-				new CredenciaisUsuario(
-					cadastro["Senha"]
-				)
+				cadastro["Nome"]
 			),
 			_ => throw new ArgumentOutOfRangeException(
 				nameof(cadastro),

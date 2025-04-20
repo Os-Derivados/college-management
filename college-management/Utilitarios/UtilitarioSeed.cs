@@ -15,36 +15,42 @@ public static class UtilitarioSeed
 		var (loginMestre, nomeMestre, senhaMestre) = ObterCredenciais(
 			VariaveisAmbiente.MasterAdminLogin,
 			VariaveisAmbiente.MasterAdminNome,
-			VariaveisAmbiente.MasterAdminSenha);
+			VariaveisAmbiente.MasterAdminSenha
+		);
 
 		var (loginTeste, nomeTeste, senhaTeste) = ObterCredenciais(
 			VariaveisAmbiente.UsuarioTesteLogin,
 			VariaveisAmbiente.UsuarioTesteNome,
-			VariaveisAmbiente.UsuarioTesteSenha);
+			VariaveisAmbiente.UsuarioTesteSenha
+		);
 
 		if (!await context.Usuarios.AnyAsync(u => u.Login == loginMestre))
 		{
-			var gestorMestre = new Gestor(loginMestre, nomeMestre, senhaMestre)
+			var gestorMestre = new Gestor(loginMestre, nomeMestre)
 			{
 				Cargo = Cargo.Administrador
 			};
 
+			gestorMestre.GerarCredenciais(senhaMestre);
 			context.Usuarios.Add(gestorMestre);
 		}
 
 		if (!await context.Usuarios.AnyAsync(u => u.Login == "docente.teste"))
 		{
-			var docenteTeste = new Docente("docente.teste",
-			                               "Docente Teste",
-			                               new CredenciaisUsuario(
-				                               "docente12345"));
-
+			var docenteTeste = new Docente(
+				"docente.teste",
+				"Docente Teste"
+			);
+			
+			docenteTeste.GerarCredenciais("senhaTeste");
 			context.Usuarios.Add(docenteTeste);
 		}
 
 		if (!await context.Usuarios.AnyAsync(u => u.Login == loginTeste))
 		{
-			var alunoTeste = new Aluno(loginTeste, nomeTeste, senhaTeste);
+			var alunoTeste = new Aluno(loginTeste, nomeTeste);
+			
+			alunoTeste.GerarCredenciais(senhaTeste);
 			context.Usuarios.Add(alunoTeste);
 		}
 
@@ -57,7 +63,7 @@ public static class UtilitarioSeed
 		if (!await context.Materias.AnyAsync(m => m.Nome == "Matéria Teste"))
 		{
 			var materiaTeste = new Materia("Matéria Teste")
-				{ CargaHoraria = 40 };
+					{ CargaHoraria = 40 };
 			context.Materias.Add(materiaTeste);
 		}
 
@@ -65,17 +71,21 @@ public static class UtilitarioSeed
 
 		// RELACIONAMENTOS N:N
 		var curso
-			= await context.Cursos.FirstOrDefaultAsync(
-				c => c.Nome == "Curso Teste");
+				= await context.Cursos.FirstOrDefaultAsync(
+					c => c.Nome == "Curso Teste"
+				);
 		var materia
-			= await context.Materias.FirstOrDefaultAsync(
-				m => m.Nome == "Matéria Teste");
+				= await context.Materias.FirstOrDefaultAsync(
+					m => m.Nome == "Matéria Teste"
+				);
 		var aluno = await context.Usuarios.OfType<Aluno>()
 		                         .FirstOrDefaultAsync(
-			                         a => a.Login == loginTeste);
+			                         a => a.Login == loginTeste
+		                         );
 		var docente = await context.Usuarios.OfType<Docente>()
 		                           .FirstOrDefaultAsync(
-			                           d => d.Login == "docente.teste");
+			                           d => d.Login == "docente.teste"
+		                           );
 
 		// Adicionar Materia Teste ao Curso Teste
 		if (curso != null && materia != null)
@@ -85,10 +95,7 @@ public static class UtilitarioSeed
 				curso.Materias.Add(materia);
 			}
 
-			if (!materia.Cursos.Contains(curso))
-			{
-				materia.Cursos.Add(curso);
-			}
+			if (!materia.Cursos.Contains(curso)) { materia.Cursos.Add(curso); }
 
 			await context.SaveChangesAsync();
 		}
@@ -96,15 +103,9 @@ public static class UtilitarioSeed
 		// Adicionar Aluno Teste ao Curso Teste
 		if (curso != null && aluno != null)
 		{
-			if (!curso.Alunos.Contains(aluno))
-			{
-				curso.Alunos.Add(aluno);
-			}
+			if (!curso.Alunos.Contains(aluno)) { curso.Alunos.Add(aluno); }
 
-			if (!aluno.Cursos.Contains(curso))
-			{
-				aluno.Cursos.Add(curso);
-			}
+			if (!aluno.Cursos.Contains(curso)) { aluno.Cursos.Add(curso); }
 
 			await context.SaveChangesAsync();
 		}
@@ -112,10 +113,7 @@ public static class UtilitarioSeed
 		// Adicionar Aluno Teste à Matéria Teste
 		if (materia != null && aluno != null)
 		{
-			if (!materia.Alunos.Contains(aluno))
-			{
-				materia.Alunos.Add(aluno);
-			}
+			if (!materia.Alunos.Contains(aluno)) { materia.Alunos.Add(aluno); }
 
 			if (!aluno.Materias.Contains(materia))
 			{
@@ -212,39 +210,46 @@ public static class UtilitarioSeed
 		}
 	}
 
-	private static (string, string, CredenciaisUsuario) ObterCredenciais(
+	private static (string? loginDefault, string? nomeDefault, string? senhaDefault) ObterCredenciais(
 		string login,
 		string nome,
-		string senha)
+		string senha
+	)
 	{
 		_ = UtilitarioAmbiente.Variaveis.TryGetValue(
 			login,
-			out var loginDefault);
+			out var loginDefault
+		);
 		_ = UtilitarioAmbiente.Variaveis.TryGetValue(nome, out var nomeDefault);
 		_ = UtilitarioAmbiente.Variaveis.TryGetValue(
 			senha,
-			out var senhaDefault);
+			out var senhaDefault
+		);
 
-		return (loginDefault, nomeDefault,
-			new CredenciaisUsuario(senhaDefault));
+		return (loginDefault, nomeDefault, senhaDefault);
 	}
 
 	public static async Task<bool> ValidarDadosIniciais(BancoDeDados context)
 	{
 		var cargoAdms = await context.Usuarios.OfType<Gestor>()
 		                             .AnyAsync(
-			                             g => g.Cargo == Cargo.Administrador);
+			                             g => g.Cargo == Cargo.Administrador
+		                             );
 		var cargoAlunos = await context.Usuarios.OfType<Aluno>().AnyAsync();
 		var usuarioMestre
-			= await context.Usuarios.AnyAsync(
-				u => u.Nome == VariaveisAmbiente.MasterAdminNome);
+				= await context.Usuarios.AnyAsync(
+					u => u.Nome == VariaveisAmbiente.MasterAdminNome
+				);
 		var materiaTeste
-			= await context.Materias.AnyAsync(m => m.Nome == "Matéria Teste");
+				= await context.Materias.AnyAsync(
+					m => m.Nome == "Matéria Teste"
+				);
 		var cursoTeste
-			= await context.Cursos.AnyAsync(c => c.Nome == "Curso Teste");
+				= await context.Cursos.AnyAsync(c => c.Nome == "Curso Teste");
 		var usuarioTeste
-			= await context.Usuarios.AnyAsync(
-				u => u.Login == VariaveisAmbiente.UsuarioTesteLogin);
+				= await context.Usuarios.AnyAsync(
+					u => u.Login == VariaveisAmbiente.UsuarioTesteLogin
+				);
 
 		return cargoAdms
 		       && cargoAlunos

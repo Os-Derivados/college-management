@@ -3,9 +3,6 @@ namespace college_management.Dados.Modelos;
 
 public class Gestor : Usuario
 {
-	public Gestor(string login, string nome, CredenciaisUsuario credenciais) :
-			base(login, nome) { }
-
 	public Gestor(string login, string nome) :
 			base(login, nome) { }
 
