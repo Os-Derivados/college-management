@@ -15,10 +15,8 @@ serviceCollection.AddDbContext<BancoDeDados>(options =>
 	                                             options.UseSqlite(
 		                                             $"Data Source={Path.Combine(UtilitarioArquivos.DiretorioDados, "college_management.db")}"));
 
-serviceCollection.AddScoped<RepositorioAvaliacoes>();
 serviceCollection.AddScoped<RepositorioCursos>();
 serviceCollection.AddScoped<RepositorioMaterias>();
-serviceCollection.AddScoped<RepositorioMatriculas>();
 serviceCollection.AddScoped<RepositorioUsuarios>();
 serviceCollection.AddScoped<BaseDeDados>();
 
