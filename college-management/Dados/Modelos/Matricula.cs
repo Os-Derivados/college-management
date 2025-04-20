@@ -1,7 +1,7 @@
 namespace college_management.Dados.Modelos;
 
 
-public sealed class Matricula : Modelo
+public sealed class Matricula
 {
 	public Matricula(uint periodo, Modalidade modalidade)
 	{

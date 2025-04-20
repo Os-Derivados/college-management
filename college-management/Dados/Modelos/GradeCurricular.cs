@@ -4,10 +4,8 @@ using college_management.Dados.Repositorios;
 namespace college_management.Dados.Modelos;
 
 
-public class GradeCurricular : Modelo
+public class GradeCurricular
 {
-	public GradeCurricular(string nome) : base(nome) { }
-
 	public uint CursoId   { get; set; }
 	public uint MateriaId { get; set; }
 

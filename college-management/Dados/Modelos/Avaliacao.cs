@@ -1,10 +1,8 @@
 namespace college_management.Dados.Modelos;
 
 
-public class Avaliacao : Modelo
+public class Avaliacao
 {
-	public Avaliacao(string nome) : base(nome) { }
-
 	public float?          P1        { get; set; }
 	public float?          P2        { get; set; }
 	public float?          P3        { get; set; }
