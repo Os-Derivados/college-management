@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 namespace college_management.Dados.Modelos;
 
 
-public abstract class Modelo
+public abstract class Modelo : Rastreavel
 {
 	protected Modelo() { }
 
@@ -16,6 +16,4 @@ public abstract class Modelo
 	
 	[Key]
 	public uint    Id       { get;  set; }
-	public uint?    GestorId { get; set; }
-	public Gestor?  Gestor   { get; set; } = null!;
 }

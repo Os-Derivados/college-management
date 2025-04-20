@@ -27,8 +27,9 @@ public class BancoDeDados : DbContext
 	protected override void OnModelCreating(ModelBuilder builder)
 	{
 		// Cada modelo terá a sua própria tabela
-		builder.Entity<Modelo>().UseTpcMappingStrategy();
-		builder.Entity<Modelo>()
+		builder.Entity<Rastreavel>().UseTpcMappingStrategy();
+		
+		builder.Entity<Rastreavel>()
 		       .HasOne<Gestor>()
 		       .WithMany(gestor => gestor.Modelos)
 		       .HasForeignKey(modelo => modelo.GestorId);
