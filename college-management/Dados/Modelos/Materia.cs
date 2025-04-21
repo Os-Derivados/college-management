@@ -7,10 +7,12 @@ public sealed class Materia : Modelo
 
 	public uint CargaHoraria { get; set; }
 
-	public ICollection<Turma>   Turmas   { get; } = [];
-	public ICollection<Aluno>   Alunos   { get; } = [];
-	public ICollection<Curso>   Cursos   { get; } = [];
-	public ICollection<Docente> Docentes { get; } = [];
+	public ICollection<Turma>     Turmas     { get; }      = [];
+	public ICollection<Aluno>     Alunos     { get; }      = [];
+	public ICollection<Curso>     Cursos     { get; }      = [];
+	public ICollection<Docente>   Docentes   { get; }      = [];
+	public ICollection<Avaliacao> Avaliacoes { get; set; } = [];
+
 
 	public override string ToString()
 	{

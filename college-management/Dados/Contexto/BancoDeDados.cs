@@ -85,10 +85,24 @@ public class BancoDeDados : DbContext
 
 		#region Materia
 
+		builder.Entity<Avaliacao>().HasKey(a => new { a.MateriaId, a.AlunoId });
+
+		builder.Entity<Avaliacao>()
+		       .HasOne(a => a.Materia)
+		       .WithMany(c => c.Avaliacoes)
+		       .HasForeignKey(m => m.MateriaId);
+
+		builder.Entity<Avaliacao>()
+		       .HasOne(a => a.Aluno)
+		       .WithMany(a => a.Avaliacoes)
+		       .HasForeignKey(m => m.AlunoId);
+
 		builder.Entity<Materia>()
-		       .HasMany<Aluno>()
-		       .WithMany(aluno => aluno.Materias)
-		       .UsingEntity<Avaliacao>();
+		       .HasMany(m => m.Alunos)
+		       .WithMany(a => a.Materias)
+		       .UsingEntity<Avaliacao>(
+			       j => j.HasOne(m => m.Aluno).WithMany(a => a.Avaliacoes),
+			       j => j.HasOne(m => m.Materia).WithMany(m => m.Avaliacoes));
 
 		builder.Entity<Materia>()
 		       .HasMany<Docente>()
