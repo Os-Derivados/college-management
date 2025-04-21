@@ -13,7 +13,8 @@ var serviceCollection = new ServiceCollection();
 
 serviceCollection.AddDbContext<BancoDeDados>(options =>
 	                                             options.UseSqlite(
-		                                             $"Data Source={Path.Combine(UtilitarioArquivos.DiretorioDados, "college_management.db")}"));
+			                                             $"Data Source={Path.Combine(UtilitarioArquivos.DiretorioDados, "college_management.db")}")
+		                                             .EnableSensitiveDataLogging());
 
 serviceCollection.AddScoped<RepositorioCursos>();
 serviceCollection.AddScoped<RepositorioMaterias>();
@@ -21,8 +22,8 @@ serviceCollection.AddScoped<RepositorioUsuarios>();
 serviceCollection.AddScoped<BaseDeDados>();
 
 var serviceProvider = serviceCollection.BuildServiceProvider();
-await using var bancoDeDados = serviceProvider.GetRequiredService<BancoDeDados>();
-await bancoDeDados.Database.EnsureCreatedAsync(); // Adicione esta linha
+await using var bancoDeDados
+	= serviceProvider.GetRequiredService<BancoDeDados>();
 
 var baseDeDados = serviceProvider.GetRequiredService<BaseDeDados>();
 

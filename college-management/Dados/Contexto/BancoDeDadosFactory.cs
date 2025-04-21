@@ -12,8 +12,7 @@ public class BancoDeDadosFactory : IDesignTimeDbContextFactory<BancoDeDados>
 	{
 		DbContextOptionsBuilder<BancoDeDados> optionsBuilder = new();
 		optionsBuilder.UseSqlite(
-			$"Data Source={Path.Combine(UtilitarioArquivos.DiretorioDados, "college_management.db")}"
-		);
+			$"Data Source={Path.Combine(UtilitarioArquivos.DiretorioDados, "college_management.db")}");
 
 		return new BancoDeDados(optionsBuilder.Options);
 	}

@@ -2,6 +2,7 @@ using college_management.Constantes;
 using college_management.Dados;
 using college_management.Dados.Contexto;
 using college_management.Dados.Modelos;
+using college_management.Views;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -22,38 +23,43 @@ public static class UtilitarioSeed
 			VariaveisAmbiente.MasterAdminSenha);
 
 		// 2. Verificar se o gestor mestre já existe
-		var gestorExistente
-			= await context.Gestores.FirstOrDefaultAsync(
-				u => u.Login == loginMestre);
+		var mestreExiste = await context.Gestores.AsNoTracking()
+		                                .AnyAsync(g => g.Login == loginMestre);
 
-		Gestor? gestorMestre;
-
-		if (gestorExistente == null)
+		if (!mestreExiste)
 		{
 			// Desativar temporariamente o rastreamento de chaves estrangeiras para o SQLite
 			await context.Database.ExecuteSqlRawAsync(
 				"PRAGMA foreign_keys = OFF;");
 
 			// Criar o gestor mestre
-			gestorMestre = new Gestor(loginMestre, nomeMestre)
+			var novoMestre = new Gestor(loginMestre, nomeMestre)
 			{
 				Cargo = Cargo.Administrador
 			};
 
-			gestorMestre.GerarCredenciais(senhaMestre);
-			context.Gestores.Add(gestorMestre);
+			novoMestre.GerarCredenciais(senhaMestre);
+			context.Gestores.Add(novoMestre);
+
+			await context.SaveChangesAsync();
 
 			try
 			{
-				await context.SaveChangesAsync();
-
 				// Após salvar, atualizamos o GestorId com o próprio Id
-				gestorMestre.GestorId = gestorMestre.Id;
+				Gestor mestreComFk = new(novoMestre.Login, novoMestre.Nome)
+				{
+					GestorId = novoMestre.Id
+				};
+
+				context.Gestores.Update(mestreComFk);
+
 				await context.SaveChangesAsync();
 
 				// Reativar chaves estrangeiras
 				await context.Database.ExecuteSqlRawAsync(
 					"PRAGMA foreign_keys = ON;");
+
+				context.Entry(mestreComFk).State = EntityState.Detached;
 			}
 			catch (DbUpdateException ex)
 			{
@@ -62,17 +68,13 @@ public static class UtilitarioSeed
 
 				throw;
 			}
-		}
-		else
-		{
-			// Se o gestor já existe, usar o existente
-			gestorExistente.GestorId = gestorExistente.Id;
-			await context.SaveChangesAsync();
+
+			context.Entry(novoMestre).State = EntityState.Detached;
 		}
 
 		// 3. Recarregar o gestor mestre para usar como referência
-		gestorMestre
-			= await context.Gestores.FirstAsync(u => u.Login == loginMestre);
+		var mestre = await context.Gestores.AsNoTracking()
+		                          .FirstAsync(u => u.Login == loginMestre);
 
 		// 4. Adicionar as demais entidades em transações separadas
 		try
@@ -83,12 +85,14 @@ public static class UtilitarioSeed
 			{
 				var docenteTeste = new Docente("docente.teste", "Docente Teste")
 				{
-					GestorId = gestorMestre.Id
+					GestorId = mestre.Id
 				};
 
 				docenteTeste.GerarCredenciais("senhaTeste");
 				context.Docentes.Add(docenteTeste);
 				await context.SaveChangesAsync();
+
+				context.Entry(docenteTeste).State = EntityState.Detached;
 			}
 
 			// Adicionar o aluno teste
@@ -101,12 +105,14 @@ public static class UtilitarioSeed
 			{
 				var alunoTeste = new Aluno(loginTeste, nomeTeste)
 				{
-					GestorId = gestorMestre.Id
+					GestorId = mestre.Id
 				};
 
 				alunoTeste.GerarCredenciais(senhaTeste);
 				context.Alunos.Add(alunoTeste);
 				await context.SaveChangesAsync();
+
+				context.Entry(alunoTeste).State = EntityState.Detached;
 			}
 
 			// Adicionar curso teste
@@ -114,10 +120,12 @@ public static class UtilitarioSeed
 			{
 				var cursoTeste = new Curso("Curso Teste")
 				{
-					GestorId = gestorMestre.Id
+					GestorId = mestre.Id
 				};
 				context.Cursos.Add(cursoTeste);
 				await context.SaveChangesAsync();
+
+				context.Entry(cursoTeste).State = EntityState.Detached;
 			}
 
 			// Adicionar matéria teste
@@ -127,10 +135,12 @@ public static class UtilitarioSeed
 				var materiaTeste = new Materia("Matéria Teste")
 				{
 					CargaHoraria = 40,
-					GestorId     = gestorMestre.Id
+					GestorId     = mestre.Id
 				};
 				context.Materias.Add(materiaTeste);
 				await context.SaveChangesAsync();
+
+				context.Entry(materiaTeste).State = EntityState.Detached;
 			}
 		}
 		catch (DbUpdateException ex)
@@ -140,6 +150,8 @@ public static class UtilitarioSeed
 
 			throw;
 		}
+
+		View.Aviso("Banco de dados inicializado com sucesso!");
 	}
 
 	private static (string? loginDefault, string? nomeDefault, string?

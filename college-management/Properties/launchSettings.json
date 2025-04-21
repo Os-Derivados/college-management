@@ -2,7 +2,7 @@
   "profiles": {
     "college-management": {
       "commandName": "Project",
-      "commandLineArgs": "false false"
+      "commandLineArgs": "false true"
     }
   }
 }
