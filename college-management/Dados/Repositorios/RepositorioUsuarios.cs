@@ -1,3 +1,4 @@
+using college_management.Constantes;
 using college_management.Dados.Contexto;
 using college_management.Dados.Modelos;
 using college_management.Dados.Repositorios.Interfaces;
@@ -13,14 +14,32 @@ public class RepositorioUsuarios : Repositorio<Usuario>, IRepositorioUsuarios
 	{
 	}
 
+	private DbSet<Aluno>   Alunos   => BancoDeDados.Alunos;
+	private DbSet<Docente> Docentes => BancoDeDados.Docentes;
+	private DbSet<Gestor>  Gestores => BancoDeDados.Gestores;
+
 	public RespostaRecurso<Usuario> ObterPorLogin(string login)
 	{
-		var usuario = Dados.FirstOrDefault(u => u.Login == login);
+		var aluno = Alunos.FirstOrDefault(aluno => aluno.Login == login);
 
-		return usuario is null
-			? new RespostaRecurso<Usuario>(null,
-			                               StatusResposta.ErroNaoEncontrado)
-			: new RespostaRecurso<Usuario>(usuario, StatusResposta.Sucesso);
+		if (aluno is not null)
+			return new RespostaRecurso<Usuario>(aluno, StatusResposta.Sucesso);
+
+		var docente
+			= Docentes.FirstOrDefault(docente => docente.Login == login);
+
+		if (docente is not null)
+			return new RespostaRecurso<Usuario>(
+				docente,
+				StatusResposta.Sucesso);
+
+		var gestor = Gestores.FirstOrDefault(gestor => gestor.Login == login);
+
+		if (gestor is not null)
+			return new RespostaRecurso<Usuario>(gestor, StatusResposta.Sucesso);
+
+		return new RespostaRecurso<Usuario>(null,
+		                                    StatusResposta.ErroNaoEncontrado);
 	}
 
 	public RespostaRecurso<Aluno> ObterAluno(uint id)
