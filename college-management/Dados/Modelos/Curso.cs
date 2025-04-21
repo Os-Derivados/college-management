@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Globalization;
 
 
@@ -11,6 +12,7 @@ public class Curso : Modelo
 	public ICollection<Aluno>   Alunos   { get; }      = [];
 	public ICollection<Materia> Materias { get; set; } = [];
 
+	[NotMapped]
 	public uint CargaHoraria => (uint)Materias.Sum(m => m.CargaHoraria);
 
 	public override string ToString()

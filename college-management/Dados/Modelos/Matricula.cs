@@ -1,7 +1,12 @@
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+
 namespace college_management.Dados.Modelos;
 
 
-public sealed class Matricula
+public sealed class Matricula : Rastreavel
 {
 	public Matricula(uint periodo, Modalidade modalidade)
 	{
@@ -9,10 +14,19 @@ public sealed class Matricula
 		Modalidade = modalidade;
 	}
 
-	public uint       CursoId    { get; set; }
-	public uint       AlunoId    { get; set; }
-	public string     Codigo     => $"{CursoId}{AlunoId}";
-	public uint       Periodo    { get; set; }
+	public Matricula() { }
+
+	public uint? CursoId { get; set; }
+	public uint? AlunoId { get; set; }
+
+	[NotMapped]
+	public string Codigo => $"{CursoId}{AlunoId}";
+
+	[Required]
+	public uint Periodo { get; set; }
+
+	[Required]
+	[DefaultValue(Modalidade.Presencial)]
 	public Modalidade Modalidade { get; set; }
 
 	public static Matricula CriarMatricula(Dictionary<string, string> cadastro)
@@ -20,13 +34,13 @@ public sealed class Matricula
 		var periodoValido = uint.TryParse(cadastro["Periodo"],
 		                                  out var periodoCurso);
 
-		if (!periodoValido) return null;
+		if (!periodoValido) return new Matricula();
 
 		var modalidadeValida = Enum.TryParse<Modalidade>(
 			cadastro["Modalidade"],
 			out var modalidadeCurso);
 
-		if (!modalidadeValida) return null;
+		if (!modalidadeValida) return new Matricula();
 
 		Matricula novaMatricula = new(periodoCurso, modalidadeCurso);
 
