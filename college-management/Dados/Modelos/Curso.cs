@@ -9,9 +9,10 @@ public class Curso : Modelo
 {
 	public Curso(string nome) : base(nome) { }
 
-	public ICollection<Aluno>     Alunos     { get; set; } = [];
-	public ICollection<Materia>   Materias   { get; set; } = [];
-	public ICollection<Matricula> Matriculas { get; set; } = [];
+	public ICollection<Aluno>           Alunos             { get; set; } = [];
+	public ICollection<Materia>         Materias           { get; set; } = [];
+	public ICollection<Matricula>       Matriculas         { get; set; } = [];
+	public ICollection<GradeCurricular> GradesCurriculares { get; set; } = [];
 
 	[NotMapped]
 	public uint CargaHoraria => (uint)Materias.Sum(m => m.CargaHoraria);

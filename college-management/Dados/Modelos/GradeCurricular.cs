@@ -6,8 +6,10 @@ namespace college_management.Dados.Modelos;
 
 public class GradeCurricular : IRastreavel
 {
-	public uint    CursoId   { get; set; }
-	public uint    MateriaId { get; set; }
-	public uint?   GestorId  { get; set; }
-	public Gestor? Gestor    { get; set; }
+	public uint     CursoId   { get; set; }
+	public Curso?   Curso     { get; set; }
+	public uint     MateriaId { get; set; }
+	public Materia? Materia   { get; set; }
+	public uint?    GestorId  { get; set; }
+	public Gestor?  Gestor    { get; set; }
 }
