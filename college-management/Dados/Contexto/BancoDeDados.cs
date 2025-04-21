@@ -18,6 +18,7 @@ public class BancoDeDados : DbContext
 	public DbSet<GradeCurricular> GradeCurricular { get; set; }
 	public DbSet<Matricula>       Matriculas      { get; set; }
 	public DbSet<Turma>           Turmas          { get; set; }
+	public DbSet<TurmaAluno>           TurmaAluno          { get; set; }
 	public DbSet<Usuario>         Usuarios        { get; set; }
 
 
