@@ -35,6 +35,7 @@ public class BancoDeDados : DbContext
 		       .HasForeignKey(modelo => modelo.GestorId);
 
 		#region Turma
+
 		builder.Entity<Docente>()
 		       .HasMany<Turma>()
 		       .WithOne(turma => turma.Docente)
@@ -49,9 +50,37 @@ public class BancoDeDados : DbContext
 		       .HasOne<Materia>()
 		       .WithMany(materia => materia.Turmas)
 		       .HasForeignKey(turma => turma.MateriaId);
+
 		#endregion
-		
-		
+
+		#region Materia
+
+		builder.Entity<Materia>()
+		       .HasMany<Aluno>()
+		       .WithMany(aluno => aluno.Materias)
+		       .UsingEntity<Avaliacao>();
+
+		builder.Entity<Materia>()
+		       .HasMany<Docente>()
+		       .WithMany(docente => docente.Materias)
+		       .UsingEntity<CorpoDocente>();
+
+		builder.Entity<Materia>()
+		       .HasMany<Curso>()
+		       .WithMany(curso => curso.Materias)
+		       .UsingEntity<GradeCurricular>();
+
+		#endregion
+
+		#region Curso
+
+		builder.Entity<Curso>()
+		       .HasMany<Aluno>()
+		       .WithMany(aluno => aluno.Cursos)
+		       .UsingEntity<Matricula>();
+
+		#endregion
+
 		base.OnModelCreating(builder);
 	}
 }
