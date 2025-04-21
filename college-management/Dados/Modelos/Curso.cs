@@ -9,7 +9,7 @@ public class Curso : Modelo
 {
 	public Curso(string nome) : base(nome) { }
 
-	public ICollection<Aluno>   Alunos   { get; }      = [];
+	public ICollection<Aluno>   Alunos   { get; set;  } = [];
 	public ICollection<Materia> Materias { get; set; } = [];
 
 	[NotMapped]

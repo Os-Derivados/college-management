@@ -12,6 +12,7 @@ public class Gestor : Usuario
 	public Cargo Cargo { get; set; }
 
 	public ICollection<Modelo> Modelos { get; } = [];
+	public ICollection<Rastreavel> Rastreaveis { get; } = [];
 }
 
 public enum Cargo
