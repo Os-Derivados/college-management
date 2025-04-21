@@ -11,16 +11,14 @@ public class BancoDeDados : DbContext
 	{
 	}
 
-	public DbSet<Aluno>           Alunos          { get; set; }
-	public DbSet<Docente>         Docentes        { get; set; }
 	public DbSet<Curso>           Cursos          { get; set; }
 	public DbSet<Materia>         Materias        { get; set; }
 	public DbSet<Avaliacao>       Avaliacoes      { get; set; }
 	public DbSet<CorpoDocente>    CorpoDocente    { get; set; }
-	public DbSet<Gestor>          Gestores        { get; set; }
 	public DbSet<GradeCurricular> GradeCurricular { get; set; }
 	public DbSet<Matricula>       Matriculas      { get; set; }
 	public DbSet<Turma>           Turmas          { get; set; }
+	public DbSet<Usuario>         Usuarios        { get; set; }
 
 
 	protected override void OnModelCreating(ModelBuilder builder)
@@ -33,11 +31,21 @@ public class BancoDeDados : DbContext
 		       .HasOne<Gestor>()
 		       .WithMany(gestor => gestor.Modelos)
 		       .HasForeignKey(modelo => modelo.GestorId);
-		
+
 		builder.Entity<Rastreavel>()
 		       .HasOne<Gestor>()
 		       .WithMany(gestor => gestor.Rastreaveis)
 		       .HasForeignKey(modelo => modelo.GestorId);
+		
+		#region Usuario
+		// Tipos de usuário, como Docente, Gestor e Aluno ficarão na mesma tabela "Usuarios",
+		// Sendo distinguidos através do campo "TipoUsuario"
+		builder.Entity<Usuario>()
+		       .HasDiscriminator<string>("TipoUsuario")
+		       .HasValue<Gestor>("Gestor")
+		       .HasValue<Docente>("Docente")
+		       .HasValue<Aluno>("Aluno");
+		#endregion
 
 		#region Turma
 
