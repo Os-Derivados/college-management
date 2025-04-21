@@ -51,19 +51,7 @@ public class BancoDeDados : DbContext
 		       .HasOne<Gestor>()
 		       .WithMany(gestor => gestor.Grades)
 		       .HasForeignKey(modelo => modelo.GestorId);
-
-		#region Usuario
-
-		// Tipos de usuário, como Docente, Gestor e Aluno ficarão na mesma tabela "Usuarios",
-		// Sendo distinguidos através do campo "TipoUsuario"
-		builder.Entity<Usuario>()
-		       .HasDiscriminator<string>("TipoUsuario")
-		       .HasValue<Gestor>("Gestor")
-		       .HasValue<Docente>("Docente")
-		       .HasValue<Aluno>("Aluno");
-
-		#endregion
-
+		
 		#region Turma
 
 		builder.Entity<Docente>()
