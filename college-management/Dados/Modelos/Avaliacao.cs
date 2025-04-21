@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 namespace college_management.Dados.Modelos;
 
 
-public class Avaliacao
+public class Avaliacao : IRastreavel
 {
 	[MinLength(0)]
 	[MaxLength(10)]
@@ -22,8 +22,10 @@ public class Avaliacao
 	[DefaultValue(StatusAvaliacao.EmAndamento)]
 	public StatusAvaliacao Status { get; set; }
 
-	public uint AlunoId   { get; set; }
-	public uint MateriaId { get; set; }
+	public uint    AlunoId   { get; set; }
+	public uint    MateriaId { get; set; }
+	public uint?   GestorId  { get; set; }
+	public Gestor? Gestor    { get; set; }
 }
 
 public enum StatusAvaliacao

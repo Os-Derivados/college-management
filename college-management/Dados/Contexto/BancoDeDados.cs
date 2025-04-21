@@ -18,7 +18,7 @@ public class BancoDeDados : DbContext
 	public DbSet<GradeCurricular> GradeCurricular { get; set; }
 	public DbSet<Matricula>       Matriculas      { get; set; }
 	public DbSet<Turma>           Turmas          { get; set; }
-	public DbSet<TurmaAluno>           TurmaAluno          { get; set; }
+	public DbSet<TurmaAluno>      TurmaAluno      { get; set; }
 	public DbSet<Usuario>         Usuarios        { get; set; }
 
 
@@ -26,19 +26,34 @@ public class BancoDeDados : DbContext
 	{
 		// Cada modelo terá a sua própria tabela: Table per Concrete Type
 		builder.Entity<Modelo>().UseTpcMappingStrategy();
-		builder.Entity<Rastreavel>().UseTpcMappingStrategy();
 
 		builder.Entity<Modelo>()
 		       .HasOne<Gestor>()
 		       .WithMany(gestor => gestor.Modelos)
 		       .HasForeignKey(modelo => modelo.GestorId);
 
-		builder.Entity<Rastreavel>()
+		builder.Entity<CorpoDocente>()
 		       .HasOne<Gestor>()
-		       .WithMany(gestor => gestor.Rastreaveis)
+		       .WithMany(gestor => gestor.CorposDocentes)
 		       .HasForeignKey(modelo => modelo.GestorId);
-		
+
+		builder.Entity<Matricula>()
+		       .HasOne<Gestor>()
+		       .WithMany(gestor => gestor.Matriculas)
+		       .HasForeignKey(modelo => modelo.GestorId);
+
+		builder.Entity<Avaliacao>()
+		       .HasOne<Gestor>()
+		       .WithMany(gestor => gestor.Avaliacoes)
+		       .HasForeignKey(modelo => modelo.GestorId);
+
+		builder.Entity<GradeCurricular>()
+		       .HasOne<Gestor>()
+		       .WithMany(gestor => gestor.Grades)
+		       .HasForeignKey(modelo => modelo.GestorId);
+
 		#region Usuario
+
 		// Tipos de usuário, como Docente, Gestor e Aluno ficarão na mesma tabela "Usuarios",
 		// Sendo distinguidos através do campo "TipoUsuario"
 		builder.Entity<Usuario>()
@@ -46,6 +61,7 @@ public class BancoDeDados : DbContext
 		       .HasValue<Gestor>("Gestor")
 		       .HasValue<Docente>("Docente")
 		       .HasValue<Aluno>("Aluno");
+
 		#endregion
 
 		#region Turma
@@ -88,10 +104,26 @@ public class BancoDeDados : DbContext
 
 		#region Curso
 
+		builder.Entity<Matricula>()
+		       .HasKey(m => new { m.CursoId, m.AlunoId }); // Composite key
+
+		builder.Entity<Matricula>()
+		       .HasOne(m => m.Curso)
+		       .WithMany(c => c.Matriculas)
+		       .HasForeignKey(m => m.CursoId);
+
+		builder.Entity<Matricula>()
+		       .HasOne(m => m.Aluno)
+		       .WithMany(a => a.Matriculas)
+		       .HasForeignKey(m => m.AlunoId);
+
+		// Ensure the many-to-many relationship is explicitly defined
 		builder.Entity<Curso>()
-		       .HasMany<Aluno>()
-		       .WithMany(aluno => aluno.Cursos)
-		       .UsingEntity<Matricula>();
+		       .HasMany(c => c.Alunos)
+		       .WithMany(a => a.Cursos)
+		       .UsingEntity<Matricula>(
+			       j => j.HasOne(m => m.Aluno).WithMany(a => a.Matriculas),
+			       j => j.HasOne(m => m.Curso).WithMany(c => c.Matriculas));
 
 		#endregion
 
