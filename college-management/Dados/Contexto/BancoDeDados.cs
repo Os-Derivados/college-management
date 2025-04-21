@@ -72,14 +72,29 @@ public class BancoDeDados : DbContext
 		       .HasForeignKey(turma => turma.DocenteId);
 
 		builder.Entity<Turma>()
-		       .HasMany<Aluno>()
-		       .WithMany(aluno => aluno.Turmas)
-		       .UsingEntity<TurmaAluno>();
-
-		builder.Entity<Turma>()
 		       .HasOne<Materia>()
 		       .WithMany(materia => materia.Turmas)
 		       .HasForeignKey(turma => turma.MateriaId);
+
+		builder.Entity<TurmaAluno>()
+		       .HasKey(ta => new { ta.TurmaId, ta.AlunoId });
+
+		builder.Entity<TurmaAluno>()
+		       .HasOne(ta => ta.Turma)
+		       .WithMany(t => t.TurmaAlunos)
+		       .HasForeignKey(ta => ta.TurmaId);
+
+		builder.Entity<TurmaAluno>()
+		       .HasOne(ta => ta.Aluno)
+		       .WithMany(t => t.TurmaAlunos)
+		       .HasForeignKey(ta => ta.AlunoId);
+
+		builder.Entity<Turma>()
+		       .HasMany(t => t.Alunos)
+		       .WithMany(a => a.Turmas)
+		       .UsingEntity<TurmaAluno>(
+			       j => j.HasOne(ta => ta.Aluno).WithMany(a => a.TurmaAlunos),
+			       j => j.HasOne(ta => ta.Turma).WithMany(t => t.TurmaAlunos));
 
 		#endregion
 
