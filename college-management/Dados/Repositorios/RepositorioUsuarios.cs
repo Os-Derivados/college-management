@@ -68,6 +68,6 @@ public class RepositorioUsuarios : Repositorio<Usuario>, IRepositorioUsuarios
 		var obterPorId    = ObterPorId(modelo.Id);
 
 		return obterPorLogin.Status is StatusResposta.Sucesso
-		       || obterPorId.Status is StatusResposta.Sucesso;
+		       && obterPorId.Status is StatusResposta.Sucesso;
 	}
 }
