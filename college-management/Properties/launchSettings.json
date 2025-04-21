@@ -1,8 +1,12 @@
 {
   "profiles": {
-    "college-management": {
+    "seed": {
       "commandName": "Project",
       "commandLineArgs": "false true"
+    },
+    "no-seed": {
+      "commandName": "Project",
+      "commandLineArgs": "false false"
     }
   }
 }
