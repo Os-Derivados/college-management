@@ -19,8 +19,9 @@ public class BancoDeDados : DbContext
 	public DbSet<Matricula>       Matriculas      { get; set; }
 	public DbSet<Turma>           Turmas          { get; set; }
 	public DbSet<TurmaAluno>      TurmaAluno      { get; set; }
-	public DbSet<Usuario>         Usuarios        { get; set; }
-
+	public DbSet<Aluno>           Alunos          { get; set; }
+	public DbSet<Docente>         Docentes        { get; set; }
+	public DbSet<Gestor>          Gestores        { get; set; }
 
 	protected override void OnModelCreating(ModelBuilder builder)
 	{
@@ -51,7 +52,7 @@ public class BancoDeDados : DbContext
 		       .HasOne<Gestor>()
 		       .WithMany(gestor => gestor.Grades)
 		       .HasForeignKey(modelo => modelo.GestorId);
-		
+
 		#region Turma
 
 		builder.Entity<Docente>()
