@@ -40,6 +40,28 @@ public class RepositorioUsuarios : Repositorio<Usuario>, IRepositorioUsuarios
 		                                  StatusResposta.Sucesso);
 	}
 
+	public RespostaRecurso<IEnumerable<Aluno>> ObterPorTurma(uint turmaId)
+	{
+		var existe = BancoDeDados.Turmas.Any(turma => turma.Id == turmaId);
+
+		if (!existe)
+		{
+			return new RespostaRecurso<IEnumerable<Aluno>>(null,
+				StatusResposta.ErroNaoEncontrado);
+		}
+
+		var idAlunos = BancoDeDados.TurmaAluno
+		                           .Where(turmaAluno =>
+			                                  turmaAluno.TurmaId == turmaId)
+		                           .Select(turma => turma.AlunoId);
+
+		var alunos = Dados.Where(usuario => idAlunos.Contains(usuario.Id))
+		                  .Select(usuario => (Aluno)usuario);
+
+		return new RespostaRecurso<IEnumerable<Aluno>>(alunos,
+			StatusResposta.Sucesso);
+	}
+
 	public override bool Existe(Usuario modelo)
 	{
 		var obterPorLogin = ObterPorLogin(modelo.Login!);
