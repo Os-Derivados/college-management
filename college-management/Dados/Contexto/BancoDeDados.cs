@@ -104,10 +104,29 @@ public class BancoDeDados : DbContext
 			       j => j.HasOne(m => m.Aluno).WithMany(a => a.Avaliacoes),
 			       j => j.HasOne(m => m.Materia).WithMany(m => m.Avaliacoes));
 
-		builder.Entity<Materia>()
-		       .HasMany<Docente>()
-		       .WithMany(docente => docente.Materias)
-		       .UsingEntity<CorpoDocente>();
+		builder.Entity<CorpoDocente>()
+		       .HasKey(cd => new
+			               { cd.DocenteId, cd.MateriaId }); // Composite key
+
+		builder.Entity<CorpoDocente>()
+		       .HasOne(cd => cd.Docente)
+		       .WithMany(d => d.CorpoDocente)
+		       .HasForeignKey(cd => cd.DocenteId);
+
+		builder.Entity<CorpoDocente>()
+		       .HasOne(cd => cd.Materia)
+		       .WithMany(m => m.CorpoDocente)
+		       .HasForeignKey(cd => cd.MateriaId);
+
+		// Explicitly define the many-to-many relationship
+		builder.Entity<Docente>()
+		       .HasMany(d => d.Materias)
+		       .WithMany(m => m.Docentes)
+		       .UsingEntity<CorpoDocente>(
+			       j => j.HasOne(cd => cd.Materia)
+			             .WithMany(m => m.CorpoDocente),
+			       j => j.HasOne(cd => cd.Docente)
+			             .WithMany(d => d.CorpoDocente));
 
 		// Configure GradeCurricular as the join table
 		builder.Entity<GradeCurricular>()
@@ -128,8 +147,10 @@ public class BancoDeDados : DbContext
 		       .HasMany(m => m.Cursos)
 		       .WithMany(c => c.Materias)
 		       .UsingEntity<GradeCurricular>(
-			       j => j.HasOne(gc => gc.Curso).WithMany(c => c.GradesCurriculares),
-			       j => j.HasOne(gc => gc.Materia).WithMany(m => m.GradesCurriculares));
+			       j => j.HasOne(gc => gc.Curso)
+			             .WithMany(c => c.GradesCurriculares),
+			       j => j.HasOne(gc => gc.Materia)
+			             .WithMany(m => m.GradesCurriculares));
 
 		#endregion
 

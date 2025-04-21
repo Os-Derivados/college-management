@@ -13,6 +13,7 @@ public sealed class Materia : Modelo
 	public ICollection<Docente>         Docentes           { get; set; } = [];
 	public ICollection<Avaliacao>       Avaliacoes         { get; set; } = [];
 	public ICollection<GradeCurricular> GradesCurriculares { get; set; } = [];
+	public ICollection<CorpoDocente>    CorpoDocente       { get; set; } = [];
 
 
 	public override string ToString()
