@@ -26,14 +26,32 @@ public class BancoDeDados : DbContext
 
 	protected override void OnModelCreating(ModelBuilder builder)
 	{
-		// Cada modelo terá a sua própria tabela
+		// Cada modelo terá a sua própria tabela: Table per Concrete Type
 		builder.Entity<Rastreavel>().UseTpcMappingStrategy();
-		
+
 		builder.Entity<Rastreavel>()
 		       .HasOne<Gestor>()
 		       .WithMany(gestor => gestor.Modelos)
 		       .HasForeignKey(modelo => modelo.GestorId);
 
+		#region Turma
+		builder.Entity<Docente>()
+		       .HasMany<Turma>()
+		       .WithOne(turma => turma.Docente)
+		       .HasForeignKey(turma => turma.DocenteId);
+
+		builder.Entity<Turma>()
+		       .HasMany<Aluno>()
+		       .WithMany(aluno => aluno.Turmas)
+		       .UsingEntity<TurmaAluno>();
+
+		builder.Entity<Turma>()
+		       .HasOne<Materia>()
+		       .WithMany(materia => materia.Turmas)
+		       .HasForeignKey(turma => turma.MateriaId);
+		#endregion
+		
+		
 		base.OnModelCreating(builder);
 	}
 }
