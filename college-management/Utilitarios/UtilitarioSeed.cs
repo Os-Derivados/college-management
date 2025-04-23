@@ -41,7 +41,7 @@ public static class UtilitarioSeed
 			novoMestre.GerarCredenciais(senhaMestre);
 			context.Gestores.Add(novoMestre);
 
-			await context.SaveChangesAsync();
+			context.SaveChanges();
 
 			context.Entry(novoMestre).State = EntityState.Detached;
 
@@ -50,14 +50,13 @@ public static class UtilitarioSeed
 				// Após salvar, atualizamos o GestorId com o próprio Id
 				Gestor mestreComFk = new(novoMestre.Login, novoMestre.Nome)
 				{
-					GestorId = novoMestre.Id,
-					Cargo    = novoMestre.Cargo
+					Cargo = novoMestre.Cargo
 				};
 
 				mestreComFk.GerarCredenciais(senhaMestre);
 				context.Gestores.Update(mestreComFk);
 
-				await context.SaveChangesAsync();
+				context.Salvar(novoMestre.Login);
 
 				// Reativar chaves estrangeiras
 				await context.Database.ExecuteSqlRawAsync(
@@ -85,14 +84,13 @@ public static class UtilitarioSeed
 			if (!await context.Docentes.AnyAsync(
 				    u => u.Login == "docente.teste"))
 			{
-				var docenteTeste = new Docente("docente.teste", "Docente Teste")
-				{
-					GestorId = mestre.Id
-				};
+				var docenteTeste
+					= new Docente("docente.teste", "Docente Teste");
 
 				docenteTeste.GerarCredenciais("senhaTeste");
 				context.Docentes.Add(docenteTeste);
-				await context.SaveChangesAsync();
+
+				context.Salvar(mestre.Login!);
 
 				context.Entry(docenteTeste).State = EntityState.Detached;
 			}
@@ -105,14 +103,12 @@ public static class UtilitarioSeed
 
 			if (!await context.Alunos.AnyAsync(u => u.Login == loginTeste))
 			{
-				var alunoTeste = new Aluno(loginTeste, nomeTeste)
-				{
-					GestorId = mestre.Id
-				};
+				var alunoTeste = new Aluno(loginTeste, nomeTeste);
 
 				alunoTeste.GerarCredenciais(senhaTeste);
 				context.Alunos.Add(alunoTeste);
-				await context.SaveChangesAsync();
+
+				context.Salvar(mestre.Login!);
 
 				context.Entry(alunoTeste).State = EntityState.Detached;
 			}
@@ -120,12 +116,9 @@ public static class UtilitarioSeed
 			// Adicionar curso teste
 			if (!await context.Cursos.AnyAsync(c => c.Nome == "Curso Teste"))
 			{
-				var cursoTeste = new Curso("Curso Teste")
-				{
-					GestorId = mestre.Id
-				};
+				var cursoTeste = new Curso("Curso Teste");
 				context.Cursos.Add(cursoTeste);
-				await context.SaveChangesAsync();
+				context.Salvar(mestre.Login!);
 
 				context.Entry(cursoTeste).State = EntityState.Detached;
 			}
@@ -137,10 +130,10 @@ public static class UtilitarioSeed
 				var materiaTeste = new Materia("Matéria Teste")
 				{
 					CargaHoraria = 40,
-					GestorId     = mestre.Id
 				};
+
 				context.Materias.Add(materiaTeste);
-				await context.SaveChangesAsync();
+				context.Salvar(mestre.Login!);
 
 				context.Entry(materiaTeste).State = EntityState.Detached;
 			}

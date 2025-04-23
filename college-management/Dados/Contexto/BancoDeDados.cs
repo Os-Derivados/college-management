@@ -176,4 +176,28 @@ public class BancoDeDados : DbContext
 
 		base.OnModelCreating(builder);
 	}
+
+	public int Salvar(string userLogin)
+	{
+		var entries = ChangeTracker.Entries()
+		                           .Where(e => e.State is EntityState.Added
+			                                  or EntityState.Modified);
+
+		foreach (var entry in entries)
+		{
+			if (entry.State == EntityState.Added)
+			{
+				entry.Property("CriadoPor").CurrentValue = userLogin;
+			}
+
+			entry.Property("EditadoPor").CurrentValue = userLogin;
+		}
+
+		return base.SaveChanges();
+	}
+
+	public override int SaveChanges()
+	{
+		return Salvar("System");
+	}
 }

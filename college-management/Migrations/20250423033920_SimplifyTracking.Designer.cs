@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using college_management.Dados.Contexto;
 
@@ -10,9 +11,11 @@ using college_management.Dados.Contexto;
 namespace college_management.Migrations
 {
     [DbContext(typeof(BancoDeDados))]
-    partial class BancoDeDadosModelSnapshot : ModelSnapshot
+    [Migration("20250423033920_SimplifyTracking")]
+    partial class SimplifyTracking
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.14");
