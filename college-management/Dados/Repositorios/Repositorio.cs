@@ -33,7 +33,7 @@ public abstract class Repositorio<T> : IRepositorio<T> where T : Modelo
 
 	public RespostaRecurso<IEnumerable<T>> ObterTodos()
 	{
-		var registros = Dados.ToList();
+		var registros = Dados.AsNoTracking().ToList();
 
 		return new RespostaRecurso<IEnumerable<T>>(registros,
 		                                           StatusResposta.Sucesso);
@@ -41,7 +41,7 @@ public abstract class Repositorio<T> : IRepositorio<T> where T : Modelo
 
 	public RespostaRecurso<T> ObterPorId(uint id)
 	{
-		var registro = Dados.Find(id);
+		var registro = Dados.AsNoTracking().FirstOrDefault(r => r.Id == id);
 
 		return registro is null
 			? new RespostaRecurso<T>(null, StatusResposta.ErroNaoEncontrado)
@@ -50,7 +50,7 @@ public abstract class Repositorio<T> : IRepositorio<T> where T : Modelo
 
 	public RespostaRecurso<T> ObterPorNome(string? nome)
 	{
-		var registro = Dados.FirstOrDefault(r => r.Nome == nome);
+		var registro = Dados.AsNoTracking().FirstOrDefault(r => r.Nome == nome);
 
 		return registro is null
 			? new RespostaRecurso<T>(null, StatusResposta.ErroNaoEncontrado)
@@ -89,11 +89,16 @@ public abstract class Repositorio<T> : IRepositorio<T> where T : Modelo
 	public async Task<RespostaRecurso<IEnumerable<T>>> Buscar(
 		Expression<Func<T, bool>> callback)
 	{
-		var registros = await Dados.Where(callback).ToListAsync();
+		var registros = await Dados.AsNoTracking()
+		                           .Where(callback)
+		                           .ToListAsync();
 
 		if (registros.Count == 0)
-			return new RespostaRecurso<IEnumerable<T>>(null,
+		{
+			return new RespostaRecurso<IEnumerable<T>>(
+				null,
 				StatusResposta.ErroNaoEncontrado);
+		}
 
 		return new RespostaRecurso<IEnumerable<T>>(registros,
 		                                           StatusResposta.Sucesso);

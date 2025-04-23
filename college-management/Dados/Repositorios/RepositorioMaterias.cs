@@ -1,6 +1,7 @@
 using college_management.Dados.Contexto;
 using college_management.Dados.Modelos;
 using college_management.Dados.Repositorios.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace college_management.Dados.Repositorios;
@@ -24,7 +25,7 @@ public class RepositorioMaterias : Repositorio<Materia>, IRepositorioMaterias
 	public RespostaRecurso<IEnumerable<Materia>> ObterGradeCurricular(
 		uint cursoId)
 	{
-		var existe = BancoDeDados.Cursos.Any(c => c.Id == cursoId);
+		var existe = BancoDeDados.Cursos.AsNoTracking().Any(c => c.Id == cursoId);
 
 		if (!existe)
 		{
@@ -34,10 +35,12 @@ public class RepositorioMaterias : Repositorio<Materia>, IRepositorioMaterias
 		}
 
 		var idMaterias = BancoDeDados.GradeCurricular
+		                             .AsNoTracking()
 		                             .Where(gc => gc.CursoId == cursoId)
 		                             .Select(r => r.MateriaId);
 
 		var materias = BancoDeDados.Materias
+		                           .AsNoTracking()
 		                           .Where(m => idMaterias.Contains(m.Id))
 		                           .ToList();
 

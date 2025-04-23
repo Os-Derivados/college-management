@@ -20,20 +20,23 @@ public class RepositorioUsuarios : Repositorio<Usuario>, IRepositorioUsuarios
 
 	public RespostaRecurso<Usuario> ObterPorLogin(string login)
 	{
-		var aluno = Alunos.FirstOrDefault(aluno => aluno.Login == login);
+		var aluno = Alunos.AsNoTracking()
+		                  .FirstOrDefault(aluno => aluno.Login == login);
 
 		if (aluno is not null)
 			return new RespostaRecurso<Usuario>(aluno, StatusResposta.Sucesso);
 
-		var docente
-			= Docentes.FirstOrDefault(docente => docente.Login == login);
+		var docente = Docentes.AsNoTracking()
+		                      .FirstOrDefault(
+			                      docente => docente.Login == login);
 
 		if (docente is not null)
 			return new RespostaRecurso<Usuario>(
 				docente,
 				StatusResposta.Sucesso);
 
-		var gestor = Gestores.FirstOrDefault(gestor => gestor.Login == login);
+		var gestor = Gestores.AsNoTracking()
+		                     .FirstOrDefault(gestor => gestor.Login == login);
 
 		if (gestor is not null)
 			return new RespostaRecurso<Usuario>(gestor, StatusResposta.Sucesso);
@@ -53,7 +56,8 @@ public class RepositorioUsuarios : Repositorio<Usuario>, IRepositorioUsuarios
 			                                  StatusResposta.ErroNaoEncontrado);
 		}
 
-		var usuario = Dados.FirstOrDefault(usuario => usuario.Id == id);
+		var usuario = Dados.AsNoTracking()
+		                   .FirstOrDefault(usuario => usuario.Id == id);
 
 		return new RespostaRecurso<Aluno>((Aluno)usuario!,
 		                                  StatusResposta.Sucesso);
@@ -61,7 +65,8 @@ public class RepositorioUsuarios : Repositorio<Usuario>, IRepositorioUsuarios
 
 	public RespostaRecurso<IEnumerable<Aluno>> ObterPorTurma(uint turmaId)
 	{
-		var existe = BancoDeDados.Turmas.Any(turma => turma.Id == turmaId);
+		var existe = BancoDeDados.Turmas.AsNoTracking()
+		                         .Any(turma => turma.Id == turmaId);
 
 		if (!existe)
 		{
@@ -69,12 +74,13 @@ public class RepositorioUsuarios : Repositorio<Usuario>, IRepositorioUsuarios
 				StatusResposta.ErroNaoEncontrado);
 		}
 
-		var idAlunos = BancoDeDados.TurmaAluno
+		var idAlunos = BancoDeDados.TurmaAluno.AsNoTracking()
 		                           .Where(turmaAluno =>
 			                                  turmaAluno.TurmaId == turmaId)
 		                           .Select(turma => turma.AlunoId);
 
-		var alunos = Dados.Where(usuario => idAlunos.Contains(usuario.Id))
+		var alunos = Dados.AsNoTracking()
+		                  .Where(usuario => idAlunos.Contains(usuario.Id))
 		                  .Select(usuario => (Aluno)usuario);
 
 		return new RespostaRecurso<IEnumerable<Aluno>>(alunos,
