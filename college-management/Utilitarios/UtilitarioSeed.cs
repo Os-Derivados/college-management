@@ -43,6 +43,8 @@ public static class UtilitarioSeed
 
 			await context.SaveChangesAsync();
 
+			context.Entry(novoMestre).State = EntityState.Detached;
+
 			try
 			{
 				// Após salvar, atualizamos o GestorId com o próprio Id
@@ -68,8 +70,6 @@ public static class UtilitarioSeed
 
 				throw;
 			}
-
-			context.Entry(novoMestre).State = EntityState.Detached;
 		}
 
 		// 3. Recarregar o gestor mestre para usar como referência
