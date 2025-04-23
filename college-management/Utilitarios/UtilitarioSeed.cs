@@ -50,10 +50,11 @@ public static class UtilitarioSeed
 				// Após salvar, atualizamos o GestorId com o próprio Id
 				Gestor mestreComFk = new(novoMestre.Login, novoMestre.Nome)
 				{
-					GestorId = novoMestre.Id
+					GestorId = novoMestre.Id,
+					Cargo    = novoMestre.Cargo
 				};
 
-				mestreComFk.GerarCredenciais(novoMestre.Senha);
+				mestreComFk.GerarCredenciais(senhaMestre);
 				context.Gestores.Update(mestreComFk);
 
 				await context.SaveChangesAsync();
