@@ -53,6 +53,7 @@ public static class UtilitarioSeed
 					GestorId = novoMestre.Id
 				};
 
+				mestreComFk.GerarCredenciais(novoMestre.Senha);
 				context.Gestores.Update(mestreComFk);
 
 				await context.SaveChangesAsync();
