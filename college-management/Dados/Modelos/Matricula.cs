@@ -51,8 +51,8 @@ public sealed class Matricula : IRastreavel
 		return novaMatricula;
 	}
 
-	public uint?   GestorId { get; set; }
-	public Gestor? Gestor   { get; set; }
+	public string? CriadoPor  { get; set; }
+	public string? EditadoPor { get; set; }
 }
 
 public enum Modalidade

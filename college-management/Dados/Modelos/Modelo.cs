@@ -17,6 +17,7 @@ public abstract class Modelo : IRastreavel
 	[Key]
 	public uint Id { get; set; }
 
-	public uint?   GestorId { get; set; }
-	public Gestor? Gestor   { get; set; }
+
+	public string? CriadoPor  { get; set; }
+	public string? EditadoPor { get; set; }
 }

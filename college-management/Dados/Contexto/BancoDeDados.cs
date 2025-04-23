@@ -44,31 +44,6 @@ public class BancoDeDados : DbContext
 
 		#endregion
 
-		builder.Entity<Modelo>()
-		       .HasOne<Gestor>()
-		       .WithMany(gestor => gestor.Modelos)
-		       .HasForeignKey(modelo => modelo.GestorId);
-
-		builder.Entity<CorpoDocente>()
-		       .HasOne<Gestor>()
-		       .WithMany(gestor => gestor.CorposDocentes)
-		       .HasForeignKey(modelo => modelo.GestorId);
-
-		builder.Entity<Matricula>()
-		       .HasOne<Gestor>()
-		       .WithMany(gestor => gestor.Matriculas)
-		       .HasForeignKey(modelo => modelo.GestorId);
-
-		builder.Entity<Avaliacao>()
-		       .HasOne<Gestor>()
-		       .WithMany(gestor => gestor.Avaliacoes)
-		       .HasForeignKey(modelo => modelo.GestorId);
-
-		builder.Entity<GradeCurricular>()
-		       .HasOne<Gestor>()
-		       .WithMany(gestor => gestor.Grades)
-		       .HasForeignKey(modelo => modelo.GestorId);
-
 		#region Turma
 
 		builder.Entity<Docente>()

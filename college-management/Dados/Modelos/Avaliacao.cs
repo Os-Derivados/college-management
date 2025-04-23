@@ -28,8 +28,9 @@ public class Avaliacao : IRastreavel
 	public uint     MateriaId { get; set; }
 	public Materia? Materia   { get; set; }
 
-	public uint?   GestorId { get; set; }
-	public Gestor? Gestor   { get; set; }
+
+	public string? CriadoPor  { get; set; }
+	public string? EditadoPor { get; set; }
 }
 
 public enum StatusAvaliacao
