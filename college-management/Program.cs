@@ -6,15 +6,23 @@ using college_management.Utilitarios;
 using college_management.Views;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 UtilitarioArquivos.Inicializar();
 
 var serviceCollection = new ServiceCollection();
 
 serviceCollection.AddDbContext<BancoDeDados>(options =>
-	                                             options.UseSqlite(
-			                                             $"Data Source={Path.Combine(UtilitarioArquivos.DiretorioDados, "college_management.db")}")
-		                                             .EnableSensitiveDataLogging());
+{
+	options.UseSqlite(
+		       $"Data Source={Path.Combine(UtilitarioArquivos.DiretorioDados, "college_management.db")}")
+	       .EnableSensitiveDataLogging();
+	
+	#if DEBUG
+	options.EnableSensitiveDataLogging()
+	       .LogTo(Console.WriteLine, LogLevel.Information);
+	#endif
+});
 
 serviceCollection.AddScoped<RepositorioCursos>();
 serviceCollection.AddScoped<RepositorioMaterias>();
