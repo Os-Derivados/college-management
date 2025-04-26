@@ -35,7 +35,8 @@ public class ContextoUsuarios : Contexto<Usuario>, IContextoUsuarios
 		if (confirmaCadastro is not 's') return;
 
 		var novoUsuario = Usuario.CriarUsuario(dadosUsuario!);
-
+		novoUsuario.GerarCredenciais(dadosUsuario!["Senha"]);
+		
 		var cadastroUsuario = await BaseDeDados.Usuarios.Adicionar(novoUsuario);
 
 		var foiAdicionado = cadastroUsuario.Status is StatusResposta.Sucesso;
