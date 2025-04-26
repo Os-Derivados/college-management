@@ -44,33 +44,6 @@ public static class UtilitarioSeed
 			context.SaveChanges();
 
 			context.Entry(novoMestre).State = EntityState.Detached;
-
-			try
-			{
-				// Após salvar, atualizamos o GestorId com o próprio Id
-				Gestor mestreComFk = new(novoMestre.Login, novoMestre.Nome)
-				{
-					Cargo = novoMestre.Cargo
-				};
-
-				mestreComFk.GerarCredenciais(senhaMestre);
-				context.Usuarios.Update(mestreComFk);
-
-				context.Salvar(novoMestre.Login);
-
-				// Reativar chaves estrangeiras
-				await context.Database.ExecuteSqlRawAsync(
-					"PRAGMA foreign_keys = ON;");
-
-				context.Entry(mestreComFk).State = EntityState.Detached;
-			}
-			catch (DbUpdateException ex)
-			{
-				Console.WriteLine(
-					$"Erro ao salvar o gestor mestre: {ex.InnerException?.Message}");
-
-				throw;
-			}
 		}
 
 		// 3. Recarregar o gestor mestre para usar como referência
