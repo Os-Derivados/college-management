@@ -9,8 +9,7 @@ namespace college_management.Dados.Modelos;
 
 public abstract class Usuario : Modelo
 {
-	protected Usuario(string login, string nome)
-			: base(nome)
+	protected Usuario(string login, string nome) : base(nome)
 	{
 		Login = login;
 		Nome  = nome;
@@ -21,11 +20,9 @@ public abstract class Usuario : Modelo
 	public string? Senha { get; set; }
 	public string? Sal   { get; set; }
 
-	public static Usuario? Autenticar(
-		RepositorioUsuarios repositorio,
-		string              loginUsuario,
-		string              senhaUsuario
-	)
+	public static Usuario? Autenticar(RepositorioUsuarios repositorio,
+	                                  string loginUsuario,
+	                                  string senhaUsuario)
 	{
 		var obterUsuario = repositorio.ObterPorLogin(loginUsuario);
 
@@ -33,8 +30,8 @@ public abstract class Usuario : Modelo
 			return null;
 
 		return obterUsuario.Modelo!.Validar(senhaUsuario)
-				? obterUsuario.Modelo
-				: null;
+			? obterUsuario.Modelo
+			: null;
 	}
 
 	public static Usuario CriarUsuario(Dictionary<string, string> cadastro)
@@ -43,23 +40,15 @@ public abstract class Usuario : Modelo
 
 		Usuario novoUsuario = tipo switch
 		{
-			TipoUsuario.Aluno => new Aluno(
-				cadastro["Login"],
-				cadastro["Nome"]
-			),
-			TipoUsuario.Docente => new Docente(
-				cadastro["Login"],
-				cadastro["Nome"]
-			),
-			TipoUsuario.Gestor => new Gestor(
-				cadastro["Login"],
-				cadastro["Nome"]
-			),
+			TipoUsuario.Aluno => new Aluno(cadastro["Login"], cadastro["Nome"]),
+			TipoUsuario.Docente => new Docente(cadastro["Login"],
+			                                   cadastro["Nome"]),
+			TipoUsuario.Gestor => new Gestor(cadastro["Login"],
+			                                 cadastro["Nome"]),
 			_ => throw new ArgumentOutOfRangeException(
 				nameof(cadastro),
 				tipo,
-				null
-			)
+				null)
 		};
 
 		return novoUsuario;
@@ -68,15 +57,15 @@ public abstract class Usuario : Modelo
 	public override string ToString()
 	{
 		return
-				$"| {Login,-16} | {Nome,-16} | {BlaCredenciais,-16} | {Id,-16} |";
+			$"| {Login,-16} | {Nome,-16} | {Crendenciais.Remove(13) + "...",-16} | {Id,-16} |";
 	}
 
 	public void GerarCredenciais(string senha, string? sal = null)
 	{
 		Sal = sal ?? UtilitarioCriptografia.GerarSal();
 		Senha = senha.Length >= 64
-				? senha
-				: UtilitarioCriptografia.CriptografarSha256(senha, Sal);
+			? senha
+			: UtilitarioCriptografia.CriptografarSha256(senha, Sal);
 	}
 
 	public bool Validar(string senha)
@@ -84,5 +73,5 @@ public abstract class Usuario : Modelo
 		return UtilitarioCriptografia.CriptografarSha256(senha, Sal) == Senha;
 	}
 
-	public string BlaCredenciais => $"{Senha}+{Sal}";
+	public string Crendenciais => $"{Senha}+{Sal}";
 }
