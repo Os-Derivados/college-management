@@ -39,7 +39,7 @@ public abstract class Usuario : Modelo
 
 	public static Usuario CriarUsuario(Dictionary<string, string> cadastro)
 	{
-		var tipo = Enum.Parse<TipoUsuario>(cadastro["TipoUsuario"]);
+		var tipo = Enum.Parse<TipoUsuario>(cadastro["Tipo"]);
 
 		Usuario novoUsuario = tipo switch
 		{
@@ -68,7 +68,7 @@ public abstract class Usuario : Modelo
 	public override string ToString()
 	{
 		return
-				$"| {Login,-16} | {Nome,-16} | {BlaCredenciais.Remove(13) + "...",-16} | {Id,-16} |";
+				$"| {Login,-16} | {Nome,-16} | {BlaCredenciais,-16} | {Id,-16} |";
 	}
 
 	public void GerarCredenciais(string senha, string? sal = null)
