@@ -13,20 +13,16 @@ public class RepositorioUsuarios : Repositorio<Usuario>, IRepositorioUsuarios
 	public RepositorioUsuarios(BancoDeDados bancoDeDados) : base(bancoDeDados)
 	{
 	}
-
-	private DbSet<Aluno>   Alunos   => BancoDeDados.Alunos;
-	private DbSet<Docente> Docentes => BancoDeDados.Docentes;
-	private DbSet<Gestor>  Gestores => BancoDeDados.Gestores;
-
+	
 	public RespostaRecurso<Usuario> ObterPorLogin(string login)
 	{
-		var aluno = Alunos.AsNoTracking()
+		var aluno = Dados.AsNoTracking()
 		                  .FirstOrDefault(aluno => aluno.Login == login);
 
 		if (aluno is not null)
 			return new RespostaRecurso<Usuario>(aluno, StatusResposta.Sucesso);
 
-		var docente = Docentes.AsNoTracking()
+		var docente = Dados.AsNoTracking()
 		                      .FirstOrDefault(
 			                      docente => docente.Login == login);
 
@@ -35,7 +31,7 @@ public class RepositorioUsuarios : Repositorio<Usuario>, IRepositorioUsuarios
 				docente,
 				StatusResposta.Sucesso);
 
-		var gestor = Gestores.AsNoTracking()
+		var gestor = Dados.AsNoTracking()
 		                     .FirstOrDefault(gestor => gestor.Login == login);
 
 		if (gestor is not null)

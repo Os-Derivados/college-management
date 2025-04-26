@@ -23,7 +23,7 @@ public static class UtilitarioSeed
 			VariaveisAmbiente.MasterAdminSenha);
 
 		// 2. Verificar se o gestor mestre já existe
-		var mestreExiste = await context.Gestores.AsNoTracking()
+		var mestreExiste = await context.Usuarios.AsNoTracking()
 		                                .AnyAsync(g => g.Login == loginMestre);
 
 		if (!mestreExiste)
@@ -39,7 +39,7 @@ public static class UtilitarioSeed
 			};
 
 			novoMestre.GerarCredenciais(senhaMestre);
-			context.Gestores.Add(novoMestre);
+			context.Usuarios.Add(novoMestre);
 
 			context.SaveChanges();
 
@@ -54,7 +54,7 @@ public static class UtilitarioSeed
 				};
 
 				mestreComFk.GerarCredenciais(senhaMestre);
-				context.Gestores.Update(mestreComFk);
+				context.Usuarios.Update(mestreComFk);
 
 				context.Salvar(novoMestre.Login);
 
@@ -74,21 +74,21 @@ public static class UtilitarioSeed
 		}
 
 		// 3. Recarregar o gestor mestre para usar como referência
-		var mestre = await context.Gestores.AsNoTracking()
+		var mestre = await context.Usuarios.AsNoTracking()
 		                          .FirstAsync(u => u.Login == loginMestre);
 
 		// 4. Adicionar as demais entidades em transações separadas
 		try
 		{
 			// Adicionar o docente teste
-			if (!await context.Docentes.AnyAsync(
+			if (!await context.Usuarios.AnyAsync(
 				    u => u.Login == "docente.teste"))
 			{
 				var docenteTeste
 					= new Docente("docente.teste", "Docente Teste");
 
 				docenteTeste.GerarCredenciais("senhaTeste");
-				context.Docentes.Add(docenteTeste);
+				context.Usuarios.Add(docenteTeste);
 
 				context.Salvar(mestre.Login!);
 
@@ -101,12 +101,12 @@ public static class UtilitarioSeed
 				VariaveisAmbiente.UsuarioTesteNome,
 				VariaveisAmbiente.UsuarioTesteSenha);
 
-			if (!await context.Alunos.AnyAsync(u => u.Login == loginTeste))
+			if (!await context.Usuarios.AnyAsync(u => u.Login == loginTeste))
 			{
 				var alunoTeste = new Aluno(loginTeste, nomeTeste);
 
 				alunoTeste.GerarCredenciais(senhaTeste);
-				context.Alunos.Add(alunoTeste);
+				context.Usuarios.Add(alunoTeste);
 
 				context.Salvar(mestre.Login!);
 
@@ -165,15 +165,15 @@ public static class UtilitarioSeed
 
 	public static async Task<bool> ValidarDadosIniciais(BancoDeDados context)
 	{
-		var existeAdmin = await context.Gestores.OfType<Gestor>()
+		var existeAdmin = await context.Usuarios.OfType<Gestor>()
 		                               .AnyAsync(
 			                               g => g.Cargo == Cargo.Administrador);
-		var existeAluno = await context.Alunos.OfType<Aluno>().AnyAsync();
+		var existeAluno = await context.Usuarios.OfType<Aluno>().AnyAsync();
 
 		var loginMestre
 			= UtilitarioAmbiente.Variaveis[VariaveisAmbiente.MasterAdminLogin];
 		var existeMestre
-			= await context.Gestores.AnyAsync(u => u.Login == loginMestre);
+			= await context.Usuarios.AnyAsync(u => u.Login == loginMestre);
 
 		var existeMateria
 			= await context.Materias.AnyAsync(m => m.Nome == "Matéria Teste");
@@ -183,7 +183,7 @@ public static class UtilitarioSeed
 		var loginTeste
 			= UtilitarioAmbiente.Variaveis[VariaveisAmbiente.UsuarioTesteLogin];
 		var existeUsuario
-			= await context.Alunos.AnyAsync(u => u.Login == loginTeste);
+			= await context.Usuarios.AnyAsync(u => u.Login == loginTeste);
 
 		return existeAdmin
 		       && existeAluno

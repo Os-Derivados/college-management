@@ -19,20 +19,18 @@ public class BancoDeDados : DbContext
 	public DbSet<Matricula>       Matriculas      { get; set; }
 	public DbSet<Turma>           Turmas          { get; set; }
 	public DbSet<TurmaAluno>      TurmaAluno      { get; set; }
-	public DbSet<Aluno>           Alunos          { get; set; }
-	public DbSet<Docente>         Docentes        { get; set; }
-	public DbSet<Gestor>          Gestores        { get; set; }
+	public DbSet<Usuario> 		Usuarios        { get; set; }
 
 	protected override void OnModelCreating(ModelBuilder builder)
 	{
-		// Cada modelo terá a sua própria tabela: Table per Concrete Type
-		builder.Entity<Modelo>().UseTpcMappingStrategy();
-
 		#region Tables
 
-		builder.Entity<Gestor>().ToTable("Gestores");
-		builder.Entity<Aluno>().ToTable("Alunos");
-		builder.Entity<Docente>().ToTable("Docentes");
+		builder.Entity<Usuario>()
+		       .HasDiscriminator<string>("Tipo")
+		       .HasValue<Aluno>("Aluno")
+		       .HasValue<Docente>("Docente")
+		       .HasValue<Gestor>("Gestor");
+		
 		builder.Entity<Curso>().ToTable("Cursos");
 		builder.Entity<Materia>().ToTable("Materias");
 		builder.Entity<CorpoDocente>().ToTable("CorposDocentes");
