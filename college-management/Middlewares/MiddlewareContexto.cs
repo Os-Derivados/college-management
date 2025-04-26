@@ -97,11 +97,9 @@ public static class MiddlewareContexto
 
 		do
 		{
-			var opcoesContextos = ObterOpcoesContextos(usuario);
-
 			MenuView menuContextos = new("Menu Contextos",
 			                             "Bem-vindo(a).",
-			                             opcoesContextos);
+			                             AcessosContexto.Contextos);
 
 			menuContextos.ConstruirLayout();
 			menuContextos.LerEntrada();
@@ -115,18 +113,11 @@ public static class MiddlewareContexto
 			if (opcaoUsuario is 0) break;
 
 			contextoEscolhido
-				= opcoesContextos[menuContextos.OpcaoEscolhida - 1];
+				= AcessosContexto.Contextos[menuContextos.OpcaoEscolhida - 1];
 			_estadoAtual = EstadoDoApp.Recurso;
 		} while (_estadoAtual is EstadoDoApp.Contexto);
 
 		return contextoEscolhido;
-	}
-
-	private static string[] ObterOpcoesContextos(Usuario usuario)
-	{
-		return usuario is Gestor
-			? AcessosContexto.ContextoEscrita
-			: AcessosContexto.ContextoLeitura;
 	}
 
 	private static bool ConfirmarSaida() =>
