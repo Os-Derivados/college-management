@@ -74,16 +74,18 @@ public abstract class Repositorio<T> : IRepositorio<T> where T : Modelo
 
 	public async Task<RespostaRecurso<T>> Remover(uint id)
 	{
-		var (modelo, statusResposta) = ObterPorId(id);
+		var modelo = Dados.FirstOrDefault(t => t.Id == id);
 
-		if (statusResposta is StatusResposta.ErroNaoEncontrado)
+		if (modelo is null)
+		{
 			return new RespostaRecurso<T>(null,
 			                              StatusResposta.ErroNaoEncontrado);
+		}
 
-		Dados.Remove(modelo!);
+		Dados.Remove(modelo);
 		await BancoDeDados.SaveChangesAsync();
 
-		return new RespostaRecurso<T>(modelo, StatusResposta.Sucesso);
+		return new RespostaRecurso<T>(null, StatusResposta.Sucesso);
 	}
 
 	public async Task<RespostaRecurso<IEnumerable<T>>> Buscar(
