@@ -20,6 +20,47 @@ public class RepositorioCursos : Repositorio<Curso>, IRepositorioCursos
 		       || obterPorId.Status is StatusResposta.Sucesso;
 	}
 
+	public override async Task<RespostaRecurso<Curso>> Adicionar(Curso modelo)
+	{
+		if (Existe(modelo))
+			return new RespostaRecurso<Curso>(modelo,
+			                                  StatusResposta.ErroDuplicata);
+
+		foreach (var materia in modelo.Materias)
+		{
+			BancoDeDados.Materias.Attach(materia);
+		}
+
+		await BancoDeDados.Cursos.AddAsync(modelo);
+		await BancoDeDados.SaveChangesAsync();
+
+		foreach (var materia in modelo.Materias)
+		{
+			// Check if the GradeCurricular entry already exists
+			var existingGrade = await BancoDeDados.GradeCurricular
+			                                      .AsNoTracking()
+			                                      .FirstOrDefaultAsync(
+				                                      gc => gc.CursoId
+					                                      == modelo.Id
+					                                      && gc.MateriaId
+					                                      == materia.Id);
+
+			if (existingGrade != null) continue;
+
+			GradeCurricular gc = new()
+			{
+				CursoId   = modelo.Id,
+				MateriaId = materia.Id
+			};
+
+			BancoDeDados.GradeCurricular.Add(gc);
+		}
+
+		await BancoDeDados.SaveChangesAsync();
+
+		return new RespostaRecurso<Curso>(modelo, StatusResposta.Sucesso);
+	}
+
 	public RespostaRecurso<Curso> ObterComMaterias(
 		uint? cursoId = null,
 		string? nomeCurso = null)
