@@ -59,13 +59,6 @@ public abstract class Repositorio<T> : IRepositorio<T> where T : Modelo
 
 	public async Task<RespostaRecurso<T>> Atualizar(T modelo)
 	{
-		var modeloAntigo = ObterPorId(modelo.Id);
-
-		if (modeloAntigo.Status is StatusResposta.ErroNaoEncontrado)
-		{
-			return await Adicionar(modelo);
-		}
-
 		Dados.Update(modelo);
 		await BancoDeDados.SaveChangesAsync();
 
