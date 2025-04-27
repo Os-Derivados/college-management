@@ -206,10 +206,12 @@ public class ContextoCursos : Contexto<Curso>, IContextoCursos
 	{
 		var (opcao, chave)
 			= new BuscaModeloView<Curso>("Buscar Curso", ["Nome"]).Buscar();
+
 		var resposta = opcao switch
 		{
-			1 => BaseDeDados.Cursos.ObterPorNome(chave),
-			2 => BaseDeDados.Cursos.ObterPorId(uint.Parse(chave)),
+			1 => BaseDeDados.Cursos.ObterComMaterias(nomeCurso: chave),
+			2 => BaseDeDados.Cursos.ObterComMaterias(
+				cursoId: uint.Parse(chave)),
 			_ => null
 		};
 
