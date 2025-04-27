@@ -85,30 +85,40 @@ public static class UtilitarioSeed
 
 				context.Entry(alunoTeste).State = EntityState.Detached;
 			}
-
-			// Adicionar curso teste
-			if (!await context.Cursos.AnyAsync(c => c.Nome == "Curso Teste"))
+	
+			// Ensure Curso Teste has Materia Teste attached
+			if (!await context.GradeCurricular.AnyAsync(gc =>
+			        gc.Curso.Nome == "Curso Teste" && gc.Materia.Nome == "Matéria Teste"))
 			{
-				var cursoTeste = new Curso("Curso Teste");
-				context.Cursos.Add(cursoTeste);
-				context.Salvar(mestre.Login!);
-
-				context.Entry(cursoTeste).State = EntityState.Detached;
-			}
-
-			// Adicionar matéria teste
-			if (!await context.Materias.AnyAsync(
-				    m => m.Nome == "Matéria Teste"))
-			{
-				var materiaTeste = new Materia("Matéria Teste")
-				{
-					CargaHoraria = 40,
-				};
-
-				context.Materias.Add(materiaTeste);
-				context.Salvar(mestre.Login!);
-
-				context.Entry(materiaTeste).State = EntityState.Detached;
+			    // Retrieve Curso Teste
+			    var cursoTeste = await context.Cursos.FirstOrDefaultAsync(c => c.Nome == "Curso Teste");
+			    if (cursoTeste == null)
+			    {
+			        cursoTeste = new Curso("Curso Teste");
+			        context.Cursos.Add(cursoTeste);
+			        await context.SaveChangesAsync();
+			    }
+			
+			    // Retrieve Materia Teste
+			    var materiaTeste = await context.Materias.FirstOrDefaultAsync(m => m.Nome == "Matéria Teste");
+			    if (materiaTeste == null)
+			    {
+			        materiaTeste = new Materia("Matéria Teste") { CargaHoraria = 40 };
+			        context.Materias.Add(materiaTeste);
+			        await context.SaveChangesAsync();
+			    }
+			
+			    // Create GradeCurricular entry
+			    var gradeCurricular = new GradeCurricular
+			    {
+			        CursoId = cursoTeste.Id,
+			        MateriaId = materiaTeste.Id,
+			        CriadoPor = mestre.Login,
+			        EditadoPor = mestre.Login
+			    };
+			
+			    context.GradeCurricular.Add(gradeCurricular);
+			    await context.SaveChangesAsync();
 			}
 		}
 		catch (DbUpdateException ex)
