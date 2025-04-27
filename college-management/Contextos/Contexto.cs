@@ -117,12 +117,12 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 		{
 			recursosDisponiveis = typeof(T).Name switch
 			{
-				nameof(Usuario) => OperacoesRecursos.RecursosEscritaUsuarios,
-				nameof(Curso)   => OperacoesRecursos.RecursosEscritaCursos,
+				nameof(Usuario) => OperacoesContextos.RecursosEscritaUsuarios,
+				nameof(Curso)   => OperacoesContextos.RecursosEscritaCursos,
 				_ =>
 				[
-					..OperacoesRecursos.RecursosLeitura,
-					..OperacoesRecursos.RecursosEscrita
+					..OperacoesContextos.RecursosLeitura,
+					..OperacoesContextos.RecursosEscrita
 				]
 			};
 
@@ -131,9 +131,9 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 
 		recursosDisponiveis = typeof(T).Name switch
 		{
-			nameof(Usuario) => OperacoesRecursos.RecursosLeituraUsuarios,
-			nameof(Curso)   => OperacoesRecursos.RecursosLeituraCursos,
-			_               => OperacoesRecursos.RecursosLeitura
+			nameof(Usuario) => OperacoesContextos.RecursosLeituraUsuarios,
+			nameof(Curso)   => OperacoesContextos.RecursosLeituraCursos,
+			_               => OperacoesContextos.RecursosLeitura
 		};
 
 		return recursosDisponiveis;
