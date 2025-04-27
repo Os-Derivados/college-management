@@ -22,9 +22,6 @@ public class ContextoUsuarios : Contexto<Usuario>, IContextoUsuarios
 
 	public override async Task Cadastrar()
 	{
-		InputView inputUsuario = new("Cadastrar Usuário");
-		inputUsuario.ConstruirLayout();
-
 		if (!ValidarPermissoes()) return;
 
 		CadastroUsuarioView cadastroUsuarioView = new();
