@@ -28,7 +28,22 @@ public class RepositorioCursos : Repositorio<Curso>, IRepositorioCursos
 
 		foreach (var materia in modelo.Materias)
 		{
-			BancoDeDados.Materias.Attach(materia);
+			// Check if the Materia is already being tracked
+			var trackedMateria = BancoDeDados.ChangeTracker.Entries<Materia>()
+			                                 .FirstOrDefault(
+				                                 e => e.Entity.Id == materia.Id)
+			                                 ?.Entity;
+
+			if (trackedMateria != null)
+			{
+				// Use the already tracked instance
+				materia.Id = trackedMateria.Id;
+			}
+			else
+			{
+				// Attach the Materia to the DbContext
+				BancoDeDados.Materias.Attach(materia);
+			}
 		}
 
 		await BancoDeDados.Cursos.AddAsync(modelo);
@@ -36,7 +51,6 @@ public class RepositorioCursos : Repositorio<Curso>, IRepositorioCursos
 
 		foreach (var materia in modelo.Materias)
 		{
-			// Check if the GradeCurricular entry already exists
 			var existingGrade = await BancoDeDados.GradeCurricular
 			                                      .AsNoTracking()
 			                                      .FirstOrDefaultAsync(
