@@ -13,32 +13,16 @@ public class RepositorioUsuarios : Repositorio<Usuario>, IRepositorioUsuarios
 	public RepositorioUsuarios(BancoDeDados bancoDeDados) : base(bancoDeDados)
 	{
 	}
-	
+
 	public RespostaRecurso<Usuario> ObterPorLogin(string login)
 	{
-		var aluno = Dados.AsNoTracking()
-		                  .FirstOrDefault(aluno => aluno.Login == login);
+		var usuario = Dados.AsNoTracking()
+		                   .FirstOrDefault(aluno => aluno.Login == login);
 
-		if (aluno is not null)
-			return new RespostaRecurso<Usuario>(aluno, StatusResposta.Sucesso);
-
-		var docente = Dados.AsNoTracking()
-		                      .FirstOrDefault(
-			                      docente => docente.Login == login);
-
-		if (docente is not null)
-			return new RespostaRecurso<Usuario>(
-				docente,
-				StatusResposta.Sucesso);
-
-		var gestor = Dados.AsNoTracking()
-		                     .FirstOrDefault(gestor => gestor.Login == login);
-
-		if (gestor is not null)
-			return new RespostaRecurso<Usuario>(gestor, StatusResposta.Sucesso);
-
-		return new RespostaRecurso<Usuario>(null,
-		                                    StatusResposta.ErroNaoEncontrado);
+		return usuario is not null
+			? new RespostaRecurso<Usuario>(usuario, StatusResposta.Sucesso)
+			: new RespostaRecurso<Usuario>(null,
+			                               StatusResposta.ErroNaoEncontrado);
 	}
 
 	public RespostaRecurso<Aluno> ObterAluno(uint id)
