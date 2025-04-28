@@ -1,14 +1,7 @@
 using System.Collections;
-using System.Reflection;
-using System.Runtime.Serialization.Json;
 using System.Text;
-using System.Text.Json;
-using college_management.Constantes;
 using college_management.Dados.Modelos;
-using college_management.Dados.Repositorios;
 using college_management.Servicos.Interfaces;
-using college_management.Utilitarios;
-using Microsoft.VisualBasic.FileIO;
 
 
 namespace college_management.Servicos;
@@ -75,21 +68,22 @@ public sealed class ServicoRelatorios<T> : IServicoRelatorios<T>
 
 		static string FormatarEnumerables(IEnumerable enumerable)
 		{
-			StringBuilder str = new();
+			StringBuilder stringLista = new();
 
 			foreach (var v in enumerable)
 			{
-				if (v is Materia m)
-					str.Append(m.Nome);
-				else
-					str.Append(v);
+				if (v is not Modelo m)
+					continue;
 
-				str.Append(',');
+				stringLista.Append(m.Nome);
+
+				stringLista.Append(',');
 			}
 
-			str.Remove(str.Length - 1, 1);
+			if (stringLista.Length > 0)
+				stringLista.Remove(stringLista.Length - 1, 1);
 
-			return str.ToString();
+			return stringLista.ToString();
 		}
 	}
 
