@@ -1,63 +1,63 @@
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+
 namespace college_management.Dados.Modelos;
 
 
-public sealed class Matricula : Modelo
+public sealed class Matricula : IRastreavel
+	
 {
-	private static long _contagemId = 10000000000;
-
-	public Matricula(int periodo,
-	                 Modalidade modalidade)
+	public Matricula(uint periodo, Modalidade modalidade)
 	{
 		Periodo    = periodo;
 		Modalidade = modalidade;
-		Id         = _contagemId.ToString();
-
-		_contagemId++;
 	}
 
-	public string?    CursoId    { get; set; }
-	public string?    AlunoId    { get; set; }
-	public int        Periodo    { get; set; }
+	public Matricula() { }
+
+	public uint? CursoId { get; set; }
+	public Curso? Curso { get; set; }
+	
+	public uint? AlunoId { get; set; }
+	public Aluno? Aluno { get; set; }
+
+	[NotMapped]
+	public string Codigo => $"{CursoId}{AlunoId}";
+
+	[Required]
+	public uint Periodo { get; set; }
+
+	[Required]
+	[DefaultValue(Modalidade.Presencial)]
 	public Modalidade Modalidade { get; set; }
-	public List<Nota> Notas      { get; set; } = [];
 
-	public void InicializarNotas(Curso curso)
+	public static Matricula CriarMatricula(Dictionary<string, string> cadastro)
 	{
-		if (curso.Id != CursoId) return;
+		var periodoValido = uint.TryParse(cadastro["Periodo"],
+		                                  out var periodoCurso);
 
-		foreach (var materia in curso.GradeCurricular)
-			Notas.Add(new Nota(materia.Nome, materia.Id));
-	}
+		if (!periodoValido) return new Matricula();
 
-	public static Matricula CriarMatricula(
-		Dictionary<string, string> cadastroUsuario)
-	{
-		var conversaoValida = int.TryParse(cadastroUsuario["Periodo"],
-		                                   out var periodoCurso);
+		var modalidadeValida = Enum.TryParse<Modalidade>(
+			cadastro["Modalidade"],
+			out var modalidadeCurso);
 
-		if (!conversaoValida) return null;
-
-		var modalidadeCurso =
-			cadastroUsuario["Modalidade"] switch
-			{
-				"Ead"        => Modalidade.Ead,
-				"Presencial" => Modalidade.Presencial,
-				"Hibrido"    => Modalidade.Hibrido,
-				_            => Modalidade.Invalido
-			};
-
-		if (modalidadeCurso is Modalidade.Invalido) return null;
+		if (!modalidadeValida) return new Matricula();
 
 		Matricula novaMatricula = new(periodoCurso, modalidadeCurso);
 
 		return novaMatricula;
 	}
+
+	public string? CriadoPor  { get; set; }
+	public string? EditadoPor { get; set; }
 }
 
 public enum Modalidade
 {
 	Presencial,
 	Ead,
-	Hibrido,
-	Invalido
+	Hibrido
 }

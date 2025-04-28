@@ -1,7 +1,7 @@
 namespace college_management.Constantes;
 
 
-public static class OperacoesRecursos
+public static class OperacoesContextos
 {
 	public static readonly string[] RecursosLeitura =
 	[
@@ -21,8 +21,7 @@ public static class OperacoesRecursos
 	[
 		..RecursosLeitura,
 		"Ver Matricula",
-		"Ver Notas",
-		"Ver Financeiro"
+		"Ver Notas"
 	];
 
 	public static readonly string[] RecursosEscritaUsuarios =
@@ -35,7 +34,6 @@ public static class OperacoesRecursos
 	public static readonly string[] RecursosLeituraCursos =
 	[
 		..RecursosLeitura,
-		"Ver Grade Horaria",
 		"Ver Grade Curricular"
 	];
 

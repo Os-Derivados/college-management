@@ -10,22 +10,20 @@ namespace college_management.Views;
 
 public class EditarUsuarioView : View, IEditarModeloView<Usuario>
 {
-	public EditarUsuarioView(Usuario usuario,
-	                         IRepositorio<Cargo> repositorioCargos)
-		: base("Editar Usuario")
+	public EditarUsuarioView(Usuario usuario) : base("Editar Usuario")
 	{
-		Usuario           = usuario;
-		RepositorioCargos = repositorioCargos;
+		Usuario = usuario;
 	}
 
-	private Usuario             Usuario           { get; }
-	private IRepositorio<Cargo> RepositorioCargos { get; }
+	private Usuario Usuario { get; set; }
 
 	public Usuario Editar()
 	{
-		MenuView camposEditaveis = new("Editar Usuário",
-		                               "Selecione um dos campos para editar.",
-		                               ["Nome", "Senha", "Cargo"]);
+		MenuView camposEditaveis = new(
+			"Editar Usuário",
+			"Selecione um dos campos para editar.",
+			["Nome", "Senha", "Tipo"]
+		);
 
 		camposEditaveis.ConstruirLayout();
 		camposEditaveis.LerEntrada();
@@ -37,7 +35,7 @@ public class EditarUsuarioView : View, IEditarModeloView<Usuario>
 			var indiceOpcao    = camposEditaveis.OpcaoEscolhida;
 			var opcaoEscolhida = camposEditaveis.Opcoes[indiceOpcao - 1];
 			var mensagemCampo
-				= $"Insira um novo valor para \"{opcaoEscolhida}\": ";
+					= $"Insira um novo valor para \"{opcaoEscolhida}\": ";
 
 			InputView inputEdicao = new("Editar Usuário");
 			inputEdicao.LerEntrada(opcaoEscolhida, mensagemCampo);
@@ -50,51 +48,72 @@ public class EditarUsuarioView : View, IEditarModeloView<Usuario>
 
 					break;
 				}
+
 				case 2:
 				{
-					Usuario.Credenciais
-						= new CredenciaisUsuario(
-							inputEdicao.ObterEntrada("Senha"));
+					Usuario.GerarCredenciais(inputEdicao.ObterEntrada("Senha"));
 
 					break;
 				}
+
 				case 3:
 				{
-					var cargoInserido = RepositorioCargos.ObterPorNome(
-						inputEdicao.ObterEntrada("Cargo"));
-
-					if (cargoInserido.Status is StatusResposta.ErroNaoEncontrado)
+					var tipoInserido = inputEdicao.ObterEntrada("Tipo") switch
 					{
-						inputEdicao.LerEntrada(
-							"Erro",
-							"Cargo Inválido. Pressione [Enter] para continuar.");
+						"Aluno"   => typeof(Aluno),
+						"Docente" => typeof(Docente),
+						"Gestor"  => typeof(Gestor),
+						_         => null
+					};
+
+					if (tipoInserido is null)
+					{
+						Aviso("[Erro] Tipo inválido. Tente novamente.");
 
 						break;
 					}
 
-					Usuario.CargoId = cargoInserido.Modelo!.Id!;
+					Usuario = tipoInserido switch
+					{
+						_ when tipoInserido == typeof(Aluno) => new Aluno(
+							Usuario.Login!,
+							Usuario.Nome!
+						),
+						_ when tipoInserido == typeof(Docente) => new Docente(
+							Usuario.Login!,
+							Usuario.Nome!
+						),
+						_ when tipoInserido == typeof(Gestor) => new Gestor(
+							Usuario.Login!,
+							Usuario.Nome!
+						),
+						_ => throw new ArgumentOutOfRangeException()
+					};
 
 					break;
 				}
 			}
 
-			DetalhesView detalhesUsuario = new("Editar Usuário",
-			                                   UtilitarioTipos
-				                                   .ObterPropriedades(Usuario,
-				                                   [
-					                                   "Nome", "Senha",
-					                                   "CargoId"
-				                                   ]));
+			DetalhesView detalhesUsuario = new(
+				"Editar Usuário",
+				UtilitarioTipos
+						.ObterPropriedades(
+							Usuario,
+							["Nome", "Senha", "Tipo"]
+						)
+			);
 
 			detalhesUsuario.ConstruirLayout();
 
-			camposEditaveis = new MenuView("Editar Usuário",
-			                               $"""
-			                                {detalhesUsuario.Layout}
+			camposEditaveis = new MenuView(
+				"Editar Usuário",
+				$"""
+				 {detalhesUsuario.Layout}
 
-			                                Os campos editáveis estão abaixo.
-			                                """,
-			                               ["Nome", "Senha", "Cargo"]);
+				 Os campos editáveis estão abaixo.
+				 """,
+				["Nome", "Senha", "Tipo"]
+			);
 
 			camposEditaveis.ConstruirLayout();
 			camposEditaveis.LerEntrada();

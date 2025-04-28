@@ -7,9 +7,16 @@ namespace college_management.Dados;
 
 public sealed class BaseDeDados
 {
-	public readonly RepositorioCargos     Cargos     = new();
-	public readonly RepositorioCursos     Cursos     = new();
-	public readonly RepositorioMaterias   Materias   = new();
-	public readonly RepositorioMatriculas Matriculas = new();
-	public readonly RepositorioUsuarios   Usuarios   = new();
+	public BaseDeDados(RepositorioCursos cursos,
+	                   RepositorioMaterias materias,
+	                   RepositorioUsuarios usuarios)
+	{
+		Cursos     = cursos;
+		Materias   = materias;
+		Usuarios   = usuarios;
+	}
+
+	public readonly RepositorioCursos     Cursos;
+	public readonly RepositorioMaterias   Materias;
+	public readonly RepositorioUsuarios   Usuarios;
 }

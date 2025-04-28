@@ -1,6 +1,9 @@
 using college_management.Constantes;
 using college_management.Dados;
+using college_management.Dados.Contexto;
 using college_management.Dados.Modelos;
+using college_management.Views;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace college_management.Utilitarios;
@@ -8,134 +11,168 @@ namespace college_management.Utilitarios;
 
 public static class UtilitarioSeed
 {
-	public static async Task IniciarBaseDeDados(BaseDeDados baseDeDados)
+	public static async Task IniciarBaseDeDados(BancoDeDados context)
 	{
-		await baseDeDados
-		      .Cargos
-		      .Adicionar(new Cargo(CargosPadrao.CargoAdministradores,
-		                           [PermissoesAcesso.AcessoAdministradores]));
+		// Certifique-se de que o banco de dados está criado
+		await context.Database.EnsureCreatedAsync();
 
-		await baseDeDados.Cargos.Adicionar(
-			new Cargo(CargosPadrao.CargoGestores,
-			          [PermissoesAcesso.AcessoEscrita]));
+		// 1. Obter credenciais do gestor mestre
+		var (loginMestre, nomeMestre, senhaMestre) = ObterCredenciais(
+			VariaveisAmbiente.MasterAdminLogin,
+			VariaveisAmbiente.MasterAdminNome,
+			VariaveisAmbiente.MasterAdminSenha);
 
-		await baseDeDados
-		      .Cargos
-		      .Adicionar(new Cargo(CargosPadrao.CargoAlunos,
-		                           [PermissoesAcesso.AcessoLeitura]));
+		// 2. Verificar se o gestor mestre já existe
+		var mestreExiste = await context.Usuarios.AsNoTracking()
+		                                .AnyAsync(g => g.Login == loginMestre);
 
-		var (loginMestre, nomeMestre, senhaMestre)
-			= ObterCredenciais(VariaveisAmbiente.MasterAdminLogin,
-			                   VariaveisAmbiente.MasterAdminNome,
-			                   VariaveisAmbiente.MasterAdminSenha);
+		if (!mestreExiste)
+		{
+			// Desativar temporariamente o rastreamento de chaves estrangeiras para o SQLite
+			await context.Database.ExecuteSqlRawAsync(
+				"PRAGMA foreign_keys = OFF;");
 
-		var obterCargoAdmin = baseDeDados
-		                      .Cargos
-		                      .ObterPorNome(CargosPadrao.CargoAdministradores);
+			// Criar o gestor mestre
+			var novoMestre = new Gestor(loginMestre, nomeMestre)
+			{
+				Cargo = Cargo.Administrador
+			};
 
-		if (obterCargoAdmin.Status is StatusResposta.ErroNaoEncontrado) return;
+			novoMestre.GerarCredenciais(senhaMestre);
+			context.Usuarios.Add(novoMestre);
 
-		await baseDeDados
-		      .Usuarios
-		      .Adicionar(new Funcionario(loginMestre,
-		                                 nomeMestre,
-		                                 senhaMestre,
-		                                 obterCargoAdmin.Modelo!.Id!));
+			context.SaveChanges();
 
-		var (loginTeste, nomeTeste, senhaTeste)
-			= ObterCredenciais(VariaveisAmbiente.UsuarioTesteLogin,
-			                   VariaveisAmbiente.UsuarioTesteNome,
-			                   VariaveisAmbiente.UsuarioTesteSenha);
+			context.Entry(novoMestre).State = EntityState.Detached;
+		}
 
-		Materia materiaTeste = new("Matéria Teste", Turno.Integral, 60);
-		await baseDeDados.Materias.Adicionar(materiaTeste);
+		// 3. Recarregar o gestor mestre para usar como referência
+		var mestre = await context.Usuarios.AsNoTracking()
+		                          .FirstAsync(u => u.Login == loginMestre);
 
-		Matricula matriculaTeste = new(1, Modalidade.Presencial);
+		// 4. Adicionar as demais entidades em transações separadas
+		try
+		{
+			// Adicionar o docente teste
+			if (!await context.Usuarios.AnyAsync(
+				    u => u.Login == "docente.teste"))
+			{
+				var docenteTeste
+					= new Docente("docente.teste", "Docente Teste");
 
-		Curso cursoTeste = new("Curso Teste", [materiaTeste]);
-		(cursoTeste.MatriculasIds = []).Add(matriculaTeste.Id!);
-		await baseDeDados.Cursos.Adicionar(cursoTeste);
+				docenteTeste.GerarCredenciais("senhaTeste");
+				context.Usuarios.Add(docenteTeste);
 
+				context.Salvar(mestre.Login!);
 
-		var obterCargoAluno = baseDeDados
-		                      .Cargos
-		                      .ObterPorNome(CargosPadrao.CargoAlunos);
+				context.Entry(docenteTeste).State = EntityState.Detached;
+			}
 
-		if (obterCargoAluno.Status is StatusResposta.ErroNaoEncontrado) return;
+			// Adicionar o aluno teste
+			var (loginTeste, nomeTeste, senhaTeste) = ObterCredenciais(
+				VariaveisAmbiente.UsuarioTesteLogin,
+				VariaveisAmbiente.UsuarioTesteNome,
+				VariaveisAmbiente.UsuarioTesteSenha);
 
-		var alunoTeste = new Aluno(loginTeste,
-		                           nomeTeste,
-		                           senhaTeste,
-		                           obterCargoAluno.Modelo!.Id!,
-		                           matriculaTeste.Id!);
+			if (!await context.Usuarios.AnyAsync(u => u.Login == loginTeste))
+			{
+				var alunoTeste = new Aluno(loginTeste, nomeTeste);
 
-		var alunoCriado = await baseDeDados.Usuarios.Adicionar(alunoTeste);
+				alunoTeste.GerarCredenciais(senhaTeste);
+				context.Usuarios.Add(alunoTeste);
 
-		if (alunoCriado.Status is not StatusResposta.Sucesso) return;
+				context.Salvar(mestre.Login!);
 
-		matriculaTeste.AlunoId = alunoTeste.Id;
-		matriculaTeste.CursoId = cursoTeste.Id;
+				context.Entry(alunoTeste).State = EntityState.Detached;
+			}
+	
+			// Ensure Curso Teste has Materia Teste attached
+			if (!await context.GradeCurricular.AnyAsync(gc =>
+			        gc.Curso.Nome == "Curso Teste" && gc.Materia.Nome == "Matéria Teste"))
+			{
+			    // Retrieve Curso Teste
+			    var cursoTeste = await context.Cursos.FirstOrDefaultAsync(c => c.Nome == "Curso Teste");
+			    if (cursoTeste == null)
+			    {
+			        cursoTeste = new Curso("Curso Teste");
+			        context.Cursos.Add(cursoTeste);
+			        await context.SaveChangesAsync();
+			    }
+			
+			    // Retrieve Materia Teste
+			    var materiaTeste = await context.Materias.FirstOrDefaultAsync(m => m.Nome == "Matéria Teste");
+			    if (materiaTeste == null)
+			    {
+			        materiaTeste = new Materia("Matéria Teste") { CargaHoraria = 40 };
+			        context.Materias.Add(materiaTeste);
+			        await context.SaveChangesAsync();
+			    }
+			
+			    // Create GradeCurricular entry
+			    var gradeCurricular = new GradeCurricular
+			    {
+			        CursoId = cursoTeste.Id,
+			        MateriaId = materiaTeste.Id,
+			        CriadoPor = mestre.Login,
+			        EditadoPor = mestre.Login
+			    };
+			
+			    context.GradeCurricular.Add(gradeCurricular);
+			    await context.SaveChangesAsync();
+			}
+		}
+		catch (DbUpdateException ex)
+		{
+			Console.WriteLine(
+				$"Erro ao salvar entidades: {ex.InnerException?.Message}");
 
-		await baseDeDados.Matriculas.Adicionar(matriculaTeste);
+			throw;
+		}
+
+		View.Aviso("Banco de dados inicializado com sucesso!");
 	}
 
-	private static (string, string, CredenciaisUsuario) ObterCredenciais(
-		string login,
-		string nome,
-		string senha)
+	private static (string? loginDefault, string? nomeDefault, string?
+		senhaDefault) ObterCredenciais(string login, string nome, string senha)
 	{
-		_ = UtilitarioAmbiente
-		    .Variaveis
-		    .TryGetValue(login, out var loginDefault);
+		_ = UtilitarioAmbiente.Variaveis.TryGetValue(
+			login,
+			out var loginDefault);
+		_ = UtilitarioAmbiente.Variaveis.TryGetValue(nome, out var nomeDefault);
+		_ = UtilitarioAmbiente.Variaveis.TryGetValue(
+			senha,
+			out var senhaDefault);
 
-		_ = UtilitarioAmbiente
-		    .Variaveis
-		    .TryGetValue(nome, out var nomeDefault);
-
-		_ = UtilitarioAmbiente
-		    .Variaveis
-		    .TryGetValue(senha, out var senhaDefault);
-
-		return (loginDefault, nomeDefault,
-			new CredenciaisUsuario(senhaDefault));
+		return (loginDefault, nomeDefault, senhaDefault);
 	}
 
-	public static bool ValidarDadosIniciais(BaseDeDados baseDeDados)
+	public static async Task<bool> ValidarDadosIniciais(BancoDeDados context)
 	{
-		var cargoAdms = baseDeDados
-			.Cargos
-			.ObterPorNome(CargosPadrao.CargoAdministradores) is not
-			null;
+		var existeAdmin = await context.Usuarios.OfType<Gestor>()
+		                               .AnyAsync(
+			                               g => g.Cargo == Cargo.Administrador);
+		var existeAluno = await context.Usuarios.OfType<Aluno>().AnyAsync();
 
-		var cargoAlunos = baseDeDados
-		                  .Cargos
-		                  .ObterPorNome(CargosPadrao.CargoAlunos) is not null;
+		var loginMestre
+			= UtilitarioAmbiente.Variaveis[VariaveisAmbiente.MasterAdminLogin];
+		var existeMestre
+			= await context.Usuarios.AnyAsync(u => u.Login == loginMestre);
 
-		_ = UtilitarioAmbiente
-		    .Variaveis
-		    .TryGetValue(VariaveisAmbiente.MasterAdminNome,
-		                 out var nomeDefault);
-		var usuarioMestre = baseDeDados
-		                    .Usuarios
-		                    .ObterPorNome(nomeDefault) is not null;
+		var existeMateria
+			= await context.Materias.AnyAsync(m => m.Nome == "Matéria Teste");
+		var existeCurso
+			= await context.Cursos.AnyAsync(c => c.Nome == "Curso Teste");
 
-		var materiaTeste = baseDeDados
-		                   .Materias
-		                   .ObterPorNome("Matéria Teste") is not null;
+		var loginTeste
+			= UtilitarioAmbiente.Variaveis[VariaveisAmbiente.UsuarioTesteLogin];
+		var existeUsuario
+			= await context.Usuarios.AnyAsync(u => u.Login == loginTeste);
 
-		var cursoTeste = baseDeDados
-		                 .Cursos
-		                 .ObterPorNome("Curso Teste") is not null;
-
-		_ = UtilitarioAmbiente
-		    .Variaveis
-		    .TryGetValue(VariaveisAmbiente.UsuarioTesteLogin,
-		                 out var loginAluno);
-		var usuarioTeste = baseDeDados
-		                   .Usuarios
-		                   .ObterPorLogin(loginAluno) is not null;
-
-		return usuarioMestre & cargoAdms & cargoAlunos & cursoTeste &
-		       usuarioTeste & materiaTeste;
+		return existeAdmin
+		       && existeAluno
+		       && existeMestre
+		       && existeMateria
+		       && existeCurso
+		       && existeUsuario;
 	}
 }
