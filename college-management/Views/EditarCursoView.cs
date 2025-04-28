@@ -18,12 +18,10 @@ public class EditarCursoView : View, IEditarModeloView<Curso>
 		Curso                = curso;
 		_repositorioMaterias = repositorioMaterias;
 		_nome                = curso.Nome;
-		_gradeCurricular     = curso.Materias;
 	}
 
 	private readonly IRepositorio<Materia> _repositorioMaterias;
 	private          string?               _nome;
-	private readonly ICollection<Materia>  _gradeCurricular;
 	private          Curso                 Curso { get; }
 
 	public Curso Editar()
@@ -45,11 +43,10 @@ public class EditarCursoView : View, IEditarModeloView<Curso>
 
 			switch (camposEditaveis.OpcaoEscolhida)
 			{
-				// Nome
 				case 1:
 					EditarNome();
 					break;
-				// GradeCurricular
+
 				case 2:
 					EditarGradeCurricular();
 					break;
@@ -76,12 +73,6 @@ public class EditarCursoView : View, IEditarModeloView<Curso>
 		                .ToLower() is not "s") return Curso;
 
 		Curso.Nome = _nome;
-		Curso.Materias.Clear();
-
-		foreach (var m in _gradeCurricular)
-		{
-			Curso.Materias.Add(m);
-		}
 
 		return Curso;
 	}
@@ -94,7 +85,7 @@ public class EditarCursoView : View, IEditarModeloView<Curso>
 		detalhesCurso.Layout.AppendLine($"Nome: {_nome}");
 		detalhesCurso.Layout.AppendLine("GradeCurricular:");
 
-		foreach (var materia in _gradeCurricular)
+		foreach (var materia in Curso.Materias)
 		{
 			detalhesCurso.Layout.AppendLine($"\t{materia.Nome}");
 		}
@@ -136,7 +127,7 @@ public class EditarCursoView : View, IEditarModeloView<Curso>
 			var acao = acaoView.OpcaoEscolhida is 1 ? "Adicionar" : "Remover";
 
 			var titulo
-				= $"{acao} matéria para a grade curricular\n{string.Join("\n", _gradeCurricular.Select(i => i.Nome).ToList())}\n";
+				= $"{acao} matéria para a grade curricular\n{string.Join("\n", Curso.Materias.Select(i => i.Nome).ToList())}\n";
 
 			InputView inputMateria = new(titulo);
 
@@ -162,9 +153,9 @@ public class EditarCursoView : View, IEditarModeloView<Curso>
 			}
 
 			if (acaoView.OpcaoEscolhida is 1)
-				_gradeCurricular.Add(materia);
+				Curso.Materias.Add(materia);
 			else
-				_gradeCurricular.Remove(materia);
+				Curso.Materias.Remove(materia);
 		}
 	}
 }
