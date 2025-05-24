@@ -7,6 +7,16 @@
     "no-seed": {
       "commandName": "Project",
       "commandLineArgs": "false false"
+    },
+    "WSL seed": {
+      "commandName": "WSL2",
+      "distributionName": "Ubuntu",
+      "commandLineArgs": "false true"
+    },
+    "WSL no-seed": {
+      "commandName": "WSL2",
+      "distributionName": "Ubuntu",
+      "commandLineArgs": "false false"
     }
   }
 }
