@@ -19,25 +19,20 @@ public class RelatorioView<T> : View, IPaginavel where T : Modelo
 
 	public override void ConstruirLayout()
 	{
-		var tipo         = typeof(T);
-		var propriedades = tipo.GetProperties();
-		var nomesPropriedades =
-			UtilitarioTipos.ObterNomesPropriedades(propriedades);
+		var tipo = typeof(T);
+		var cabecalho = Modelo.CabecalhoRelatorio(
+			tipo.GetProperties().Select(p => p.Name)
+		);
 
-		Layout.AppendLine($"Relatório de {typeof(T).Name}");
+		Layout.AppendLine($"Relatório de {tipo.Name}");
 		Layout.AppendLine();
 
-		Layout.AppendLine(nomesPropriedades);
-
-		foreach (var p in propriedades)
-			Layout.Append($"| {new string('-', 16)} ");
-
-		Layout.AppendLine("|");
+		Layout.AppendLine(cabecalho);
 
 		foreach (var modelo in _modelos)
 			Layout.AppendLine(modelo.ToString());
 	}
-	
+
 	public override void Exibir()
 	{
 		base.Exibir();
@@ -48,30 +43,26 @@ public class RelatorioView<T> : View, IPaginavel where T : Modelo
 	public string[] ConstruirPaginas(int linhasMaximas)
 	{
 		List<StringBuilder> conteudo = [];
-		
-		var tipo         = typeof(T);
-		var propriedades = tipo.GetProperties();
-		var nomesPropriedades =
-			UtilitarioTipos.ObterNomesPropriedades(propriedades);
 
-		for (int i = 0; i < Math.Ceiling((float) _modelos.Count / linhasMaximas); ++i)
+		var tipo = typeof(T);
+		var cabecalho = Modelo.CabecalhoRelatorio(
+            tipo.GetProperties().Select(p => p.Name)
+        );
+
+        for (var i = 0; i < Math.Ceiling((float)_modelos.Count / linhasMaximas); ++i)
 		{
 			conteudo.Add(new());
-			StringBuilder layout = conteudo[i];
-			
-			layout.AppendLine(nomesPropriedades);
-				
-			foreach (var p in propriedades)
-				layout.Append($"| {new string('-', 16)} ");
-			layout.AppendLine("|");
+			var layoutAtual = conteudo[i];
 
-			for (int j = i * linhasMaximas; j < (i * linhasMaximas + linhasMaximas) & (j < _modelos.Count); ++j)
+			layoutAtual.AppendLine(cabecalho);
+
+			for (var j = i * linhasMaximas; j < (i * linhasMaximas + linhasMaximas) & (j < _modelos.Count); ++j)
 			{
 				var modelo = _modelos[j];
-				layout.AppendLine(modelo.ToString());
+				layoutAtual.AppendLine(modelo.ToString());
 			}
 		}
 
-		return conteudo.Select(i => i.ToString()).ToArray();
+		return [.. conteudo.Select(i => i.ToString())];
 	}
 }

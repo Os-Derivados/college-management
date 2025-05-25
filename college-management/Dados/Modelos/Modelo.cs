@@ -1,4 +1,6 @@
 using System.ComponentModel.DataAnnotations;
+using System.Reflection;
+using System.Text;
 
 
 namespace college_management.Dados.Modelos;
@@ -22,4 +24,39 @@ public abstract class Modelo : IRastreavel
 	public string? EditadoPor { get; set; }
 	public DateTime? CriadoEm { get; set; }
 	public DateTime? EditadoEm { get; set; }
+
+	public static string? CabecalhoRelatorio(IEnumerable<string> campos)
+	{
+		StringBuilder sb = new();
+		var tipoModelo = typeof(Modelo);
+
+		if (!campos.Any()) return "Nenhum Campo Informado";
+
+		foreach (var campo in campos)
+		{
+			if (tipoModelo.GetProperty(campo) is PropertyInfo propriedade)
+			{
+				sb.Append($"| {propriedade.Name,-16} ");
+			}
+		}
+
+		sb.AppendLine("|");
+
+		foreach (var campo in campos)
+		{
+			if (tipoModelo.GetProperty(campo) is PropertyInfo propriedade)
+			{
+				sb.Append($"| {new string('-', 16)} ");
+			}
+		}
+
+		sb.AppendLine("|");
+
+		return sb.ToString();
+	}
+
+	public string? EntradaRelatorio(IEnumerable<string> campos)
+	{
+		throw new NotImplementedException();
+	}
 }
