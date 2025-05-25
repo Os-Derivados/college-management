@@ -18,6 +18,6 @@ public class Curso : Modelo
 
 	public override string ToString()
 	{
-		return $"| {Nome,-1} | {Id,-16} | {CargaHoraria,-16}h | {CriadoPor,-16} | {CriadoEm,-16} | {EditadoPor,-16} | {EditadoEm,-16} |";
+		return $"| {Id,-16} | {Nome,-1} | {CargaHoraria,-16}h | {CriadoPor,-16} | {CriadoEm,-16} | {EditadoPor,-16} | {EditadoEm,-16} |";
 	}
 }
