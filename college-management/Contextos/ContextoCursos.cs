@@ -20,8 +20,8 @@ public class ContextoCursos : Contexto<Curso>, IContextoCursos
 		string ObterLayout(Curso curso)
 		{
 			return $"Curso: {curso.Nome}\n"
-			       + $"Ano: {DateTime.Today.Year}\n\n"
-			       + $"{string.Join('\n', curso.Materias.Select(i => i.Nome))}";
+				   + $"Ano: {DateTime.Today.Year}\n\n"
+				   + $"{string.Join('\n', curso.Materias.Select(i => i.Nome))}";
 		}
 
 		InputView inputRelatorio = new("Ver Grade Curricular");
@@ -40,7 +40,7 @@ public class ContextoCursos : Contexto<Curso>, IContextoCursos
 		if (UsuarioContexto is not Aluno aluno)
 		{
 			inputRelatorio.LerEntrada("Erro",
-			                          "O usuário atual não é um aluno.");
+									  "O usuário atual não é um aluno.");
 
 			return;
 		}
@@ -51,7 +51,7 @@ public class ContextoCursos : Contexto<Curso>, IContextoCursos
 		if (cursoAluno.Status is not StatusResposta.Sucesso)
 		{
 			inputRelatorio.LerEntrada("Erro",
-			                          "O aluno não está matriculado em nenhum curso.");
+									  "O aluno não está matriculado em nenhum curso.");
 
 			return;
 		}
@@ -69,10 +69,10 @@ public class ContextoCursos : Contexto<Curso>, IContextoCursos
 		var cadastroCursoView = new CadastroCursoView();
 
 		if (!cadastroCursoView.ObterDados()
-		                      .ToString()
-		                      .Equals("s",
-		                              StringComparison
-			                              .CurrentCultureIgnoreCase))
+							  .ToString()
+							  .Equals("s",
+									  StringComparison
+										  .CurrentCultureIgnoreCase))
 		{
 			return;
 		}
@@ -100,7 +100,7 @@ public class ContextoCursos : Contexto<Curso>, IContextoCursos
 					$"Matéria com o identificador \"{nomeMateria}\" não encontrada. Tente novamente.");
 				return;
 			}
-			
+
 			materias.Add(materia);
 		}
 
@@ -111,8 +111,8 @@ public class ContextoCursos : Contexto<Curso>, IContextoCursos
 
 		var respostaAdicionar = await BaseDeDados.Cursos.Adicionar(curso);
 		View.Aviso(respostaAdicionar.Status is StatusResposta.Sucesso
-			           ? "Curso cadastrado com sucesso!"
-			           : $"Não foi possível cadastrar curso. ({respostaAdicionar.Status.ToString()})");
+					   ? "Curso cadastrado com sucesso!"
+					   : $"Não foi possível cadastrar curso. ({respostaAdicionar.Status.ToString()})");
 	}
 
 	public override async Task Editar()
@@ -145,8 +145,8 @@ public class ContextoCursos : Contexto<Curso>, IContextoCursos
 		ConfirmaView confirmacao = new("Excluir Curso");
 
 		if (confirmacao.Confirmar(detalhesCurso.Layout.ToString())
-		               .ToString()
-		               .ToLower() is not "s")
+					   .ToString()
+					   .ToLower() is not "s")
 		{
 			View.Aviso($"Excluir {nameof(Curso)}: Operação cancelada.");
 			return;
@@ -164,20 +164,19 @@ public class ContextoCursos : Contexto<Curso>, IContextoCursos
 	{
 		var verCursos = BaseDeDados.Cursos.ObterTodos();
 
-		InputView inputRelatorio = new("Visualizar Cursos");
-
-		if (verCursos.Modelo!.Count() is 0)
+		if (!verCursos.Modelo!.Any())
 		{
 			View.Aviso("Nenhum curso cadastrado.");
 
 			return;
 		}
 
-		if (verCursos.Modelo == null) return;
+		if (verCursos.Modelo is null) return;
 
-		RelatorioView<Curso> relatorioView
-			= new(inputRelatorio.Titulo, verCursos.Modelo.ToList());
+		RelatorioView<Curso> relatorioView = new("Visualizar Cursos",
+												 [.. verCursos.Modelo]);
 		PaginaView paginaView = new(relatorioView);
+
 		paginaView.ConstruirLayout();
 		paginaView.LerEntrada(true);
 	}
@@ -223,7 +222,7 @@ public class ContextoCursos : Contexto<Curso>, IContextoCursos
 		var detalhes = UtilitarioTipos.ObterPropriedades(curso, ["Nome"]);
 
 		detalhes.Add("GradeCurricular",
-		             $"{string.Join(", ", curso.Materias.Select(i => i.Nome))}");
+					 $"{string.Join(", ", curso.Materias.Select(i => i.Nome))}");
 		detalhes.Add("CargaHoraria", $"{curso.CargaHoraria}h");
 
 		return detalhes;
