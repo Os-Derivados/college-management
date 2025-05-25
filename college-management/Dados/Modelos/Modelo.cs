@@ -25,10 +25,10 @@ public abstract class Modelo : IRastreavel
 	public DateTime? CriadoEm { get; set; }
 	public DateTime? EditadoEm { get; set; }
 
-	public static string? CabecalhoRelatorio(IEnumerable<string> campos)
+	public string? CabecalhoRelatorio(IEnumerable<string> campos)
 	{
 		StringBuilder sb = new();
-		var tipoModelo = typeof(Modelo);
+		var tipoModelo = GetType();
 
 		if (!campos.Any()) return "Nenhum Campo Informado";
 
