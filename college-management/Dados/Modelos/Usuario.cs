@@ -57,7 +57,7 @@ public abstract class Usuario : Modelo
 	public override string ToString()
 	{
 		return
-			$"| {Id,-16} | {Nome,-16} | {Login,-16} | {Crendenciais[..13] + "...",-16} | {CriadoPor,-16} | {CriadoEm,-16} | {EditadoPor,-16} | {EditadoEm,-16} |";
+			$"| {Id,-16} | {Nome,-16} | {Login,-16} | {CriadoPor,-16} | {CriadoEm,-16} | {EditadoPor,-16} | {EditadoEm,-16} |";
 	}
 
 	public void GerarCredenciais(string senha, string? sal = null)
