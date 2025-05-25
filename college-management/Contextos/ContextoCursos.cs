@@ -162,19 +162,20 @@ public class ContextoCursos : Contexto<Curso>, IContextoCursos
 
 	public override void Visualizar()
 	{
-		var verCursos = BaseDeDados.Cursos.ObterTodos();
+		var cursos = BaseDeDados.Cursos.ObterTodos();
 
-		if (!verCursos.Modelo!.Any())
+		if (!cursos.Modelo!.Any())
 		{
 			View.Aviso("Nenhum curso cadastrado.");
 
 			return;
 		}
 
-		if (verCursos.Modelo is null) return;
+		if (cursos.Modelo is null) return;
 
 		RelatorioView<Curso> relatorioView = new("Visualizar Cursos",
-												 [.. verCursos.Modelo]);
+												 [.. cursos.Modelo],
+												 ["Id", "Nome", "CargaHoraria", "CriadoPor", "CriadoEm","EditadoPor", "EditadoEm"]);
 		PaginaView paginaView = new(relatorioView);
 
 		paginaView.ConstruirLayout();

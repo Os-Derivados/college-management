@@ -27,13 +27,13 @@ public class ContextoUsuarios : Contexto<Usuario>, IContextoUsuarios
 		CadastroUsuarioView cadastroUsuarioView = new();
 
 		var confirmaCadastro = cadastroUsuarioView.ObterDados();
-		var dadosUsuario     = cadastroUsuarioView.CadastroUsuario;
+		var dadosUsuario = cadastroUsuarioView.CadastroUsuario;
 
 		if (confirmaCadastro is not 's') return;
 
 		var novoUsuario = Usuario.CriarUsuario(dadosUsuario!);
 		novoUsuario.GerarCredenciais(dadosUsuario!["Senha"]);
-		
+
 		var cadastroUsuario = await BaseDeDados.Usuarios.Adicionar(novoUsuario);
 
 		var foiAdicionado = cadastroUsuario.Status is StatusResposta.Sucesso;
@@ -66,12 +66,12 @@ public class ContextoUsuarios : Contexto<Usuario>, IContextoUsuarios
 		}
 
 		EditarUsuarioView editarUsuarioView = new(obterUsuario.Modelo!);
-		var               usuarioEditado    = editarUsuarioView.Editar();
+		var usuarioEditado = editarUsuarioView.Editar();
 
 		ConfirmaView confirmaEdicao = new("Editar Usuário");
 
 		if (confirmaEdicao.Confirmar("Editar Usuário").ToString().ToLower() is
-		    not "s")
+			not "s")
 		{
 			View.Aviso($"Editar {nameof(Usuario)}: Operação cancelada.");
 
@@ -112,12 +112,12 @@ public class ContextoUsuarios : Contexto<Usuario>, IContextoUsuarios
 
 
 		DetalhesView detalhesUsuario = new("Excluir Usuário",
-		                                   UtilitarioTipos.ObterPropriedades(
-			                                   obterUsuario,
-			                                   [
-				                                   "Nome", "Login", "Id",
-				                                   "CargoId"
-			                                   ]));
+										   UtilitarioTipos.ObterPropriedades(
+											   obterUsuario,
+											   [
+												   "Nome", "Login", "Id",
+												   "CargoId"
+											   ]));
 		detalhesUsuario.ConstruirLayout();
 
 		ConfirmaView confirmaExclusao = new("Excluir Usuário");
@@ -143,19 +143,21 @@ public class ContextoUsuarios : Contexto<Usuario>, IContextoUsuarios
 	public override void Visualizar()
 	{
 		RelatorioView<Usuario> relatorioView;
+		string[] camposRelatorio = ["Id", "Nome", "Login", "CriadoPor", "CriadoEm", "EditadoPor", "EditadoEm" ];
 
 		if (TemAcessoRestrito)
 		{
 			var verUsuarios = BaseDeDados.Usuarios.ObterTodos();
 
-			relatorioView
-				= new RelatorioView<Usuario>("Visualizar Usuários",
-				                             verUsuarios.Modelo!.ToList());
+			relatorioView = new RelatorioView<Usuario>("Visualizar Usuários",
+													[.. verUsuarios.Modelo!],
+													camposRelatorio);
 		}
 		else
 		{
 			relatorioView = new RelatorioView<Usuario>("Minha Conta",
-				[UsuarioContexto]);
+														[UsuarioContexto],
+														camposRelatorio);
 		}
 
 		PaginaView paginaView = new(relatorioView);
@@ -168,13 +170,13 @@ public class ContextoUsuarios : Contexto<Usuario>, IContextoUsuarios
 		if (!TemAcessoRestrito)
 		{
 			DetalhesView detalhesContexto = new("Detalhes da Conta",
-			                                    UtilitarioTipos
-				                                    .ObterPropriedades(
-					                                    UsuarioContexto,
-					                                    [
-						                                    "Login", "Nome",
-						                                    "CargoId", "Id"
-					                                    ]));
+												UtilitarioTipos
+													.ObterPropriedades(
+														UsuarioContexto,
+														[
+															"Login", "Nome",
+															"CargoId", "Id"
+														]));
 			detalhesContexto.ConstruirLayout();
 			detalhesContexto.Exibir();
 
