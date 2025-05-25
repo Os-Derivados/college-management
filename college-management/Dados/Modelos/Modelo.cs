@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
 using System.Text;
 
@@ -20,19 +21,24 @@ public abstract class Modelo : IRastreavel
 	public uint Id { get; set; }
 
 
-	public string? CriadoPor  { get; set; }
+	public string? CriadoPor { get; set; }
 	public string? EditadoPor { get; set; }
 	public DateTime? CriadoEm { get; set; }
 	public DateTime? EditadoEm { get; set; }
 
-	public string? CabecalhoRelatorio(IEnumerable<string> campos)
+	[NotMapped]
+	protected virtual string[] CamposRelatorio => [
+		"Id", "Nome", "CriadoPor", "CriadoEm", "EditadoPor", "EditadoEm"
+	];
+
+	public string? CabecalhoRelatorio()
 	{
 		StringBuilder sb = new();
 		var tipoModelo = GetType();
 
-		if (!campos.Any()) return "Nenhum Campo Informado";
+		if (CamposRelatorio.Length is 0) return "Nenhum Campo Informado";
 
-		foreach (var campo in campos)
+		foreach (var campo in CamposRelatorio)
 		{
 			if (tipoModelo.GetProperty(campo) is PropertyInfo propriedade)
 			{
@@ -42,7 +48,7 @@ public abstract class Modelo : IRastreavel
 
 		sb.AppendLine("|");
 
-		foreach (var campo in campos)
+		foreach (var campo in CamposRelatorio)
 		{
 			if (tipoModelo.GetProperty(campo) is PropertyInfo propriedade)
 			{

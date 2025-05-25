@@ -19,10 +19,9 @@ public class RelatorioView<T> : View, IPaginavel where T : Modelo
 
 	public override void ConstruirLayout()
 	{
-		var tipo = typeof(T);
-		var cabecalho = _modelos.First().CabecalhoRelatorio(_campos);
+		var cabecalho = _modelos.First().CabecalhoRelatorio();
 
-		Layout.AppendLine($"Relatório de {tipo.Name}");
+		Layout.AppendLine($"Relatório de {typeof(T).Name}");
 		Layout.AppendLine();
 
 		Layout.AppendLine(cabecalho);
@@ -42,8 +41,7 @@ public class RelatorioView<T> : View, IPaginavel where T : Modelo
 	{
 		List<StringBuilder> conteudo = [];
 
-		var tipo = typeof(T);
-		var cabecalho = _modelos.First().CabecalhoRelatorio(_campos);
+		var cabecalho = _modelos.First().CabecalhoRelatorio();
 
 		for (var i = 0; i < Math.Ceiling((float)_modelos.Count / linhasMaximas); ++i)
 		{
