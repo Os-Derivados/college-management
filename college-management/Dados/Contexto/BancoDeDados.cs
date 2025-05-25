@@ -11,28 +11,33 @@ public class BancoDeDados : DbContext
 	{
 	}
 
-	public DbSet<Curso>           Cursos          { get; set; }
-	public DbSet<Materia>         Materias        { get; set; }
-	public DbSet<Avaliacao>       Avaliacoes      { get; set; }
-	public DbSet<CorpoDocente>    CorpoDocente    { get; set; }
+	public DbSet<Curso> Cursos { get; set; }
+	public DbSet<Materia> Materias { get; set; }
+	public DbSet<Avaliacao> Avaliacoes { get; set; }
+	public DbSet<CorpoDocente> CorpoDocente { get; set; }
 	public DbSet<GradeCurricular> GradeCurricular { get; set; }
-	public DbSet<Matricula>       Matriculas      { get; set; }
-	public DbSet<Turma>           Turmas          { get; set; }
-	public DbSet<TurmaAluno>      TurmaAluno      { get; set; }
-	public DbSet<Usuario> 		Usuarios        { get; set; }
+	public DbSet<Matricula> Matriculas { get; set; }
+	public DbSet<Turma> Turmas { get; set; }
+	public DbSet<TurmaAluno> TurmaAluno { get; set; }
+	public DbSet<Usuario> Usuarios { get; set; }
 
 	protected override void OnModelCreating(ModelBuilder builder)
 	{
-		#region Tables
+		#region EntityTables
 
 		builder.Entity<Usuario>()
-		       .HasDiscriminator<string>("Tipo")
-		       .HasValue<Aluno>("Aluno")
-		       .HasValue<Docente>("Docente")
-		       .HasValue<Gestor>("Gestor");
-		
+			   .HasDiscriminator<string>("Tipo")
+			   .HasValue<Aluno>("Aluno")
+			   .HasValue<Docente>("Docente")
+			   .HasValue<Gestor>("Gestor");
+
 		builder.Entity<Curso>().ToTable("Cursos");
 		builder.Entity<Materia>().ToTable("Materias");
+
+		#endregion
+
+		#region JoinTables
+
 		builder.Entity<CorpoDocente>().ToTable("CorposDocentes");
 		builder.Entity<GradeCurricular>().ToTable("GradesCurriculares");
 		builder.Entity<Matricula>().ToTable("Matriculas");
@@ -45,34 +50,27 @@ public class BancoDeDados : DbContext
 		#region Turma
 
 		builder.Entity<Docente>()
-		       .HasMany<Turma>()
-		       .WithOne(turma => turma.Docente)
-		       .HasForeignKey(turma => turma.DocenteId);
+			   .HasMany(d => d.Turmas)
+			   .WithOne(turma => turma.Docente)
+			   .HasForeignKey(turma => turma.DocenteId);
 
 		builder.Entity<Turma>()
-		       .HasOne<Materia>()
-		       .WithMany(materia => materia.Turmas)
-		       .HasForeignKey(turma => turma.MateriaId);
+			   .HasOne(t => t.Materia)
+			   .WithMany(materia => materia.Turmas)
+			   .HasForeignKey(turma => turma.MateriaId);
 
 		builder.Entity<TurmaAluno>()
-		       .HasKey(ta => new { ta.TurmaId, ta.AlunoId });
+			   .HasKey(ta => new { ta.TurmaId, ta.AlunoId });
 
 		builder.Entity<TurmaAluno>()
-		       .HasOne(ta => ta.Turma)
-		       .WithMany(t => t.TurmaAlunos)
-		       .HasForeignKey(ta => ta.TurmaId);
+			   .HasOne(ta => ta.Turma)
+			   .WithMany(t => t.TurmaAlunos)
+			   .HasForeignKey(ta => ta.TurmaId);
 
 		builder.Entity<TurmaAluno>()
-		       .HasOne(ta => ta.Aluno)
-		       .WithMany(t => t.TurmaAlunos)
-		       .HasForeignKey(ta => ta.AlunoId);
-
-		builder.Entity<Turma>()
-		       .HasMany(t => t.Alunos)
-		       .WithMany(a => a.Turmas)
-		       .UsingEntity<TurmaAluno>(
-			       j => j.HasOne(ta => ta.Aluno).WithMany(a => a.TurmaAlunos),
-			       j => j.HasOne(ta => ta.Turma).WithMany(t => t.TurmaAlunos));
+			   .HasOne(ta => ta.Aluno)
+			   .WithMany(t => t.TurmaAlunos)
+			   .HasForeignKey(ta => ta.AlunoId);
 
 		#endregion
 
@@ -81,94 +79,56 @@ public class BancoDeDados : DbContext
 		builder.Entity<Avaliacao>().HasKey(a => new { a.MateriaId, a.AlunoId });
 
 		builder.Entity<Avaliacao>()
-		       .HasOne(a => a.Materia)
-		       .WithMany(c => c.Avaliacoes)
-		       .HasForeignKey(m => m.MateriaId);
+			   .HasOne(a => a.Materia)
+			   .WithMany(c => c.Avaliacoes)
+			   .HasForeignKey(m => m.MateriaId);
 
 		builder.Entity<Avaliacao>()
-		       .HasOne(a => a.Aluno)
-		       .WithMany(a => a.Avaliacoes)
-		       .HasForeignKey(m => m.AlunoId);
-
-		builder.Entity<Materia>()
-		       .HasMany(m => m.Alunos)
-		       .WithMany(a => a.Materias)
-		       .UsingEntity<Avaliacao>(
-			       j => j.HasOne(m => m.Aluno).WithMany(a => a.Avaliacoes),
-			       j => j.HasOne(m => m.Materia).WithMany(m => m.Avaliacoes));
+			   .HasOne(a => a.Aluno)
+			   .WithMany(a => a.Avaliacoes)
+			   .HasForeignKey(m => m.AlunoId);
 
 		builder.Entity<CorpoDocente>()
-		       .HasKey(cd => new
-			               { cd.DocenteId, cd.MateriaId }); // Composite key
+			   .HasKey(cd => new { cd.DocenteId, cd.MateriaId });
 
 		builder.Entity<CorpoDocente>()
-		       .HasOne(cd => cd.Docente)
-		       .WithMany(d => d.CorpoDocente)
-		       .HasForeignKey(cd => cd.DocenteId);
+			   .HasOne(cd => cd.Docente)
+			   .WithMany(d => d.CorpoDocente)
+			   .HasForeignKey(cd => cd.DocenteId);
 
 		builder.Entity<CorpoDocente>()
-		       .HasOne(cd => cd.Materia)
-		       .WithMany(m => m.CorpoDocente)
-		       .HasForeignKey(cd => cd.MateriaId);
-
-		// Explicitly define the many-to-many relationship
-		builder.Entity<Docente>()
-		       .HasMany(d => d.Materias)
-		       .WithMany(m => m.Docentes)
-		       .UsingEntity<CorpoDocente>(
-			       j => j.HasOne(cd => cd.Materia)
-			             .WithMany(m => m.CorpoDocente),
-			       j => j.HasOne(cd => cd.Docente)
-			             .WithMany(d => d.CorpoDocente));
-
-		// Configure GradeCurricular as the join table
-		builder.Entity<GradeCurricular>()
-		       .HasKey(gc => new { gc.CursoId, gc.MateriaId }); // Composite key
+			   .HasOne(cd => cd.Materia)
+			   .WithMany(m => m.CorpoDocente)
+			   .HasForeignKey(cd => cd.MateriaId);
 
 		builder.Entity<GradeCurricular>()
-		       .HasOne(gc => gc.Curso)
-		       .WithMany(c => c.GradesCurriculares)
-		       .HasForeignKey(gc => gc.CursoId);
+			   .HasKey(gc => new { gc.CursoId, gc.MateriaId });
 
 		builder.Entity<GradeCurricular>()
-		       .HasOne(gc => gc.Materia)
-		       .WithMany(m => m.GradesCurriculares)
-		       .HasForeignKey(gc => gc.MateriaId);
+			   .HasOne(gc => gc.Curso)
+			   .WithMany(c => c.GradesCurriculares)
+			   .HasForeignKey(gc => gc.CursoId);
 
-		// Explicitly define the many-to-many relationship
-		builder.Entity<Materia>()
-		       .HasMany(m => m.Cursos)
-		       .WithMany(c => c.Materias)
-		       .UsingEntity<GradeCurricular>(
-			       j => j.HasOne(gc => gc.Curso)
-			             .WithMany(c => c.GradesCurriculares),
-			       j => j.HasOne(gc => gc.Materia)
-			             .WithMany(m => m.GradesCurriculares));
-
+		builder.Entity<GradeCurricular>()
+			   .HasOne(gc => gc.Materia)
+			   .WithMany(m => m.GradesCurriculares)
+			   .HasForeignKey(gc => gc.MateriaId);
 		#endregion
 
 		#region Curso
 
 		builder.Entity<Matricula>()
-		       .HasKey(m => new { m.CursoId, m.AlunoId }); // Composite key
+			   .HasKey(m => new { m.CursoId, m.AlunoId });
 
 		builder.Entity<Matricula>()
-		       .HasOne(m => m.Curso)
-		       .WithMany(c => c.Matriculas)
-		       .HasForeignKey(m => m.CursoId);
+			   .HasOne(m => m.Curso)
+			   .WithMany(c => c.Matriculas)
+			   .HasForeignKey(m => m.CursoId);
 
 		builder.Entity<Matricula>()
-		       .HasOne(m => m.Aluno)
-		       .WithMany(a => a.Matriculas)
-		       .HasForeignKey(m => m.AlunoId);
-
-		// Ensure the many-to-many relationship is explicitly defined
-		builder.Entity<Curso>()
-		       .HasMany(c => c.Alunos)
-		       .WithMany(a => a.Cursos)
-		       .UsingEntity<Matricula>(
-			       j => j.HasOne(m => m.Aluno).WithMany(a => a.Matriculas),
-			       j => j.HasOne(m => m.Curso).WithMany(c => c.Matriculas));
+			   .HasOne(m => m.Aluno)
+			   .WithMany(a => a.Matriculas)
+			   .HasForeignKey(m => m.AlunoId);
 
 		#endregion
 
@@ -178,17 +138,19 @@ public class BancoDeDados : DbContext
 	public int Salvar(string userLogin)
 	{
 		var entries = ChangeTracker.Entries()
-		                           .Where(e => e.State is EntityState.Added
-			                                  or EntityState.Modified);
+								   .Where(e => e.State is EntityState.Added
+											  or EntityState.Modified);
 
 		foreach (var entry in entries)
 		{
 			if (entry.State == EntityState.Added)
 			{
 				entry.Property("CriadoPor").CurrentValue = userLogin;
+				entry.Property("CriadoEm").CurrentValue = DateTime.Now;
 			}
 
 			entry.Property("EditadoPor").CurrentValue = userLogin;
+			entry.Property("EditadoEm").CurrentValue = DateTime.Now;
 		}
 
 		return base.SaveChanges();
