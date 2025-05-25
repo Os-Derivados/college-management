@@ -7,11 +7,11 @@ namespace college_management.Dados.Modelos;
 
 
 public sealed class Matricula : IRastreavel
-	
+
 {
 	public Matricula(uint periodo, Modalidade modalidade)
 	{
-		Periodo    = periodo;
+		Periodo = periodo;
 		Modalidade = modalidade;
 	}
 
@@ -19,7 +19,7 @@ public sealed class Matricula : IRastreavel
 
 	public uint? CursoId { get; set; }
 	public Curso? Curso { get; set; }
-	
+
 	public uint? AlunoId { get; set; }
 	public Aluno? Aluno { get; set; }
 
@@ -33,10 +33,15 @@ public sealed class Matricula : IRastreavel
 	[DefaultValue(Modalidade.Presencial)]
 	public Modalidade Modalidade { get; set; }
 
+	public string? CriadoPor { get; set; }
+	public string? EditadoPor { get; set; }
+	public DateTime? CriadoEm { get; set; }
+	public DateTime? EditadoEm { get; set; }
+
 	public static Matricula CriarMatricula(Dictionary<string, string> cadastro)
 	{
 		var periodoValido = uint.TryParse(cadastro["Periodo"],
-		                                  out var periodoCurso);
+										  out var periodoCurso);
 
 		if (!periodoValido) return new Matricula();
 
@@ -50,9 +55,6 @@ public sealed class Matricula : IRastreavel
 
 		return novaMatricula;
 	}
-
-	public string? CriadoPor  { get; set; }
-	public string? EditadoPor { get; set; }
 }
 
 public enum Modalidade

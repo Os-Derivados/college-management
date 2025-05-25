@@ -10,15 +10,15 @@ public class Turma : Modelo
 	[Required]
 	public Turno Turno { get; set; }
 
-	public uint?    MateriaId { get; set; }
-	public Materia? Materia   { get; set; }
+	public uint? MateriaId { get; set; }
+	public Materia? Materia { get; set; }
 
-	public uint?    DocenteId { get; set; }
-	public Docente? Docente   { get; set; }
+	public uint? DocenteId { get; set; }
+	public Docente? Docente { get; set; }
 
 	[NotMapped]
-	public string Codigo => $"{MateriaId}{DocenteId}-{Turno.ToString()}";
+	public string Codigo => $"{MateriaId}{DocenteId}-{Turno}";
 
-	public ICollection<Aluno>      Alunos      { get; set; } = [];
+	public ICollection<Aluno> Alunos { get; set; } = [];
 	public ICollection<TurmaAluno> TurmaAlunos { get; set; } = [];
 }
