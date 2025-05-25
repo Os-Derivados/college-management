@@ -1,5 +1,4 @@
 using college_management.Constantes;
-using college_management.Dados;
 using college_management.Dados.Contexto;
 using college_management.Dados.Modelos;
 using college_management.Views;
@@ -24,7 +23,7 @@ public static class UtilitarioSeed
 
 		// 2. Verificar se o gestor mestre já existe
 		var mestreExiste = await context.Usuarios.AsNoTracking()
-		                                .AnyAsync(g => g.Login == loginMestre);
+										.AnyAsync(g => g.Login == loginMestre);
 
 		if (!mestreExiste)
 		{
@@ -48,14 +47,14 @@ public static class UtilitarioSeed
 
 		// 3. Recarregar o gestor mestre para usar como referência
 		var mestre = await context.Usuarios.AsNoTracking()
-		                          .FirstAsync(u => u.Login == loginMestre);
+								  .FirstAsync(u => u.Login == loginMestre);
 
 		// 4. Adicionar as demais entidades em transações separadas
 		try
 		{
 			// Adicionar o docente teste
 			if (!await context.Usuarios.AnyAsync(
-				    u => u.Login == "docente.teste"))
+					u => u.Login == "docente.teste"))
 			{
 				var docenteTeste
 					= new Docente("docente.teste", "Docente Teste");
@@ -85,40 +84,42 @@ public static class UtilitarioSeed
 
 				context.Entry(alunoTeste).State = EntityState.Detached;
 			}
-	
+
 			// Ensure Curso Teste has Materia Teste attached
 			if (!await context.GradeCurricular.AnyAsync(gc =>
-			        gc.Curso.Nome == "Curso Teste" && gc.Materia.Nome == "Matéria Teste"))
+					gc.Curso.Nome == "Curso Teste"
+					&& gc.Materia.Nome == "Matéria Teste"))
 			{
-			    // Retrieve Curso Teste
-			    var cursoTeste = await context.Cursos.FirstOrDefaultAsync(c => c.Nome == "Curso Teste");
-			    if (cursoTeste == null)
-			    {
-			        cursoTeste = new Curso("Curso Teste");
-			        context.Cursos.Add(cursoTeste);
-			        await context.SaveChangesAsync();
-			    }
-			
-			    // Retrieve Materia Teste
-			    var materiaTeste = await context.Materias.FirstOrDefaultAsync(m => m.Nome == "Matéria Teste");
-			    if (materiaTeste == null)
-			    {
-			        materiaTeste = new Materia("Matéria Teste") { CargaHoraria = 40 };
-			        context.Materias.Add(materiaTeste);
-			        await context.SaveChangesAsync();
-			    }
-			
-			    // Create GradeCurricular entry
-			    var gradeCurricular = new GradeCurricular
-			    {
-			        CursoId = cursoTeste.Id,
-			        MateriaId = materiaTeste.Id,
-			        CriadoPor = mestre.Login,
-			        EditadoPor = mestre.Login
-			    };
-			
-			    context.GradeCurricular.Add(gradeCurricular);
-			    await context.SaveChangesAsync();
+				var cursoTeste = await context.Cursos.FirstOrDefaultAsync(c => c.Nome == "Curso Teste");
+
+				if (cursoTeste is null)
+				{
+					cursoTeste = new Curso("Curso Teste");
+
+					context.Cursos.Add(cursoTeste);
+					context.SaveChanges();
+				}
+
+				var materiaTeste = await context.Materias.FirstOrDefaultAsync(m => m.Nome == "Matéria Teste");
+
+				if (materiaTeste is null)
+				{
+					materiaTeste = new Materia("Matéria Teste") { CargaHoraria = 40 };
+
+					context.Materias.Add(materiaTeste);
+					context.SaveChanges();
+				}
+
+				var gradeCurricular = new GradeCurricular
+				{
+					CursoId = cursoTeste.Id,
+					MateriaId = materiaTeste.Id,
+					CriadoPor = mestre.Login,
+					EditadoPor = mestre.Login
+				};
+
+				context.GradeCurricular.Add(gradeCurricular);
+				context.SaveChanges();
 			}
 		}
 		catch (DbUpdateException ex)
@@ -149,8 +150,8 @@ public static class UtilitarioSeed
 	public static async Task<bool> ValidarDadosIniciais(BancoDeDados context)
 	{
 		var existeAdmin = await context.Usuarios.OfType<Gestor>()
-		                               .AnyAsync(
-			                               g => g.Cargo == Cargo.Administrador);
+									   .AnyAsync(
+										   g => g.Cargo == Cargo.Administrador);
 		var existeAluno = await context.Usuarios.OfType<Aluno>().AnyAsync();
 
 		var loginMestre
@@ -169,10 +170,10 @@ public static class UtilitarioSeed
 			= await context.Usuarios.AnyAsync(u => u.Login == loginTeste);
 
 		return existeAdmin
-		       && existeAluno
-		       && existeMestre
-		       && existeMateria
-		       && existeCurso
-		       && existeUsuario;
+			   && existeAluno
+			   && existeMestre
+			   && existeMateria
+			   && existeCurso
+			   && existeUsuario;
 	}
 }
