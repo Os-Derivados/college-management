@@ -19,7 +19,7 @@ public sealed class Materia : Modelo
 	public override string ToString()
 	{
 		return
-			$"| {Nome,-16} | {CargaHoraria.ToString() + 'h',-16} | {Id,-16} |";
+			$"| {Id,-16} | {Nome,-16} | {CargaHoraria.ToString() + 'h',-16} | {CriadoPor,-16} | {CriadoEm,-16} | {EditadoPor,-16} | {EditadoEm,-16} |";
 	}
 }
 
