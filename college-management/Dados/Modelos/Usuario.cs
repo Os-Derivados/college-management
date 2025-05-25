@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations.Schema;
 using college_management.Constantes;
 using college_management.Dados.Repositorios;
 using college_management.Utilitarios;

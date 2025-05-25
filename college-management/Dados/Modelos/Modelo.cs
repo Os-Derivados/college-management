@@ -50,7 +50,7 @@ public abstract class Modelo : IRastreavel
 			}
 		}
 
-		sb.AppendLine("|");
+		sb.Append('|');
 
 		return sb.ToString();
 	}
