@@ -23,10 +23,10 @@ public class Avaliacao : IRastreavel
 	public StatusAvaliacao Status { get; set; }
 
 	public uint   AlunoId { get; set; }
-	public Aluno? Aluno   { get; set; }
+	public virtual Aluno? Aluno   { get; set; }
 
 	public uint     MateriaId { get; set; }
-	public Materia? Materia   { get; set; }
+	public virtual Materia? Materia   { get; set; }
 
 
 	public string? CriadoPor  { get; set; }

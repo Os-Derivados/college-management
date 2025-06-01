@@ -1,21 +1,23 @@
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations.Schema;
 
 
 namespace college_management.Dados.Modelos;
 
-
+[Index(nameof(Nome), IsUnique = true)]
 public class Curso : Modelo
 {
 	public Curso(string nome) : base(nome) { }
 
-	public ICollection<Aluno> Alunos { get; set; } = [];
-	public ICollection<Materia> Materias { get; set; } = [];
-	public ICollection<Matricula> Matriculas { get; set; } = [];
-	public ICollection<GradeCurricular> GradesCurriculares { get; set; } = [];
+	public virtual ICollection<Aluno> Alunos { get; set; } = [];
+	public virtual ICollection<Materia> Materias { get; set; } = [];
+	public virtual ICollection<Matricula> Matriculas { get; set; } = [];
+	public virtual ICollection<GradeCurricular> GradesCurriculares { get; set; } = [];
 
 	[NotMapped]
 	public uint CargaHoraria => (uint)Materias.Sum(m => m.CargaHoraria);
 
+	[NotMapped]
 	protected override string[] CamposRelatorio => [
 		"Id", "Nome", "CargaHoraria", "CriadoPor", "CriadoEm", "EditadoPor", "EditadoEm"
 	];

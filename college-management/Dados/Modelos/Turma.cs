@@ -11,14 +11,13 @@ public class Turma : Modelo
 	public Turno Turno { get; set; }
 
 	public uint? MateriaId { get; set; }
-	public Materia? Materia { get; set; }
-
+	public virtual Materia? Materia { get; set; }
 	public uint? DocenteId { get; set; }
-	public Docente? Docente { get; set; }
+	public virtual Docente? Docente { get; set; }
 
 	[NotMapped]
 	public string Codigo => $"{MateriaId}{DocenteId}-{Turno}";
 
-	public ICollection<Aluno> Alunos { get; set; } = [];
-	public ICollection<TurmaAluno> TurmaAlunos { get; set; } = [];
+	public virtual ICollection<Aluno> Alunos { get; set; } = [];
+	public virtual ICollection<TurmaAluno> TurmaAlunos { get; set; } = [];
 }

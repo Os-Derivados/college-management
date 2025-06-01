@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace college_management.Dados.Modelos;
 
 
-public sealed class Matricula : IRastreavel
+public class Matricula : IRastreavel
 
 {
 	public Matricula(uint periodo, Modalidade modalidade)
@@ -18,10 +18,9 @@ public sealed class Matricula : IRastreavel
 	public Matricula() { }
 
 	public uint? CursoId { get; set; }
-	public Curso? Curso { get; set; }
-
+	public virtual Curso? Curso { get; set; }
 	public uint? AlunoId { get; set; }
-	public Aluno? Aluno { get; set; }
+	public virtual Aluno? Aluno { get; set; }
 
 	[NotMapped]
 	public string Codigo => $"{CursoId}{AlunoId}";

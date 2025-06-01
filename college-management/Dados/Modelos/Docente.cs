@@ -5,7 +5,7 @@ public class Docente : Usuario
 {
 	public Docente(string login, string nome) : base(login, nome) { }
 
-	public ICollection<Turma>        Turmas       { get; set; } = [];
-	public ICollection<Materia>      Materias     { get; set; } = [];
-	public ICollection<CorpoDocente> CorpoDocente { get; set; } = [];
+	public virtual ICollection<Turma> Turmas { get; set; } = [];
+	public virtual ICollection<Materia> Materias { get; set; } = [];
+	public virtual ICollection<CorpoDocente> CorpoDocente { get; set; } = [];
 }

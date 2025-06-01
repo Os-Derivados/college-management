@@ -50,7 +50,7 @@ public abstract class Modelo : IRastreavel
 
 		foreach (var campo in CamposRelatorio)
 		{
-			if (tipoModelo.GetProperty(campo) is PropertyInfo propriedade)
+			if (tipoModelo.GetProperty(campo) is PropertyInfo)
 			{
 				sb.Append($"| {new string('-', 16)} ");
 			}

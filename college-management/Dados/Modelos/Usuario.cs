@@ -1,11 +1,15 @@
 using college_management.Constantes;
 using college_management.Dados.Repositorios;
 using college_management.Utilitarios;
+using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 
 namespace college_management.Dados.Modelos;
 
 
+[Index(nameof(Login), IsUnique = true)]
 public abstract class Usuario : Modelo
 {
 	protected Usuario(string login, string nome) : base(nome)
@@ -14,15 +18,20 @@ public abstract class Usuario : Modelo
 		Nome = nome;
 	}
 
+	[StringLength(128)]
 	public string? Login { get; set; }
 
+	[StringLength(128)]
 	public string? Senha { get; set; }
 	public string? Sal { get; set; }
+
+	[NotMapped]
 	public string Crendenciais => $"{Senha}+{Sal}";
 
+	[NotMapped]
 	protected override string[] CamposRelatorio => [
 		"Id", "Nome", "Login", "CriadoPor", "CriadoEm", "EditadoPor", "EditadoEm"
-		];
+	];
 
 	public static Usuario? Autenticar(RepositorioUsuarios repositorio,
 									  string loginUsuario,
