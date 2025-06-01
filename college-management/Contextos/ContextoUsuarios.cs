@@ -208,4 +208,19 @@ public class ContextoUsuarios : Contexto<Usuario>, IContextoUsuarios
 	{
 		throw new NotImplementedException();
 	}
+
+	public Task CadastrarGestor()
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task CadastrarDocente()
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task CadastrarAluno()
+	{
+		throw new NotImplementedException();
+	}
 }
