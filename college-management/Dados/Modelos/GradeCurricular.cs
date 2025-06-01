@@ -1,9 +1,10 @@
-using college_management.Dados.Repositorios;
+using System.ComponentModel.DataAnnotations.Schema;
 
 
 namespace college_management.Dados.Modelos;
 
 
+[Table("GradesCurriculares")]
 public class GradeCurricular : IRastreavel
 {
 	public uint CursoId { get; set; }

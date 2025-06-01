@@ -1,6 +1,8 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace college_management.Dados.Modelos;
 
-
+[Table("CorposDocentes")]
 public class CorpoDocente : IRastreavel
 {
 	public uint MateriaId { get; set; }

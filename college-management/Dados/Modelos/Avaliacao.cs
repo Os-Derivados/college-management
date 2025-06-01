@@ -1,10 +1,12 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 
 namespace college_management.Dados.Modelos;
 
 
+[Table("Avaliacoes")]
 public class Avaliacao : IRastreavel
 {
 	[MinLength(0)]
@@ -22,14 +24,14 @@ public class Avaliacao : IRastreavel
 	[DefaultValue(StatusAvaliacao.EmAndamento)]
 	public StatusAvaliacao Status { get; set; }
 
-	public uint   AlunoId { get; set; }
-	public virtual Aluno? Aluno   { get; set; }
+	public uint AlunoId { get; set; }
+	public virtual Aluno? Aluno { get; set; }
 
-	public uint     MateriaId { get; set; }
-	public virtual Materia? Materia   { get; set; }
+	public uint MateriaId { get; set; }
+	public virtual Materia? Materia { get; set; }
 
 
-	public string? CriadoPor  { get; set; }
+	public string? CriadoPor { get; set; }
 	public string? EditadoPor { get; set; }
 	public DateTime? CriadoEm { get; set; }
 	public DateTime? EditadoEm { get; set; }

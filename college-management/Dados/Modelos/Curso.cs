@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace college_management.Dados.Modelos;
 
+[Table("Cursos")]
 [Index(nameof(Nome), IsUnique = true)]
 public class Curso : Modelo
 {

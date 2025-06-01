@@ -9,6 +9,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace college_management.Dados.Modelos;
 
 
+[Table("Usuarios")]
 [Index(nameof(Login), IsUnique = true)]
 public abstract class Usuario : Modelo
 {

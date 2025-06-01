@@ -1,6 +1,9 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace college_management.Dados.Modelos;
 
 
+[Table("TurmasAlunos")]
 public class TurmaAluno : IRastreavel
 {
 	public uint TurmaId { get; set; }

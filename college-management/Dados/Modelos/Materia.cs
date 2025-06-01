@@ -1,9 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations.Schema;
 
+
 namespace college_management.Dados.Modelos;
 
 
+[Table("Materias")]
 [Index(nameof(Nome), IsUnique = true)]
 public class Materia : Modelo
 {

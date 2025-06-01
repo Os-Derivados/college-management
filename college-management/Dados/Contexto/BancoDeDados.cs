@@ -23,27 +23,13 @@ public class BancoDeDados : DbContext
 
 	protected override void OnModelCreating(ModelBuilder builder)
 	{
-		#region EntityTables
+		#region Usuarios
 
 		builder.Entity<Usuario>()
 			   .HasDiscriminator<string>("Tipo")
 			   .HasValue<Aluno>("Aluno")
 			   .HasValue<Docente>("Docente")
 			   .HasValue<Gestor>("Gestor");
-
-		builder.Entity<Curso>().ToTable("Cursos");
-		builder.Entity<Materia>().ToTable("Materias");
-
-		#endregion
-
-		#region JoinTables
-
-		builder.Entity<CorpoDocente>().ToTable("CorposDocentes");
-		builder.Entity<GradeCurricular>().ToTable("GradesCurriculares");
-		builder.Entity<Matricula>().ToTable("Matriculas");
-		builder.Entity<Turma>().ToTable("Turmas");
-		builder.Entity<TurmaAluno>().ToTable("TurmaAlunos");
-		builder.Entity<Avaliacao>().ToTable("Avaliacoes");
 
 		#endregion
 

@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace college_management.Dados.Modelos;
 
 
+[Table("Turmas")]
 public class Turma : Modelo
 {
 	[Required]

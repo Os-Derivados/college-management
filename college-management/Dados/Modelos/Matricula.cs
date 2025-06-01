@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace college_management.Dados.Modelos;
 
-
+[Table("Matriculas")]
 public class Matricula : IRastreavel
 
 {

@@ -1637,4 +1637,51 @@ VALUES ('20250601021331_Fix-DeleteBehavior', '8.0.14');
 
 COMMIT;
 
+BEGIN TRANSACTION;
+
+ALTER TABLE "TurmaAlunos" RENAME TO "TurmasAlunos";
+
+DROP INDEX "IX_TurmaAlunos_AlunoId";
+
+CREATE INDEX "IX_TurmasAlunos_AlunoId" ON "TurmasAlunos" ("AlunoId");
+
+CREATE TABLE "ef_temp_TurmasAlunos" (
+    "TurmaId" INTEGER NOT NULL,
+    "AlunoId" INTEGER NOT NULL,
+    "CriadoEm" TEXT NULL,
+    "CriadoPor" TEXT NULL,
+    "EditadoEm" TEXT NULL,
+    "EditadoPor" TEXT NULL,
+    CONSTRAINT "PK_TurmasAlunos" PRIMARY KEY ("TurmaId", "AlunoId"),
+    CONSTRAINT "FK_TurmasAlunos_Turmas_TurmaId" FOREIGN KEY ("TurmaId") REFERENCES "Turmas" ("Id") ON DELETE RESTRICT,
+    CONSTRAINT "FK_TurmasAlunos_Usuarios_AlunoId" FOREIGN KEY ("AlunoId") REFERENCES "Usuarios" ("Id") ON DELETE RESTRICT
+);
+
+INSERT INTO "ef_temp_TurmasAlunos" ("TurmaId", "AlunoId", "CriadoEm", "CriadoPor", "EditadoEm", "EditadoPor")
+SELECT "TurmaId", "AlunoId", "CriadoEm", "CriadoPor", "EditadoEm", "EditadoPor"
+FROM "TurmasAlunos";
+
+COMMIT;
+
+PRAGMA foreign_keys = 0;
+
+BEGIN TRANSACTION;
+
+DROP TABLE "TurmasAlunos";
+
+ALTER TABLE "ef_temp_TurmasAlunos" RENAME TO "TurmasAlunos";
+
+COMMIT;
+
+PRAGMA foreign_keys = 1;
+
+BEGIN TRANSACTION;
+
+CREATE INDEX "IX_TurmasAlunos_AlunoId" ON "TurmasAlunos" ("AlunoId");
+
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('20250601025246_Update-MoveDefinitionScope', '8.0.14');
+
+COMMIT;
+
 
