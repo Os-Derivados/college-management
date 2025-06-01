@@ -16,7 +16,8 @@ public static class MiddlewareContexto
 	{
 		ContextoUsuarios contextoUsuarios = new(baseDeDados, usuario);
 		ContextoMaterias contextoMaterias = new(baseDeDados, usuario);
-		ContextoCursos   contextoCursos   = new(baseDeDados, usuario);
+		ContextoCursos contextoCursos = new(baseDeDados, usuario);
+		ContextoTurmas contextoTurmas = new(baseDeDados, usuario);
 
 		_estadoAtual = EstadoDoApp.Contexto;
 
@@ -26,19 +27,23 @@ public static class MiddlewareContexto
 
 			switch (opcaoContexto)
 			{
-				case AcessosContexto.ContextoUsuarios:
+				case AcessosContexto.Usuarios:
 					AcessarContexto(contextoUsuarios);
 
 					break;
 
-				case AcessosContexto.ContextoCursos:
+				case AcessosContexto.Cursos:
 					AcessarContexto(contextoCursos);
 
 					break;
 
-				case AcessosContexto.ContextoMaterias:
+				case AcessosContexto.Materias:
 					AcessarContexto(contextoMaterias);
 
+					break;
+
+				case AcessosContexto.Turmas:
+					AcessarContexto(contextoTurmas);
 					break;
 			}
 
@@ -78,15 +83,15 @@ public static class MiddlewareContexto
 	}
 
 	private static string ConverterParaMetodo<T>(Contexto<T> contexto,
-	                                             int indice) where T : Modelo
+												 int indice) where T : Modelo
 	{
 		var recursosDisponiveis = contexto.ObterOpcoes();
 
 		_ = int.TryParse(indice.ToString(), out var i);
 
 		var recursoEscolhido = recursosDisponiveis
-		                       .Select(r => r.Trim().Replace(" ", ""))
-		                       .ElementAt(i - 1);
+							   .Select(r => r.Trim().Replace(" ", ""))
+							   .ElementAt(i - 1);
 
 		return recursoEscolhido;
 	}
@@ -98,15 +103,15 @@ public static class MiddlewareContexto
 		do
 		{
 			MenuView menuContextos = new("Menu Contextos",
-			                             "Bem-vindo(a).",
-			                             AcessosContexto.Contextos);
+										 "Bem-vindo(a).",
+										 AcessosContexto.Contextos);
 
 			menuContextos.ConstruirLayout();
 			menuContextos.LerEntrada();
 
 			var opcaoEscolhida = menuContextos.OpcaoEscolhida;
 			var opcaoValida = int.TryParse(opcaoEscolhida.ToString(),
-			                               out var opcaoUsuario);
+										   out var opcaoUsuario);
 
 			if (!opcaoValida) continue;
 
