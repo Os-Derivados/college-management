@@ -174,8 +174,7 @@ public class ContextoCursos : Contexto<Curso>, IContextoCursos
 		if (cursos.Modelo is null) return;
 
 		RelatorioView<Curso> relatorioView = new("Visualizar Cursos",
-												 [.. cursos.Modelo],
-												 ["Id", "Nome", "CargaHoraria", "CriadoPor", "CriadoEm","EditadoPor", "EditadoEm"]);
+												 [.. cursos.Modelo]);
 		PaginaView paginaView = new(relatorioView);
 
 		paginaView.ConstruirLayout();

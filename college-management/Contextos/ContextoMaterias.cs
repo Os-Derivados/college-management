@@ -204,8 +204,7 @@ public class ContextoMaterias : Contexto<Materia>
 		}
 
 		RelatorioView<Materia> relatorioView = new("Visualizar Matérias", 
-			[.. verMaterias.Modelo!], 
-			["Id", "Nome", "CargaHoraria", "CriadoPor", "CriadoEm", "EditadoPor", "EditadoEm"]);
+			[.. verMaterias.Modelo!]);
 
 		var paginaView = new PaginaView(relatorioView);
 		paginaView.ConstruirLayout();

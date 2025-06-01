@@ -11,17 +11,22 @@ public abstract class Usuario : Modelo
 	protected Usuario(string login, string nome) : base(nome)
 	{
 		Login = login;
-		Nome  = nome;
+		Nome = nome;
 	}
 
 	public string? Login { get; set; }
 
 	public string? Senha { get; set; }
-	public string? Sal   { get; set; }
+	public string? Sal { get; set; }
+	public string Crendenciais => $"{Senha}+{Sal}";
+
+	protected override string[] CamposRelatorio => [
+		"Id", "Nome", "Login", "CriadoPor", "CriadoEm", "EditadoPor", "EditadoEm"
+		];
 
 	public static Usuario? Autenticar(RepositorioUsuarios repositorio,
-	                                  string loginUsuario,
-	                                  string senhaUsuario)
+									  string loginUsuario,
+									  string senhaUsuario)
 	{
 		var obterUsuario = repositorio.ObterPorLogin(loginUsuario);
 
@@ -41,9 +46,9 @@ public abstract class Usuario : Modelo
 		{
 			TipoUsuario.Aluno => new Aluno(cadastro["Login"], cadastro["Nome"]),
 			TipoUsuario.Docente => new Docente(cadastro["Login"],
-			                                   cadastro["Nome"]),
+											   cadastro["Nome"]),
 			TipoUsuario.Gestor => new Gestor(cadastro["Login"],
-			                                 cadastro["Nome"]),
+											 cadastro["Nome"]),
 			_ => throw new ArgumentOutOfRangeException(
 				nameof(cadastro),
 				tipo,
@@ -52,6 +57,7 @@ public abstract class Usuario : Modelo
 
 		return novoUsuario;
 	}
+
 
 	public override string ToString()
 	{
@@ -71,6 +77,4 @@ public abstract class Usuario : Modelo
 	{
 		return UtilitarioCriptografia.CriptografarSha256(senha, Sal) == Senha;
 	}
-
-	public string Crendenciais => $"{Senha}+{Sal}";
 }

@@ -7,14 +7,17 @@ public sealed class Materia : Modelo
 
 	public uint CargaHoraria { get; set; }
 
-	public ICollection<Turma>           Turmas             { get; set; } = [];
-	public ICollection<Aluno>           Alunos             { get; set; } = [];
-	public ICollection<Curso>           Cursos             { get; set; } = [];
-	public ICollection<Docente>         Docentes           { get; set; } = [];
-	public ICollection<Avaliacao>       Avaliacoes         { get; set; } = [];
+	public ICollection<Turma> Turmas { get; set; } = [];
+	public ICollection<Aluno> Alunos { get; set; } = [];
+	public ICollection<Curso> Cursos { get; set; } = [];
+	public ICollection<Docente> Docentes { get; set; } = [];
+	public ICollection<Avaliacao> Avaliacoes { get; set; } = [];
 	public ICollection<GradeCurricular> GradesCurriculares { get; set; } = [];
-	public ICollection<CorpoDocente>    CorpoDocente       { get; set; } = [];
+	public ICollection<CorpoDocente> CorpoDocente { get; set; } = [];
 
+	protected override string[] CamposRelatorio => [
+		"Id", "Nome", "CargaHoraria", "CriadoPor", "CriadoEm", "EditadoPor", "EditadoEm"
+	];
 
 	public override string ToString()
 	{

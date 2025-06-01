@@ -8,14 +8,12 @@ namespace college_management.Views;
 
 public class RelatorioView<T> : View, IPaginavel where T : Modelo
 {
-	public RelatorioView(string titulo, List<T> modelos, IEnumerable<string> campos) : base(titulo)
+	public RelatorioView(string titulo, List<T> modelos) : base(titulo)
 	{
 		_modelos = modelos;
-		_campos = campos;
 	}
 
 	private readonly List<T> _modelos;
-	private readonly IEnumerable<string> _campos;
 
 	public override void ConstruirLayout()
 	{

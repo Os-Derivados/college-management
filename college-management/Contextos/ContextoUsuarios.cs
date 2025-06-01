@@ -150,14 +150,12 @@ public class ContextoUsuarios : Contexto<Usuario>, IContextoUsuarios
 			var verUsuarios = BaseDeDados.Usuarios.ObterTodos();
 
 			relatorioView = new RelatorioView<Usuario>("Visualizar Usuários",
-													[.. verUsuarios.Modelo!],
-													camposRelatorio);
+													[.. verUsuarios.Modelo!]);
 		}
 		else
 		{
 			relatorioView = new RelatorioView<Usuario>("Minha Conta",
-														[UsuarioContexto],
-														camposRelatorio);
+														[UsuarioContexto]);
 		}
 
 		PaginaView paginaView = new(relatorioView);
