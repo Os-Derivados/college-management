@@ -1323,4 +1323,183 @@ VALUES ('20250426223503_UnifyUsers', '8.0.14');
 
 COMMIT;
 
+BEGIN TRANSACTION;
+
+DROP INDEX "IX_Turmas_DocenteId1";
+
+DROP INDEX "IX_Turmas_MateriaId1";
+
+ALTER TABLE "Usuarios" ADD "CriadoEm" TEXT NULL;
+
+ALTER TABLE "Usuarios" ADD "EditadoEm" TEXT NULL;
+
+ALTER TABLE "Turmas" ADD "CriadoEm" TEXT NULL;
+
+ALTER TABLE "Turmas" ADD "EditadoEm" TEXT NULL;
+
+ALTER TABLE "TurmaAlunos" ADD "CriadoEm" TEXT NULL;
+
+ALTER TABLE "TurmaAlunos" ADD "EditadoEm" TEXT NULL;
+
+ALTER TABLE "Matriculas" ADD "CriadoEm" TEXT NULL;
+
+ALTER TABLE "Matriculas" ADD "EditadoEm" TEXT NULL;
+
+ALTER TABLE "Materias" ADD "CriadoEm" TEXT NULL;
+
+ALTER TABLE "Materias" ADD "EditadoEm" TEXT NULL;
+
+ALTER TABLE "GradesCurriculares" ADD "CriadoEm" TEXT NULL;
+
+ALTER TABLE "GradesCurriculares" ADD "EditadoEm" TEXT NULL;
+
+ALTER TABLE "Cursos" ADD "CriadoEm" TEXT NULL;
+
+ALTER TABLE "Cursos" ADD "EditadoEm" TEXT NULL;
+
+ALTER TABLE "CorposDocentes" ADD "CriadoEm" TEXT NULL;
+
+ALTER TABLE "CorposDocentes" ADD "EditadoEm" TEXT NULL;
+
+ALTER TABLE "Avaliacoes" ADD "CriadoEm" TEXT NULL;
+
+ALTER TABLE "Avaliacoes" ADD "EditadoEm" TEXT NULL;
+
+CREATE TABLE "AlunoCurso" (
+    "AlunosId" INTEGER NOT NULL,
+    "CursosId" INTEGER NOT NULL,
+    CONSTRAINT "PK_AlunoCurso" PRIMARY KEY ("AlunosId", "CursosId"),
+    CONSTRAINT "FK_AlunoCurso_Cursos_CursosId" FOREIGN KEY ("CursosId") REFERENCES "Cursos" ("Id") ON DELETE CASCADE,
+    CONSTRAINT "FK_AlunoCurso_Usuarios_AlunosId" FOREIGN KEY ("AlunosId") REFERENCES "Usuarios" ("Id") ON DELETE CASCADE
+);
+
+CREATE TABLE "AlunoMateria" (
+    "AlunosId" INTEGER NOT NULL,
+    "MateriasId" INTEGER NOT NULL,
+    CONSTRAINT "PK_AlunoMateria" PRIMARY KEY ("AlunosId", "MateriasId"),
+    CONSTRAINT "FK_AlunoMateria_Materias_MateriasId" FOREIGN KEY ("MateriasId") REFERENCES "Materias" ("Id") ON DELETE CASCADE,
+    CONSTRAINT "FK_AlunoMateria_Usuarios_AlunosId" FOREIGN KEY ("AlunosId") REFERENCES "Usuarios" ("Id") ON DELETE CASCADE
+);
+
+CREATE TABLE "AlunoTurma" (
+    "AlunosId" INTEGER NOT NULL,
+    "TurmasId" INTEGER NOT NULL,
+    CONSTRAINT "PK_AlunoTurma" PRIMARY KEY ("AlunosId", "TurmasId"),
+    CONSTRAINT "FK_AlunoTurma_Turmas_TurmasId" FOREIGN KEY ("TurmasId") REFERENCES "Turmas" ("Id") ON DELETE CASCADE,
+    CONSTRAINT "FK_AlunoTurma_Usuarios_AlunosId" FOREIGN KEY ("AlunosId") REFERENCES "Usuarios" ("Id") ON DELETE CASCADE
+);
+
+CREATE TABLE "CursoMateria" (
+    "CursosId" INTEGER NOT NULL,
+    "MateriasId" INTEGER NOT NULL,
+    CONSTRAINT "PK_CursoMateria" PRIMARY KEY ("CursosId", "MateriasId"),
+    CONSTRAINT "FK_CursoMateria_Cursos_CursosId" FOREIGN KEY ("CursosId") REFERENCES "Cursos" ("Id") ON DELETE CASCADE,
+    CONSTRAINT "FK_CursoMateria_Materias_MateriasId" FOREIGN KEY ("MateriasId") REFERENCES "Materias" ("Id") ON DELETE CASCADE
+);
+
+CREATE TABLE "DocenteMateria" (
+    "DocentesId" INTEGER NOT NULL,
+    "MateriasId" INTEGER NOT NULL,
+    CONSTRAINT "PK_DocenteMateria" PRIMARY KEY ("DocentesId", "MateriasId"),
+    CONSTRAINT "FK_DocenteMateria_Materias_MateriasId" FOREIGN KEY ("MateriasId") REFERENCES "Materias" ("Id") ON DELETE CASCADE,
+    CONSTRAINT "FK_DocenteMateria_Usuarios_DocentesId" FOREIGN KEY ("DocentesId") REFERENCES "Usuarios" ("Id") ON DELETE CASCADE
+);
+
+CREATE INDEX "IX_AlunoCurso_CursosId" ON "AlunoCurso" ("CursosId");
+
+CREATE INDEX "IX_AlunoMateria_MateriasId" ON "AlunoMateria" ("MateriasId");
+
+CREATE INDEX "IX_AlunoTurma_TurmasId" ON "AlunoTurma" ("TurmasId");
+
+CREATE INDEX "IX_CursoMateria_MateriasId" ON "CursoMateria" ("MateriasId");
+
+CREATE INDEX "IX_DocenteMateria_MateriasId" ON "DocenteMateria" ("MateriasId");
+
+CREATE TABLE "ef_temp_Turmas" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_Turmas" PRIMARY KEY AUTOINCREMENT,
+    "CriadoEm" TEXT NULL,
+    "CriadoPor" TEXT NULL,
+    "DocenteId" INTEGER NULL,
+    "EditadoEm" TEXT NULL,
+    "EditadoPor" TEXT NULL,
+    "MateriaId" INTEGER NULL,
+    "Nome" TEXT NOT NULL,
+    "Turno" INTEGER NOT NULL,
+    CONSTRAINT "FK_Turmas_Materias_MateriaId" FOREIGN KEY ("MateriaId") REFERENCES "Materias" ("Id"),
+    CONSTRAINT "FK_Turmas_Usuarios_DocenteId" FOREIGN KEY ("DocenteId") REFERENCES "Usuarios" ("Id")
+);
+
+INSERT INTO "ef_temp_Turmas" ("Id", "CriadoEm", "CriadoPor", "DocenteId", "EditadoEm", "EditadoPor", "MateriaId", "Nome", "Turno")
+SELECT "Id", "CriadoEm", "CriadoPor", "DocenteId", "EditadoEm", "EditadoPor", "MateriaId", "Nome", "Turno"
+FROM "Turmas";
+
+COMMIT;
+
+PRAGMA foreign_keys = 0;
+
+BEGIN TRANSACTION;
+
+DROP TABLE "Turmas";
+
+ALTER TABLE "ef_temp_Turmas" RENAME TO "Turmas";
+
+COMMIT;
+
+PRAGMA foreign_keys = 1;
+
+BEGIN TRANSACTION;
+
+CREATE INDEX "IX_Turmas_DocenteId" ON "Turmas" ("DocenteId");
+
+CREATE INDEX "IX_Turmas_MateriaId" ON "Turmas" ("MateriaId");
+
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('20250525143134_Fix-ShadowProperties', '8.0.14');
+
+COMMIT;
+
+BEGIN TRANSACTION;
+
+CREATE UNIQUE INDEX "IX_Usuarios_Login" ON "Usuarios" ("Login");
+
+CREATE UNIQUE INDEX "IX_Materias_Nome" ON "Materias" ("Nome");
+
+CREATE UNIQUE INDEX "IX_Cursos_Nome" ON "Cursos" ("Nome");
+
+CREATE TABLE "ef_temp_Materias" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_Materias" PRIMARY KEY AUTOINCREMENT,
+    "CriadoEm" TEXT NULL,
+    "CriadoPor" TEXT NULL,
+    "EditadoEm" TEXT NULL,
+    "EditadoPor" TEXT NULL,
+    "Nome" TEXT NOT NULL
+);
+
+INSERT INTO "ef_temp_Materias" ("Id", "CriadoEm", "CriadoPor", "EditadoEm", "EditadoPor", "Nome")
+SELECT "Id", "CriadoEm", "CriadoPor", "EditadoEm", "EditadoPor", "Nome"
+FROM "Materias";
+
+COMMIT;
+
+PRAGMA foreign_keys = 0;
+
+BEGIN TRANSACTION;
+
+DROP TABLE "Materias";
+
+ALTER TABLE "ef_temp_Materias" RENAME TO "Materias";
+
+COMMIT;
+
+PRAGMA foreign_keys = 1;
+
+BEGIN TRANSACTION;
+
+CREATE UNIQUE INDEX "IX_Materias_Nome" ON "Materias" ("Nome");
+
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('20250601015203_Update-Restrictions', '8.0.14');
+
+COMMIT;
+
 
