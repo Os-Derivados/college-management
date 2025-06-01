@@ -8,5 +8,6 @@ public interface IContextoMaterias : IContexto<Materia>
 	public Task LancarNota();
 	public Task EditarNota();
 	public Task VerCorpoDocente();
+	public Task CriarCorpoDocente();
 	public Task EditarCorpoDocente();
 }

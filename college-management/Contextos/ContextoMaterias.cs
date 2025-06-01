@@ -257,6 +257,11 @@ public class ContextoMaterias : Contexto<Materia>, IContextoMaterias
 		throw new NotImplementedException();
 	}
 
+	public Task CriarCorpoDocente()
+	{
+		throw new NotImplementedException();
+	}
+
 	public Task EditarCorpoDocente()
 	{
 		throw new NotImplementedException();

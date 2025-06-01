@@ -12,7 +12,7 @@ namespace college_management.Contextos;
 public abstract class Contexto<T> : IContexto<T> where T : Modelo
 {
 	protected readonly BaseDeDados BaseDeDados;
-	protected readonly Usuario     UsuarioContexto;
+	protected readonly Usuario UsuarioContexto;
 
 	protected Contexto(BaseDeDados baseDeDados, Usuario usuarioContexto)
 	{
@@ -37,7 +37,7 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 		var interfacesContexto = GetType().GetInterfaces();
 
 		var recurso = interfacesContexto.Select(t => t.GetMethod(nomeRecurso))
-		                                .FirstOrDefault(t => t is not null);
+										.FirstOrDefault(t => t is not null);
 
 		if (recurso is null)
 			throw new InvalidOperationException("Recurso inexistente");
@@ -90,6 +90,9 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 					.Modelo!,
 				{ } tipoMateria when tipoMateria == typeof(Materia) =>
 					BaseDeDados.Materias.ObterTodos().Modelo!,
+				{ } tipoTurma when tipoTurma == typeof(Turma) => BaseDeDados
+						.Turmas.ObterTodos()
+						.Modelo!,
 				_ => throw new InvalidOperationException(
 					"Tipo de modelo não suportado.")
 			};
@@ -102,8 +105,8 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 		var opcoes = ObterOpcoes();
 
 		MenuView menuRecursos = new("Menu Recursos",
-		                            $"Bem-vindo(a) ao recurso de {typeof(T).Name}.",
-		                            opcoes);
+									$"Bem-vindo(a) ao recurso de {typeof(T).Name}.",
+									opcoes);
 
 		menuRecursos.ConstruirLayout();
 		return menuRecursos;
@@ -118,12 +121,10 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 			recursosDisponiveis = typeof(T).Name switch
 			{
 				nameof(Usuario) => OperacoesContextos.RecursosEscritaUsuarios,
-				nameof(Curso)   => OperacoesContextos.RecursosEscritaCursos,
-				_ =>
-				[
-					..OperacoesContextos.RecursosLeitura,
-					..OperacoesContextos.RecursosEscrita
-				]
+				nameof(Curso) => OperacoesContextos.RecursosEscritaCursos,
+				nameof(Materia) => OperacoesContextos.RecursosEscritaMaterias,
+				nameof(Turma) => OperacoesContextos.RecursosEscritaTurmas,
+				_ => throw new InvalidOperationException("Tipo de modelo não suportado.")
 			};
 
 			return recursosDisponiveis;
@@ -132,8 +133,8 @@ public abstract class Contexto<T> : IContexto<T> where T : Modelo
 		recursosDisponiveis = typeof(T).Name switch
 		{
 			nameof(Usuario) => OperacoesContextos.RecursosLeituraUsuarios,
-			nameof(Curso)   => OperacoesContextos.RecursosLeituraCursos,
-			_               => OperacoesContextos.RecursosLeitura
+			nameof(Curso) => OperacoesContextos.RecursosLeituraCursos,
+			_ => OperacoesContextos.RecursosLeitura
 		};
 
 		return recursosDisponiveis;
