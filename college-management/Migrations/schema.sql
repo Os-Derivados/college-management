@@ -1502,4 +1502,139 @@ VALUES ('20250601015203_Update-Restrictions', '8.0.14');
 
 COMMIT;
 
+BEGIN TRANSACTION;
+
+CREATE TABLE "ef_temp_Avaliacoes" (
+    "MateriaId" INTEGER NOT NULL,
+    "AlunoId" INTEGER NOT NULL,
+    "CriadoEm" TEXT NULL,
+    "CriadoPor" TEXT NULL,
+    "EditadoEm" TEXT NULL,
+    "EditadoPor" TEXT NULL,
+    "P1" REAL NULL,
+    "P2" REAL NULL,
+    "P3" REAL NULL,
+    "Status" INTEGER NOT NULL,
+    CONSTRAINT "PK_Avaliacoes" PRIMARY KEY ("MateriaId", "AlunoId"),
+    CONSTRAINT "FK_Avaliacoes_Materias_MateriaId" FOREIGN KEY ("MateriaId") REFERENCES "Materias" ("Id") ON DELETE RESTRICT,
+    CONSTRAINT "FK_Avaliacoes_Usuarios_AlunoId" FOREIGN KEY ("AlunoId") REFERENCES "Usuarios" ("Id") ON DELETE RESTRICT
+);
+
+INSERT INTO "ef_temp_Avaliacoes" ("MateriaId", "AlunoId", "CriadoEm", "CriadoPor", "EditadoEm", "EditadoPor", "P1", "P2", "P3", "Status")
+SELECT "MateriaId", "AlunoId", "CriadoEm", "CriadoPor", "EditadoEm", "EditadoPor", "P1", "P2", "P3", "Status"
+FROM "Avaliacoes";
+
+CREATE TABLE "ef_temp_CorposDocentes" (
+    "DocenteId" INTEGER NOT NULL,
+    "MateriaId" INTEGER NOT NULL,
+    "CriadoEm" TEXT NULL,
+    "CriadoPor" TEXT NULL,
+    "EditadoEm" TEXT NULL,
+    "EditadoPor" TEXT NULL,
+    CONSTRAINT "PK_CorposDocentes" PRIMARY KEY ("DocenteId", "MateriaId"),
+    CONSTRAINT "FK_CorposDocentes_Materias_MateriaId" FOREIGN KEY ("MateriaId") REFERENCES "Materias" ("Id") ON DELETE RESTRICT,
+    CONSTRAINT "FK_CorposDocentes_Usuarios_DocenteId" FOREIGN KEY ("DocenteId") REFERENCES "Usuarios" ("Id") ON DELETE RESTRICT
+);
+
+INSERT INTO "ef_temp_CorposDocentes" ("DocenteId", "MateriaId", "CriadoEm", "CriadoPor", "EditadoEm", "EditadoPor")
+SELECT "DocenteId", "MateriaId", "CriadoEm", "CriadoPor", "EditadoEm", "EditadoPor"
+FROM "CorposDocentes";
+
+CREATE TABLE "ef_temp_GradesCurriculares" (
+    "CursoId" INTEGER NOT NULL,
+    "MateriaId" INTEGER NOT NULL,
+    "CriadoEm" TEXT NULL,
+    "CriadoPor" TEXT NULL,
+    "EditadoEm" TEXT NULL,
+    "EditadoPor" TEXT NULL,
+    CONSTRAINT "PK_GradesCurriculares" PRIMARY KEY ("CursoId", "MateriaId"),
+    CONSTRAINT "FK_GradesCurriculares_Cursos_CursoId" FOREIGN KEY ("CursoId") REFERENCES "Cursos" ("Id") ON DELETE RESTRICT,
+    CONSTRAINT "FK_GradesCurriculares_Materias_MateriaId" FOREIGN KEY ("MateriaId") REFERENCES "Materias" ("Id") ON DELETE RESTRICT
+);
+
+INSERT INTO "ef_temp_GradesCurriculares" ("CursoId", "MateriaId", "CriadoEm", "CriadoPor", "EditadoEm", "EditadoPor")
+SELECT "CursoId", "MateriaId", "CriadoEm", "CriadoPor", "EditadoEm", "EditadoPor"
+FROM "GradesCurriculares";
+
+CREATE TABLE "ef_temp_Matriculas" (
+    "CursoId" INTEGER NOT NULL,
+    "AlunoId" INTEGER NOT NULL,
+    "CriadoEm" TEXT NULL,
+    "CriadoPor" TEXT NULL,
+    "EditadoEm" TEXT NULL,
+    "EditadoPor" TEXT NULL,
+    "Modalidade" INTEGER NOT NULL,
+    "Periodo" INTEGER NOT NULL,
+    CONSTRAINT "PK_Matriculas" PRIMARY KEY ("CursoId", "AlunoId"),
+    CONSTRAINT "FK_Matriculas_Cursos_CursoId" FOREIGN KEY ("CursoId") REFERENCES "Cursos" ("Id") ON DELETE RESTRICT,
+    CONSTRAINT "FK_Matriculas_Usuarios_AlunoId" FOREIGN KEY ("AlunoId") REFERENCES "Usuarios" ("Id") ON DELETE RESTRICT
+);
+
+INSERT INTO "ef_temp_Matriculas" ("CursoId", "AlunoId", "CriadoEm", "CriadoPor", "EditadoEm", "EditadoPor", "Modalidade", "Periodo")
+SELECT "CursoId", "AlunoId", "CriadoEm", "CriadoPor", "EditadoEm", "EditadoPor", "Modalidade", "Periodo"
+FROM "Matriculas";
+
+CREATE TABLE "ef_temp_TurmaAlunos" (
+    "TurmaId" INTEGER NOT NULL,
+    "AlunoId" INTEGER NOT NULL,
+    "CriadoEm" TEXT NULL,
+    "CriadoPor" TEXT NULL,
+    "EditadoEm" TEXT NULL,
+    "EditadoPor" TEXT NULL,
+    CONSTRAINT "PK_TurmaAlunos" PRIMARY KEY ("TurmaId", "AlunoId"),
+    CONSTRAINT "FK_TurmaAlunos_Turmas_TurmaId" FOREIGN KEY ("TurmaId") REFERENCES "Turmas" ("Id") ON DELETE RESTRICT,
+    CONSTRAINT "FK_TurmaAlunos_Usuarios_AlunoId" FOREIGN KEY ("AlunoId") REFERENCES "Usuarios" ("Id") ON DELETE RESTRICT
+);
+
+INSERT INTO "ef_temp_TurmaAlunos" ("TurmaId", "AlunoId", "CriadoEm", "CriadoPor", "EditadoEm", "EditadoPor")
+SELECT "TurmaId", "AlunoId", "CriadoEm", "CriadoPor", "EditadoEm", "EditadoPor"
+FROM "TurmaAlunos";
+
+COMMIT;
+
+PRAGMA foreign_keys = 0;
+
+BEGIN TRANSACTION;
+
+DROP TABLE "Avaliacoes";
+
+ALTER TABLE "ef_temp_Avaliacoes" RENAME TO "Avaliacoes";
+
+DROP TABLE "CorposDocentes";
+
+ALTER TABLE "ef_temp_CorposDocentes" RENAME TO "CorposDocentes";
+
+DROP TABLE "GradesCurriculares";
+
+ALTER TABLE "ef_temp_GradesCurriculares" RENAME TO "GradesCurriculares";
+
+DROP TABLE "Matriculas";
+
+ALTER TABLE "ef_temp_Matriculas" RENAME TO "Matriculas";
+
+DROP TABLE "TurmaAlunos";
+
+ALTER TABLE "ef_temp_TurmaAlunos" RENAME TO "TurmaAlunos";
+
+COMMIT;
+
+PRAGMA foreign_keys = 1;
+
+BEGIN TRANSACTION;
+
+CREATE INDEX "IX_Avaliacoes_AlunoId" ON "Avaliacoes" ("AlunoId");
+
+CREATE INDEX "IX_CorposDocentes_MateriaId" ON "CorposDocentes" ("MateriaId");
+
+CREATE INDEX "IX_GradesCurriculares_MateriaId" ON "GradesCurriculares" ("MateriaId");
+
+CREATE INDEX "IX_Matriculas_AlunoId" ON "Matriculas" ("AlunoId");
+
+CREATE INDEX "IX_TurmaAlunos_AlunoId" ON "TurmaAlunos" ("AlunoId");
+
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('20250601021331_Fix-DeleteBehavior', '8.0.14');
+
+COMMIT;
+
 

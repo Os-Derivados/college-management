@@ -65,12 +65,14 @@ public class BancoDeDados : DbContext
 		builder.Entity<TurmaAluno>()
 			   .HasOne(ta => ta.Turma)
 			   .WithMany(t => t.TurmaAlunos)
-			   .HasForeignKey(ta => ta.TurmaId);
+			   .HasForeignKey(ta => ta.TurmaId)
+			   .OnDelete(DeleteBehavior.Restrict);
 
 		builder.Entity<TurmaAluno>()
 			   .HasOne(ta => ta.Aluno)
 			   .WithMany(t => t.TurmaAlunos)
-			   .HasForeignKey(ta => ta.AlunoId);
+			   .HasForeignKey(ta => ta.AlunoId)
+			   .OnDelete(DeleteBehavior.Restrict);
 
 		#endregion
 
@@ -81,12 +83,14 @@ public class BancoDeDados : DbContext
 		builder.Entity<Avaliacao>()
 			   .HasOne(a => a.Materia)
 			   .WithMany(c => c.Avaliacoes)
-			   .HasForeignKey(m => m.MateriaId);
+			   .HasForeignKey(m => m.MateriaId)
+			   .OnDelete(DeleteBehavior.Restrict);
 
 		builder.Entity<Avaliacao>()
 			   .HasOne(a => a.Aluno)
 			   .WithMany(a => a.Avaliacoes)
-			   .HasForeignKey(m => m.AlunoId);
+			   .HasForeignKey(m => m.AlunoId)
+			   .OnDelete(DeleteBehavior.Restrict);
 
 		builder.Entity<CorpoDocente>()
 			   .HasKey(cd => new { cd.DocenteId, cd.MateriaId });
@@ -94,12 +98,14 @@ public class BancoDeDados : DbContext
 		builder.Entity<CorpoDocente>()
 			   .HasOne(cd => cd.Docente)
 			   .WithMany(d => d.CorpoDocente)
-			   .HasForeignKey(cd => cd.DocenteId);
+			   .HasForeignKey(cd => cd.DocenteId)
+			   .OnDelete(DeleteBehavior.Restrict);
 
 		builder.Entity<CorpoDocente>()
 			   .HasOne(cd => cd.Materia)
 			   .WithMany(m => m.CorpoDocente)
-			   .HasForeignKey(cd => cd.MateriaId);
+			   .HasForeignKey(cd => cd.MateriaId)
+			   .OnDelete(DeleteBehavior.Restrict);
 
 		builder.Entity<GradeCurricular>()
 			   .HasKey(gc => new { gc.CursoId, gc.MateriaId });
@@ -107,12 +113,14 @@ public class BancoDeDados : DbContext
 		builder.Entity<GradeCurricular>()
 			   .HasOne(gc => gc.Curso)
 			   .WithMany(c => c.GradesCurriculares)
-			   .HasForeignKey(gc => gc.CursoId);
+			   .HasForeignKey(gc => gc.CursoId)
+			   .OnDelete(DeleteBehavior.Restrict);
 
 		builder.Entity<GradeCurricular>()
 			   .HasOne(gc => gc.Materia)
 			   .WithMany(m => m.GradesCurriculares)
-			   .HasForeignKey(gc => gc.MateriaId);
+			   .HasForeignKey(gc => gc.MateriaId)
+			   .OnDelete(DeleteBehavior.Restrict);
 		#endregion
 
 		#region Curso
@@ -123,12 +131,14 @@ public class BancoDeDados : DbContext
 		builder.Entity<Matricula>()
 			   .HasOne(m => m.Curso)
 			   .WithMany(c => c.Matriculas)
-			   .HasForeignKey(m => m.CursoId);
+			   .HasForeignKey(m => m.CursoId)
+			   .OnDelete(DeleteBehavior.Restrict);
 
 		builder.Entity<Matricula>()
 			   .HasOne(m => m.Aluno)
 			   .WithMany(a => a.Matriculas)
-			   .HasForeignKey(m => m.AlunoId);
+			   .HasForeignKey(m => m.AlunoId)
+			   .OnDelete(DeleteBehavior.Restrict);
 
 		#endregion
 
