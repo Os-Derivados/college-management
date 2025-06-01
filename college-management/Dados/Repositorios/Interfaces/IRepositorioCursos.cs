@@ -4,7 +4,7 @@ using college_management.Dados.Modelos;
 namespace college_management.Dados.Repositorios.Interfaces;
 
 
-public interface IRepositorioCursos
+public interface IRepositorioCursos : IRepositorio<Curso>
 {
 	public RespostaRecurso<Curso> ObterComMaterias(
 		uint? cursoId = null,
