@@ -27,6 +27,7 @@ serviceCollection.AddDbContext<BancoDeDados>(options =>
 serviceCollection.AddScoped<RepositorioCursos>();
 serviceCollection.AddScoped<RepositorioMaterias>();
 serviceCollection.AddScoped<RepositorioUsuarios>();
+serviceCollection.AddScoped<RepositorioTurmas>();
 serviceCollection.AddScoped<BaseDeDados>();
 
 var serviceProvider = serviceCollection.BuildServiceProvider();
