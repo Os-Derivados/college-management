@@ -143,14 +143,16 @@ public class BancoDeDados : DbContext
 
 		foreach (var entry in entries)
 		{
-			if (entry.State == EntityState.Added)
+			if (entry.State is EntityState.Added)
 			{
 				entry.Property("CriadoPor").CurrentValue = userLogin;
 				entry.Property("CriadoEm").CurrentValue = DateTime.Now;
 			}
-
-			entry.Property("EditadoPor").CurrentValue = userLogin;
-			entry.Property("EditadoEm").CurrentValue = DateTime.Now;
+			else if (entry.State is EntityState.Modified)
+			{
+				entry.Property("EditadoPor").CurrentValue = userLogin;
+				entry.Property("EditadoEm").CurrentValue = DateTime.Now;
+			}
 		}
 
 		return base.SaveChanges();
