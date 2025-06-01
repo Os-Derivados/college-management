@@ -16,10 +16,6 @@ public class ContextoUsuarios : Contexto<Usuario>, IContextoUsuarios
 	{
 	}
 
-	public void VerMatricula() { throw new NotImplementedException(); }
-
-	public void VerBoletim() { throw new NotImplementedException(); }
-
 	public override async Task Cadastrar()
 	{
 		if (!ValidarPermissoes()) return;
@@ -206,5 +202,10 @@ public class ContextoUsuarios : Contexto<Usuario>, IContextoUsuarios
 		DetalhesView detalhesUsuario = new("Usuário Encontrado", detalhes);
 		detalhesUsuario.ConstruirLayout();
 		detalhesUsuario.Exibir();
+	}
+
+	public Task AlterarSenha()
+	{
+		throw new NotImplementedException();
 	}
 }

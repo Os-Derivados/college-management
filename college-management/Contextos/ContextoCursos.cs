@@ -227,4 +227,24 @@ public class ContextoCursos : Contexto<Curso>, IContextoCursos
 
 		return detalhes;
 	}
+
+	public Task VerMatricula()
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task CriarMatricula()
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task CriarGradeCurricular()
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task EditarGradeCurricular()
+	{
+		throw new NotImplementedException();
+	}
 }

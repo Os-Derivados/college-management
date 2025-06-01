@@ -1,9 +1,9 @@
+using college_management.Dados.Modelos;
+
 namespace college_management.Contextos.Interfaces;
 
 
-public interface IContextoUsuarios
+public interface IContextoUsuarios : IContexto<Usuario>
 {
-	public void VerMatricula();
-
-	public void VerBoletim();
+	public Task AlterarSenha();
 }

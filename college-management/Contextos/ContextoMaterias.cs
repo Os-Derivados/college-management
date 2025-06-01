@@ -1,4 +1,5 @@
 using System.Text;
+using college_management.Contextos.Interfaces;
 using college_management.Dados;
 using college_management.Dados.Modelos;
 using college_management.Utilitarios;
@@ -8,7 +9,7 @@ using college_management.Views;
 namespace college_management.Contextos;
 
 
-public class ContextoMaterias : Contexto<Materia>
+public class ContextoMaterias : Contexto<Materia>, IContextoMaterias
 {
 	public ContextoMaterias(BaseDeDados baseDeDados, Usuario usuarioContexto) :
 		base(baseDeDados, usuarioContexto)
@@ -234,5 +235,30 @@ public class ContextoMaterias : Contexto<Materia>
 		DetalhesView detalhesMateria = new("Matéria Encontrada", detalhes);
 		detalhesMateria.ConstruirLayout();
 		detalhesMateria.Exibir();
+	}
+
+	public Task VerNotas()
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task LancarNota()
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task EditarNota()
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task VerCorpoDocente()
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task EditarCorpoDocente()
+	{
+		throw new NotImplementedException();
 	}
 }
