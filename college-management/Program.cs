@@ -1,4 +1,4 @@
-﻿using college_management.Dados;
+using college_management.Dados;
 using college_management.Dados.Contexto;
 using college_management.Dados.Repositorios;
 using college_management.Middlewares;
@@ -14,14 +14,14 @@ var serviceCollection = new ServiceCollection();
 
 serviceCollection.AddDbContext<BancoDeDados>(options =>
 {
-	options.UseSqlite(
-		       $"Data Source={Path.Combine(UtilitarioArquivos.DiretorioDados, "college_management.db")}")
-	       .EnableSensitiveDataLogging();
-	
-	#if DEBUG
+	options.UseLazyLoadingProxies()
+		.UseSqlite($"Data Source={Path.Combine(UtilitarioArquivos.DiretorioDados, "college_management.db")}")
+		.EnableSensitiveDataLogging();
+
+#if DEBUG
 	options.EnableSensitiveDataLogging()
-	       .LogTo(Console.WriteLine, LogLevel.Information);
-	#endif
+		.LogTo(Console.WriteLine, LogLevel.Information);
+#endif
 });
 
 serviceCollection.AddScoped<RepositorioCursos>();
@@ -56,7 +56,7 @@ if (!bool.TryParse(args[0], out var modoDesenvolvimento))
 
 var usuarioLogado
 	= MiddlewareAutenticacao.Autenticar(modoDesenvolvimento,
-	                                    baseDeDados.Usuarios);
+										baseDeDados.Usuarios);
 
 MiddlewareContexto.Inicializar(baseDeDados, usuarioLogado);
 
