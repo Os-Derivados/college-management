@@ -14,32 +14,61 @@ public static class OperacoesContextos
 		"Cadastrar",
 		"Editar",
 		"Excluir",
-        "Gerar Relatorio"
-    ];
+		"Gerar Relatorio"
+	];
 
 	public static readonly string[] RecursosLeituraUsuarios =
 	[
 		..RecursosLeitura,
-		"Ver Matricula",
-		"Ver Notas"
 	];
 
 	public static readonly string[] RecursosEscritaUsuarios =
 	[
 		..RecursosLeituraUsuarios,
 		..RecursosEscrita,
-		"Editar Matricula"
+		"Cadastrar Gestor",
+		"Cadastrar Docente",
+		"Cadastrar Aluno"
 	];
 
 	public static readonly string[] RecursosLeituraCursos =
 	[
 		..RecursosLeitura,
-		"Ver Grade Curricular"
+		"Ver Matriculas",
+		"Pesuisar Matricula",
+		"Ver Grade Curricular",
 	];
 
 	public static readonly string[] RecursosEscritaCursos =
 	[
 		..RecursosLeituraCursos,
-		..RecursosEscrita
+		..RecursosEscrita,
+		"Criar Matricula",
+		"Editar Matricula",
+		"Criar Grade Curricular",
+		"Editar Grade Curricular"
+	];
+
+	public static readonly string[] RecursosLeituraMaterias = [
+		..RecursosLeitura,
+		"Ver Notas",
+		"Ver Corpo Docente"
+	];
+
+	public static readonly string[] RecursosEscritaMaterias = [
+		..RecursosLeituraMaterias,
+		"Lancar Nota",
+		"Editar Nota",
+		"Criar Corpo Docente",
+		"Editar Corpo Docente"
+	];
+
+	public static readonly string[] RecursosLeituraTurmas = [
+		..RecursosLeitura,
+	];
+
+	public static readonly string[] RecursosEscritaTurmas = [
+		..RecursosLeituraTurmas,
+		..RecursosEscrita,
 	];
 }
